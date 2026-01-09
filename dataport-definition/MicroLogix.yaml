@@ -1,0 +1,713 @@
+﻿MicroLogix:
+  Target       : DataPort
+  ContentType  : Rules
+  Version      : 1.0
+  Date         : 2024-12-02
+  Description  : "Allen-Bradley Legacy PLC/SLC/MicroLogix (EtherNet/IP) – DataPort"
+  Author       : "ifm software gmbh"
+  MetadataType : YAML
+
+Root:
+  Id                       : "AllenBradleyLegacyEtherNetIP"
+  Name                     : "DataPort Allen-Bradley Classic – PLC-5/SLC/MicroLogix"
+  Description              : "DataPort for Allen-Bradley PLC-5/SLC-500/MicroLogix via EtherNet/IP with file-/word-based addressing"
+  Icons                    : ['allen-bradley-legacy']
+  ChildNodes               :
+    - Id                   : DEVICE
+      MaxDepth             : 64
+      MaxInstances         : 32
+
+Nodes:
+
+  # -------------------- DEVICE ------------------------------------------
+
+  - Id                     : DEVICE
+    Type                   : DataPortNode
+    Name                   : "Device"
+    Description            : "Allen-Bradley Legacy Device (PLC-5/SLC/MicroLogix)"
+    MetadataLength         : 0
+    Icons                  : ['device']
+    TransferDirections     : [ Outbound, Inbound ]
+    ChildNodes             :
+      - Id                 : FILES
+        Required           : true
+    PropertyCategories     :
+      - Id                 : Connection
+        Properties         :
+          - Id             : DeviceName
+            Required       : true
+          - Id             : IpAddress
+            Required       : true
+          - Id             : Slot
+            Required       : true
+
+  # -------------------- FILES -------------------------------------------
+
+  - Id                     : FILES
+    Type                   : DataPortTreeNode
+    Name                   : "Files"
+    Description            : "Data Files Container"
+    Icons                  : ['folder-files']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILETYPE_I
+      - Id                 : FILETYPE_O
+      - Id                 : FILETYPE_S
+      - Id                 : FILETYPE_B
+      - Id                 : FILETYPE_N
+      - Id                 : FILETYPE_F
+      - Id                 : FILETYPE_L
+      - Id                 : FILETYPE_T
+      - Id                 : FILETYPE_C
+      - Id                 : FILETYPE_R
+      - Id                 : FILETYPE_ST
+      - Id                 : FILETYPE_PD
+
+  # -------------------- FILETYPE (Input) --------------------------------
+
+  - Id                     : FILETYPE_I
+    Type                   : DataPortTreeNode
+    Name                   : "I (Input)"
+    Description            : "Input Files"
+    Icons                  : ['folder-input']
+    TransferModes          : [ None ]
+    TransferDirections     : [ Inbound ]
+    ChildNodes             :
+      - Id                 : FILENUM_I
+
+  - Id                     : FILENUM_I
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Input File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_IO
+
+  - Id                     : ELEMENT_IO
+    Type                   : DataPortTreeNode
+    Name                   : "Element"
+    Description            : "I/O Element (Slot.Word format, e.g., I:1.0)"
+    Icons                  : ['element']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : WORD_IO
+
+  - Id                     : WORD_IO
+    MappingId              : IOWord
+    Type                   : DataPortTreeNode
+    Name                   : "Word"
+    Description            : "I/O Word (16-bit, bit access: /0../15)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+  # -------------------- FILETYPE (Output) -------------------------------
+
+  - Id                     : FILETYPE_O
+    Type                   : DataPortTreeNode
+    Name                   : "O (Output)"
+    Description            : "Output Files"
+    Icons                  : ['folder-output']
+    TransferModes          : [ None ]
+    TransferDirections     : [ Outbound ]
+    ChildNodes             :
+      - Id                 : FILENUM_O
+
+  - Id                     : FILENUM_O
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Output File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_IO
+
+  # -------------------- FILETYPE (Status) -------------------------------
+
+  - Id                     : FILETYPE_S
+    Type                   : DataPortTreeNode
+    Name                   : "S (Status)"
+    Description            : "Status Files"
+    Icons                  : ['folder-status']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_S
+
+  - Id                     : FILENUM_S
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Status File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_WORD
+
+  # -------------------- FILETYPE (Binary) -------------------------------
+
+  - Id                     : FILETYPE_B
+    Type                   : DataPortTreeNode
+    Name                   : "B (Binary)"
+    Description            : "Binary/Bit Files"
+    Icons                  : ['folder-binary']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_B
+
+  - Id                     : FILENUM_B
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Binary File Number (e.g., B3)"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_WORD
+
+  # -------------------- FILETYPE (Integer) ------------------------------
+
+  - Id                     : FILETYPE_N
+    Type                   : DataPortTreeNode
+    Name                   : "N (Integer)"
+    Description            : "Integer Files"
+    Icons                  : ['folder-integer']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_N
+
+  - Id                     : FILENUM_N
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Integer File Number (e.g., N7)"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_WORD
+
+  # -------------------- FILETYPE (Float) --------------------------------
+
+  - Id                     : FILETYPE_F
+    Type                   : DataPortTreeNode
+    Name                   : "F (Float)"
+    Description            : "Float Files"
+    Icons                  : ['folder-float']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_F
+
+  - Id                     : FILENUM_F
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Float File Number (e.g., F8)"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_FLOAT
+
+  - Id                     : ELEMENT_FLOAT
+    MappingId              : FloatElement
+    Type                   : DataPortTreeNode
+    Name                   : "Element"
+    Description            : "Float Element (32-bit floating point)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Float32 ]
+
+  # -------------------- FILETYPE (Long) ---------------------------------
+
+  - Id                     : FILETYPE_L
+    Type                   : DataPortTreeNode
+    Name                   : "L (Long)"
+    Description            : "Long Integer Files (32-bit)"
+    Icons                  : ['folder-long']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_L
+
+  - Id                     : FILENUM_L
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Long File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_LONG
+
+  - Id                     : ELEMENT_LONG
+    MappingId              : LongElement
+    Type                   : DataPortTreeNode
+    Name                   : "Element"
+    Description            : "Long Integer Element (32-bit, bit access: /0../31)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int32 ]
+    BitAccess              : true
+    BitRange               : [0, 31]
+
+  # -------------------- FILETYPE (Timer) --------------------------------
+
+  - Id                     : FILETYPE_T
+    Type                   : DataPortTreeNode
+    Name                   : "T (Timer)"
+    Description            : "Timer Files"
+    Icons                  : ['folder-timer']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_T
+
+  - Id                     : FILENUM_T
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Timer File Number (e.g., T4)"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_T
+
+  - Id                     : ELEMENT_T
+    Type                   : DataPortTreeNode
+    Name                   : "Timer Element"
+    Description            : "Timer Structure Instance"
+    Icons                  : ['struct-timer']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FIELD_T_PRE
+      - Id                 : FIELD_T_ACC
+      - Id                 : FIELD_T_EN
+      - Id                 : FIELD_T_TT
+      - Id                 : FIELD_T_DN
+
+  - Id                     : FIELD_T_PRE
+    MappingId              : TimerField
+    Type                   : DataPortTreeNode
+    Name                   : "PRE"
+    Description            : "Preset Value (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+  - Id                     : FIELD_T_ACC
+    MappingId              : TimerField
+    Type                   : DataPortTreeNode
+    Name                   : "ACC"
+    Description            : "Accumulated Value (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+  - Id                     : FIELD_T_EN
+    MappingId              : TimerField
+    Type                   : DataPortTreeNode
+    Name                   : "EN"
+    Description            : "Enable Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_T_TT
+    MappingId              : TimerField
+    Type                   : DataPortTreeNode
+    Name                   : "TT"
+    Description            : "Timer Timing Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_T_DN
+    MappingId              : TimerField
+    Type                   : DataPortTreeNode
+    Name                   : "DN"
+    Description            : "Done Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  # -------------------- FILETYPE (Counter) ------------------------------
+
+  - Id                     : FILETYPE_C
+    Type                   : DataPortTreeNode
+    Name                   : "C (Counter)"
+    Description            : "Counter Files"
+    Icons                  : ['folder-counter']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_C
+
+  - Id                     : FILENUM_C
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Counter File Number (e.g., C5)"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_C
+
+  - Id                     : ELEMENT_C
+    Type                   : DataPortTreeNode
+    Name                   : "Counter Element"
+    Description            : "Counter Structure Instance"
+    Icons                  : ['struct-counter']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FIELD_C_PRE
+      - Id                 : FIELD_C_ACC
+      - Id                 : FIELD_C_CU
+      - Id                 : FIELD_C_CD
+      - Id                 : FIELD_C_DN
+      - Id                 : FIELD_C_OV
+      - Id                 : FIELD_C_UN
+      - Id                 : FIELD_C_UA
+
+  - Id                     : FIELD_C_PRE
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "PRE"
+    Description            : "Preset Value (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+  - Id                     : FIELD_C_ACC
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "ACC"
+    Description            : "Accumulated Value (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+  - Id                     : FIELD_C_CU
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "CU"
+    Description            : "Count Up Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_C_CD
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "CD"
+    Description            : "Count Down Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_C_DN
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "DN"
+    Description            : "Done Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_C_OV
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "OV"
+    Description            : "Overflow Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_C_UN
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "UN"
+    Description            : "Underflow Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_C_UA
+    MappingId              : CounterField
+    Type                   : DataPortTreeNode
+    Name                   : "UA"
+    Description            : "Update Accumulator Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  # -------------------- FILETYPE (Control) ------------------------------
+
+  - Id                     : FILETYPE_R
+    Type                   : DataPortTreeNode
+    Name                   : "R (Control)"
+    Description            : "Control Files"
+    Icons                  : ['folder-control']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_R
+
+  - Id                     : FILENUM_R
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "Control File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_R
+
+  - Id                     : ELEMENT_R
+    Type                   : DataPortTreeNode
+    Name                   : "Control Element"
+    Description            : "Control Structure Instance"
+    Icons                  : ['struct-control']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FIELD_R_LEN
+      - Id                 : FIELD_R_POS
+      - Id                 : FIELD_R_EN
+      - Id                 : FIELD_R_EU
+      - Id                 : FIELD_R_DN
+      - Id                 : FIELD_R_EM
+      - Id                 : FIELD_R_ER
+      - Id                 : FIELD_R_UL
+      - Id                 : FIELD_R_IN
+      - Id                 : FIELD_R_FD
+
+  - Id                     : FIELD_R_LEN
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "LEN"
+    Description            : "Length (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+
+  - Id                     : FIELD_R_POS
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "POS"
+    Description            : "Position (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+
+  - Id                     : FIELD_R_EN
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "EN"
+    Description            : "Enable Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_EU
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "EU"
+    Description            : "Enable Unload Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_DN
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "DN"
+    Description            : "Done Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_EM
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "EM"
+    Description            : "Empty Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_ER
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "ER"
+    Description            : "Error Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_UL
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "UL"
+    Description            : "Unload Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_IN
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "IN"
+    Description            : "Inhibit Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : FIELD_R_FD
+    MappingId              : ControlField
+    Type                   : DataPortTreeNode
+    Name                   : "FD"
+    Description            : "Found Bit"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+
+  # -------------------- FILETYPE (String) -------------------------------
+
+  - Id                     : FILETYPE_ST
+    Type                   : DataPortTreeNode
+    Name                   : "ST (String)"
+    Description            : "String Files"
+    Icons                  : ['folder-string']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_ST
+
+  - Id                     : FILENUM_ST
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "String File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_ST
+
+  - Id                     : ELEMENT_ST
+    Type                   : DataPortTreeNode
+    Name                   : "String Element"
+    Description            : "String Structure Instance"
+    Icons                  : ['struct-string']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FIELD_ST_LEN
+      - Id                 : FIELD_ST_DATA
+
+  - Id                     : FIELD_ST_LEN
+    MappingId              : StringField
+    Type                   : DataPortTreeNode
+    Name                   : "LEN"
+    Description            : "String Length (16-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+
+  - Id                     : FIELD_ST_DATA
+    Type                   : DataPortTreeNode
+    Name                   : "DATA"
+    Description            : "String Data Array"
+    Icons                  : ['array']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : INDEX_ST_DATA
+
+  - Id                     : INDEX_ST_DATA
+    MappingId              : StringData
+    Type                   : DataPortTreeNode
+    Name                   : "Character"
+    Description            : "String Character (8-bit)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ UInt8 ]
+
+  # -------------------- FILETYPE (PID) ----------------------------------
+
+  - Id                     : FILETYPE_PD
+    Type                   : DataPortTreeNode
+    Name                   : "PD (PID)"
+    Description            : "PID Control Files"
+    Icons                  : ['folder-pid']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FILENUM_PD
+
+  - Id                     : FILENUM_PD
+    Type                   : DataPortTreeNode
+    Name                   : "File Number"
+    Description            : "PID File Number"
+    Icons                  : ['file']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : ELEMENT_PD
+
+  - Id                     : ELEMENT_PD
+    Type                   : DataPortTreeNode
+    Name                   : "PID Element"
+    Description            : "PID Structure Instance (platform-specific fields)"
+    Icons                  : ['struct-pid']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : FIELD_PD_GENERIC
+
+  - Id                     : FIELD_PD_GENERIC
+    MappingId              : PIDField
+    Type                   : DataPortTreeNode
+    Name                   : "Field"
+    Description            : "PID Field (16-bit, platform-specific)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+
+  # -------------------- Generic ELEMENT (Word) --------------------------
+
+  - Id                     : ELEMENT_WORD
+    Type                   : DataPortTreeNode
+    Name                   : "Element"
+    Description            : "Word Element"
+    Icons                  : ['element']
+    TransferModes          : [ None ]
+    ChildNodes             :
+      - Id                 : WORD
+
+  - Id                     : WORD
+    MappingId              : Word
+    Type                   : DataPortTreeNode
+    Name                   : "Word"
+    Description            : "16-bit Word (bit access: /0../15)"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int16 ]
+    BitAccess              : true
+    BitRange               : [0, 15]
+
+PropertyCategories:
+  - Id          : Connection
+    Name        : "Connection"
+    Description : "Device connection properties"
+
+Properties:
+  - Id          : DeviceName
+    Name        : "Device Name"
+    Description : "Name of the Allen-Bradley Legacy device"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : IpAddress
+    Name        : "IP Address"
+    Description : "IP address of the device"
+    DataType    : String
+    UiControl   : TextBox
+    DefaultValue: "192.168.1.1"
+
+  - Id          : Slot
+    Name        : "Slot"
+    Description : "Slot number of the processor"
+    DataType    : UInt8
+    UiControl   : NumericUpDown
+    DefaultValue: 0
+    MinValue    : 0
+    MaxValue    : 16
