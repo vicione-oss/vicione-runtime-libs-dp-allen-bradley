@@ -1,0 +1,12 @@
+# Build output
+bin/
+obj/
+
+# NuGet
+*.user
+*.nuget.dgspec.json
+
+# Rider / VS
+.idea/
+.vs/
+*.DotSettings.user

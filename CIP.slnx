@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="TEST-DEVICE-SETUP.md" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ConnectivityTests/ConnectivityTests.csproj" />
+  </Folder>
+</Solution>
