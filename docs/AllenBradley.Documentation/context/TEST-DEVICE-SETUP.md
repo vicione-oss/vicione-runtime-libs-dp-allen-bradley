@@ -34,7 +34,7 @@ This document describes how to connect to the Allen-Bradley CompactLogix L32E us
 
 Once the Link Manager tunnel is active, the PLC should be reachable from your machine:
 
-```
+```sh
 ping 192.168.0.100
 ```
 
@@ -77,12 +77,12 @@ Override them if your setup differs.
 
 Run only E2E tests:
 
-```
+```sh
 dotnet test --filter "Category=E2E"
 ```
 
 Exclude E2E tests (e.g. in CI without device access):
 
-```
+```sh
 dotnet test --filter "Category!=E2E"
 ```

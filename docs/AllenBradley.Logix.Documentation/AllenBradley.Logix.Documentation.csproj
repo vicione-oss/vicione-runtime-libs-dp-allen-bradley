@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.56">
+
+  <!--
+    Logix (tag-based) port documentation container project.
+
+    This project compiles nothing and produces no output. Its only purpose is to
+    surface the Logix-specific docs (markdown, Excalidraw diagrams and their
+    exported SVGs, ADRs) in the IDE's Solution Explorer without hand-maintaining
+    file lists in allen-bradley.slnx. SDK-style projects render their on-disk
+    folder tree automatically, so new files appear on reload.
+
+    The Logix port covers the symbolic tag-addressing controllers (ControlLogix,
+    CompactLogix, GuardLogix, Micro800). Cross-port documentation lives in the
+    sibling AllenBradley.Documentation project; keep port-specific material here.
+
+    Microsoft.Build.NoTargets is used (instead of Microsoft.NET.Sdk) so nothing in
+    the tree is ever compiled.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!--
+    Surface this project's docs as None items. The docs follow the Diátaxis
+    framework, so markdown lives in nested folders (explanation/, how-to/,
+    reference/) alongside ADR/; a single recursive **/*.md glob picks all of them
+    up so a new Diátaxis folder appears on reload without editing this file.
+    diagrams/ is globbed separately for its non-markdown assets (.excalidraw, .svg).
+    None means the files are never compiled or copied — they just appear in
+    Solution Explorer. bin/obj are excluded everywhere.
+  -->
+  <ItemGroup>
+    <None Include="**/*.md" Exclude="**/bin/**;**/obj/**" />
+    <None Include="diagrams/**" Exclude="**/bin/**;**/obj/**;**/*.md" />
+  </ItemGroup>
+
+</Project>

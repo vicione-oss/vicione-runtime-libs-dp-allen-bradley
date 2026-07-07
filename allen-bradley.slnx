@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path=".markdownlint.json" />
+  </Folder>
+  <Folder Name="/docs/">
+    <Project Path="docs/AllenBradley.Documentation/AllenBradley.Documentation.csproj" />
+    <Project Path="docs/AllenBradley.Logix.Documentation/AllenBradley.Logix.Documentation.csproj" />
+    <Project Path="docs/AllenBradley.Legacy.Documentation/AllenBradley.Legacy.Documentation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ConnectivityTests/ConnectivityTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.56">
+
+  <!--
+    Shared (cross-port) documentation container project.
+
+    This project compiles nothing and produces no output. Its only purpose is to
+    surface the cross-port docs (the CIP/EtherNet-IP protocol background, the test
+    device context, these principles) in the IDE's Solution Explorer without
+    hand-maintaining file lists in allen-bradley.slnx. SDK-style projects render
+    their on-disk folder tree automatically, so new files appear on reload.
+
+    Port-specific documentation lives in its own sibling projects under docs/:
+    AllenBradley.Logix.Documentation and AllenBradley.Legacy.Documentation. Keep
+    everything surfaced here port-agnostic — it must be equally true of the Logix
+    (tag-based) and Legacy (PCCC/file-based) ports.
+
+    Microsoft.Build.NoTargets is used (instead of Microsoft.NET.Sdk) so nothing in
+    the tree is ever compiled.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <!--
+      This project compiles nothing. Should a repo-root Directory.Build.props ever
+      turn ImplicitUsings on, a NoTargets project would still make the SDK emit
+      obj/.../GlobalUsings.g.cs (and the TFM AssemblyAttributes.cs), which Rider
+      then flags as unresolved orphan source. Suppress both so no .cs is generated
+      under obj/.
+    -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!--
+    Surface this project's docs as None items, one top-level folder at a time.
+    Unlike Visual Studio, Rider only shows files that are actual project items by
+    default (on-disk-only files hide behind "Show All Files"), so each folder is
+    globbed in explicitly. None means the files are never compiled or copied — they
+    just appear in Solution Explorer. Listing folders one by one (rather than a
+    single **/* glob) keeps control explicit: a new top-level folder won't show up
+    until it is added here. bin/obj are excluded everywhere.
+  -->
+  <ItemGroup>
+    <None Include="*.md" />
+    <None Include="cip-protocol/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="context/**" Exclude="**/bin/**;**/obj/**" />
+  </ItemGroup>
+
+</Project>
