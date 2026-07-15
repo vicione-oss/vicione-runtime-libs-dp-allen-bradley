@@ -47,6 +47,7 @@
     <None Include="*.md" />
     <None Include="cip-protocol/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="context/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="process/**" Exclude="**/bin/**;**/obj/**" />
   </ItemGroup>
 
 </Project>

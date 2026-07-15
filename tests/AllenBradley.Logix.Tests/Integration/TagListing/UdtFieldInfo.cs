@@ -1,8 +1,8 @@
-namespace ConnectivityTests.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
 public class UdtFieldInfo
 {
-    public string Name { get; set; }
+    public required string Name { get; set; }
     public ushort Type { get; set; }
     public ushort Metadata { get; set; }
     public uint Offset { get; set; }

@@ -1,0 +1,26 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Test-suite selection: dotnet test [-p:test-suite=unit|integration|all]
+       Unit tests carry no trait, integration tests are marked Category=Integration.
+       Unset selects the unit suite, so a bare `dotnet test` never touches the PLC; any
+       value outside the whitelist fails the build (Validatetest-suite below). The unit
+       filter is additionally injected for unknown values so that even when validation
+       cannot run (e.g. with the no-build flag) a typo never runs tests against real
+       hardware. Simple-style filters (filter-trait & co.) are used instead of
+       filter-query because xUnit v3 rejects mixing the two styles, and simple-style
+       defaults still combine with ad-hoc CLI filters like filter-class. -->
+  <PropertyGroup Condition="'$(test-suite)' == 'integration'">
+    <TestingPlatformCommandLineArguments>--filter-trait Category=Integration</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(test-suite)' != 'integration' And '$(test-suite)' != 'all'">
+    <TestingPlatformCommandLineArguments>--filter-not-trait Category=Integration</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+  <Target Name="Validatetest-suite" BeforeTargets="BeforeBuild"
+          Condition="'$(test-suite)' != '' And '$(test-suite)' != 'unit' And '$(test-suite)' != 'integration' And '$(test-suite)' != 'all'">
+    <Error Text="Unknown test-suite '$(test-suite)'. Valid values: unit, integration, all." />
+  </Target>
+
+</Project>

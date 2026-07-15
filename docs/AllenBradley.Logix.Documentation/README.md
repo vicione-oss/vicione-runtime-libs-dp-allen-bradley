@@ -29,7 +29,7 @@ These pages cover only what the Logix port adds on top.
   [CIP data types reference](../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
   covers the wire formats, the Logix `STRING`/`TIMER` structures, and the symbol-type bitfield used
   when enumerating tags.
-- **Test device** — a real CompactLogix L32E is available for E2E testing; see
+- **Test device** — a real CompactLogix L32E is available for integration testing; see
   [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
 
 ## Components

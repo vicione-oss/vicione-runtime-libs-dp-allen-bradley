@@ -1,14 +1,13 @@
-using ConnectivityTests.TagListing;
-using Xunit.Abstractions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
-namespace ConnectivityTests;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
-[Trait("Category", "E2E")]
+[Trait("Category", "Integration")]
 public class PlcTagListingTests
 {
     // ── Connection configuration ──────────────────────────────────────────────
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path    = Environment.GetEnvironmentVariable("CIP_PATH")    ?? "1,0";
+    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
     // ─────────────────────────────────────────────────────────────────────────

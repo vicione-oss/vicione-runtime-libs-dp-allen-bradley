@@ -30,7 +30,7 @@ These pages cover only what the Legacy port adds on top.
 - **Data types** — the
   [CIP data-type support matrix](../AllenBradley.Documentation/cip-protocol/cip-datatype-support-matrix.md)
   lists which types each legacy family exposes and how PCCC file types map to them.
-- **Test device** — the E2E test rig currently targets a Logix controller; see
+- **Test device** — the integration test rig currently targets a Logix controller; see
   [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) for the
   connection model (a legacy device would be reached the same way, through the Link Manager tunnel).
 

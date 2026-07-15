@@ -61,13 +61,17 @@ testing.
 
 | Document | Description |
 |----------|-------------|
-| [context/TEST-DEVICE-SETUP.md](context/TEST-DEVICE-SETUP.md) | The Allen-Bradley CompactLogix L32E used for E2E testing: GateManager access, IP/backplane path, available tags, and how to run the tests |
+| [context/TEST-DEVICE-SETUP.md](context/TEST-DEVICE-SETUP.md) | The Allen-Bradley CompactLogix L32E used for integration testing: GateManager access, IP/backplane path, available tags, and how to run the tests |
 
 ## Developer process
 
 | Document | Description |
 |----------|-------------|
+| [process/](process/README.md) | How a dataport gets built, phase by phase. Phase 1, [Bootstrap the project](process/bootstrap-the-project.md), is written |
 | [documentation-principles.md](documentation-principles.md) | How these docs are organised; Diátaxis + the no-duplication rule |
+
+The repo-wide build conventions — test platform, package feeds, central package management — are
+documented in [`AGENTS.md`](../../AGENTS.md) at the repo root.
 
 ## Contributing to documentation
 

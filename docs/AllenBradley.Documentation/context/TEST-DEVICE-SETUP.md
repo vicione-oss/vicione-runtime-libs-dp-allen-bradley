@@ -1,6 +1,6 @@
 # Test Device Setup
 
-This document describes how to connect to the Allen-Bradley CompactLogix L32E used for E2E testing.
+This document describes how to connect to the Allen-Bradley CompactLogix L32E used for integration testing.
 
 ## Prerequisites
 
@@ -64,10 +64,10 @@ These are the user-defined tags accessible for testing. The full tag name is `Pr
 | `AL1x2x_IOLink:O` | 304 bytes | Output data to IO-Link master |
 | `AL1x2x_IOLink:C` | 108 bytes | IO-Link master configuration |
 
-## 4. Running the E2E Tests
+## 4. Running the Integration Tests
 
-The E2E tests connect to the PLC using environment variables with the defaults below.
-Override them if your setup differs.
+The integration tests live in `tests/AllenBradley.Logix.Tests/Integration/` and connect to the PLC
+using environment variables with the defaults below. Override them if your setup differs.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -75,14 +75,18 @@ Override them if your setup differs.
 | `CIP_PATH` | `1,0` | Backplane routing path |
 | `CIP_TAG_NAME` | `Program:MainProgram.strValue1` | Tag used for write/read round-trip |
 
-Run only E2E tests:
+Run only the integration tests (needs this device reachable):
 
 ```sh
-dotnet test --filter "Category=E2E"
+dotnet test -p:test-suite=integration
 ```
 
-Exclude E2E tests (e.g. in CI without device access):
+Run only the hardware-free tests (this is the default, and what CI runs):
 
 ```sh
-dotnet test --filter "Category!=E2E"
+dotnet test
 ```
+
+> The classic VSTest `--filter "Category=..."` syntax does **not** work in this repo. Tests run on
+> Microsoft Testing Platform with xUnit v3, and suites are selected through the `test-suite` MSBuild
+> property. See [AGENTS.md](../../../AGENTS.md).

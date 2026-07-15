@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ViciOne.Suite.DataPort.AllenBradley.Logix</RootNamespace>
+    <AssemblyName>ViciOne.Suite.DataPort.AllenBradley.Logix</AssemblyName>
+    <Description>DataPort for Allen-Bradley Logix PLCs (ControlLogix, CompactLogix) over CIP/EtherNet-IP.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ViciOne.Suite.DataPort" />
+    <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
+  </ItemGroup>
+
+</Project>

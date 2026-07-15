@@ -2,7 +2,7 @@ using System.Text;
 using libplctag;
 using libplctag.DataTypes;
 
-namespace ConnectivityTests.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
 public class TagInfoPlcMapper : IPlcMapper<TagInfo[]>
 {
@@ -11,7 +11,9 @@ public class TagInfoPlcMapper : IPlcMapper<TagInfo[]>
     public PlcType PlcType { get; set; }
 
     public int? ElementSize => null;
-    public int[] ArrayDimensions { get => null; set => throw new NotImplementedException("This plcMapper can only be used to read Tag Information"); }
+
+    // libplctag's interface is nullable-oblivious and treats null as "not an array".
+    public int[] ArrayDimensions { get => null!; set => throw new NotImplementedException("This plcMapper can only be used to read Tag Information"); }
 
     private static TagInfo Decode(Tag tag, int offset, out int elementSize)
     {

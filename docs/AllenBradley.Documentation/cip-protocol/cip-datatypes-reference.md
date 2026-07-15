@@ -202,7 +202,7 @@ When tags are enumerated (via the Symbol object, class `0x6B`), each tag carries
 | `0x0700` | 10–8  | when atomic: **bit position** for a BOOL aliased to a bit of a word |
 
 This is exactly the decomposition the in-tree tag lister uses —
-[`PlcTagLister.cs`](../../../tests/ConnectivityTests/TagListing/PlcTagLister.cs) defines
+[`PlcTagLister.cs`](../../../tests/AllenBradley.Logix.Tests/Integration/TagListing/PlcTagLister.cs) defines
 `TypeIsStruct = 0x8000`, `TypeIsSystem = 0x1000`, and `TypeUdtIdMask = 0x0FFF`. A structured tag
 with type `0x8000 | templateId` is followed up with a template read (`@udt/<templateId>`); the
 UDT id is `type & 0x0FFF`.
@@ -401,4 +401,4 @@ Readers only need to consume `.LEN` characters; the remaining `.DATA` bytes are 
 
 - [`cip-datatype-support-matrix.md`](cip-datatype-support-matrix.md) — which types exist per controller family
 - [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, tag services
-- [`../../../tests/ConnectivityTests/TagListing/PlcTagLister.cs`](../../../tests/ConnectivityTests/TagListing/PlcTagLister.cs) — in-tree decoder that uses the symbol-type masks in [§7](#7-aggregate--structured-types)
+- [`../../../tests/AllenBradley.Logix.Tests/Integration/TagListing/PlcTagLister.cs`](../../../tests/AllenBradley.Logix.Tests/Integration/TagListing/PlcTagLister.cs) — in-tree decoder that uses the symbol-type masks in [§7](#7-aggregate--structured-types)

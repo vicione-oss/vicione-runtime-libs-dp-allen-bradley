@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <DataPortVersion>1.0.0-ci2623299841</DataPortVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="AwesomeAssertions" Version="9.4.0" />
+    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="9.0.8" />
+    <PackageVersion Include="libplctag" Version="1.5.2" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.4.1" />
+    <PackageVersion Include="ViciOne.Suite.DataPort" Version="$(DataPortVersion)" />
+    <PackageVersion Include="ViciOne.Suite.DataPort.Extensions" Version="$(DataPortVersion)" />
+    <PackageVersion Include="ViciOne.Suite.DataPort.Extensions.Testing" Version="$(DataPortVersion)" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
+  </ItemGroup>
+</Project>

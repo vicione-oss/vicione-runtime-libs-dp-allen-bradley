@@ -1,38 +1,41 @@
 using libplctag;
 using libplctag.DataTypes;
 
-namespace ConnectivityTests.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
 public class PlcTagLister(string gateway, string path, TimeSpan timeout)
 {
-    private const ushort TypeIsStruct   = 0x8000;
-    private const ushort TypeIsSystem   = 0x1000;
+    private const ushort TypeIsStruct = 0x8000;
+    private const ushort TypeIsSystem = 0x1000;
     private const ushort TypeUdtIdMask = 0x0FFF;
 
     public PlcTagListing List()
     {
         var controllerTags = ReadControllerTags();
-        var programTags    = ReadProgramTags(controllerTags);
-        var udts           = ReadUdts(controllerTags);
+        var programTags = ReadProgramTags(controllerTags);
+        var udts = ReadUdts(controllerTags);
 
         return new PlcTagListing
         {
             ControllerTags = controllerTags,
-            ProgramTags    = programTags,
-            Udts           = udts
+            ProgramTags = programTags,
+            Udts = udts
         };
     }
 
+    // Every Tag must be disposed. It owns a handle in libplctag's native layer, and letting the
+    // finalizer release it means native code runs after the CLR has torn down, which fail-fasts
+    // the process on exit (exit code 0xC0000602) even when every test has passed.
     private TagInfo[] ReadControllerTags()
     {
-        var tag = new Tag<TagInfoPlcMapper, TagInfo[]>
+        using var tag = new Tag<TagInfoPlcMapper, TagInfo[]>
         {
-            Gateway  = gateway,
-            Path     = path,
-            PlcType  = PlcType.ControlLogix,
+            Gateway = gateway,
+            Path = path,
+            PlcType = PlcType.ControlLogix,
             Protocol = Protocol.ab_eip,
-            Name     = "@tags",
-            Timeout  = timeout
+            Name = "@tags",
+            Timeout = timeout
         };
 
         tag.Read();
@@ -45,14 +48,14 @@ public class PlcTagLister(string gateway, string path, TimeSpan timeout)
 
         foreach (var tag in controllerTags.Where(t => t.Name.StartsWith("Program:")))
         {
-            var programTag = new Tag<TagInfoPlcMapper, TagInfo[]>
+            using var programTag = new Tag<TagInfoPlcMapper, TagInfo[]>
             {
-                Gateway  = gateway,
-                Path     = path,
-                PlcType  = PlcType.ControlLogix,
+                Gateway = gateway,
+                Path = path,
+                PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
-                Name     = $"{tag.Name}.@tags",
-                Timeout  = timeout
+                Name = $"{tag.Name}.@tags",
+                Timeout = timeout
             };
 
             programTag.Read();
@@ -73,14 +76,14 @@ public class PlcTagLister(string gateway, string path, TimeSpan timeout)
 
         foreach (var udtId in udtIds)
         {
-            var udtTag = new Tag<UdtInfoPlcMapper, UdtInfo>
+            using var udtTag = new Tag<UdtInfoPlcMapper, UdtInfo>
             {
-                Gateway  = gateway,
-                Path     = path,
-                PlcType  = PlcType.ControlLogix,
+                Gateway = gateway,
+                Path = path,
+                PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
-                Name     = $"@udt/{udtId}",
-                Timeout  = timeout
+                Name = $"@udt/{udtId}",
+                Timeout = timeout
             };
 
             udtTag.Read();

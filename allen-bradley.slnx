@@ -1,14 +1,26 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path=".markdownlint.json" />
+    <File Path="AGENTS.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="NuGet.Config" />
+    <File Path="VERSION" />
+    <File Path="VERSION_CORE" />
   </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/AllenBradley.Documentation/AllenBradley.Documentation.csproj" />
     <Project Path="docs/AllenBradley.Logix.Documentation/AllenBradley.Logix.Documentation.csproj" />
     <Project Path="docs/AllenBradley.Legacy.Documentation/AllenBradley.Legacy.Documentation.csproj" />
   </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/AllenBradley.Logix/AllenBradley.Logix.csproj" />
+  </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/ConnectivityTests/ConnectivityTests.csproj" />
+    <File Path="tests/Directory.Build.props" />
+    <Project Path="tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj" />
   </Folder>
 </Solution>
