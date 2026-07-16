@@ -1,9 +1,14 @@
 # Allen-Bradley Logix DataPort
 
 Documentation for the **Logix** Allen-Bradley DataPort — **symbolic tag addressing** (e.g.
-`Motor.Speed`, `Arr[5]`) over **CIP / EtherNet/IP**. It targets the tag-based controller families:
-**ControlLogix**, **CompactLogix**, **GuardLogix** (programmed in Studio 5000 Logix Designer) and
-**Micro800** (programmed in Connected Components Workbench).
+`Motor.Speed`, `Arr[5]`) over **CIP / EtherNet/IP**. It targets the Logix controller family across
+**all its generations** — **ControlLogix**, **CompactLogix**, **GuardLogix**, **SoftLogix**,
+programmed in Studio 5000 Logix Designer — spanning both the classic type set and the extended one
+the 5x80 controllers add.
+
+**Micro800** (programmed in Connected Components Workbench) speaks the same symbolic tag protocol
+but is **not in scope**: whether it lands here as a device family or in a port of its own is an open
+decision, taken once Logix is done.
 
 This implementation builds on the reusable `ViciOne.Suite.DataPort.Extensions` base classes, which
 handle the generic data-port machinery (connection lifecycle, polling, write queuing, retry, value
@@ -12,15 +17,14 @@ These pages cover only what the Logix port adds on top.
 
 > **Status.** The Logix DataPort is not built yet. This project is scaffolded; the Diátaxis folders
 > below (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in as the implementation lands. Until
-> then the authoritative material is the addressing grammar and the protocol background linked below.
+> then the authoritative material is the protocol background linked below.
+>
+> **Addressing is an open design question.** How a configuration-tree node maps to a Logix tag string
+> is not specified anywhere in this repo, and no grammar should be assumed — it gets designed against
+> a real controller as the port is built, and documented here under `reference/` when it is.
 
 ## New here?
 
-- **Addressing** — how a tree node maps to a Logix tag string is specified in
-  [`Allen-Bradley Logix Adressierung.md`](../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md)
-  (EBNF grammar, structs/AOIs, arrays, bit suffixes). Micro800's tag grammar is documented in the
-  Micro800 section of the
-  [Legacy addressing doc](../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md).
 - **Protocol background** — start with the
   [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/cip-protocol/cip-networking-overview.md)
   for the wire stack, session registration, the CIP object model and EPATH, and how a Logix tag read

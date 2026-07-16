@@ -211,9 +211,7 @@ Instance `1`, Attribute `7`.
 For **named tags**, Logix controllers use the **ANSI Extended Symbol Segment** (`0x91`): the
 byte `0x91`, a length (character count), the ASCII name, and a `0x00` pad byte if the length is
 odd. So the tag `MyTag` becomes `91 05 4D 79 54 61 67 00`. Members (`Motor.Speed`) chain
-symbol segments; array elements (`Arr[5]`) append a member/element segment (`28 05`). The full
-symbolic addressing grammar is documented in the
-[Logix addressing doc](../../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md).
+symbol segments; array elements (`Arr[5]`) append a member/element segment (`28 05`).
 
 ## Connection setup sequence
 
@@ -352,8 +350,6 @@ CIP explicit message:
   `0xAA`/`0xAB` = write), which address a data file by **file number, element, sub-element**
   (`N7:0`, `T4:0.PRE`, …).
 
-The file-based addressing grammar and per-file layouts are documented in the
-[legacy addressing doc](../../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md).
 Controllers without native Ethernet (older PLC-5, SLC 5/03·5/04, MicroLogix 1000/1200/1500)
 reach EtherNet/IP through a bridge — a 1756-ENxT + 1756-DHRIO ControlLogix gateway, or a
 1761-NET-ENI serial converter — and the CIP route path hops through the bridge to the target
@@ -419,5 +415,3 @@ Mitigations for the classic (unsecured) case mirror those for any legacy PLC pro
 
 - [`cip-datatypes-reference.md`](cip-datatypes-reference.md) — CIP type codes and wire formats
 - [`cip-datatype-support-matrix.md`](cip-datatype-support-matrix.md) — which types exist per controller family
-- [`../../../dataport-definition/Allen-Bradley Logix Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md) — Logix symbolic addressing grammar
-- [`../../../dataport-definition/Allen-Bradley Legacy Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md) — legacy file-based addressing grammar

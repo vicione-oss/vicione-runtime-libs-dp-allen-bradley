@@ -44,16 +44,6 @@ PLC and protocol knowledge needed to understand the implementations. These docs 
 | [cip-protocol/cip-datatypes-reference.md](cip-protocol/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, ranges, .NET equivalents, the Logix `STRING`/`TIMER` structures, and the Logix symbol-type bitfield |
 | [cip-protocol/cip-datatype-support-matrix.md](cip-protocol/cip-datatype-support-matrix.md) | Which types exist per controller family (Logix, Micro800, legacy MicroLogix / SLC-500 / PLC-5) |
 
-### Addressing grammars — `dataport-definition/`
-
-How a tree node maps to a tag string or data-file address. These live alongside the dataport
-definitions, not here — one grammar per port:
-
-| Grammar | Location |
-|---------|----------|
-| Logix symbolic addressing (`"MyTag"`, `"Motor"."Speed"`, `"Arr"[5]`) | [`../../dataport-definition/Allen-Bradley Logix Adressierung.md`](../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md) |
-| Legacy PLC-5 / SLC / MicroLogix file addressing (`N7:0`, `T4:0.PRE`) and Micro800 | [`../../dataport-definition/Allen-Bradley Legacy Adressierung.md`](../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md) |
-
 ### Implementation context — `context/`
 
 Background material specific to this implementation: the test devices available for integration

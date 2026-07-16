@@ -10,3 +10,4 @@ obj/
 .idea/
 .vs/
 *.DotSettings.user
+/.claude/worktrees/

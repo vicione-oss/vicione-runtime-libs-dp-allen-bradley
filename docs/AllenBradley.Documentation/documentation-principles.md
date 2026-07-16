@@ -55,10 +55,6 @@ folders:
 - [`context/`](context/) — the test-device inventory and other material needed to run and understand
   the implementation.
 
-The **addressing grammars** — how a tree node maps to a tag string (Logix) or a data-file address
-(Legacy) — live alongside the dataport definitions in
-[`../../dataport-definition/`](../../dataport-definition/), one grammar per port.
-
 ---
 
 ## Don't duplicate the extensions docs

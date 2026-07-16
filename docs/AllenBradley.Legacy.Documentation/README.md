@@ -15,15 +15,14 @@ handle the generic data-port machinery (connection lifecycle, polling, write que
 validation, the typed-node framework). That machinery is **documented with the package**, not here.
 These pages cover only what the Legacy port adds on top.
 
-> **Status.** The Legacy DataPort is not built yet. This project is scaffolded; the Diátaxis folders
-> below (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in as the implementation lands. Until
-> then the authoritative material is the addressing grammar and the protocol background linked below.
+> **Status.** Nothing here is planned work. The roadmap builds the **Logix** port and nothing else;
+> whether the legacy families ever get a DataPort — and whether it lives here, in a separate port, or
+> in a separate repository — is an open decision with no owner yet. This project is scaffolded and the
+> content below is **protocol background only**. There is no addressing grammar in the repo; the
+> Diátaxis folders (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in only if the port is built.
 
 ## New here?
 
-- **Addressing** — the file-based grammar (`N7:0`, `T4:0.PRE`, bit suffixes, the tree ↔ address
-  mapping) is specified in
-  [`Allen-Bradley Legacy Adressierung.md`](../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md).
 - **Protocol background** — the
   [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/cip-protocol/cip-networking-overview.md)
   explains how PCCC is tunneled over EtherNet/IP and how a data-file read is framed on the wire.

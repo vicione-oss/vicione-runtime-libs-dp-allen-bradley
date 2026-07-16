@@ -92,9 +92,7 @@ numbered **data files** whose *type letter* fixes the element type:
 
 There is **no 8-bit, no unsigned, no 64-bit, and no `LREAL`** type. PLC-5 in particular has **no
 32-bit integer** — move data as 16-bit `INT`. Timer/counter status bits live in the element's
-control word (Timer: `EN`/`TT`/`DN`; Counter: `CU`/`CD`/`DN`/`OV`/`UN`/`UA`). The full
-file-addressing grammar is in the
-[legacy addressing doc](../../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md).
+control word (Timer: `EN`/`TT`/`DN`; Counter: `CU`/`CD`/`DN`/`OV`/`UN`/`UA`).
 
 **Native Ethernet** is model-specific: MicroLogix **1100/1400**, SLC **5/05**, and PLC-5 **`/xxE`**
 have it; the rest reach EtherNet/IP through a bridge (1756-ENxT + 1756-DHRIO ControlLogix
@@ -203,5 +201,3 @@ addressing model (symbolic tag vs. file/element) and the messaging service, not 
   ranges, .NET equivalents
 - [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, tag
   services, PCCC tunneling
-- [`../../../dataport-definition/Allen-Bradley Logix Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md) — Logix symbolic addressing grammar
-- [`../../../dataport-definition/Allen-Bradley Legacy Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md) — legacy file-based addressing grammar

@@ -11,15 +11,11 @@ codebase implements it. Each document says so explicitly at the top.
 | [cip-datatypes-reference.md](cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, encoding (little-endian), byte layout, ranges, .NET equivalents, the Logix `STRING`/`TIMER` structures, the Logix symbol-type bitfield, and byte-offset examples |
 | [cip-datatype-support-matrix.md](cip-datatype-support-matrix.md) | Which types exist per controller family (Logix, Micro800, legacy MicroLogix / SLC-500 / PLC-5); per-family programming tools, addressing model, and native protocol |
 
-## How this maps to the addressing grammars
+## What this folder is not
 
-The **addressing grammars** (how a tree node maps to a tag string or data-file address) live
-alongside the dataport definitions, not here:
-
-| Grammar | Location |
-|---------|----------|
-| Logix symbolic addressing (`"MyTag"`, `"Motor"."Speed"`, `"Arr"[5]`) | [`../../../dataport-definition/Allen-Bradley Logix Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Logix%20Adressierung.md) |
-| Legacy PLC-5 / SLC / MicroLogix file addressing (`N7:0`, `T4:0.PRE`) and Micro800 | [`../../../dataport-definition/Allen-Bradley Legacy Adressierung.md`](../../../dataport-definition/Allen-Bradley%20Legacy%20Adressierung.md) |
+There is no addressing grammar in the repo — how a configuration-tree node maps to a Logix tag
+string (`"MyTag"`, `"Motor"."Speed"`, `"Arr"[5]`) is a design question for the DataPort, and it
+will be settled against a real controller as the port is built.
 
 This `cip-protocol/` folder covers the layer **below** addressing: what CIP and EtherNet/IP
 are on the wire, and how the types those addresses point at are encoded. It is modelled on the
