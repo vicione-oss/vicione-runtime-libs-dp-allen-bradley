@@ -1,15 +1,15 @@
 using libplctag;
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
+
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
@@ -57,7 +57,7 @@ public class SharedAccessConcurrencyTests
         // Arrange
         var clientInformation = ClientInformation();
         var accessFactory = new LogixTagAccessFactory(clientInformation);
-        using var tagManager = new CachingLogixTagManager(
+        var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
         var first = CreateDInt(DintTagName);
         var second = CreateDInt(DintTagName);
@@ -66,7 +66,7 @@ public class SharedAccessConcurrencyTests
         var group = CreateGroup(first, second);
 
         // Act
-        await tagManager.LoadTagDefinitionsAsync(CancellationToken.None);
+        await readClient.ConnectAsync(CancellationToken.None);
         var values = await readClient.ReadAsync(group, CancellationToken.None);
 
         // Assert
