@@ -1,6 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
 /// <summary>
 /// Creates access to a data point's tag. Splitting creation from reuse keeps

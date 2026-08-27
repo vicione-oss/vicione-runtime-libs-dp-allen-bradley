@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
 /// <summary>
 /// Read/write access to one tag on the controller — the mockable seam over libplctag's sealed, native

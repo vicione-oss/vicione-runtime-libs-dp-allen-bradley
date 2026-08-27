@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Schema;

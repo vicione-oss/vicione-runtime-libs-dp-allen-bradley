@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 /// <summary>
 /// Owns the controller's symbol table and hands out one <see cref="ILogixTag"/> per data

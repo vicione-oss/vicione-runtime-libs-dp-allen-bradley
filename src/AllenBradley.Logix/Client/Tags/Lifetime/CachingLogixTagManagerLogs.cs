@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 internal static partial class CachingLogixTagManagerLogs
 {

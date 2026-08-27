@@ -1,6 +1,6 @@
 using libplctag;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
 // ILogixTagAccess over a libplctag Tag — the adapter that binds the client stack to the native
 // library (ADR-001). Each member runs one whole exchange (read + size + buffer out, buffer in +

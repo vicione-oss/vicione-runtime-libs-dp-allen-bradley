@@ -1,6 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 /// <summary>
 /// Owns the controller's symbol table and resolves the <see cref="ILogixTag"/> for a data

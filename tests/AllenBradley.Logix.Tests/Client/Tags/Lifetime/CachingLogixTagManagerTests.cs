@@ -2,11 +2,13 @@ using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
 /// <summary>
 /// The reuse rules of <see cref="CachingLogixTagManager"/> and the schema it now owns, exercised

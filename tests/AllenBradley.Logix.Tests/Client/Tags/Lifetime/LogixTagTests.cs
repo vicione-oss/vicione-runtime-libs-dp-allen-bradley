@@ -1,9 +1,11 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
 /// <summary>
 /// <see cref="LogixTag"/> is the join: it surfaces the data point and its metadata, and passes

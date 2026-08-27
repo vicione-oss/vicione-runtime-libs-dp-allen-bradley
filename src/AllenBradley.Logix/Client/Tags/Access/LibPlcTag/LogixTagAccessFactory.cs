@@ -2,7 +2,7 @@ using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
 /// <summary>
 /// Builds libplctag-backed access for the controller identified by <paramref name="clientInformation"/>:

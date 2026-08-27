@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;

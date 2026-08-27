@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Access;
 
 /// <summary>
 /// That a shared access runs one operation at a time. A cached access is reachable from the read and the

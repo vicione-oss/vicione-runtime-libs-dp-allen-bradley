@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
 // One operation at a time on a shared access. The cache hands the same access to every data point
 // naming the tag, so a read and a write can reach it at once — and overlapping operations on one

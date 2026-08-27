@@ -1,7 +1,8 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 /// <summary>
 /// The production <see cref="ILogixTag"/>: it joins the data point and the controller's
