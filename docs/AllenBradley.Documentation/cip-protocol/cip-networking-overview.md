@@ -218,7 +218,7 @@ symbol segments; array elements (`Arr[5]`) append a member/element segment (`28 
 A client establishes explicit messaging in two or three phases:
 
 ```text
-Client                                           PLC (ControlLogix / CompactLogix / …)
+Client                                           Controller (ControlLogix / CompactLogix / …)
       │                                                  │
       │─── TCP SYN ─────────────────────────────────────►│
       │◄── TCP SYN-ACK ──────────────────────────────────│
@@ -281,15 +281,20 @@ connection lifecycle:
 > = Forward Close; on the **Symbol (tag) object**, `0x52` = Read Tag Fragmented and `0x4E` =
 > Read-Modify-Write. Always resolve a service code against its target object class.
 
-**Route path (backplane routing).** A ControlLogix request arriving at the Ethernet module must
-cross the chassis backplane to reach the CPU. This is expressed as a **port segment**:
+**Route path (backplane routing).** The module that terminates the EtherNet/IP session is not
+necessarily the controller — in a ControlLogix chassis the Ethernet module and the controller sit
+in different slots — so a request carries a **route path** telling each device it reaches how to
+forward it onward. Each hop is a **port segment**: a port number naming the network to leave by,
+followed by a link address on that network.
 
 - `01 00` = **port 1 (backplane), link address 0 (slot 0)** — the familiar "**1,0**".
 - Multi-hop routes chain port segments (out an Ethernet port, across a backplane, to another
-  module).
+  module). Each device consumes the hop that names it and forwards the remainder.
 
-This is exactly the `Path = "1,0"` seen in libplctag-style client configuration: it routes from
-the Ethernet interface (port 1 = backplane) to the processor in slot 0.
+This is exactly the `Path = "1,0"` seen in libplctag-style client configuration. What the port
+numbers and link addresses mean physically, and which path each controller family conventionally
+takes, is in
+[Controller families, chassis, and route paths](controller-families-and-routing.md).
 
 ## CIP message-router request/reply format
 
@@ -414,4 +419,6 @@ Mitigations for the classic (unsecured) case mirror those for any legacy PLC pro
 ### Related in-tree docs
 
 - [`cip-datatypes-reference.md`](cip-datatypes-reference.md) — CIP type codes and wire formats
-- [`cip-datatype-support-matrix.md`](cip-datatype-support-matrix.md) — which types exist per controller family
+- [`symbolic-tag-data-types.md`](symbolic-tag-data-types.md) — the types the tag-addressed families
+  expose, and the symbol table that names them
+- [`pccc-data-file-types.md`](pccc-data-file-types.md) — the data-file types of the legacy families

@@ -89,6 +89,7 @@ Comprehensive documentation ships inside the NuGet packages themselves.
 
 | Topic                      | Location                                                                                                                     |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| **Ubiquitous language**    | [CONTEXT.md](CONTEXT.md) — **read before naming anything**                                                                   |
 | Documentation index        | [docs/AllenBradley.Documentation/README.md](docs/AllenBradley.Documentation/README.md)                                       |
 | Documentation principles   | [docs/AllenBradley.Documentation/documentation-principles.md](docs/AllenBradley.Documentation/documentation-principles.md)   |
 | Modelling conventions      | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)         |

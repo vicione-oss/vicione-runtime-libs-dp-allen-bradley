@@ -7,6 +7,10 @@ context needed to understand them, and links out to the package for the shared m
 than repeating it. See [documentation-principles.md](documentation-principles.md) for how the docs
 are organised and the rules for adding to them.
 
+The words these docs use are not chosen freely: [`CONTEXT.md`](../../CONTEXT.md) at the repo root is
+the glossary, and it is the authority when Rockwell, ODVA and libplctag disagree about what to call
+something — which they often do.
+
 The `docs/` tree mirrors the eventual `src/` and `tests/`: each documentation project lives in its
 own folder. This project, **AllenBradley.Documentation**, holds the cross-port material; port-specific
 docs live in the sibling **AllenBradley.Logix.Documentation** and **AllenBradley.Legacy.Documentation**
@@ -23,11 +27,17 @@ driver in Studio 5000, Kepware, or Ignition. The two ports split by addressing p
 
 | Port        | Controllers                                             | Addressing                              | Programmed in                         | Start here                                                                 |
 |-------------|---------------------------------------------------------|-----------------------------------------|---------------------------------------|----------------------------------------------------------------------------|
-| **Logix**   | ControlLogix, CompactLogix, GuardLogix, Micro800        | Symbolic tags (`Motor.Speed`, `Arr[5]`) | Studio 5000 · Connected Components Workbench | [AllenBradley.Logix.Documentation](../AllenBradley.Logix.Documentation/README.md)   |
+| **Logix**   | ControlLogix, CompactLogix, GuardLogix, SoftLogix       | Symbolic tags (`Motor.Speed`, `Arr[5]`) | Studio 5000 Logix Designer            | [AllenBradley.Logix.Documentation](../AllenBradley.Logix.Documentation/README.md)   |
 | **Legacy**  | PLC-5, SLC 500, MicroLogix                              | File / data-table (`N7:0`, `T4:0.PRE`) over PCCC | RSLogix 5 · RSLogix 500        | [AllenBradley.Legacy.Documentation](../AllenBradley.Legacy.Documentation/README.md) |
 
 Both ports speak **CIP over EtherNet/IP** on the wire; the Legacy port tunnels **PCCC** inside it. The
 protocol is documented once, below, and shared by both ports.
+
+**Micro800** belongs to neither yet. It addresses tags symbolically rather than by data file, so it is
+not a Legacy controller, but it has no program scope and no tag listing, so it is not a drop-in Logix
+device either. Whether it lands in the Logix port as a device family or in a port of its own is an open
+decision, taken once Logix is done. The controller lines and what separates them are covered in
+[controller families and routing](cip-protocol/controller-families-and-routing.md).
 
 ## Cross-port material (this project)
 
@@ -41,8 +51,10 @@ PLC and protocol knowledge needed to understand the implementations. These docs 
 |----------|-------------|
 | [cip-protocol/](cip-protocol/README.md) | Index of all CIP background docs |
 | [cip-protocol/cip-networking-overview.md](cip-protocol/cip-networking-overview.md) | Protocol landscape, encapsulation wire stack (TCP 44818 / UDP 2222), session registration, the CIP object model and EPATH, connected vs. unconnected messaging, Forward Open and backplane routing, PCCC tunneling, security |
-| [cip-protocol/cip-datatypes-reference.md](cip-protocol/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, ranges, .NET equivalents, the Logix `STRING`/`TIMER` structures, and the Logix symbol-type bitfield |
-| [cip-protocol/cip-datatype-support-matrix.md](cip-protocol/cip-datatype-support-matrix.md) | Which types exist per controller family (Logix, Micro800, legacy MicroLogix / SLC-500 / PLC-5) |
+| [cip-protocol/cip-datatypes-reference.md](cip-protocol/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, byte layout, ranges, and .NET equivalents |
+| [cip-protocol/symbolic-tag-data-types.md](cip-protocol/symbolic-tag-data-types.md) | The types the tag-addressed families expose (Logix, Micro800), the Logix `STRING`/`TIMER` structures, BOOL packing, the symbol-type bitfield, and the `@tags` listing entry |
+| [cip-protocol/pccc-data-file-types.md](cip-protocol/pccc-data-file-types.md) | The data-file types of the file-addressed families (MicroLogix, SLC 500, PLC-5): file letters, element layouts, and what these families lack |
+| [cip-protocol/controller-families-and-routing.md](cip-protocol/controller-families-and-routing.md) | The controller lines and their two form factors, chassis / slot / backplane, the backplane as a CIP network, building a route path hop by hop, and the conventional path per family |
 
 ### libplctag behaviour — `libPlcTag/`
 
@@ -73,6 +85,7 @@ testing.
 | [process/](process/README.md) | How a dataport gets built, phase by phase. Phase 1, [Bootstrap the project](process/bootstrap-the-project.md), is written |
 | [documentation-principles.md](documentation-principles.md) | How these docs are organised; Diátaxis + the no-duplication rule |
 | [modelling-conventions.md](modelling-conventions.md) | The types we define are `readonly record struct`s or `enum`s, never bare primitives |
+| [CONTEXT.md](../../CONTEXT.md) | The ubiquitous language — Rockwell's and ODVA's words for the tag model and for reaching a controller, and the ones we avoid |
 
 The repo-wide build conventions — test platform, package feeds, central package management — are
 documented in [`AGENTS.md`](../../AGENTS.md) at the repo root.

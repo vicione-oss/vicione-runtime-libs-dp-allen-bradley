@@ -26,9 +26,10 @@ These pages cover only what the Legacy port adds on top.
 - **Protocol background** — the
   [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/cip-protocol/cip-networking-overview.md)
   explains how PCCC is tunneled over EtherNet/IP and how a data-file read is framed on the wire.
-- **Data types** — the
-  [CIP data-type support matrix](../AllenBradley.Documentation/cip-protocol/cip-datatype-support-matrix.md)
-  lists which types each legacy family exposes and how PCCC file types map to them.
+- **Data types** —
+  [PCCC data-file types](../AllenBradley.Documentation/cip-protocol/pccc-data-file-types.md)
+  lists which types each legacy family exposes, how the file letters map to CIP and .NET types, and
+  how Timer, Counter, and string elements are laid out.
 - **Test device** — the integration test rig currently targets a Logix controller; see
   [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) for the
   connection model (a legacy device would be reached the same way, through the Link Manager tunnel).

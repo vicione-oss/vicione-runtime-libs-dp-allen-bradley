@@ -34,7 +34,7 @@ The documentation is split across sibling projects that mirror the eventual `src
 | Project                                                                          | Holds                                                                       |
 |----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | **AllenBradley.Documentation** (this project)                                    | Cross-port material: the hub, these principles, `cip-protocol/`, `context/`, and process docs |
-| [**AllenBradley.Logix.Documentation**](../AllenBradley.Logix.Documentation/README.md)  | The Logix port — symbolic tag addressing (ControlLogix, CompactLogix, GuardLogix, Micro800) |
+| [**AllenBradley.Logix.Documentation**](../AllenBradley.Logix.Documentation/README.md)  | The Logix port — symbolic tag addressing (ControlLogix, CompactLogix, GuardLogix, SoftLogix) |
 | [**AllenBradley.Legacy.Documentation**](../AllenBradley.Legacy.Documentation/README.md) | The Legacy port — file/data-table addressing over PCCC (PLC-5, SLC 500, MicroLogix) |
 
 Each port project organises its content into Diátaxis folders:

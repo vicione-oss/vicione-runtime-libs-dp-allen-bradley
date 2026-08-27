@@ -8,8 +8,10 @@ codebase implements it. Each document says so explicitly at the top.
 | Document | Description |
 |----------|-------------|
 | [cip-networking-overview.md](cip-networking-overview.md) | Protocol landscape (CIP / EtherNet/IP / PCCC), the encapsulation wire stack (TCP 44818 / UDP 2222), session registration, the CIP object model and EPATH, connected vs. unconnected messaging, Forward Open and backplane routing, message-router request/reply format, security considerations |
-| [cip-datatypes-reference.md](cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, encoding (little-endian), byte layout, ranges, .NET equivalents, the Logix `STRING`/`TIMER` structures, the Logix symbol-type bitfield, and byte-offset examples |
-| [cip-datatype-support-matrix.md](cip-datatype-support-matrix.md) | Which types exist per controller family (Logix, Micro800, legacy MicroLogix / SLC-500 / PLC-5); per-family programming tools, addressing model, and native protocol |
+| [cip-datatypes-reference.md](cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, encoding (little-endian), byte layout, ranges, .NET equivalents, and byte-offset examples |
+| [symbolic-tag-data-types.md](symbolic-tag-data-types.md) | Which types the **tag-addressed** families expose (Logix classic and 5x80, Micro800), the Logix `STRING`/`TIMER`/`COUNTER` structures, BOOL packing, the symbol-type bitfield, and the `@tags` listing entry |
+| [pccc-data-file-types.md](pccc-data-file-types.md) | Which types the **file-addressed** families expose (MicroLogix, SLC 500, PLC-5): file letters and element sizes, Timer/Counter/Control layouts, the `ST` string element, and what these families lack |
+| [controller-families-and-routing.md](controller-families-and-routing.md) | The controller lines and their two form factors, their programming tools and access services, what chassis / slot / backplane mean, why the backplane is a CIP network, how a route path is built hop by hop, and the conventional path per family |
 
 ## What this folder is not
 
