@@ -122,6 +122,12 @@ numbers. And the client-lifecycle work must stay able to grow a per-class connec
 rewrite, so it must not treat per-device scoping as the only axis. What that split would involve is
 spelled out under Option 2 below.
 
+That lifecycle work has since landed. `LogixClientPool` reference-counts one client per
+`LogixClientInformation` and knows nothing else about scoping, so Option 2 is a change to that record
+— it would gain the poll class — and to the mapper that builds it. Nothing in the pool, the factory or
+the tag manager would have to move. The per-operation timeout now rides on the same record, which is
+where the sizing this ADR asks for will be configured.
+
 ### Enforcement
 
 Compliance is a code-review check on the factory. `LogixTagAccessFactory` sets only the typed

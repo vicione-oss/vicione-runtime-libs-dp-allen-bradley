@@ -71,6 +71,28 @@ public class SynchronizedLogixTagAccessTests
     }
 
     [Fact]
+    public async Task CreateNewWriteBuffer_WhileAReadIsInFlight_StillAnswers()
+    {
+        // Arrange
+        var inner = new BlockingTagAccess();
+        using var access = new SynchronizedLogixTagAccess(inner);
+        var read = access.ReadAsync(CancellationToken.None);
+        await inner.Entered;
+
+        // Act
+        // The write batch asks for the buffer while building itself, before it has any operation of its
+        // own to run. Gating this member would make that call wait on a read it does not conflict with —
+        // it reads no handle state — and a synchronous wait on the async gate would deadlock, not queue.
+        var buffer = access.CreateNewWriteBuffer();
+
+        // Assert
+        buffer.Should().HaveCount(BlockingTagAccess.BufferSize);
+
+        inner.Release();
+        await read;
+    }
+
+    [Fact]
     public void Dispose_DisposesTheInnerAccess()
     {
         // Arrange
@@ -88,6 +110,8 @@ public class SynchronizedLogixTagAccessTests
     // timing: it records the high-water mark of concurrent callers.
     private sealed class BlockingTagAccess : ILogixTagAccess
     {
+        internal const int BufferSize = 4;
+
         private readonly TaskCompletionSource _released = new();
         private readonly TaskCompletionSource _entered = new();
         private int _inFlight;
@@ -112,6 +136,7 @@ public class SynchronizedLogixTagAccessTests
             return LogixTagWriteResult.Ok();
         }
 
+        // Allocating a buffer touches no handle state, so it does not block with the rest.
         public byte[] CreateNewWriteBuffer() => new byte[sizeof(int)];
 
         public void Dispose() => IsDisposed = true;

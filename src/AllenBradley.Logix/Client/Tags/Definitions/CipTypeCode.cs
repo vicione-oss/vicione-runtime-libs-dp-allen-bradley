@@ -6,8 +6,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// <remarks>
 /// Values are the one-byte CIP type codes (<c>0xC1</c>–<c>0xCB</c> for the elementary types).
 /// Structured types — the Logix <c>STRING</c>, <c>TIMER</c> and every UDT — are reported with the
-/// <c>0x8000</c> structure marker instead and are not modelled here. See the CIP data types
-/// reference for the full table.
+/// <c>0x8000</c> structure marker instead and are not modelled here. See the CIP data types reference
+/// for the full table.
+/// <para>
+/// These are wire codes, so they stay in the decoder: <see cref="CipTypeCodeExtensions.ToDataType"/>
+/// turns one into the <see cref="AllenBradleyDataType"/> the model speaks in, and nothing above the
+/// decoder sees a code again.
+/// </para>
 /// </remarks>
 internal enum CipTypeCode : byte
 {

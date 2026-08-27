@@ -14,13 +14,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// case-insensitive match is the injected dictionary's — key it with
 /// <see cref="TagName.CaseInsensitiveComparer"/>.
 /// </remarks>
-internal sealed class TagDefinitions(IReadOnlyDictionary<TagName, TagDefinition> declarationsByTagName)
+internal sealed class TagDefinitions(IReadOnlyDictionary<TagName, TagDefinition> tagDefinitions)
 {
     /// <summary>The controller's declaration for <paramref name="tagName"/>, or <c>null</c> when absent.</summary>
     public TagDefinition? Lookup(TagName tagName) =>
-        declarationsByTagName.TryGetValue(tagName, out var declaration) ? declaration : null;
-
-    /// <summary>Pairs <paramref name="dataPoint"/> with the controller's declaration for its tag.</summary>
-    public ResolvedDataPoint Resolve(ILogixDataPoint dataPoint) =>
-        new(dataPoint, Lookup(dataPoint.TagName));
+        tagDefinitions.TryGetValue(tagName, out var declaration) ? declaration : null;
 }

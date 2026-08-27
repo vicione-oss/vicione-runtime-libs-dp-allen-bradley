@@ -1,6 +1,5 @@
 using System.Globalization;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -11,43 +10,36 @@ using ViciOne.Suite.DataPort.Extensions.Verification;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 /// <summary>
-/// Verifies configured data points against the controller's actual symbol table by projecting off the
-/// tag manager: it loads the schema once, gets the tag per data point, and reports the tags
-/// whose declared type, shape or very existence disagrees with the configuration. This is what
-/// <c>CreateConfigurationVerifier</c> returns, so a misconfigured tag aborts the connect-process.
+/// Verifies configured data points against the controller's actual tag-definitions: it asks the client to
+/// resolve each data point against the metadata on the device and reports the tags whose declared type, shape or very
+/// existence disagrees with the configuration. This is what <c>CreateConfigurationVerifier</c> returns,
+/// so a misconfigured tag aborts the connect-process.
 /// </summary>
-/// <remarks>
-/// The manager owns the one browse of the symbol table (ADR-002), so the verifier is a projection of its
-/// tags — <c>(tag.DataPoint, tag.Metadata)</c> — not a second browser: the schema the poll reads
-/// from is the schema verified.
-/// </remarks>
-/// <param name="tagManager">Owns the controller schema and joins it onto each data point's tag.</param>
-internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
+internal sealed class LogixConfigurationVerifier(ILogixClient client)
     : IDataPointConfigurationVerifier<ILogixDataPoint>
 {
     /// <summary>
-    /// Loads the schema, then returns one entry per <b>misconfigured</b> data point; a fully matching
-    /// configuration returns an empty list.
+    /// Resolves every data point against the metadata on the device, then returns one entry per
+    /// <b>misconfigured</b> one; a fully matching configuration returns an empty list.
     /// </summary>
-    /// <exception cref="DataRetrievalException">The symbol table could not be browsed.</exception>
+    /// <remarks>
+    /// The dataport base builds this verifier from the client it has just connected, so the symbol table
+    /// is already browsed and nothing here touches the device.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     public async ValueTask<IReadOnlyList<MisconfiguredDataPoint<ILogixDataPoint>>> Verify(
         IReadOnlyList<ILogixDataPoint> dataPoints, CancellationToken cancellationToken)
     {
-        // Idempotent, and the same load the poll relies on: verification doubles as the schema warm-up.
-        await tagManager.LoadTagDefinitionsAsync(cancellationToken).ConfigureAwait(false);
+        var resolvedDataPoints = await client.ResolveDataPoints(dataPoints, cancellationToken)
+            .ConfigureAwait(false);
 
-        var misconfigured = new List<MisconfiguredDataPoint<ILogixDataPoint>>();
-        foreach (var dataPoint in dataPoints)
-        {
-            var tag = tagManager.TagFor(dataPoint);
-            var mismatches = GetMismatches(new ResolvedDataPoint(tag.DataPoint, tag.Metadata));
-            if (mismatches.Count > 0)
-            {
-                misconfigured.Add(new MisconfiguredDataPoint<ILogixDataPoint>(dataPoint, mismatches));
-            }
-        }
-
-        return misconfigured;
+        return
+        [
+            .. from resolved in resolvedDataPoints
+            let mismatches = GetMismatches(resolved)
+            where mismatches.Count > 0
+            select new MisconfiguredDataPoint<ILogixDataPoint>(resolved.DataPoint, mismatches)
+        ];
     }
 
     internal static IReadOnlyList<MismatchingConfiguration> GetMismatches(ResolvedDataPoint resolved)

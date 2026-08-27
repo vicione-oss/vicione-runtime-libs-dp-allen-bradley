@@ -1,13 +1,14 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
+
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
@@ -44,6 +45,56 @@ public class CachingLogixTagManagerTests
         // Assert
         // The browse is N device reads (controller + one per program); connect must not pay it twice.
         browser.BrowseCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task LoadSchemaAsync_CalledConcurrently_BrowsesOnceAndMakesBothCallersWaitForIt()
+    {
+        // Arrange — the first browse blocks until the test releases it
+        var browseGate = new TaskCompletionSource();
+        var browser = new FakeSchemaBrowser { OnBrowse = () => browseGate.Task };
+        using var manager = NewManager(new CountingAccessFactory(), browser);
+
+        // Act
+        var first = LoadAsync(manager);
+        await browser.BrowseStarted.Task;
+        var second = LoadAsync(manager);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+        var secondCompletedEarly = second.IsCompleted;
+
+        browseGate.SetResult();
+        await Task.WhenAll(first, second);
+
+        // Assert
+        // Checking the field and then browsing is a check-then-act, so without a gate both callers reach
+        // the controller and one round trip is thrown away. The second must also not return before the
+        // schema exists, or the TagFor behind it would find none.
+        secondCompletedEarly.Should().BeFalse();
+        browser.BrowseCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task LoadSchemaAsync_AfterABrowseFailed_TriesAgain()
+    {
+        // Arrange
+        var browser = new FakeSchemaBrowser
+        {
+            OnBrowse = () => Task.FromException(new DataRetrievalException("no route to host")),
+        };
+        using var manager = NewManager(new CountingAccessFactory(), browser);
+
+        var failed = async () => await LoadAsync(manager);
+        await failed.Should().ThrowAsync<DataRetrievalException>();
+
+        // Act
+        var retry = async () => await LoadAsync(manager);
+
+        // Assert
+        // A controller that was unreachable a moment ago is not unreachable forever. Remembering the
+        // failed browse — which is what caching the task rather than gating it would do — would make the
+        // first failure the answer every later connect got.
+        await retry.Should().ThrowAsync<DataRetrievalException>();
+        browser.BrowseCount.Should().Be(2);
     }
 
     [Fact]
@@ -188,6 +239,65 @@ public class CachingLogixTagManagerTests
     }
 
     [Fact]
+    public async Task Drain_FreesEveryTagAndLeavesTheManagerReusable()
+    {
+        // Arrange
+        var factory = new CountingAccessFactory();
+        var browser = new FakeSchemaBrowser();
+        using var manager = NewManager(factory, browser);
+        await LoadAsync(manager);
+        manager.TagFor(CreateDInt("Motor.Speed"));
+
+        // Act
+        manager.Drain();
+        await LoadAsync(manager);
+        manager.TagFor(CreateDInt("Motor.Speed"));
+
+        // Assert
+        // Drain is what a disconnect does, and a disconnect is reversible: the handles go, the schema goes
+        // with them, and a reconnect browses again rather than reusing a schema the controller may have
+        // changed underneath.
+        browser.BrowseCount.Should().Be(2);
+        factory.CreatedCount.Should().Be(2);
+        factory.Created[0].IsDisposed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task TagFor_AfterDrain_ThrowsUntilTheSchemaIsLoadedAgain()
+    {
+        // Arrange
+        var factory = new CountingAccessFactory();
+        using var manager = NewManager(factory, new FakeSchemaBrowser());
+        await LoadAsync(manager);
+
+        // Act
+        manager.Drain();
+        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
+
+        // Assert
+        // Drain drops the schema, so the connect precondition is back in force — a tag built now would
+        // carry metadata from a connection that has ended.
+        tagFor.Should().Throw<InvalidOperationException>();
+        factory.CreatedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Drain_AfterDispose_Throws()
+    {
+        // Arrange
+        var manager = NewManager(new CountingAccessFactory(), new FakeSchemaBrowser());
+        await LoadAsync(manager);
+        manager.Dispose();
+
+        // Act
+        var drain = () => manager.Drain();
+
+        // Assert
+        // Dispose is terminal; draining a disposed manager would read as if it could be revived.
+        drain.Should().Throw<ObjectDisposedException>();
+    }
+
+    [Fact]
     public async Task TagFor_AfterDispose_Throws()
     {
         // Arrange
@@ -212,15 +322,23 @@ public class CachingLogixTagManagerTests
 
         public int BrowseCount { get; private set; }
 
+        /// <summary>Completed as the browse begins, so a test can act once one is genuinely in flight.</summary>
+        public TaskCompletionSource BrowseStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        /// <summary>What the browse waits on, so a test can hold one open. Instant by default.</summary>
+        public Func<Task> OnBrowse { get; init; } = static () => Task.CompletedTask;
+
         public TagDefinition this[string tagName]
         {
             set => _declarations[new TagName(tagName)] = value;
         }
 
-        public Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
+        public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
         {
             BrowseCount++;
-            return Task.FromResult(new TagDefinitions(_declarations));
+            BrowseStarted.TrySetResult();
+            await OnBrowse().ConfigureAwait(false);
+            return new TagDefinitions(_declarations);
         }
     }
 
@@ -243,7 +361,7 @@ public class CachingLogixTagManagerTests
         }
 
         public ILogixTagAccess CreateForSchemaTag(TagName tagName) =>
-            throw new NotSupportedException("The manager browses through the injected ITagDefinitionsLoader.");
+            throw new NotSupportedException("The manager browses through the injected ILogixSchemaBrowser.");
     }
 
     private sealed class FakeTagAccess(bool throwOnDispose = false) : ILogixTagAccess
@@ -258,6 +376,7 @@ public class CachingLogixTagManagerTests
         public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
             Task.FromResult(LogixTagWriteResult.Ok());
 
+        // The manager caches and frees accesses; nothing here writes through one.
         public byte[] CreateNewWriteBuffer() => [];
 
         public void Dispose()

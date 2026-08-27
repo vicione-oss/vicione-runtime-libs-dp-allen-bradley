@@ -43,14 +43,14 @@ public class LogixClientReadTests
         // against libplctag's own typed getter proves our raw-buffer decode is byte-correct.
         var expected = ReadDintWithRawLibplctag(DintTagName);
 
-        var accessFactory =
-            new LogixTagAccessFactory(
-                new LogixClientInformation(new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix),
-                Timeout);
+        var clientInformation = new LogixClientInformation(
+            new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix, new OperationTimeout(Timeout));
+        var accessFactory = new LogixTagAccessFactory(clientInformation);
         using var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
-        var readClient = new LogixClient(tagManager);
-        IReadOnlyList<ILogixDataPoint> group = [CreateDInt(DintTagName)];
+        using var readClient = new LogixClient(
+            tagManager, clientInformation, NullLogger<LogixClient>.Instance);
+        var group = CreateGroup(CreateDInt(DintTagName));
 
         // Act
         // Load the schema (the connect precondition), then read through the production client + converter

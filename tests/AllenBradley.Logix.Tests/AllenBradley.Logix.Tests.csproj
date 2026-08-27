@@ -12,6 +12,7 @@
     </PackageReference>
     <PackageReference Include="libplctag"/>
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage"/>
+    <PackageReference Include="NSubstitute"/>
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions.Testing"/>
     <PackageReference Include="xunit.v3.mtp-v2"/>
   </ItemGroup>

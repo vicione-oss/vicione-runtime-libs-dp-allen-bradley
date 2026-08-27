@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -26,8 +25,7 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
     /// <inheritdoc />
     public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
     {
-        var declarationsByTagName =
-            new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer);
+        var declarationsByTagName = new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer);
 
         var controllerTags = await ReadDirectoryAsync(ControllerTags, cancellationToken).ConfigureAwait(false);
         AddTags(declarationsByTagName, controllerTags, programScope: null);
@@ -46,15 +44,15 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
         TagName schemaTagName, CancellationToken cancellationToken)
     {
         using var access = accessFactory.CreateForSchemaTag(schemaTagName);
-        var read = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
+        var readResult = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
 
-        if (!read.Succeeded)
+        if (!readResult.Succeeded)
         {
             throw new DataRetrievalException(
-                $"Could not browse the controller symbol table via '{schemaTagName}': {read.Error}");
+                $"Could not browse the controller symbol table via '{schemaTagName}': {readResult.Error}");
         }
 
-        return TagsDecoder.Decode(read.Buffer.Span);
+        return TagsDecoder.Decode(readResult.Buffer.Span);
     }
 
     private static bool IsProgram(TagDefinition declaration) =>

@@ -7,6 +7,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
+using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
+using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
@@ -16,7 +20,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// <see cref="ILogixTagManager"/> that hands back one <see cref="ILogixTag"/> per
 /// data point. Read and write diverge here by design: a failed read degrades its own data point, a failed
 /// write throws, because <c>IWriteClient.WriteAsync</c> gives the caller no other way to learn a tag was
-/// dropped. The tag now carries the controller's metadata, so the type-code gate is exercised too.
+/// dropped. What a tag holds is not re-checked here — <c>LogixConfigurationVerifier</c> settled that at
+/// connect — so the metadata on these fakes only feeds <c>ResolveDataPoints</c>.
 /// </summary>
 public class LogixClientTests
 {
@@ -24,17 +29,14 @@ public class LogixClientTests
     private static readonly DIntDataPoint Level = CreateDInt("Tank.Level");
     private static readonly StringDataPoint Label = CreateString("Line.Label");
 
-    // Metadata the controller would report for a DINT tag — matches the DINT converter, so the type gate
-    // lets the read/write through and only the device outcome decides the result.
+    // Metadata the controller would report for a DINT tag. It is what ResolveDataPoints hands to
+    // verification; the read and write paths never look at it, so only the device outcome decides those.
     private static TagDefinition DintMetadata(string tagName) =>
         new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
-    // A built-in STRING as the listing reports it: a structure of .DATA[82] behind its .LEN.
+    // What the controller reports for a built-in STRING tag: a scalar structure holding 82 characters.
     private static TagDefinition StringMetadata(string tagName) =>
         new(new TagName(tagName), LogixTypeKind.Structure, AllenBradleyDataType.String, StringMaxLength.Standard, new DimensionCount(0), new ElementCount(1));
-
-    private static TagDefinition RealMetadata(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Real, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     // 42 as a DINT on the wire. Spelled out rather than taken from BitConverter, which would re-derive
     // it through the same host-endianness assumption the converter makes and so agree by construction.
@@ -49,10 +51,10 @@ public class LogixClientTests
             [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
             [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
 
         // Act
-        var values = await client.ReadAsync([Speed, Level], CancellationToken.None);
+        var values = await client.ReadAsync(CreateGroup(Speed, Level), CancellationToken.None);
 
         // Assert
         // Per-tag partial failure: the bad tag must not sink the group (ADR-004).
@@ -73,10 +75,10 @@ public class LogixClientTests
             [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(new byte[2])),
             [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(FortyTwoAsDint)),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
 
         // Act
-        var values = await client.ReadAsync([Speed, Level], CancellationToken.None);
+        var values = await client.ReadAsync(CreateGroup(Speed, Level), CancellationToken.None);
 
         // Assert
         // A decode that throws is still one tag's problem: it degrades its own point and leaves the rest
@@ -99,11 +101,11 @@ public class LogixClientTests
             [Speed] = speedTag,
             [unconvertible] = FakeTag.Reading(unconvertible, metadata: null, LogixTagReadResult.Ok(FortyTwoAsDint)),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
 
         // Act
         var read = async () => await client.ReadAsync(
-            [Speed, unconvertible], CancellationToken.None);
+            CreateGroup(Speed, unconvertible), CancellationToken.None);
 
         // Assert
         // The group resolves whole before any I/O, so a data point wired up without a converter is a
@@ -120,7 +122,7 @@ public class LogixClientTests
         {
             [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
         var value = CreateValue(Speed, 42);
 
         // Act
@@ -141,7 +143,7 @@ public class LogixClientTests
             [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
             [Level] = FakeTag.Writing(Level, DintMetadata("Tank.Level"), LogixTagWriteResult.Failed("tag not found")),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values =
         [
             CreateValue(Speed, 42),
@@ -165,7 +167,7 @@ public class LogixClientTests
         // Arrange
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
         var tagManager = new FakeTagManager { [Speed] = tag };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
         var value = CreateValue(Speed, 42);
 
         // Act
@@ -185,7 +187,7 @@ public class LogixClientTests
         var tag = FakeTag.Writing(
             Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok(), tagSize: 88);
         var tagManager = new FakeTagManager { [Label] = tag };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
         var value = CreateValue(Label, "Hi");
 
         // Act
@@ -209,16 +211,203 @@ public class LogixClientTests
         {
             [Label] = FakeTag.Reading(Label, StringMetadata("Line.Label"), LogixTagReadResult.Ok(structure)),
         };
-        var client = new LogixClient(tagManager);
+        using var client = CreateClient(tagManager);
 
         // Act
-        var values = await client.ReadAsync([Label], CancellationToken.None);
+        var values = await client.ReadAsync(CreateGroup(Label), CancellationToken.None);
 
         // Assert
         values.Should().ContainSingle();
         values[0].Quality.Should().Be(LogixQuality.Good);
         values[0].Value.Should().Be("Hi");
     }
+
+    [Fact]
+    public async Task ResolveDataPoints_PairsEachPointWithTheControllerMetadataForItsTag()
+    {
+        // Arrange
+        // Line.Label is deliberately absent from the controller's symbol table, which its tag carries as
+        // null metadata.
+        var tagManager = new FakeTagManager
+        {
+            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+            [Label] = FakeTag.Reading(Label, metadata: null, LogixTagReadResult.Ok(new byte[88])),
+        };
+        using var client = CreateClient(tagManager);
+        await client.ConnectAsync(CancellationToken.None);
+
+        // Act
+        var resolved = await client.ResolveDataPoints([Speed, Label], CancellationToken.None);
+
+        // Assert
+        // An absent tag is resolved, not skipped: dropping it would hide the one misconfiguration the
+        // verifier most needs to report. Order is the caller's, so a result can be read positionally.
+        resolved.Should().HaveCount(2);
+        resolved[0].DataPoint.Should().Be(Speed);
+        resolved[0].TagDefinition.Should().Be(DintMetadata("Motor.Speed"));
+        resolved[1].DataPoint.Should().Be(Label);
+        resolved[1].TagDefinition.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ResolveDataPoints_BeforeAConnect_ThrowsAndBrowsesNothing()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager
+        {
+            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+        };
+        using var client = CreateClient(tagManager);
+
+        // Act
+        var resolve = async () => await client.ResolveDataPoints([Speed], CancellationToken.None);
+
+        // Assert
+        // A connect is the precondition, and the dataport base always satisfies it: it builds the
+        // verifier from the client it has just acquired. Browsing here instead would open handles on a
+        // client that does not consider itself connected — which a later disconnect would then skip
+        // freeing, and a handle left to its finalizer fail-fasts the process (0xC0000602).
+        await resolve.Should().ThrowAsync<InvalidOperationException>();
+        tagManager.SchemaLoads.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ResolveDataPoints_AfterADisconnect_Throws()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager
+        {
+            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+        };
+        using var client = CreateClient(tagManager);
+        await client.ConnectAsync(CancellationToken.None);
+        await client.DisconnectAsync(CancellationToken.None);
+
+        // Act
+        var resolve = async () => await client.ResolveDataPoints([Speed], CancellationToken.None);
+
+        // Assert
+        // The disconnect dropped the schema these would resolve against, so the precondition is about
+        // the connection the client holds now, not one it held once.
+        await resolve.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task ConnectAsync_BrowsesTheSymbolTableOnce()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager();
+        using var client = CreateClient(tagManager);
+
+        // Act
+        await client.ConnectAsync(CancellationToken.None);
+        await client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        // Connecting is the browse, so a second connect must not pay for a second one — the engine calls
+        // connect defensively and the browse is the expensive part of it.
+        client.IsConnected.Should().BeTrue();
+        tagManager.SchemaLoads.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ConnectAsync_WhenTheBrowseFails_ThrowsConnectionFailureAndStaysDisconnected()
+    {
+        // Arrange
+        // A schema exception is what an unreachable gateway or a dead routing path comes back as. The
+        // framework's acquire contract is a single exception type, so it must not reach the caller raw.
+        var tagManager = new FakeTagManager
+        {
+            OnLoadSchema = _ => Task.FromException(new DataRetrievalException("no route to host")),
+        };
+        using var client = CreateClient(tagManager);
+
+        // Act
+        var connect = async () => await client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        (await connect.Should().ThrowAsync<ConnectionFailureException>())
+            .WithInnerException<DataRetrievalException>();
+        client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ConnectAsync_WhenCancelled_PropagatesTheCancellation()
+    {
+        // Arrange
+        // Cancellation is not a connection failure — wrapping it would hide a shutdown as a device fault.
+        var tagManager = new FakeTagManager { OnLoadSchema = Task.FromCanceled };
+        using var client = CreateClient(tagManager);
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        // Act
+        var connect = async () => await client.ConnectAsync(cts.Token);
+
+        // Assert
+        await connect.Should().ThrowAsync<OperationCanceledException>();
+        client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task DisconnectAsync_DrainsTheTagManagerAndAllowsReconnecting()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager();
+        using var client = CreateClient(tagManager);
+        await client.ConnectAsync(CancellationToken.None);
+
+        // Act
+        await client.DisconnectAsync(CancellationToken.None);
+        await client.DisconnectAsync(CancellationToken.None);
+        await client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        // Disconnect frees the handles and drops the schema, exactly once for the one connection it ends;
+        // it is reversible, so the reconnect browses again rather than throwing.
+        tagManager.Drains.Should().Be(1);
+        tagManager.Disposals.Should().Be(0);
+        tagManager.SchemaLoads.Should().Be(2);
+        client.IsConnected.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Dispose_EndsTheTagManagerAndIsIdempotent()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager();
+        var client = CreateClient(tagManager);
+
+        // Act
+        client.Dispose();
+        client.Dispose();
+
+        // Assert
+        // Disposing is what frees the native handles, and a double dispose must not double-free them.
+        tagManager.Disposals.Should().Be(1);
+        client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ConnectAsync_AfterDispose_Throws()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager();
+        var client = CreateClient(tagManager);
+        client.Dispose();
+
+        // Act
+        var connect = async () => await client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        // Dispose is terminal: a disposed client's tag manager is gone, so reviving it would hand out
+        // tags nothing owns. The pool builds a fresh client instead.
+        await connect.Should().ThrowAsync<ObjectDisposedException>();
+        tagManager.SchemaLoads.Should().Be(0);
+    }
+
+    private static LogixClient CreateClient(ILogixTagManager tagManager) =>
+        new(tagManager, CreateClientInformation(), TestLogging.CreateLogger<LogixClient>());
 
     // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
     // that nobody wired a converter for.
@@ -239,9 +428,26 @@ public class LogixClientTests
             set => _tagByDataPoint[dataPoint] = value;
         }
 
-        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        /// <summary>What the browse does, so a test can make a connect fail or hang.</summary>
+        public Func<CancellationToken, Task> OnLoadSchema { get; set; } = _ => Task.CompletedTask;
+
+        public int SchemaLoads { get; private set; }
+
+        public int Drains { get; private set; }
+
+        public int Disposals { get; private set; }
+
+        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken)
+        {
+            SchemaLoads++;
+            return OnLoadSchema(cancellationToken);
+        }
 
         public ILogixTag TagFor(ILogixDataPoint dataPoint) => _tagByDataPoint[dataPoint];
+
+        public void Drain() => Drains++;
+
+        public void Dispose() => Disposals++;
     }
 
     private sealed class FakeTag : ILogixTag
@@ -296,6 +502,8 @@ public class LogixClientTests
         }
     }
 
+    // What libplctag's handle contributes to a write: a buffer as wide as the controller says the tag
+    // is. Nothing else is asked of it here.
     private sealed class FakeTagAccess(int tagSize) : ILogixTagAccess
     {
         public byte[] CreateNewWriteBuffer() => new byte[tagSize];

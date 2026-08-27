@@ -55,13 +55,15 @@ public class SharedAccessConcurrencyTests
     public async Task Group_NamingTheSameTagTwice_SharesOneTag_AndReadsConsistently()
     {
         // Arrange
-        var accessFactory = new LogixTagAccessFactory(ClientInformation(), Timeout);
+        var clientInformation = ClientInformation();
+        var accessFactory = new LogixTagAccessFactory(clientInformation);
         using var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
         var first = CreateDInt(DintTagName);
         var second = CreateDInt(DintTagName);
-        var readClient = new LogixClient(tagManager);
-        IReadOnlyList<ILogixDataPoint> group = [first, second];
+        using var readClient = new LogixClient(
+            tagManager, clientInformation, NullLogger<LogixClient>.Instance);
+        var group = CreateGroup(first, second);
 
         // Act
         await tagManager.LoadTagDefinitionsAsync(CancellationToken.None);
@@ -202,7 +204,7 @@ public class SharedAccessConcurrencyTests
     }
 
     private static LogixClientInformation ClientInformation() =>
-        new(new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix);
+        new(new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix, new OperationTimeout(Timeout));
 
     private static Tag NewRawTag() => new()
     {

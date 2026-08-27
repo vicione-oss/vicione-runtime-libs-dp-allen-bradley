@@ -72,16 +72,15 @@ and disposes it. The concurrency contract is untouched. Metadata and the data po
 not exchange state, so they need no gating.
 
 To join that metadata on, the manager now also **owns the controller's symbol table**, mirroring
-S7's `SymbolicAccessManager` owning `RootNodeHandle`. `LoadSchemaAsync` browses once at connect
-through an injected `ILogixSchemaBrowser` and retains the schema whole (idempotent, the S7
-root-node guard). `TagFor` joins `_schema.Lookup(name)` onto the handle at creation, and
-**throws** if it is called before the schema loads. The browse is a hard connect precondition,
-not a lazy first-access side effect. Disposal drops the schema alongside the handles.
+S7's `SymbolicAccessManager` owning `RootNodeHandle`. `LoadTagDefinitionsAsync` browses once at connect
+through an injected `ITagDefinitionsLoader` and retains the `TagDefinitions` whole (idempotent, the S7
+root-node guard). `TagFor` joins `Lookup(name)` onto the handle at creation, and **throws** if it is
+called before the definitions load. The browse is a hard connect precondition, not a lazy first-access
+side effect. Disposal drops the definitions alongside the handles.
 
 None of this touches the handle lifecycle this ADR is about. The cache key is still the data-point
 record, reuse is unchanged, and creation, disposal and the throwing-dispose drain still run under
-the one lock. The object handed out is richer. The `0xC0000602` guarantee is identical. See
-[A unified data point access](../unified-data-point-access-plan.md) for the reshape in full.
+the one lock. The object handed out is richer. The `0xC0000602` guarantee is identical.
 
 ### Consequences
 

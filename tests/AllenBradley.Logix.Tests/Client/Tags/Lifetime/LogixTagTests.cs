@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -5,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
@@ -24,8 +26,13 @@ public class LogixTagTests
     [Fact]
     public void DataPoint_And_Metadata_AreSurfacedAsGiven()
     {
-        using var tag = new LogixTag(Speed, DintMetadata, new FakeTagAccess());
+        // Arrange
+        var inner = new FakeTagAccess();
 
+        // Act
+        using var tag = new LogixTag(Speed, DintMetadata, inner);
+
+        // Assert
         tag.DataPoint.Should().BeSameAs(Speed);
         tag.Metadata.Should().Be(DintMetadata);
     }
@@ -33,19 +40,27 @@ public class LogixTagTests
     [Fact]
     public void Metadata_IsNull_WhenTheTagIsAbsentFromTheController()
     {
-        using var tag = new LogixTag(Speed, Metadata: null, new FakeTagAccess());
+        // Arrange
+        var inner = new FakeTagAccess();
 
+        // Act
+        using var tag = new LogixTag(Speed, Metadata: null, inner);
+
+        // Assert
         tag.Metadata.Should().BeNull();
     }
 
     [Fact]
     public async Task ReadAsync_DelegatesToTheInnerAccess()
     {
+        // Arrange
         var inner = new FakeTagAccess { ReadResult = LogixTagReadResult.Ok(new byte[] { 42, 0, 0, 0 }) };
         using var tag = new LogixTag(Speed, DintMetadata, inner);
 
+        // Act
         var result = await tag.ReadAsync(TestContext.Current.CancellationToken);
 
+        // Assert
         inner.ReadCount.Should().Be(1);
         result.Buffer.ToArray().Should().Equal(42, 0, 0, 0);
     }
@@ -53,22 +68,28 @@ public class LogixTagTests
     [Fact]
     public async Task WriteAsync_DelegatesTheBufferToTheInnerAccess()
     {
+        // Arrange
         var inner = new FakeTagAccess();
         using var tag = new LogixTag(Speed, DintMetadata, inner);
 
+        // Act
         await tag.WriteAsync([1, 2, 3, 4], TestContext.Current.CancellationToken);
 
+        // Assert
         inner.Written.Should().Equal(1, 2, 3, 4);
     }
 
     [Fact]
     public void Dispose_DisposesTheInnerHandleOnce()
     {
+        // Arrange
         var inner = new FakeTagAccess();
         var tag = new LogixTag(Speed, DintMetadata, inner);
 
+        // Act
         tag.Dispose();
 
+        // Assert
         // A libplctag handle left unfreed fail-fasts the process (0xC0000602); the wrapper must not swallow
         // the owner's dispose.
         inner.DisposeCount.Should().Be(1);
@@ -96,6 +117,7 @@ public class LogixTagTests
             return Task.FromResult(LogixTagWriteResult.Ok());
         }
 
+        // A DINT-wide buffer, standing in for what libplctag reports for the handle.
         public byte[] CreateNewWriteBuffer() => new byte[sizeof(int)];
 
         public void Dispose() => DisposeCount++;

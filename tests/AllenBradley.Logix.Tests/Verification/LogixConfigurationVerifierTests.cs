@@ -1,20 +1,18 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
+
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
 /// The configuration diff. <see cref="LogixConfigurationVerifier.GetMismatches"/> is the whole of the
-/// verification rule, so it is exercised directly per mismatch class, and <c>Verify</c> is checked
-/// once end to end against a fake tag manager — the verifier projects its tags, it no longer
-/// browses its own schema.
+/// verification rule, so it is exercised directly per mismatch class, and <c>Verify</c> — the seam the
+/// dataport base class calls — is checked once end to end against a fake client: the verifier resolves
+/// through <see cref="ILogixClient.ResolveDataPoints"/>, it neither browses nor holds a tag manager.
 /// </summary>
 public class LogixConfigurationVerifierTests
 {
@@ -41,95 +39,135 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
     {
+        // Arrange
         var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Dint));
 
-        LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().BeEmpty();
     }
 
     [Fact]
     public void GetMismatches_WhenTheTagIsAbsent_ReportsNotFound()
     {
+        // Arrange
         var resolved = Resolved(CreateDInt("Ghost"), device: null);
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("Ghost").And.Contain("not found");
     }
 
     [Fact]
     public void GetMismatches_WhenTheAtomicTypeDiffers_ReportsTheMismatch()
     {
+        // Arrange
         // DINT configured, REAL on the controller.
         var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Real));
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("DINT").And.Contain("Real");
     }
 
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAStructure_ReportsAShapeMismatch()
     {
+        // Arrange
         var resolved = Resolved(CreateDInt("Motor"), StringDeclaration());
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("structure");
     }
 
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
     {
+        // Arrange
         var resolved = Resolved(CreateDInt("Counts"), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("array");
     }
 
     [Fact]
     public void GetMismatches_WhenAStringMatchesTheDeclaredCapacity_ReportsNothing()
     {
+        // Arrange
         var resolved = Resolved(CreateString("Label"), StringDeclaration());
 
-        LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().BeEmpty();
     }
 
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsElementaryButAStringIsConfigured_ReportsAShapeMismatch()
     {
+        // Arrange
         // The inverse of the structure case: a STRING configured onto a DINT tag.
-        var resolved = Resolved(CreateString("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Dint));
+        var resolved = Resolved(
+            CreateString("Motor.Speed"),
+            Declaration(dataType: AllenBradleyDataType.Dint));
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("STRING").And.Contain("Dint");
     }
 
     [Fact]
     public void GetMismatches_WhenTheDeclaredStringCapacityDiffers_ReportsTheCapacity()
     {
+        // Arrange
         // A STRING (82) configured onto a STRING_20. A round trip of a short value would never show
         // this — hence its own mismatch kind. Both numbers are characters, the unit the configuration
         // is written in.
-        var resolved = Resolved(CreateString("Label"), StringDeclaration(maxLength: 20));
+        var resolved = Resolved(
+            CreateString("Label"),
+            StringDeclaration(maxLength: 20));
 
-        LogixConfigurationVerifier.GetMismatches(resolved)
-            .Should().ContainSingle()
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.Value.Should().Contain("82").And.Contain("20").And.Contain("characters");
     }
 
     [Fact]
-    public async Task Verify_ReturnsOnlyTheMisconfiguredDataPoints()
+    public async Task Verify_ReturnsOnlyTheMisconfiguredDataPoints_WithTheirReasons()
     {
-        var tagManager = new FakeTagManager
+        // Arrange
+        var client = new FakeClient
         {
             ["Good"] = Declaration(dataType: AllenBradleyDataType.Dint),
             ["WrongType"] = Declaration(dataType: AllenBradleyDataType.Real),
-            // "Missing" is deliberately absent — the manager stamps null metadata on its tag.
+            // "Missing" is deliberately absent — the client resolves it with null metadata.
         };
-        var verifier = new LogixConfigurationVerifier(tagManager);
+        var verifier = new LogixConfigurationVerifier(client);
 
+        // Act
         var result = await verifier.Verify(
             [
                 CreateDInt("Good"),
@@ -138,12 +176,18 @@ public class LogixConfigurationVerifierTests
             ],
             TestContext.Current.CancellationToken);
 
+        // Assert
         result.Select(m => m.DataPoint.TagName.Value).Should().BeEquivalentTo("WrongType", "Missing");
+        // The reason travels with the point: a base class that logs the result names the tag, not a count.
+        result.Should().AllSatisfy(m => m.MismatchingConfigurations.Should().ContainSingle()
+            .Which.Value.Should().Contain(m.DataPoint.TagName.Value));
     }
 
-    // Stands in for CachingLogixTagManager: it maps a tag name to the metadata the controller would
-    // report and hands back a tag carrying it (null for an absent tag).
-    private sealed class FakeTagManager : ILogixTagManager
+    // Stands in for LogixClient: it maps a tag name to the metadata the controller would report and
+    // resolves each data point against it, with null for a tag the controller does not have. Only
+    // ResolveDataPoints matters here — the verifier neither reads nor writes, and it does not drive the
+    // client's lifecycle.
+    private sealed class FakeClient : ILogixClient
     {
         private readonly Dictionary<TagName, TagDefinition> _declarations =
             new(TagName.CaseInsensitiveComparer);
@@ -153,33 +197,28 @@ public class LogixConfigurationVerifierTests
             set => _declarations[new TagName(tagName)] = value;
         }
 
-        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public bool IsConnected => true;
 
-        public ILogixTag TagFor(ILogixDataPoint dataPoint) =>
-            new ProjectionTag(
-                dataPoint,
-                _declarations.TryGetValue(dataPoint.TagName, out var declaration) ? declaration : null);
-    }
+        public Task<IReadOnlyList<ResolvedDataPoint>> ResolveDataPoints(
+            IReadOnlyList<ILogixDataPoint> dataPoints, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<ResolvedDataPoint>>(
+            [
+                .. dataPoints.Select(dataPoint => new ResolvedDataPoint(
+                    dataPoint,
+                    _declarations.TryGetValue(dataPoint.TagName, out var declaration) ? declaration : null)),
+            ]);
 
-    // Only the projected getters matter to the verifier; it never reads or writes the tag.
-    private sealed class ProjectionTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
-        : ILogixTag
-    {
-        public ILogixDataPoint DataPoint { get; init; } = dataPoint;
+        public Task ConnectAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public TagDefinition? Metadata { get; init; } = metadata;
+        public Task DisconnectAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-        public ILogixTagAccess Access
-        {
-            get => throw new NotSupportedException("Verification projects metadata; it does not touch the handle.");
-            init => throw new NotSupportedException();
-        }
+        public ValueTask<IReadOnlyList<ILogixDataPointValue>> ReadAsync(
+            LogixDataPointGroup dataPointGroup, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Verification resolves metadata; it does not read.");
 
-        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
-            throw new NotSupportedException("Verification projects metadata; it does not read the tag.");
-
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
-            throw new NotSupportedException("Verification projects metadata; it does not write the tag.");
+        public ValueTask WriteAsync(
+            IReadOnlyList<ILogixDataPointValue> values, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("Verification resolves metadata; it does not write.");
 
         public void Dispose()
         {

@@ -65,6 +65,9 @@ Adopted wholesale from the S7 repo, so that an addon developer moving between th
 - **`NuGet.Config`** — JFrog proxy for everything, JFrog ViciOne for `ViciOne.*`
 - **`.editorconfig`** — S7's, verbatim
 - **`AwesomeAssertions`**, not FluentAssertions (which conflicts, and was dropped over the licence change)
+- **`NSubstitute`** for interaction tests only — where every assertion is "the caller did this to its
+  collaborator", as in `LogixClientPoolTests`. Stateful fakes (a tag lookup, a captured write buffer)
+  stay hand-rolled; a substitute makes those longer, not shorter
 - **Model types are `readonly record struct`s or `enum`s — never bare primitives.** Every domain concept we define gets
   its own named value type; see
   [modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)

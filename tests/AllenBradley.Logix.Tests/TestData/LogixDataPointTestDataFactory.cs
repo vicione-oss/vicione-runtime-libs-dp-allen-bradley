@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -8,8 +9,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 /// <summary>
-/// Constructs the data points and values the suites drive the client with, so a test reads as what it
-/// is testing rather than as a constructor call.
+/// Constructs the data points, groups and values the suites drive the client with, so a test reads as
+/// what it is testing rather than as a constructor call.
 /// </summary>
 /// <remarks>
 /// <see cref="CreateValue{TDomain}"/> goes through the data point's own
@@ -46,6 +47,10 @@ internal static class LogixDataPointTestDataFactory
 
     internal static StringDataPoint CreateString(TagName tagName, int maxLength) =>
         new(tagName, DefaultPollFrequency, NoChannels, new StringMaxLength(maxLength));
+
+    /// <summary>The group a read client is driven with, holding <paramref name="dataPoints"/> in order.</summary>
+    internal static LogixDataPointGroup CreateGroup(params ILogixDataPoint[] dataPoints) =>
+        new(DefaultPollFrequency, dataPoints);
 
     /// <summary>The point's own typed value, carrying <paramref name="value"/> as it stands.</summary>
     internal static ILogixDataPointValue CreateValue<TDomain>(

@@ -1,7 +1,7 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 
 /// <summary>
-/// The outcome of one <see cref="ILogixTagAccess.WriteAsync"/>. A write produces no data, so this is
+/// The outcome of one <see cref="Access.ILogixTagAccess.WriteAsync"/>. A write produces no data, so this is
 /// success or a reason only; what a failure means is the caller's decision.
 /// </summary>
 internal readonly record struct LogixTagWriteResult

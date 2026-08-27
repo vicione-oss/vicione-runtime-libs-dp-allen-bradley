@@ -1,7 +1,8 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 
 /// <summary>
-/// The outcome of one <see cref="ILogixTagAccess.ReadAsync"/>: the raw bytes it read, or why it failed.
+/// The outcome of one <see cref="Access.ILogixTagAccess.ReadAsync"/>: the raw bytes it read, or why it
+/// failed.
 /// </summary>
 /// <remarks>
 /// The result is a self-contained snapshot: the access is shared and synchronized per exchange, so
