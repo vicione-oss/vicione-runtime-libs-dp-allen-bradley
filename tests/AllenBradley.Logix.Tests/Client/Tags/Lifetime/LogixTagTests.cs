@@ -33,7 +33,7 @@ public class LogixTagTests
     [Fact]
     public void Metadata_IsNull_WhenTheTagIsAbsentFromTheController()
     {
-        using var tag = new LogixTag(Speed, metadata: null, new FakeTagAccess());
+        using var tag = new LogixTag(Speed, Metadata: null, new FakeTagAccess());
 
         tag.Metadata.Should().BeNull();
     }
@@ -95,6 +95,8 @@ public class LogixTagTests
             Written = buffer;
             return Task.FromResult(LogixTagWriteResult.Ok());
         }
+
+        public byte[] CreateNewWriteBuffer() => new byte[sizeof(int)];
 
         public void Dispose() => DisposeCount++;
     }

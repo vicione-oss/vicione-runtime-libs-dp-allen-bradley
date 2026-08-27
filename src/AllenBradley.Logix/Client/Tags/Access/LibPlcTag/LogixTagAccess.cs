@@ -40,5 +40,10 @@ internal sealed class LogixTagAccess(Tag tag) : ILogixTagAccess
         }
     }
 
+    public byte[] CreateNewWriteBuffer()
+    {
+        return new byte[tag.GetSize()];
+    }
+
     public void Dispose() => tag.Dispose();
 }

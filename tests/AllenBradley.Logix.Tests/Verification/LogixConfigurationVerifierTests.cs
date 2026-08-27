@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -63,7 +64,7 @@ public class LogixConfigurationVerifierTests
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
-            .Which.Description.Should().Contain("Dint").And.Contain("Real");
+            .Which.Description.Should().Contain("DINT").And.Contain("Real");
     }
 
     [Fact]
@@ -132,9 +133,15 @@ public class LogixConfigurationVerifierTests
     private sealed class ProjectionTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
         : ILogixTag
     {
-        public ILogixDataPoint DataPoint => dataPoint;
+        public ILogixDataPoint DataPoint { get; init; } = dataPoint;
 
-        public TagDefinition? Metadata => metadata;
+        public TagDefinition? Metadata { get; init; } = metadata;
+
+        public ILogixTagAccess Access
+        {
+            get => throw new NotSupportedException("Verification projects metadata; it does not touch the handle.");
+            init => throw new NotSupportedException();
+        }
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
             throw new NotSupportedException("Verification projects metadata; it does not read the tag.");

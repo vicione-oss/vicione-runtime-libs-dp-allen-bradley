@@ -12,25 +12,19 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// </summary>
 /// <param name="dataPoint">The configured data point.</param>
 /// <param name="metadata">The controller's declaration for the tag, or <c>null</c> when it is absent.</param>
-/// <param name="inner">The access this tag reads and writes over.</param>
-internal sealed class LogixTag(
-    ILogixDataPoint dataPoint, TagDefinition? metadata, ILogixTagAccess inner)
+/// <param name="access">The access this tag reads and writes over.</param>
+internal sealed record LogixTag(ILogixDataPoint DataPoint, TagDefinition? Metadata, ILogixTagAccess Access)
     : ILogixTag
 {
-    /// <inheritdoc />
-    public ILogixDataPoint DataPoint => dataPoint;
-
-    /// <inheritdoc />
-    public TagDefinition? Metadata => metadata;
 
     /// <inheritdoc />
     public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
-        inner.ReadAsync(cancellationToken);
+        Access.ReadAsync(cancellationToken);
 
     /// <inheritdoc />
     public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
-        inner.WriteAsync(buffer, cancellationToken);
+        Access.WriteAsync(buffer, cancellationToken);
 
     /// <summary>Frees the inner handle — the only owned resource; the data point and metadata are data.</summary>
-    public void Dispose() => inner.Dispose();
+    public void Dispose() => Access.Dispose();
 }

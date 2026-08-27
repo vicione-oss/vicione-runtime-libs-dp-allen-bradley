@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -55,6 +56,22 @@ public class LogixDataPointTests
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName(expected));
+    }
+
+    [Theory]
+    [MemberData(nameof(EveryModelledType))]
+    public void DataTypeName_IsTheNameItsConverterReports(ILogixDataPoint dataPoint)
+    {
+        // Arrange
+
+        // Act
+        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+
+        // Assert
+        // One spelling per type, read from two places: the point names itself for the framework's logs,
+        // the converter names the same type in a verification message. They are the same constant, and
+        // this is what keeps a type added later from acquiring a second spelling.
+        converter.ExpectedTypeName.Value.Should().Be(dataPoint.DataTypeName.Value);
     }
 
     [Fact]

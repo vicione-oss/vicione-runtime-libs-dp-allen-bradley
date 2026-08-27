@@ -36,6 +36,11 @@ internal sealed class SynchronizedLogixTagAccess(ILogixTagAccess inner) : ILogix
         }
     }
 
+    public byte[] CreateNewWriteBuffer()
+    {
+        return inner.CreateNewWriteBuffer();
+    }
+
     // Not gated: disposal is the owner's call, and waiting on the gate here would trade a fail-fast
     // for a deadlock if an operation never completes.
     public void Dispose()

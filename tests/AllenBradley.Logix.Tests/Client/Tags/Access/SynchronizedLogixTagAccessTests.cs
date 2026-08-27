@@ -112,6 +112,8 @@ public class SynchronizedLogixTagAccessTests
             return LogixTagWriteResult.Ok();
         }
 
+        public byte[] CreateNewWriteBuffer() => new byte[sizeof(int)];
+
         public void Dispose() => IsDisposed = true;
 
         private async Task RunAsync()

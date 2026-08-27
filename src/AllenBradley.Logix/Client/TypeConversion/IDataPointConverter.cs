@@ -9,25 +9,20 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // implements this interface and performs the single object/ILogixDataPoint boundary cast in one place.
 internal interface IDataPointConverter
 {
-    // The CIP type this converter expects the controller to report for the tag. Checked against the
-    // controller's actual type before decoding (see ConflictsWith / LogixReadBatch).
-    AllenBradleyDataType ExpectedType { get; }
+    // What this converter expects the tag to be, in the spelling Studio 5000 uses — DINT, REAL.
+    // Display, never identity: it names the type in a verification message and in a rejected write, and
+    // nothing is decided by it. The comparison is made from the two members below.
+    LogixDataTypeName ExpectedTypeName { get; }
 
-    // Wire size, in bytes, of one value — DINT and REAL are 4. Used to size write buffers and as the
-    // decode-safety backstop when the controller's type is unknown (see LogixReadBatch).
-    ByteSize ByteSize { get; }
+    // The expected side of the type comparison, in the same fields the controller's own TagDefinition
+    // reports the actual side in — a kind and a data type. Stating the expectation as data rather than
+    // as a comparison of its own is what lets one function (LogixTypeComparison) hold the whole rule:
+    // what a converter decodes says what the tag must be, and saying whether it is says the same thing
+    // for every converter.
+    LogixTypeKind ExpectedKind { get; }
 
-    // How the controller's metadata disagrees with what this converter decodes — a structure, an array, or a
-    // different scalar CIP type — or None when they match. This is the single comparison the run-time gate
-    // and configuration verification share (ADR-003), so a mismatch means the same thing to a degraded read
-    // and to a connect-time verification error. Null metadata (the tag is absent from the flat symbol table,
-    // e.g. a structure member) is unverifiable, not a contradiction, so it reports None.
-    LogixTypeMismatch CompareTo(TagDefinition? metadata);
-
-    // Whether CompareTo found any disagreement — the bool the batches gate read and write on, so a tag whose
-    // controller type contradicts the configuration degrades to a Bad value or a failed write instead of a
-    // misread one. Null metadata does not conflict; the byte-size backstop stands in for the check there.
-    bool ConflictsWith(TagDefinition? metadata);
+    // The data type this converter expects the controller to declare — Dint, Real.
+    AllenBradleyDataType? ExpectedDataType { get; }
 
     // Decodes the raw little-endian buffer into the data point's own typed value (Good quality). The
     // value record belongs to the data point, not to the converter: this decodes bytes to a TDomain and
@@ -35,7 +30,9 @@ internal interface IDataPointConverter
     // to wrap has no converter in it at all — see BadLogixDataPointValue.
     ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
-    // Encodes the payload carried by dataPointValue into buffer (little-endian). Rejects a value that is
-    // not the typed value its data point makes — a Bad one above all, which carries no payload.
+    // Encodes the payload carried by dataPointValue into buffer (little-endian). The buffer is the tag's
+    // own, sized by the controller's declaration rather than by anything a converter knows. Rejects a
+    // value that is not the typed value its data point makes — a Bad one above all, which carries no
+    // payload.
     void Encode(ILogixDataPointValue dataPointValue, Span<byte> buffer);
 }

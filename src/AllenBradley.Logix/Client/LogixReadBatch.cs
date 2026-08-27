@@ -39,23 +39,33 @@ internal sealed class LogixReadBatch
     // Each tag is read and decoded independently: a failing tag degrades to a Bad value for its
     // own data point instead of failing the whole group. A failed read is an ordinary result here,
     // not an exception — a tag that will not read is expected in a group polled on an interval.
+    //
+    // What the bytes are is not re-litigated per read. LogixConfigurationVerifier has already diffed every
+    // configured data point against the controller's own declaration and aborted the connect on a
+    // disagreement (ADR-003), so a tag that is being polled is a tag whose type already matched, and the
+    // decode reads the type it was configured for.
     private static async Task<ILogixDataPointValue> ReadEntryAsync(
         ReadEntry entry, CancellationToken cancellationToken)
     {
         var result = await entry.Tag.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-        // Gate on the controller's real CIP type before interpreting bytes (ADR-003): a tag whose
-        // controller type disagrees with the configured converter degrades to a Bad value rather than a
-        // misread one. When the type is unknown — the tag is absent from the flat symbol table, e.g. a
-        // structure member — the byte-size backstop is the check.
-        if (!result.Succeeded
-            || entry.Converter.ConflictsWith(entry.Tag.Metadata)
-            || result.Buffer.Length < entry.Converter.ByteSize.Value)
+        if (!result.Succeeded)
         {
             return new BadLogixDataPointValue(entry.DataPoint);
         }
 
-        return entry.Converter.Decode(entry.DataPoint, result.Buffer.Span);
+        try
+        {
+            return entry.Converter.Decode(entry.DataPoint, result.Buffer.Span);
+        }
+        catch (ArgumentException)
+        {
+            // A reply too short for the type the data point was configured as. It should not happen on a
+            // verified tag, and it is caught anyway for the same reason a failed read is a Bad value
+            // rather than an exception: one tag must not sink the group it is polled in (ADR-004).
+            // Narrow on purpose — this is the buffer being the wrong shape for the decode, and nothing
+            // else. A converter that throws anything else is a bug in the converter, and it travels.
+            return new BadLogixDataPointValue(entry.DataPoint);
+        }
     }
 
     private readonly record struct ReadEntry(

@@ -6,8 +6,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 // One batched write, the mirror of LogixReadBatch: resolved on construction and executed by WriteAsync.
-// Constructing the batch encodes each value into a right-sized buffer via its converter and resolves its
-// tag, so holding a batch means holding a fully encoded one. WriteAsync then fans the writes out.
+// Constructing the batch resolves each value's tag, takes a buffer from it, and has the converter fill
+// that buffer, so holding a batch means holding a fully encoded one. WriteAsync then fans the writes out.
+// The width is the tag's rather than the converter's because it is the controller's fact and not the
+// configuration's: libplctag knows how wide the handle it opened is.
 internal sealed class LogixWriteBatch
 {
     private readonly WriteEntry[] _entries;
@@ -18,11 +20,11 @@ internal sealed class LogixWriteBatch
         for (var i = 0; i < values.Count; i++)
         {
             var value = values[i];
+            var tag = tagManager.TagFor(value.DataPoint);
+            var writeBuffer = tag.Access.CreateNewWriteBuffer();
             var converter = DataPointConverterRegistry.GetConverter(value.DataPoint);
-            var buffer = new byte[converter.ByteSize.Value];
-            converter.Encode(value, buffer);
-            _entries[i] = new WriteEntry(
-                value.DataPoint.TagName, converter, tagManager.TagFor(value.DataPoint), buffer);
+            converter.Encode(value, writeBuffer);
+            _entries[i] = new WriteEntry(value.DataPoint, tag, writeBuffer);
         }
     }
 
@@ -40,24 +42,16 @@ internal sealed class LogixWriteBatch
     // A device failure rides home as an outcome rather than an exception so that one tag's failure
     // cannot hide another's: awaiting Task.WhenAll rethrows only the first exception of the set, and
     // the rest would be lost. Cancellation still throws, and is meant to.
+    //
+    // The bytes go out as the configuration says they should. LogixConfigurationVerifier has already
+    // diffed every configured data point against the controller's own declaration and aborted the connect
+    // on a disagreement (ADR-003), so a tag that is being written is a tag whose type already matched.
     private static async Task<WriteOutcome> WriteEntryAsync(
         WriteEntry entry, CancellationToken cancellationToken)
     {
-        // Gate on the controller's real CIP type before writing (ADR-003): encoding a DINT onto a REAL tag
-        // would corrupt it. A contradiction fails the tag by name without issuing the write; an unknown
-        // type (null metadata) is not a contradiction and lets the write through, its size fixed by the
-        // converter.
-        if (entry.Converter.ConflictsWith(entry.Tag.Metadata))
-        {
-            return new WriteOutcome(
-                entry.TagName,
-                LogixTagWriteResult.Failed(
-                    $"the controller's type for the tag does not match the configured {entry.Converter.ExpectedType}"));
-        }
-
         var result = await entry.Tag.WriteAsync(entry.Buffer, cancellationToken).ConfigureAwait(false);
 
-        return new WriteOutcome(entry.TagName, result);
+        return new WriteOutcome(entry.DataPoint.TagName, result);
     }
 
     // Unlike a read, whose failure rides home on its value's quality, ILogixWriteClient.WriteAsync
@@ -78,8 +72,7 @@ internal sealed class LogixWriteBatch
         throw new LogixTagException($"Write failed for {string.Join("; ", reasons)}.");
     }
 
-    private readonly record struct WriteEntry(
-        TagName TagName, IDataPointConverter Converter, ILogixTag Tag, byte[] Buffer);
+    private readonly record struct WriteEntry(ILogixDataPoint DataPoint, ILogixTag Tag, byte[] Buffer);
 
     private readonly record struct WriteOutcome(TagName TagName, LogixTagWriteResult Result);
 }

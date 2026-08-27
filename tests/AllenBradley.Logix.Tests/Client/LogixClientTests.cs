@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -56,41 +57,28 @@ public class LogixClientTests
     }
 
     [Fact]
-    public async Task ReadAsync_WhenTheControllerTypeDisagrees_DegradesThatPoint()
+    public async Task ReadAsync_WhenTheReplyIsTooShortForTheType_DegradesThatPointAndKeepsTheRest()
     {
         // Arrange
-        // The read itself succeeds, but the controller reports REAL where a DINT is configured — decoding
-        // those four bytes as an int would invent a plausible, wrong value. The type-code gate stops it.
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, RealMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-        };
-        var client = new LogixClient(tagManager);
-
-        // Act
-        var values = await client.ReadAsync([Speed], CancellationToken.None);
-
-        // Assert
-        values.Should().ContainSingle().Which.Quality.Should().Be(LogixQuality.Bad);
-    }
-
-    [Fact]
-    public async Task ReadAsync_WhenTheBufferIsShorterThanTheType_DegradesThatPoint()
-    {
-        // Arrange
-        // A DINT needs 4 bytes; decoding 2 would read past the buffer or silently invent a value. The type
-        // matches, so this is the byte-size backstop doing its job.
+        // Two bytes where a DINT needs four. Nothing checks that before the decode any more — the
+        // controller's type was verified at connect — so the converter is what discovers it, by throwing.
         var tagManager = new FakeTagManager
         {
             [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(new byte[2])),
+            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(FortyTwoAsDint)),
         };
         var client = new LogixClient(tagManager);
 
         // Act
-        var values = await client.ReadAsync([Speed], CancellationToken.None);
+        var values = await client.ReadAsync([Speed, Level], CancellationToken.None);
 
         // Assert
-        values.Should().ContainSingle().Which.Quality.Should().Be(LogixQuality.Bad);
+        // A decode that throws is still one tag's problem: it degrades its own point and leaves the rest
+        // of the group standing, exactly as a failed read does (ADR-004).
+        values.Should().HaveCount(2);
+        values[0].Quality.Should().Be(LogixQuality.Bad);
+        values[1].Quality.Should().Be(LogixQuality.Good);
+        values[1].Value.Should().Be(42);
     }
 
     [Fact]
@@ -136,26 +124,6 @@ public class LogixClientTests
         // Silence here would be a dropped write the caller cannot detect.
         (await write.Should().ThrowAsync<LogixTagException>())
             .Which.Message.Should().Contain("Motor.Speed").And.Contain("tag is read-only");
-    }
-
-    [Fact]
-    public async Task WriteAsync_WhenTheControllerTypeDisagrees_ThrowsWithoutWriting()
-    {
-        // Arrange
-        // Configured DINT, controller reports REAL: encoding the DINT bytes onto the REAL tag would corrupt
-        // it, so the write must fail by name before any bytes reach the device.
-        var tag = FakeTag.Writing(Speed, RealMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Speed] = tag };
-        var client = new LogixClient(tagManager);
-        var value = CreateValue(Speed, 42);
-
-        // Act
-        var write = async () => await client.WriteAsync([value], CancellationToken.None);
-
-        // Assert
-        (await write.Should().ThrowAsync<LogixTagException>())
-            .Which.Message.Should().Contain("Motor.Speed");
-        tag.Written.Should().BeNull("the type gate must stop the write before it reaches the device");
     }
 
     [Fact]
@@ -230,15 +198,22 @@ public class LogixClientTests
         private LogixTagReadResult _readResult = LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
         private LogixTagWriteResult _writeResult = LogixTagWriteResult.Ok();
 
-        private FakeTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
+        private FakeTag(ILogixDataPoint dataPoint, TagDefinition? metadata, int tagSize)
         {
             DataPoint = dataPoint;
             Metadata = metadata;
+            Access = new FakeTagAccess(tagSize);
         }
 
-        public ILogixDataPoint DataPoint { get; }
+        public ILogixDataPoint DataPoint { get; init; }
 
-        public TagDefinition? Metadata { get; }
+        public TagDefinition? Metadata { get; init; }
+
+        /// <summary>
+        /// Reached for one thing only: the write buffer, which is the tag's own width and not something
+        /// the converter decides. Reads and writes are answered by this fake directly.
+        /// </summary>
+        public ILogixTagAccess Access { get; init; }
 
         public bool WasRead { get; private set; }
 
@@ -246,11 +221,11 @@ public class LogixClientTests
 
         public static FakeTag Reading(
             ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagReadResult result) =>
-            new(dataPoint, metadata) { _readResult = result };
+            new(dataPoint, metadata, tagSize: 0) { _readResult = result };
 
         public static FakeTag Writing(
             ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
-            new(dataPoint, metadata) { _writeResult = result };
+            new(dataPoint, metadata, tagSize: sizeof(int)) { _writeResult = result };
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
@@ -263,6 +238,21 @@ public class LogixClientTests
             Written = buffer;
             return Task.FromResult(_writeResult);
         }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    private sealed class FakeTagAccess(int tagSize) : ILogixTagAccess
+    {
+        public byte[] CreateNewWriteBuffer() => new byte[tagSize];
+
+        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
+            throw new NotSupportedException("FakeTag answers reads itself.");
+
+        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
+            throw new NotSupportedException("FakeTag answers writes itself.");
 
         public void Dispose()
         {

@@ -1,4 +1,6 @@
 using System.Collections.Frozen;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -21,13 +23,19 @@ internal static class DataPointConverterRegistry
     private static FrozenDictionary<Type, IDataPointConverter> Build()
     {
         var converters = new Dictionary<Type, IDataPointConverter>();
+
         Register(converters, new DIntConverter());
         Register(converters, new RealConverter());
+
         return converters.ToFrozenDictionary();
     }
 
-    // The key is the converter's own TDataPoint, so registration cannot map a converter to a data
-    // point type it does not handle.
+    // Derives the key from the converter instead of taking one, which is what makes a mis-registration
+    // unrepresentable rather than merely unlikely: TDataPoint is inferred from the converter's own base
+    // (DIntConverter is an AtomicDataPointConverter<DIntDataPoint, int>), so there is no second place
+    // for a key to disagree with the converter filed under it. A literal dictionary entry would take
+    // both halves from the caller and compile happily with them mismatched, failing only at run time in
+    // DataPointConverter.Cast.
     private static void Register<TDataPoint, TDomain>(
         Dictionary<Type, IDataPointConverter> converters,
         DataPointConverter<TDataPoint, TDomain> converter)

@@ -258,6 +258,8 @@ public class CachingLogixTagManagerTests
         public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
             Task.FromResult(LogixTagWriteResult.Ok());
 
+        public byte[] CreateNewWriteBuffer() => [];
+
         public void Dispose()
         {
             DisposeCount++;

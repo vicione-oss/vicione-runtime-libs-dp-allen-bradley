@@ -62,11 +62,12 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
             return [new LogixConfigurationMismatch($"Tag '{dataPoint.TagName}' was not found on the controller.")];
         }
 
-        // The converter is the single source of the expected type and the comparison, shared with the
-        // runtime type gate (ADR-003): verification and the poll cannot disagree on what a mismatch is. The
-        // verifier only renders the kind the converter reports.
+        // The converter is the single source of the expected type, and LogixTypeComparison the single
+        // comparison. This is the only place a configured type is read against the controller's own
+        // declaration (ADR-003) — the poll trusts the verdict reached here, so a mismatch that gets past
+        // it is a mismatch nothing downstream will catch. The verifier only renders the kind it reports.
         var converter = DataPointConverterRegistry.GetConverter(dataPoint);
-        var mismatch = converter.CompareTo(device);
+        var mismatch = LogixTypeComparison.Compare(converter, resolved.TagDefinition);
         return mismatch switch
         {
             LogixTypeMismatch.None => [],
@@ -80,12 +81,12 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
             [
                 new LogixConfigurationMismatch(
                     $"Tag '{dataPoint.TagName}' is a structure on the controller, " +
-                    $"but a scalar of type {converter.ExpectedType} is configured."),
+                    $"but a scalar of type {converter.ExpectedTypeName} is configured."),
             ],
             LogixTypeMismatch.AtomicType =>
             [
                 new LogixConfigurationMismatch(
-                    $"Data type mismatch for tag '{dataPoint.TagName}': configured {converter.ExpectedType}, " +
+                    $"Data type mismatch for tag '{dataPoint.TagName}': configured {converter.ExpectedTypeName}, " +
                     $"controller reports {Describe(device.DataType)}."),
             ],
             _ => throw new ArgumentOutOfRangeException(

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
@@ -10,20 +11,27 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 /// <c>ISymbolicDataPointAccess</c> is the source of truth for its data point.
 /// </summary>
 /// <remarks>
-/// It wraps the minimal <see cref="ILogixTagAccess"/> seam and adds two immutable getters, so the
+/// It wraps the minimal <see cref="Access.ILogixTagAccess"/> seam and adds two immutable getters, so the
 /// whole-exchange concurrency contract of ADR-001 is untouched: <see cref="Metadata"/> and
 /// <see cref="DataPoint"/> are data, not handle state. Disposal frees the inner handle.
 /// </remarks>
 internal interface ILogixTag : IDisposable
 {
     /// <summary>The configured data point this tag reads and writes.</summary>
-    ILogixDataPoint DataPoint { get; }
+    ILogixDataPoint DataPoint { get; init; }
 
     /// <summary>
     /// What the controller's symbol table reports for the tag, or <c>null</c> when the tag is absent from
-    /// it — the "not on the controller" signal verification reports, and the type-code gate decode checks.
+    /// it — the "not on the controller" signal verification reports.
     /// </summary>
-    TagDefinition? Metadata { get; }
+    TagDefinition? Metadata { get; init; }
+
+    /// <summary>
+    /// The access this tag reads and writes over. Exposed because the width of a write buffer is the
+    /// controller's fact rather than the configuration's: libplctag knows how wide the handle it opened
+    /// is, and a converter does not.
+    /// </summary>
+    ILogixTagAccess Access { get; init; }
 
     /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
     Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken);

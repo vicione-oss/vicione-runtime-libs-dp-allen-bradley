@@ -14,43 +14,18 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // against a data point that exchanges something else. It is also what lets Decode build the value
 // through the data point instead of a value type of its own — the point owns its value record, and the
 // range rules that record carries.
+//
+// What a match *is* is not decided here or in any subclass. A converter states what it expects the tag
+// to be — ExpectedKind and ExpectedDataType — and LogixTypeComparison holds the one rule that reads a
+// TagDefinition against it.
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : LogixDataPoint<TDomain>
 {
-    public abstract AllenBradleyDataType ExpectedType { get; }
+    public abstract LogixDataTypeName ExpectedTypeName { get; }
 
-    public abstract ByteSize ByteSize { get; }
+    public abstract LogixTypeKind ExpectedKind { get; }
 
-    LogixTypeMismatch IDataPointConverter.CompareTo(TagDefinition? metadata) => Compare(metadata);
-
-    bool IDataPointConverter.ConflictsWith(TagDefinition? metadata) =>
-        Compare(metadata) != LogixTypeMismatch.None;
-
-    // The one comparison both surface members share. A scalar this converter can decode is a matching
-    // atomic type that is neither a structure nor an array. Shape is reported before type: a scalar
-    // configured against an array or a structure is a shape mismatch, and its atomic code would be
-    // meaningless to compare. Null metadata is unverifiable, not a contradiction, so it reports None.
-    private LogixTypeMismatch Compare(TagDefinition? metadata)
-    {
-        if (metadata is not { } declaration)
-        {
-            return LogixTypeMismatch.None;
-        }
-
-        if (!declaration.DimensionCount.IsScalar)
-        {
-            return LogixTypeMismatch.Array;
-        }
-
-        if (declaration.Kind is LogixTypeKind.Structure)
-        {
-            return LogixTypeMismatch.Structure;
-        }
-
-        return declaration.DataType == ExpectedType
-            ? LogixTypeMismatch.None
-            : LogixTypeMismatch.AtomicType;
-    }
+    public abstract AllenBradleyDataType? ExpectedDataType { get; }
 
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
