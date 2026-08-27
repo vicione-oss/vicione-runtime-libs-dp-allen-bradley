@@ -12,4 +12,8 @@
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Model\Nodes\DataPoints\Scalars\Integers\" />
+  </ItemGroup>
+
 </Project>
