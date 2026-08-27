@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="libplctag" />
     <PackageReference Include="ViciOne.Suite.DataPort" />
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
   </ItemGroup>

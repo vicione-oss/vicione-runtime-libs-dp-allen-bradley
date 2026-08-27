@@ -44,6 +44,19 @@ PLC and protocol knowledge needed to understand the implementations. These docs 
 | [cip-protocol/cip-datatypes-reference.md](cip-protocol/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, ranges, .NET equivalents, the Logix `STRING`/`TIMER` structures, and the Logix symbol-type bitfield |
 | [cip-protocol/cip-datatype-support-matrix.md](cip-protocol/cip-datatype-support-matrix.md) | Which types exist per controller family (Logix, Micro800, legacy MicroLogix / SLC-500 / PLC-5) |
 
+### libplctag behaviour — `libPlcTag/`
+
+How the [libplctag](https://github.com/libplctag/libplctag) native library and its .NET wrapper
+behave — the facts about our dependency that shape the client design, sitting **above** the
+client-agnostic protocol docs and **below** the client ADRs that consume them.
+
+| Document | Description |
+|----------|-------------|
+| [libPlcTag/](libPlcTag/README.md) | Index of libplctag behaviour docs |
+| [libPlcTag/the-shared-session.md](libPlcTag/the-shared-session.md) | The one CIP session shared across handles to a controller, and request packing end to end: whether requests pack (`allow_packing` by PLC type), when and how large a pack gets (self-clocking thread, no linger timer, throughput tracks requests-in-flight), what you can steer (exclude or segregate, never compose), and why the reusable unit is the warm handle |
+| [libPlcTag/concurrent-operations-on-a-handle.md](libPlcTag/concurrent-operations-on-a-handle.md) | Why two overlapping operations on one handle mispair and cascade, and the raw-buffer race below the native BUSY guard |
+| [libPlcTag/tag-disposal-and-shutdown.md](libPlcTag/tag-disposal-and-shutdown.md) | Why every `Tag` must be disposed deterministically — finalized native handles fail-fast the process with `0xC0000602` |
+
 ### Implementation context — `context/`
 
 Background material specific to this implementation: the test devices available for integration
@@ -59,6 +72,7 @@ testing.
 |----------|-------------|
 | [process/](process/README.md) | How a dataport gets built, phase by phase. Phase 1, [Bootstrap the project](process/bootstrap-the-project.md), is written |
 | [documentation-principles.md](documentation-principles.md) | How these docs are organised; Diátaxis + the no-duplication rule |
+| [modelling-conventions.md](modelling-conventions.md) | The types we define are `readonly record struct`s or `enum`s, never bare primitives |
 
 The repo-wide build conventions — test platform, package feeds, central package management — are
 documented in [`AGENTS.md`](../../AGENTS.md) at the repo root.

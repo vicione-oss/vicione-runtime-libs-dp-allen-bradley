@@ -358,7 +358,8 @@
         "type": "Project",
         "dependencies": {
           "ViciOne.Suite.DataPort": "[1.0.0-ci2623299841, )",
-          "ViciOne.Suite.DataPort.Extensions": "[1.0.0-ci2623299841, )"
+          "ViciOne.Suite.DataPort.Extensions": "[1.0.0-ci2623299841, )",
+          "libplctag": "[1.5.2, )"
         }
       },
       "ViciOne.Suite.DataPort": {

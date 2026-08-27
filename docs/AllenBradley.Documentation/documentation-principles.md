@@ -52,6 +52,10 @@ folders:
 
 - [`cip-protocol/`](cip-protocol/) — **client-agnostic** CIP / EtherNet/IP background: wire formats,
   the object model, networking, per-family type differences. Nothing here is specific to this codebase.
+- [`libPlcTag/`](libPlcTag/) — **library-specific** behaviour of the `libplctag` dependency: what it
+  does that the CIP spec does not dictate (request packing and its timing, connection sharing,
+  concurrency and disposal quirks). Facts about the dependency, consumed by the client ADRs — one
+  layer above `cip-protocol/`, one below the decisions in `ADR/`.
 - [`context/`](context/) — the test-device inventory and other material needed to run and understand
   the implementation.
 

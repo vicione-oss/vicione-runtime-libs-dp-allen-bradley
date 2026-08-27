@@ -2,6 +2,15 @@
   "version": 2,
   "dependencies": {
     "net10.0": {
+      "libplctag": {
+        "type": "Direct",
+        "requested": "[1.5.2, )",
+        "resolved": "1.5.2",
+        "contentHash": "v16WtxKMr6YiPc/ws5C/MdhOvZgLrlDwJ1FQPB4PLrWNpBQXr8fUXaHI12rl3sNyJZ2ocB+zeSPUDFT8zK4pDA==",
+        "dependencies": {
+          "libplctag.NativeImport": "1.0.41"
+        }
+      },
       "ViciOne.Suite.DataPort": {
         "type": "Direct",
         "requested": "[1.0.0-ci2623299841, )",
@@ -27,6 +36,11 @@
         "type": "Transitive",
         "resolved": "12.1.0",
         "contentHash": "FqWEn8BdbbFEHGanj9K8SVo+LyBeFWy2rolaE+e1TNUbifr8M7Iss+I1AqTSc8kjKtvjl/WN4XIHiRpslh42bA=="
+      },
+      "libplctag.NativeImport": {
+        "type": "Transitive",
+        "resolved": "1.0.41",
+        "contentHash": "cm7TXwCMg4lALRtP/XJzxI4db9qYcRPB7kglPfDOqiNE1PQ4O/gOC5KPCwoGhIw07FBKvVDnl5sjbXS3iK2tEw=="
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",

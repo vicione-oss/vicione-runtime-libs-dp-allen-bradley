@@ -3,7 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
 [Trait("Category", "Integration")]
-public class PlcTagListingTests
+public class PlcTagListingTests(ITestOutputHelper output)
 {
     // ── Connection configuration ──────────────────────────────────────────────
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
@@ -11,13 +11,6 @@ public class PlcTagListingTests
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
     // ─────────────────────────────────────────────────────────────────────────
-
-    private readonly ITestOutputHelper _output;
-
-    public PlcTagListingTests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
 
     [Fact]
     public void ListAllTags_OutputsControllerTagsProgramTagsAndUdts()
@@ -29,29 +22,29 @@ public class PlcTagListingTests
         var listing = lister.List();
 
         // Assert
-        _output.WriteLine("Controller Tags");
-        _output.WriteLine("===============");
+        output.WriteLine("Controller Tags");
+        output.WriteLine("===============");
         foreach (var tag in listing.ControllerTags)
-            _output.WriteLine($"Id={tag.Id}  Name={tag.Name}  Type=0x{tag.Type:X4}  Length={tag.Length}");
+            output.WriteLine($"Id={tag.Id}  Name={tag.Name}  Type=0x{tag.Type:X4}  Length={tag.Length}");
 
-        _output.WriteLine(string.Empty);
-        _output.WriteLine("Programs");
-        _output.WriteLine("========");
+        output.WriteLine(string.Empty);
+        output.WriteLine("Programs");
+        output.WriteLine("========");
         foreach (var (programName, programTags) in listing.ProgramTags)
         {
-            _output.WriteLine(programName);
+            output.WriteLine(programName);
             foreach (var tag in programTags)
-                _output.WriteLine($"    {tag.Name}");
+                output.WriteLine($"    {tag.Name}");
         }
 
-        _output.WriteLine(string.Empty);
-        _output.WriteLine("UDTs");
-        _output.WriteLine("====");
+        output.WriteLine(string.Empty);
+        output.WriteLine("UDTs");
+        output.WriteLine("====");
         foreach (var udt in listing.Udts)
         {
-            _output.WriteLine($"Id={udt.Id}  Name={udt.Name}  NumFields={udt.NumFields}  Size={udt.Size}");
+            output.WriteLine($"Id={udt.Id}  Name={udt.Name}  NumFields={udt.NumFields}  Size={udt.Size}");
             foreach (var field in udt.Fields)
-                _output.WriteLine($"    Name={field.Name}  Offset={field.Offset}  Metadata={field.Metadata}  Type=0x{field.Type:X4}");
+                output.WriteLine($"    Name={field.Name}  Offset={field.Offset}  Metadata={field.Metadata}  Type=0x{field.Type:X4}");
         }
 
         Assert.NotEmpty(listing.ControllerTags);

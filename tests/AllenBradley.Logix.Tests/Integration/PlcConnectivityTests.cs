@@ -17,6 +17,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 ///   CIP_TAG_NAME  – Tag to write/read              (default: Program:MainProgram.strValue1)
 /// </summary>
 [Trait("Category", "Integration")]
+[Collection(PlcCollection.Name)]
 public class PlcConnectivityTests
 {
     // ── Connection configuration ──────────────────────────────────────────────

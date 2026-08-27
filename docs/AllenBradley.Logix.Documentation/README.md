@@ -38,11 +38,11 @@ These pages cover only what the Logix port adds on top.
 
 ## Components
 
-### Explanation *(planned)*
+### Explanation
 
 | Document | Covers |
 |----------|--------|
-| `explanation/architecture.md` | How the CIP client, typed nodes, and the incoming/outgoing ports fit together |
+| [`explanation/client/architecture.md`](explanation/client/architecture.md) | How the client classes collaborate — from the read/write seams down to the native `libplctag` handle (with diagram) |
 
 ### How-to *(planned)*
 
