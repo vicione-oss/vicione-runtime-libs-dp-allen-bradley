@@ -7,7 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // REAL (0xCA): IEEE-754 single-precision, little-endian. Direct read/write, no byte swap.
 internal sealed class RealConverter : DataPointConverter<RealDataPoint, float>
 {
-    public override CipType ExpectedType => CipType.Real;
+    public override AllenBradleyDataType ExpectedType => AllenBradleyDataType.Real;
 
     public override ByteSize ByteSize => new(sizeof(float));
 

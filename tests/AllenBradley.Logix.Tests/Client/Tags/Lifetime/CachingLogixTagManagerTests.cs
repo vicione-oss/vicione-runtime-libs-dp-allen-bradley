@@ -18,8 +18,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 /// </summary>
 public class CachingLogixTagManagerTests
 {
-    private static LogixTypeDeclaration Dint(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, CipType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+    private static TagDefinition Dint(string tagName) =>
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
 
     private static CachingLogixTagManager NewManager(
         CountingAccessFactory factory, FakeSchemaBrowser browser) =>
@@ -205,12 +205,12 @@ public class CachingLogixTagManagerTests
 
     private sealed class FakeSchemaBrowser : ITagDefinitionsLoader
     {
-        private readonly Dictionary<TagName, LogixTypeDeclaration> _declarations =
+        private readonly Dictionary<TagName, TagDefinition> _declarations =
             new(TagName.CaseInsensitiveComparer);
 
         public int BrowseCount { get; private set; }
 
-        public LogixTypeDeclaration this[string tagName]
+        public TagDefinition this[string tagName]
         {
             set => _declarations[new TagName(tagName)] = value;
         }

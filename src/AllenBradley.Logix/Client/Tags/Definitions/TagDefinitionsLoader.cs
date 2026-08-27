@@ -27,7 +27,7 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
     public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
     {
         var declarationsByTagName =
-            new Dictionary<TagName, LogixTypeDeclaration>(TagName.CaseInsensitiveComparer);
+            new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer);
 
         var controllerTags = await ReadDirectoryAsync(ControllerTags, cancellationToken).ConfigureAwait(false);
         AddTags(declarationsByTagName, controllerTags, programScope: null);
@@ -42,7 +42,7 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
         return new TagDefinitions(declarationsByTagName);
     }
 
-    private async Task<IReadOnlyList<LogixTypeDeclaration>> ReadDirectoryAsync(
+    private async Task<IReadOnlyList<TagDefinition>> ReadDirectoryAsync(
         TagName schemaTagName, CancellationToken cancellationToken)
     {
         using var access = accessFactory.CreateForSchemaTag(schemaTagName);
@@ -57,12 +57,12 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
         return TagsDecoder.Decode(read.Buffer.Span);
     }
 
-    private static bool IsProgram(LogixTypeDeclaration declaration) =>
+    private static bool IsProgram(TagDefinition declaration) =>
         declaration.TagName.Value.StartsWith(ProgramPrefix, StringComparison.Ordinal);
 
     private static void AddTags(
-        Dictionary<TagName, LogixTypeDeclaration> declarationsByTagName,
-        IReadOnlyList<LogixTypeDeclaration> tags,
+        Dictionary<TagName, TagDefinition> declarationsByTagName,
+        IReadOnlyList<TagDefinition> tags,
         TagName? programScope)
     {
         foreach (var tag in tags)

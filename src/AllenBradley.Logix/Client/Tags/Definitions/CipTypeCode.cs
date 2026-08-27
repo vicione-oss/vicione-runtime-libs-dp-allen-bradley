@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// CIP elementary type codes as reported on the wire by Allen-Bradley controllers.
@@ -6,10 +6,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// <remarks>
 /// Values are the one-byte CIP type codes (<c>0xC1</c>–<c>0xCB</c> for the elementary types).
 /// Structured types — the Logix <c>STRING</c>, <c>TIMER</c> and every UDT — are reported with the
-/// <c>0x8000</c> structure marker instead and are not modelled here yet. See the CIP data types
+/// <c>0x8000</c> structure marker instead and are not modelled here. See the CIP data types
 /// reference for the full table.
 /// </remarks>
-public enum CipType : byte
+internal enum CipTypeCode : byte
 {
     /// <summary>1-byte boolean (<c>0xC1</c>); nonzero is true.</summary>
     Bool = 0xC1,

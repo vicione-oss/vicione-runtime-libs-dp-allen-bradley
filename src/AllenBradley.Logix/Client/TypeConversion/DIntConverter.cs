@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // direct read/write with no byte swap.
 internal sealed class DIntConverter : DataPointConverter<DIntDataPoint, int>
 {
-    public override CipType ExpectedType => CipType.Dint;
+    public override AllenBradleyDataType ExpectedType => AllenBradleyDataType.Dint;
 
     public override ByteSize ByteSize => new(sizeof(int));
 

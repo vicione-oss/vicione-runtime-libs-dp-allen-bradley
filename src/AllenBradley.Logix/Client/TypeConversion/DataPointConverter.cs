@@ -11,20 +11,20 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : class, ILogixDataPoint
 {
-    public abstract CipType ExpectedType { get; }
+    public abstract AllenBradleyDataType ExpectedType { get; }
 
     public abstract ByteSize ByteSize { get; }
 
-    LogixTypeMismatch IDataPointConverter.CompareTo(LogixTypeDeclaration? metadata) => Compare(metadata);
+    LogixTypeMismatch IDataPointConverter.CompareTo(TagDefinition? metadata) => Compare(metadata);
 
-    bool IDataPointConverter.ConflictsWith(LogixTypeDeclaration? metadata) =>
+    bool IDataPointConverter.ConflictsWith(TagDefinition? metadata) =>
         Compare(metadata) != LogixTypeMismatch.None;
 
     // The one comparison both surface members share. A scalar this converter can decode is a matching
     // atomic type that is neither a structure nor an array. Shape is reported before type: a scalar
     // configured against an array or a structure is a shape mismatch, and its atomic code would be
     // meaningless to compare. Null metadata is unverifiable, not a contradiction, so it reports None.
-    private LogixTypeMismatch Compare(LogixTypeDeclaration? metadata)
+    private LogixTypeMismatch Compare(TagDefinition? metadata)
     {
         if (metadata is not { } declaration)
         {
@@ -41,7 +41,7 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
             return LogixTypeMismatch.Structure;
         }
 
-        return declaration.AtomicType == ExpectedType
+        return declaration.DataType == ExpectedType
             ? LogixTypeMismatch.None
             : LogixTypeMismatch.AtomicType;
     }

@@ -7,7 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// Decodes the raw bytes of an <c>@tags</c> (or <c>Program:&lt;name&gt;.@tags</c>) read into one
-/// <see cref="LogixTypeDeclaration"/> per tag. This is the <c>src</c> port of the spike's
+/// <see cref="TagDefinition"/> per tag. This is the <c>src</c> port of the spike's
 /// <c>TagInfoPlcMapper</c>, working off a <see cref="ReadOnlySpan{T}"/> with
 /// <see cref="BinaryPrimitives"/> rather than the sealed <c>Tag</c>'s getters, so it is testable
 /// against captured buffers and independent of the removed typed-mapper API.
@@ -21,9 +21,9 @@ internal static class TagsDecoder
 {
     private const int HeaderSize = 22;
 
-    public static IReadOnlyList<LogixTypeDeclaration> Decode(ReadOnlySpan<byte> listing)
+    public static IReadOnlyList<TagDefinition> Decode(ReadOnlySpan<byte> listing)
     {
-        var declarations = new List<LogixTypeDeclaration>();
+        var declarations = new List<TagDefinition>();
         var offset = 0;
 
         while (offset + HeaderSize <= listing.Length)
@@ -56,16 +56,16 @@ internal static class TagsDecoder
         return declarations;
     }
 
-    private static LogixTypeDeclaration ToDeclaration(
+    private static TagDefinition ToDeclaration(
         string name, ushort symbolType, uint dimension0, uint dimension1, uint dimension2, ushort elementLength)
     {
         var isStruct = SymbolType.IsStruct(symbolType);
         var dimensionCount = SymbolType.DimensionCount(symbolType);
 
-        return new LogixTypeDeclaration(
+        return new TagDefinition(
             TagName: new TagName(name),
             Kind: isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
-            AtomicType: isStruct ? null : SymbolType.AtomicType(symbolType),
+            DataType: isStruct ? null : SymbolType.AtomicType(symbolType),
             DimensionCount: new DimensionCount(dimensionCount),
             ElementCount: ElementCountOf(dimensionCount, dimension0, dimension1, dimension2),
             ElementLength: new ElementLength(elementLength));

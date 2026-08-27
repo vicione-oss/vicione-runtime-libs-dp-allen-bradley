@@ -14,14 +14,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// <param name="metadata">The controller's declaration for the tag, or <c>null</c> when it is absent.</param>
 /// <param name="inner">The access this tag reads and writes over.</param>
 internal sealed class LogixTag(
-    ILogixDataPoint dataPoint, LogixTypeDeclaration? metadata, ILogixTagAccess inner)
+    ILogixDataPoint dataPoint, TagDefinition? metadata, ILogixTagAccess inner)
     : ILogixTag
 {
     /// <inheritdoc />
     public ILogixDataPoint DataPoint => dataPoint;
 
     /// <inheritdoc />
-    public LogixTypeDeclaration? Metadata => metadata;
+    public TagDefinition? Metadata => metadata;
 
     /// <inheritdoc />
     public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>

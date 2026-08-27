@@ -15,8 +15,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 /// </summary>
 public class LogixConfigurationVerifierTests
 {
-    private static LogixTypeDeclaration Declaration(
-        bool isStruct = false, CipType? atomicType = CipType.Dint, int dimensionCount = 0) =>
+    private static TagDefinition Declaration(
+        bool isStruct = false, AllenBradleyDataType? atomicType = AllenBradleyDataType.Dint, int dimensionCount = 0) =>
         new(
             new TagName("Tag"),
             isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
@@ -25,13 +25,13 @@ public class LogixConfigurationVerifierTests
             new ElementCount(1),
             new ElementLength(4));
 
-    private static LogixResolvedDataPoint Resolved(ILogixDataPoint dataPoint, LogixTypeDeclaration? device) =>
+    private static ResolvedDataPoint Resolved(ILogixDataPoint dataPoint, TagDefinition? device) =>
         new(dataPoint, device);
 
     [Fact]
     public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: CipType.Dint));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: AllenBradleyDataType.Dint));
 
         LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
     }
@@ -50,7 +50,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheAtomicTypeDiffers_ReportsTheMismatch()
     {
         // DINT configured, REAL on the controller.
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: CipType.Real));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: AllenBradleyDataType.Real));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -70,7 +70,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Counts")), Declaration(atomicType: CipType.Dint, dimensionCount: 1));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Counts")), Declaration(atomicType: AllenBradleyDataType.Dint, dimensionCount: 1));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -82,8 +82,8 @@ public class LogixConfigurationVerifierTests
     {
         var tagManager = new FakeTagManager
         {
-            ["Good"] = Declaration(atomicType: CipType.Dint),
-            ["WrongType"] = Declaration(atomicType: CipType.Real),
+            ["Good"] = Declaration(atomicType: AllenBradleyDataType.Dint),
+            ["WrongType"] = Declaration(atomicType: AllenBradleyDataType.Real),
             // "Missing" is deliberately absent — the manager stamps null metadata on its tag.
         };
         var verifier = new LogixConfigurationVerifier(tagManager);
@@ -103,10 +103,10 @@ public class LogixConfigurationVerifierTests
     // report and hands back a tag carrying it (null for an absent tag).
     private sealed class FakeTagManager : ILogixTagManager
     {
-        private readonly Dictionary<TagName, LogixTypeDeclaration> _declarations =
+        private readonly Dictionary<TagName, TagDefinition> _declarations =
             new(TagName.CaseInsensitiveComparer);
 
-        public LogixTypeDeclaration this[string tagName]
+        public TagDefinition this[string tagName]
         {
             set => _declarations[new TagName(tagName)] = value;
         }
@@ -120,12 +120,12 @@ public class LogixConfigurationVerifierTests
     }
 
     // Only the projected getters matter to the verifier; it never reads or writes the tag.
-    private sealed class ProjectionTag(ILogixDataPoint dataPoint, LogixTypeDeclaration? metadata)
+    private sealed class ProjectionTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
         : ILogixTag
     {
         public ILogixDataPoint DataPoint => dataPoint;
 
-        public LogixTypeDeclaration? Metadata => metadata;
+        public TagDefinition? Metadata => metadata;
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
             throw new NotSupportedException("Verification projects metadata; it does not read the tag.");

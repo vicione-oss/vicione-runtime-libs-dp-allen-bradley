@@ -5,7 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// The controller's symbol table, decoded once and held for lookup: a map from tag name to the
-/// <see cref="LogixTypeDeclaration"/> the controller reports for it. Names are matched
+/// <see cref="TagDefinition"/> the controller reports for it. Names are matched
 /// <b>case-insensitively</b>, because Logix tag names are.
 /// </summary>
 /// <remarks>
@@ -14,13 +14,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// case-insensitive match is the injected dictionary's — key it with
 /// <see cref="TagName.CaseInsensitiveComparer"/>.
 /// </remarks>
-internal sealed class TagDefinitions(IReadOnlyDictionary<TagName, LogixTypeDeclaration> declarationsByTagName)
+internal sealed class TagDefinitions(IReadOnlyDictionary<TagName, TagDefinition> declarationsByTagName)
 {
     /// <summary>The controller's declaration for <paramref name="tagName"/>, or <c>null</c> when absent.</summary>
-    public LogixTypeDeclaration? Lookup(TagName tagName) =>
+    public TagDefinition? Lookup(TagName tagName) =>
         declarationsByTagName.TryGetValue(tagName, out var declaration) ? declaration : null;
 
     /// <summary>Pairs <paramref name="dataPoint"/> with the controller's declaration for its tag.</summary>
-    public LogixResolvedDataPoint Resolve(ILogixDataPoint dataPoint) =>
+    public ResolvedDataPoint Resolve(ILogixDataPoint dataPoint) =>
         new(dataPoint, Lookup(dataPoint.TagName));
 }

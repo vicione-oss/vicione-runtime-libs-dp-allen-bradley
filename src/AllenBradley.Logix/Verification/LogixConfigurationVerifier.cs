@@ -43,7 +43,7 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
         foreach (var dataPoint in dataPoints)
         {
             var tag = tagManager.TagFor(dataPoint);
-            var mismatches = GetMismatches(new LogixResolvedDataPoint(tag.DataPoint, tag.Metadata));
+            var mismatches = GetMismatches(new ResolvedDataPoint(tag.DataPoint, tag.Metadata));
             if (mismatches.Count > 0)
             {
                 misconfigured.Add(new MisconfiguredLogixDataPoint(dataPoint, mismatches));
@@ -53,11 +53,11 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
         return misconfigured;
     }
 
-    internal static IReadOnlyList<LogixConfigurationMismatch> GetMismatches(LogixResolvedDataPoint resolved)
+    internal static IReadOnlyList<LogixConfigurationMismatch> GetMismatches(ResolvedDataPoint resolved)
     {
         var dataPoint = resolved.DataPoint;
 
-        if (resolved.Device is not { } device)
+        if (resolved.TagDefinition is not { } device)
         {
             return [new LogixConfigurationMismatch($"Tag '{dataPoint.TagName}' was not found on the controller.")];
         }
@@ -86,17 +86,17 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
             [
                 new LogixConfigurationMismatch(
                     $"Data type mismatch for tag '{dataPoint.TagName}': configured {converter.ExpectedType}, " +
-                    $"controller reports {Describe(device.AtomicType)}."),
+                    $"controller reports {Describe(device.DataType)}."),
             ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(resolved), mismatch, "Unhandled type mismatch kind."),
         };
     }
 
-    private static string Describe(CipType? atomicType) => atomicType switch
+    private static string Describe(AllenBradleyDataType? dataType) => dataType switch
     {
         null => "a structure",
-        { } type when Enum.IsDefined(type) => type.ToString(),
-        { } type => $"CIP type 0x{(byte)type:X2}",
+        AllenBradleyDataType.Unknown => "a type this addon does not model",
+        { } type => type.ToString(),
     };
 }

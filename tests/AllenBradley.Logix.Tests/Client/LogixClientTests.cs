@@ -21,11 +21,11 @@ public class LogixClientTests
 
     // Metadata the controller would report for a DINT tag — matches the DINT converter, so the type gate
     // lets the read/write through and only the device outcome decides the result.
-    private static LogixTypeDeclaration DintMetadata(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, CipType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+    private static TagDefinition DintMetadata(string tagName) =>
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
 
-    private static LogixTypeDeclaration RealMetadata(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, CipType.Real, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+    private static TagDefinition RealMetadata(string tagName) =>
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Real, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
 
     // 42 as a DINT on the wire. Spelled out rather than taken from BitConverter, which would re-derive
     // it through the same host-endianness assumption the converter makes and so agree by construction.
@@ -225,7 +225,7 @@ public class LogixClientTests
         private LogixTagReadResult _readResult = LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
         private LogixTagWriteResult _writeResult = LogixTagWriteResult.Ok();
 
-        private FakeTag(ILogixDataPoint dataPoint, LogixTypeDeclaration? metadata)
+        private FakeTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
         {
             DataPoint = dataPoint;
             Metadata = metadata;
@@ -233,18 +233,18 @@ public class LogixClientTests
 
         public ILogixDataPoint DataPoint { get; }
 
-        public LogixTypeDeclaration? Metadata { get; }
+        public TagDefinition? Metadata { get; }
 
         public bool WasRead { get; private set; }
 
         public byte[]? Written { get; private set; }
 
         public static FakeTag Reading(
-            ILogixDataPoint dataPoint, LogixTypeDeclaration? metadata, LogixTagReadResult result) =>
+            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagReadResult result) =>
             new(dataPoint, metadata) { _readResult = result };
 
         public static FakeTag Writing(
-            ILogixDataPoint dataPoint, LogixTypeDeclaration? metadata, LogixTagWriteResult result) =>
+            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
             new(dataPoint, metadata) { _writeResult = result };
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)

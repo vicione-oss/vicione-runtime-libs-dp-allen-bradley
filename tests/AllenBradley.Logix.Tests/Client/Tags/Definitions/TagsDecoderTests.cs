@@ -23,7 +23,7 @@ public class TagsDecoderTests
         var tag = decoded[0];
         tag.TagName.Should().Be(new TagName("Motor.Speed"));
         tag.Kind.Should().Be(LogixTypeKind.Atomic);
-        tag.AtomicType.Should().Be(CipType.Dint);
+        tag.DataType.Should().Be(AllenBradleyDataType.Dint);
         tag.DimensionCount.Should().Be(new DimensionCount(0));
         tag.ElementCount.Should().Be(new ElementCount(1));
     }
@@ -39,7 +39,7 @@ public class TagsDecoderTests
         var decoded = TagsDecoder.Decode(listing);
 
         decoded.Select(t => t.TagName.Value).Should().Equal("A", "Tank.Level", "Program:Main");
-        decoded[1].AtomicType.Should().Be(CipType.Real);
+        decoded[1].DataType.Should().Be(AllenBradleyDataType.Real);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class TagsDecoderTests
         var tag = TagsDecoder.Decode(listing).Single();
 
         tag.Kind.Should().Be(LogixTypeKind.Structure);
-        tag.AtomicType.Should().BeNull();
+        tag.DataType.Should().BeNull();
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class TagsDecoderTests
 
         tag.DimensionCount.Should().Be(new DimensionCount(1));
         tag.ElementCount.Should().Be(new ElementCount(10));
-        tag.AtomicType.Should().Be(CipType.Dint);
+        tag.DataType.Should().Be(AllenBradleyDataType.Dint);
     }
 
     [Fact]

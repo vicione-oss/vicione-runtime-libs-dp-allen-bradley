@@ -23,7 +23,7 @@ internal interface ILogixTag : IDisposable
     /// What the controller's symbol table reports for the tag, or <c>null</c> when the tag is absent from
     /// it — the "not on the controller" signal verification reports, and the type-code gate decode checks.
     /// </summary>
-    LogixTypeDeclaration? Metadata { get; }
+    TagDefinition? Metadata { get; }
 
     /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
     Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken);

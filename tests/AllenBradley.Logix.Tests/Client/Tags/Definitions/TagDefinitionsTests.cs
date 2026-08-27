@@ -11,14 +11,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definition
 /// </summary>
 public class TagDefinitionsTests
 {
-    private static LogixTypeDeclaration Dint(string name) =>
-        new(new TagName(name), LogixTypeKind.Atomic, CipType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+    private static TagDefinition Dint(string name) =>
+        new(new TagName(name), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
 
     [Fact]
     public void Lookup_IsCaseInsensitive()
     {
         var schema = new TagDefinitions(
-            new Dictionary<TagName, LogixTypeDeclaration>(TagName.CaseInsensitiveComparer)
+            new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer)
             {
                 [new TagName("Motor.Speed")] = Dint("Motor.Speed"),
             });
@@ -29,7 +29,7 @@ public class TagDefinitionsTests
     [Fact]
     public void Lookup_AnAbsentTag_ReturnsNull()
     {
-        var schema = new TagDefinitions(new Dictionary<TagName, LogixTypeDeclaration>());
+        var schema = new TagDefinitions(new Dictionary<TagName, TagDefinition>());
 
         schema.Lookup(new TagName("Nope")).Should().BeNull();
     }
@@ -38,22 +38,22 @@ public class TagDefinitionsTests
     public void Resolve_APresentTag_PairsTheDataPointWithItsDeclaration()
     {
         var schema = new TagDefinitions(
-            new Dictionary<TagName, LogixTypeDeclaration>(TagName.CaseInsensitiveComparer)
+            new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer)
             {
                 [new TagName("Motor.Speed")] = Dint("Motor.Speed"),
             });
 
         var resolved = schema.Resolve(new DIntDataPoint(new TagName("Motor.Speed")));
 
-        resolved.Device.Should().NotBeNull();
-        resolved.Device!.Value.AtomicType.Should().Be(CipType.Dint);
+        resolved.TagDefinition.Should().NotBeNull();
+        resolved.TagDefinition!.Value.DataType.Should().Be(AllenBradleyDataType.Dint);
     }
 
     [Fact]
     public void Resolve_AnAbsentTag_LeavesTheDeviceSideNull()
     {
-        var schema = new TagDefinitions(new Dictionary<TagName, LogixTypeDeclaration>());
+        var schema = new TagDefinitions(new Dictionary<TagName, TagDefinition>());
 
-        schema.Resolve(new DIntDataPoint(new TagName("Ghost"))).Device.Should().BeNull();
+        schema.Resolve(new DIntDataPoint(new TagName("Ghost"))).TagDefinition.Should().BeNull();
     }
 }
