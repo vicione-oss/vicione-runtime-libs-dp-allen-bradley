@@ -29,10 +29,12 @@ These pages cover only what the Logix port adds on top.
   [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/cip-protocol/cip-networking-overview.md)
   for the wire stack, session registration, the CIP object model and EPATH, and how a Logix tag read
   becomes a message-router request.
-- **Data types** — the
+- **Data types** —
+  [Symbolic tag data types](../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  covers what Logix exposes, the `STRING`/`TIMER` structures, BOOL packing, and the symbol-type
+  bitfield used when enumerating tags; the
   [CIP data types reference](../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
-  covers the wire formats, the Logix `STRING`/`TIMER` structures, and the symbol-type bitfield used
-  when enumerating tags.
+  has the wire encoding of each type.
 - **Test device** — a real CompactLogix L32E is available for integration testing; see
   [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
 
@@ -42,6 +44,7 @@ These pages cover only what the Logix port adds on top.
 
 | Document | Covers |
 |----------|--------|
+| [`explanation/tag-scoping.md`](explanation/tag-scoping.md) | Controller scope vs. program scope: what the `Program:` prefix means, which tags cannot be program-scoped, why enumeration takes two passes, and what scope is in the configuration tree |
 | [`explanation/client/architecture.md`](explanation/client/architecture.md) | How the client classes collaborate — from the read/write seams down to the native `libplctag` handle (with diagram) |
 
 ### How-to *(planned)*
@@ -51,15 +54,15 @@ These pages cover only what the Logix port adds on top.
 | `how-to/connect-to-a-device.md` | Connecting to a Logix controller (gateway, backplane path, connection sizing) |
 | `how-to/add-a-data-type.md` | Step-by-step recipe for adding a new Logix data-point type |
 
-### Reference *(planned)*
+### Reference
 
 | Document | Covers |
 |----------|--------|
-| `reference/datatype-support.md` | Implemented Logix types, wire/.NET mapping, per-family status, known issues |
+| [`reference/datatype-support.md`](reference/datatype-support.md) | Which Logix types the port implements, their .NET mapping and wire size, and what is not supported yet |
 
-### Decision records *(planned)*
+### Decision records
 
-Architecture decision records land under `ADR/` as design decisions are made.
+Architecture decision records land under [`ADR/`](ADR/) as design decisions are made.
 
 ---
 
