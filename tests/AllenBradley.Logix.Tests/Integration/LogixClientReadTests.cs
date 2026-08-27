@@ -1,7 +1,7 @@
 using libplctag;
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -46,7 +46,7 @@ public class LogixClientReadTests
                 new LogixClientInformation(new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix),
                 Timeout);
         using var tagManager = new CachingLogixTagManager(
-            accessFactory, new LogixSchemaBrowser(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
+            accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
         var readClient = new LogixClient(tagManager);
         IReadOnlyList<ILogixDataPoint> group = [new DIntDataPoint(new TagName(DintTagName))];
 
@@ -54,7 +54,7 @@ public class LogixClientReadTests
         // Load the schema (the connect precondition), then read through the production client + converter
         // stack. The target is a COUNTER member, absent from the flat symbol table, so its metadata is null
         // and the byte-size backstop is what gates the decode.
-        await tagManager.LoadSchemaAsync(CancellationToken.None);
+        await tagManager.LoadTagDefinitionsAsync(CancellationToken.None);
         var values = await readClient.ReadAsync(group, CancellationToken.None);
 
         // Assert

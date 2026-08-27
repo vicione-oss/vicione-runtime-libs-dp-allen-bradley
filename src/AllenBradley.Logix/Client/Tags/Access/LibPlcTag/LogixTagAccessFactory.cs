@@ -34,10 +34,10 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     };
 
     /// <inheritdoc />
-    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => CreateForSystemTag(dataPoint.TagName);
+    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => CreateForSchemaTag(dataPoint.TagName);
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateForSystemTag(TagName tagName)
+    public ILogixTagAccess CreateForSchemaTag(TagName tagName)
     {
         var tag = new Tag
         {

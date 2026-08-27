@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 /// The reuse rules of <see cref="CachingLogixTagManager"/> and the schema it now owns, exercised
 /// against a fake factory and a fake browser. These run with no controller and no native library — which
 /// is why access creation lives behind <see cref="ILogixTagAccessFactory"/> and the browse behind
-/// <see cref="ILogixSchemaBrowser"/> rather than inside the manager.
+/// <see cref="ITagDefinitionsLoader"/> rather than inside the manager.
 /// </summary>
 public class CachingLogixTagManagerTests
 {
@@ -26,7 +26,7 @@ public class CachingLogixTagManagerTests
         new(factory, browser, NullLogger<CachingLogixTagManager>.Instance);
 
     private static Task LoadAsync(CachingLogixTagManager manager) =>
-        manager.LoadSchemaAsync(TestContext.Current.CancellationToken);
+        manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
     [Fact]
     public async Task LoadSchemaAsync_CalledTwice_BrowsesOnce()
@@ -203,7 +203,7 @@ public class CachingLogixTagManagerTests
         factory.CreatedCount.Should().Be(0);
     }
 
-    private sealed class FakeSchemaBrowser : ILogixSchemaBrowser
+    private sealed class FakeSchemaBrowser : ITagDefinitionsLoader
     {
         private readonly Dictionary<TagName, LogixTypeDeclaration> _declarations =
             new(TagName.CaseInsensitiveComparer);
@@ -215,10 +215,10 @@ public class CachingLogixTagManagerTests
             set => _declarations[new TagName(tagName)] = value;
         }
 
-        public Task<LogixControllerSchema> BrowseAsync(CancellationToken cancellationToken)
+        public Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
         {
             BrowseCount++;
-            return Task.FromResult(new LogixControllerSchema(_declarations));
+            return Task.FromResult(new TagDefinitions(_declarations));
         }
     }
 
@@ -240,8 +240,8 @@ public class CachingLogixTagManagerTests
             return access;
         }
 
-        public ILogixTagAccess CreateForSystemTag(TagName tagName) =>
-            throw new NotSupportedException("The manager browses through the injected ILogixSchemaBrowser.");
+        public ILogixTagAccess CreateForSchemaTag(TagName tagName) =>
+            throw new NotSupportedException("The manager browses through the injected ITagDefinitionsLoader.");
     }
 
     private sealed class FakeTagAccess(bool throwOnDispose = false) : ILogixTagAccess

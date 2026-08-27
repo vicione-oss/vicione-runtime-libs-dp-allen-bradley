@@ -1,6 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// Decodes the 16-bit Logix symbol-type value carried by every entry in an <c>@tags</c> listing (the

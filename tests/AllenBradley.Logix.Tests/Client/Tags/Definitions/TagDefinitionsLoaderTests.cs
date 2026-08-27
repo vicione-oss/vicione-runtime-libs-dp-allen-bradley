@@ -1,31 +1,32 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Schema;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
 /// <summary>
 /// The browse orchestration over a fake factory that returns canned listing bytes: it reads the
 /// controller directory then each program's, qualifies program tags, and disposes every transient
 /// handle. No device, no native library.
 /// </summary>
-public class LogixSchemaBrowserTests
+public class TagDefinitionsLoaderTests
 {
     [Fact]
     public async Task BrowseAsync_ReadsControllerAndProgramTags_QualifyingProgramNames()
     {
         var factory = new FakeSystemTagFactory
         {
-            ["@tags"] = SymbolListing.Build(
-                new SymbolListing.Entry("Motor.Speed", 0x00C4),
-                new SymbolListing.Entry("Program:Main", 0x1000)),
-            ["Program:Main.@tags"] = SymbolListing.Build(
-                new SymbolListing.Entry("Count", 0x00C4)),
+            ["@tags"] = TagsDataBuilder.Build(
+                new TagsDataBuilder.Entry("Motor.Speed", 0x00C4),
+                new TagsDataBuilder.Entry("Program:Main", 0x1000)),
+            ["Program:Main.@tags"] = TagsDataBuilder.Build(
+                new TagsDataBuilder.Entry("Count", 0x00C4)),
         };
-        var browser = new LogixSchemaBrowser(factory);
+        var browser = new TagDefinitionsLoader(factory);
 
-        var schema = await browser.BrowseAsync(TestContext.Current.CancellationToken);
+        var schema = await browser.LoadAsync(TestContext.Current.CancellationToken);
 
         schema.Lookup(new TagName("Motor.Speed")).Should().NotBeNull();
         // The program tag is reachable only by its qualified name.
@@ -38,11 +39,11 @@ public class LogixSchemaBrowserTests
     {
         var factory = new FakeSystemTagFactory
         {
-            ["@tags"] = SymbolListing.Build(new SymbolListing.Entry("Motor.Speed", 0x00C4)),
+            ["@tags"] = TagsDataBuilder.Build(new TagsDataBuilder.Entry("Motor.Speed", 0x00C4)),
         };
-        var browser = new LogixSchemaBrowser(factory);
+        var browser = new TagDefinitionsLoader(factory);
 
-        await browser.BrowseAsync(TestContext.Current.CancellationToken);
+        await browser.LoadAsync(TestContext.Current.CancellationToken);
 
         // A leaked libplctag handle fail-fasts the process (0xC0000602); the browse owns its transients.
         factory.Created.Should().OnlyContain(access => access.IsDisposed);
@@ -52,11 +53,11 @@ public class LogixSchemaBrowserTests
     public async Task BrowseAsync_WhenTheDirectoryReadFails_ThrowsSchemaException()
     {
         var factory = new FakeSystemTagFactory(); // no canned "@tags" ⇒ the read fails
-        var browser = new LogixSchemaBrowser(factory);
+        var browser = new TagDefinitionsLoader(factory);
 
-        var browse = async () => await browser.BrowseAsync(TestContext.Current.CancellationToken);
+        var browse = async () => await browser.LoadAsync(TestContext.Current.CancellationToken);
 
-        await browse.Should().ThrowAsync<LogixSchemaException>();
+        await browse.Should().ThrowAsync<DataRetrievalException>();
     }
 
     private sealed class FakeSystemTagFactory : ILogixTagAccessFactory
@@ -74,7 +75,7 @@ public class LogixSchemaBrowserTests
         public ILogixTagAccess Create(ILogixDataPoint dataPoint) =>
             throw new NotSupportedException("The browser only reads system tags.");
 
-        public ILogixTagAccess CreateForSystemTag(TagName tagName)
+        public ILogixTagAccess CreateForSchemaTag(TagName tagName)
         {
             var access = new FakeSystemTagAccess(
                 _listingsByTagName.TryGetValue(tagName.Value, out var bytes) ? bytes : null, tagName.Value);

@@ -1,7 +1,7 @@
 using libplctag;
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
@@ -55,14 +55,14 @@ public class SharedAccessConcurrencyTests
         // Arrange
         var accessFactory = new LogixTagAccessFactory(ClientInformation(), Timeout);
         using var tagManager = new CachingLogixTagManager(
-            accessFactory, new LogixSchemaBrowser(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
+            accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
         var first = new DIntDataPoint(new TagName(DintTagName));
         var second = new DIntDataPoint(new TagName(DintTagName));
         var readClient = new LogixClient(tagManager);
         IReadOnlyList<ILogixDataPoint> group = [first, second];
 
         // Act
-        await tagManager.LoadSchemaAsync(CancellationToken.None);
+        await tagManager.LoadTagDefinitionsAsync(CancellationToken.None);
         var values = await readClient.ReadAsync(group, CancellationToken.None);
 
         // Assert

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
@@ -22,17 +22,17 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// <param name="logger">Records tags this manager could not free.</param>
 internal sealed class CachingLogixTagManager(
     ILogixTagAccessFactory factory,
-    ILogixSchemaBrowser schemaBrowser,
+    ITagDefinitionsLoader schemaBrowser,
     ILogger<CachingLogixTagManager> logger)
     : ILogixTagManager, IDisposable
 {
     private readonly Dictionary<ILogixDataPoint, ILogixTag> _tagByDataPoint = [];
     private readonly Lock _gate = new();
-    private LogixControllerSchema? _schema;
+    private TagDefinitions? _tagDefinitions;
     private bool _disposed;
 
     /// <inheritdoc />
-    public async Task LoadSchemaAsync(CancellationToken cancellationToken)
+    public async Task LoadTagDefinitionsAsync(CancellationToken cancellationToken)
     {
         // Idempotent, mirroring S7's _rootNodeHandle guard: a schema already in hand is left as is, so a
         // second connect call is a no-op rather than a second browse. Connect is the single caller, before
@@ -40,18 +40,18 @@ internal sealed class CachingLogixTagManager(
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            if (_schema is not null)
+            if (_tagDefinitions is not null)
             {
                 return;
             }
         }
 
-        var schema = await schemaBrowser.BrowseAsync(cancellationToken).ConfigureAwait(false);
+        var schema = await schemaBrowser.LoadAsync(cancellationToken).ConfigureAwait(false);
 
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            _schema ??= schema;
+            _tagDefinitions ??= schema;
         }
     }
 
@@ -67,11 +67,11 @@ internal sealed class CachingLogixTagManager(
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
-            if (_schema is not { } schema)
+            if (_tagDefinitions is not { } schema)
             {
                 throw new InvalidOperationException(
                     "The controller schema must be loaded before a tag is requested; " +
-                    "connect calls LoadSchemaAsync before the first TagFor.");
+                    "connect calls LoadTagDefinitionsAsync before the first TagFor.");
             }
 
             if (_tagByDataPoint.TryGetValue(dataPoint, out var cached))
@@ -120,7 +120,7 @@ internal sealed class CachingLogixTagManager(
             }
 
             _tagByDataPoint.Clear();
-            _schema = null;
+            _tagDefinitions = null;
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Text;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// Decodes the raw bytes of an <c>@tags</c> (or <c>Program:&lt;name&gt;.@tags</c>) read into one
@@ -17,7 +17,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
 /// three array dimensions (u32 each), name length (u16) — followed by the ASCII name. CIP is
 /// little-endian, matching .NET, so every field is a direct read.
 /// </remarks>
-internal static class LogixSymbolListingDecoder
+internal static class TagsDecoder
 {
     private const int HeaderSize = 22;
 

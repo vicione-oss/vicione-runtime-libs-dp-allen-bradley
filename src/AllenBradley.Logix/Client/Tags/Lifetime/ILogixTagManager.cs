@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
@@ -9,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// hands back in-process tags.
 /// </summary>
 /// <remarks>
-/// The schema is loaded once at connect (<see cref="LoadSchemaAsync"/>) and joined onto every tag, so
+/// The schema is loaded once at connect (<see cref="LoadTagDefinitionsAsync"/>) and joined onto every tag, so
 /// <see cref="TagFor"/> is a schema precondition. A tag returned here may be shared with other
 /// callers, so it is borrowed, never owned: the manager disposes it, and a consumer that disposes one it
 /// did not create breaks every other holder.
@@ -21,15 +22,15 @@ internal interface ILogixTagManager
     /// tag with the controller's metadata. Idempotent — a second call is a no-op. Connect calls this before
     /// the first <see cref="TagFor"/>.
     /// </summary>
-    /// <exception cref="Schema.LogixSchemaException">The symbol table could not be browsed.</exception>
-    Task LoadSchemaAsync(CancellationToken cancellationToken);
+    /// <exception cref="DataRetrievalException">The symbol table could not be browsed.</exception>
+    Task LoadTagDefinitionsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Returns the tag for <paramref name="dataPoint"/>, creating or reusing it, with the controller's
     /// metadata for it joined on.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// The schema has not been loaded yet — <see cref="LoadSchemaAsync"/> is a connect precondition.
+    /// The schema has not been loaded yet — <see cref="LoadTagDefinitionsAsync"/> is a connect precondition.
     /// </exception>
     ILogixTag TagFor(ILogixDataPoint dataPoint);
 }

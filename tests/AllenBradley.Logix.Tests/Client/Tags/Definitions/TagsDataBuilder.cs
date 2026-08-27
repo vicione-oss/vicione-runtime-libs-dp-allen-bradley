@@ -1,14 +1,14 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Schema;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
 /// <summary>
 /// Builds synthetic <c>@tags</c> listing bytes the way a controller lays them out, so the decoder can
 /// be exercised without a device. One <see cref="Entry"/> per tag; <see cref="Build"/> concatenates
-/// them into the 22-byte-header-plus-ASCII-name format <c>LogixSymbolListingDecoder</c> reads.
+/// them into the 22-byte-header-plus-ASCII-name format <c>TagsDecoder</c> reads.
 /// </summary>
-internal static class SymbolListing
+internal static class TagsDataBuilder
 {
     public static byte[] Build(params Entry[] entries)
     {

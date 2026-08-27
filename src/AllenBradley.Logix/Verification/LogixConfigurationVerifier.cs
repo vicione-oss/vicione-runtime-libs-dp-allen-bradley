@@ -4,6 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
@@ -31,12 +32,12 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
     /// Loads the schema, then returns one entry per <b>misconfigured</b> data point; a fully matching
     /// configuration returns an empty list.
     /// </summary>
-    /// <exception cref="Client.Schema.LogixSchemaException">The symbol table could not be browsed.</exception>
+    /// <exception cref="DataRetrievalException">The symbol table could not be browsed.</exception>
     public async Task<IReadOnlyList<MisconfiguredLogixDataPoint>> VerifyAsync(
         IReadOnlyList<ILogixDataPoint> dataPoints, CancellationToken cancellationToken)
     {
         // Idempotent, and the same load the poll relies on: verification doubles as the schema warm-up.
-        await tagManager.LoadSchemaAsync(cancellationToken).ConfigureAwait(false);
+        await tagManager.LoadTagDefinitionsAsync(cancellationToken).ConfigureAwait(false);
 
         var misconfigured = new List<MisconfiguredLogixDataPoint>();
         foreach (var dataPoint in dataPoints)

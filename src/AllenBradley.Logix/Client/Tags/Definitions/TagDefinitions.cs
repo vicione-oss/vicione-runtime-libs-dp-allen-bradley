@@ -1,7 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// The controller's symbol table, decoded once and held for lookup: a map from tag name to the
@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Schema;
 /// case-insensitive match is the injected dictionary's — key it with
 /// <see cref="TagName.CaseInsensitiveComparer"/>.
 /// </remarks>
-internal sealed class LogixControllerSchema(IReadOnlyDictionary<TagName, LogixTypeDeclaration> declarationsByTagName)
+internal sealed class TagDefinitions(IReadOnlyDictionary<TagName, LogixTypeDeclaration> declarationsByTagName)
 {
     /// <summary>The controller's declaration for <paramref name="tagName"/>, or <c>null</c> when absent.</summary>
     public LogixTypeDeclaration? Lookup(TagName tagName) =>

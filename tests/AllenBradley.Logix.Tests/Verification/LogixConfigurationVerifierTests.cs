@@ -111,7 +111,7 @@ public class LogixConfigurationVerifierTests
             set => _declarations[new TagName(tagName)] = value;
         }
 
-        public Task LoadSchemaAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         public ILogixTag TagFor(ILogixDataPoint dataPoint) =>
             new ProjectionTag(

@@ -17,5 +17,5 @@ internal interface ILogixTagAccessFactory
     /// <c>Program:&lt;name&gt;.@tags</c> or <c>@udt/&lt;id&gt;</c>. Used to browse the symbol table for
     /// configuration verification; the caller owns disposing the transient access once it has read.
     /// </summary>
-    ILogixTagAccess CreateForSystemTag(TagName tagName);
+    ILogixTagAccess CreateForSchemaTag(TagName tagName);
 }

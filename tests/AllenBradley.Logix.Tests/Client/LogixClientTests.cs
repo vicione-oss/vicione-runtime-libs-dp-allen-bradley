@@ -215,7 +215,7 @@ public class LogixClientTests
             set => _tagByDataPoint[dataPoint] = value;
         }
 
-        public Task LoadSchemaAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         public ILogixTag TagFor(ILogixDataPoint dataPoint) => _tagByDataPoint[dataPoint];
     }
