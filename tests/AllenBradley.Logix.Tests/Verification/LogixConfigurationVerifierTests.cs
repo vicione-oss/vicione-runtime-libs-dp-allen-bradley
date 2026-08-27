@@ -12,7 +12,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
 /// The configuration diff. <see cref="LogixConfigurationVerifier.GetMismatches"/> is the whole of the
-/// verification rule, so it is exercised directly per mismatch class, and <c>VerifyAsync</c> is checked
+/// verification rule, so it is exercised directly per mismatch class, and <c>Verify</c> is checked
 /// once end to end against a fake tag manager — the verifier projects its tags, it no longer
 /// browses its own schema.
 /// </summary>
@@ -53,7 +53,7 @@ public class LogixConfigurationVerifierTests
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
-            .Which.Description.Should().Contain("Ghost").And.Contain("not found");
+            .Which.Value.Should().Contain("Ghost").And.Contain("not found");
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class LogixConfigurationVerifierTests
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
-            .Which.Description.Should().Contain("DINT").And.Contain("Real");
+            .Which.Value.Should().Contain("DINT").And.Contain("Real");
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class LogixConfigurationVerifierTests
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
-            .Which.Description.Should().Contain("structure");
+            .Which.Value.Should().Contain("structure");
     }
 
     [Fact]
@@ -84,11 +84,11 @@ public class LogixConfigurationVerifierTests
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
-            .Which.Description.Should().Contain("array");
+            .Which.Value.Should().Contain("array");
     }
 
     [Fact]
-    public async Task VerifyAsync_ReturnsOnlyTheMisconfiguredDataPoints()
+    public async Task Verify_ReturnsOnlyTheMisconfiguredDataPoints()
     {
         var tagManager = new FakeTagManager
         {
@@ -98,7 +98,7 @@ public class LogixConfigurationVerifierTests
         };
         var verifier = new LogixConfigurationVerifier(tagManager);
 
-        var result = await verifier.VerifyAsync(
+        var result = await verifier.Verify(
             [
                 CreateDInt("Good"),
                 CreateDInt("WrongType"),
