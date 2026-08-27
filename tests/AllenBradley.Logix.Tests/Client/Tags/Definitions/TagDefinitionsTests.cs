@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definition
 public class TagDefinitionsTests
 {
     private static TagDefinition Dint(string name) =>
-        new(new TagName(name), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+        new(new TagName(name), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     [Fact]
     public void Lookup_IsCaseInsensitive()

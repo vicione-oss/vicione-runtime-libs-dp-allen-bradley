@@ -19,7 +19,7 @@ public class LogixTagTests
     private static readonly DIntDataPoint Speed = CreateDInt("Motor.Speed");
 
     private static readonly TagDefinition DintMetadata =
-        new(new TagName("Motor.Speed"), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+        new(new TagName("Motor.Speed"), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     [Fact]
     public void DataPoint_And_Metadata_AreSurfacedAsGiven()

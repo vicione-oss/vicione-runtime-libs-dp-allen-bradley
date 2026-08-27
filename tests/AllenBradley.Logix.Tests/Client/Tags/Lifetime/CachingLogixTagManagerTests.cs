@@ -21,7 +21,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 public class CachingLogixTagManagerTests
 {
     private static TagDefinition Dint(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     private static CachingLogixTagManager NewManager(
         CountingAccessFactory factory, FakeSchemaBrowser browser) =>

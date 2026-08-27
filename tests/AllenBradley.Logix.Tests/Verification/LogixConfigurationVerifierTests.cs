@@ -18,14 +18,21 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 public class LogixConfigurationVerifierTests
 {
     private static TagDefinition Declaration(
-        bool isStruct = false, AllenBradleyDataType? atomicType = AllenBradleyDataType.Dint, int dimensionCount = 0) =>
+        bool isStruct = false,
+        AllenBradleyDataType? dataType = AllenBradleyDataType.Dint,
+        int dimensionCount = 0,
+        int? maxLength = null) =>
         new(
             new TagName("Tag"),
             isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
-            atomicType,
+            dataType,
+            maxLength is { } length ? new StringMaxLength(length) : null,
             new DimensionCount(dimensionCount),
-            new ElementCount(1),
-            new ElementLength(4));
+            new ElementCount(1));
+
+    // What the controller reports for a built-in STRING: a structure of .DATA[82] behind its .LEN.
+    private static TagDefinition StringDeclaration(int maxLength = 82) =>
+        Declaration(isStruct: true, dataType: AllenBradleyDataType.String, maxLength: maxLength);
 
     private static ResolvedDataPoint Resolved(ILogixDataPoint dataPoint, TagDefinition? device) =>
         new(dataPoint, device);
@@ -33,7 +40,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
     {
-        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(atomicType: AllenBradleyDataType.Dint));
+        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Dint));
 
         LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
     }
@@ -52,7 +59,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheAtomicTypeDiffers_ReportsTheMismatch()
     {
         // DINT configured, REAL on the controller.
-        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(atomicType: AllenBradleyDataType.Real));
+        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Real));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -62,7 +69,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAStructure_ReportsAShapeMismatch()
     {
-        var resolved = Resolved(CreateDInt("Motor"), Declaration(isStruct: true, atomicType: null));
+        var resolved = Resolved(CreateDInt("Motor"), StringDeclaration());
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -72,7 +79,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
     {
-        var resolved = Resolved(CreateDInt("Counts"), Declaration(atomicType: AllenBradleyDataType.Dint, dimensionCount: 1));
+        var resolved = Resolved(CreateDInt("Counts"), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -84,8 +91,8 @@ public class LogixConfigurationVerifierTests
     {
         var tagManager = new FakeTagManager
         {
-            ["Good"] = Declaration(atomicType: AllenBradleyDataType.Dint),
-            ["WrongType"] = Declaration(atomicType: AllenBradleyDataType.Real),
+            ["Good"] = Declaration(dataType: AllenBradleyDataType.Dint),
+            ["WrongType"] = Declaration(dataType: AllenBradleyDataType.Real),
             // "Missing" is deliberately absent — the manager stamps null metadata on its tag.
         };
         var verifier = new LogixConfigurationVerifier(tagManager);

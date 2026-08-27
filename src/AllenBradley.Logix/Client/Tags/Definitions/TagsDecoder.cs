@@ -1,5 +1,5 @@
-using System.Buffers.Binary;
 using System.Text;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
@@ -7,76 +7,85 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// Decodes the raw bytes of an <c>@tags</c> (or <c>Program:&lt;name&gt;.@tags</c>) read into one
-/// <see cref="TagDefinition"/> per tag. This is the <c>src</c> port of the spike's
-/// <c>TagInfoPlcMapper</c>, working off a <see cref="ReadOnlySpan{T}"/> with
-/// <see cref="BinaryPrimitives"/> rather than the sealed <c>Tag</c>'s getters, so it is testable
-/// against captured buffers and independent of the removed typed-mapper API.
+/// <see cref="TagDefinition"/> per tag. It works off a <see cref="ReadOnlySpan{T}"/> rather than the
+/// sealed <c>Tag</c>'s getters, so it is testable against captured buffers and independent of the
+/// removed typed-mapper API.
 /// </summary>
 /// <remarks>
-/// Each entry is a fixed 22-byte header — instance id (u32), symbol type (u16), element length (u16),
-/// three array dimensions (u32 each), name length (u16) — followed by the ASCII name. CIP is
-/// little-endian, matching .NET, so every field is a direct read.
+/// <para>
+/// An entry is a <see cref="TagsEntryHeader"/> followed by the tag's name, and entries are packed
+/// back to back, so the next one starts at the header plus the name this one declared. The symbol-type
+/// bitfield the header carries is documented in
+/// <c>docs/AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md</c>, section "The Logix
+/// symbol-type bitfield".
+/// </para>
+/// <para>
+/// The header's element length is a wire fact and stops here, the way the CIP type codes do: it leaves
+/// the decoder as a <see cref="StringMaxLength"/> and never as a byte count. Turning it into one costs
+/// the assumption that a structure <b>is</b> a string. The listing names only the id of the template
+/// that defines a structure's members, so it cannot tell a <c>STRING_8</c> from a <c>TIMER</c>, and a
+/// 12-byte <c>TIMER</c> decodes here as a string of capacity 8. That is the accuracy the comparison
+/// against a declared size already had — telling them apart needs the template itself
+/// (<c>@udt/&lt;id&gt;</c>), which arrives with structured data-point support.
+/// </para>
 /// </remarks>
 internal static class TagsDecoder
 {
-    private const int HeaderSize = 22;
-
-    public static IReadOnlyList<TagDefinition> Decode(ReadOnlySpan<byte> listing)
+    public static IReadOnlyList<TagDefinition> Decode(ReadOnlySpan<byte> tags)
     {
-        var declarations = new List<TagDefinition>();
+        var definitions = new List<TagDefinition>();
         var offset = 0;
 
-        while (offset + HeaderSize <= listing.Length)
+        while (offset + TagsEntryHeader.Size <= tags.Length)
         {
-            var symbolType = BinaryPrimitives.ReadUInt16LittleEndian(listing[(offset + 4)..]);
-            var elementLength = BinaryPrimitives.ReadUInt16LittleEndian(listing[(offset + 6)..]);
-            var dimension0 = BinaryPrimitives.ReadUInt32LittleEndian(listing[(offset + 8)..]);
-            var dimension1 = BinaryPrimitives.ReadUInt32LittleEndian(listing[(offset + 12)..]);
-            var dimension2 = BinaryPrimitives.ReadUInt32LittleEndian(listing[(offset + 16)..]);
-            var nameLength = BinaryPrimitives.ReadUInt16LittleEndian(listing[(offset + 20)..]);
+            var entry = tags[offset..];
+            var header = TagsEntryHeader.ReadFrom(entry);
+            var tagName = GetTagName(header, entry);
 
-            var nameStart = offset + HeaderSize;
-            // A truncated final entry (a name that runs off the end of the buffer) is clamped rather
-            // than allowed to overrun; a genuine listing never trips this.
-            var actualNameLength = Math.Min(nameLength, listing.Length - nameStart);
-            var name = Encoding.ASCII.GetString(listing.Slice(nameStart, actualNameLength));
-
-            declarations.Add(ToDeclaration(name, symbolType, dimension0, dimension1, dimension2, elementLength));
-
-            offset = nameStart + actualNameLength;
-
-            // Guard against a zero-length name with a non-zero declared length, which would otherwise
-            // spin on the same offset forever.
-            if (actualNameLength == 0 && nameLength != 0)
-            {
-                break;
-            }
+            definitions.Add(ToTagDefinition(header, tagName));
+            offset += TagsEntryHeader.Size + tagName.Length;
         }
 
-        return declarations;
+        return definitions;
     }
 
-    private static TagDefinition ToDeclaration(
-        string name, ushort symbolType, uint dimension0, uint dimension1, uint dimension2, ushort elementLength)
+    // The name sits directly behind the header and runs for as long as the header declares. A
+    // truncated final entry is clamped to what is left rather than allowed to overrun; a genuine
+    // listing never trips this.
+    private static ReadOnlySpan<byte> GetTagName(in TagsEntryHeader header, ReadOnlySpan<byte> entry)
     {
-        var isStruct = SymbolType.IsStruct(symbolType);
-        var dimensionCount = SymbolType.DimensionCount(symbolType);
+        var behindHeader = entry[TagsEntryHeader.Size..];
+
+        return behindHeader[..Math.Min(header.NameLength, behindHeader.Length)];
+    }
+
+    private static TagDefinition ToTagDefinition(in TagsEntryHeader header, ReadOnlySpan<byte> tagName)
+    {
+        var isStruct = SymbolType.IsStruct(header.SymbolType);
+        var dimensionCount = SymbolType.DimensionCount(header.SymbolType);
 
         return new TagDefinition(
-            TagName: new TagName(name),
+            TagName: new TagName(Encoding.ASCII.GetString(tagName)),
             Kind: isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
-            DataType: isStruct ? null : SymbolType.AtomicType(symbolType),
+            DataType: isStruct ? AllenBradleyDataType.String : SymbolType.AtomicType(header.SymbolType),
+            MaxLength: isStruct ? StringMaxLength.OfStructure(header.ElementLength) : null,
             DimensionCount: new DimensionCount(dimensionCount),
-            ElementCount: ElementCountOf(dimensionCount, dimension0, dimension1, dimension2),
-            ElementLength: new ElementLength(elementLength));
+            ElementCount: GetElementCount(header, dimensionCount));
     }
 
-    private static ElementCount ElementCountOf(int dimensionCount, uint dimension0, uint dimension1, uint dimension2) =>
-        new(dimensionCount switch
+    // An array holds the product of its dimensions, and a scalar — rank zero — the empty product of
+    // one. Dimensions past the declared rank hold whatever the controller left there, so each rank
+    // multiplies only the ones it owns.
+    private static ElementCount GetElementCount(in TagsEntryHeader header, int dimensionCount)
+    {
+        ReadOnlySpan<uint> dimensions = [header.FirstDimension, header.SecondDimension, header.ThirdDimension];
+
+        var elementCount = 1u;
+        foreach (var dimension in dimensions[..dimensionCount])
         {
-            0 => 1,
-            1 => (int)dimension0,
-            2 => (int)(dimension0 * dimension1),
-            _ => (int)(dimension0 * dimension1 * dimension2),
-        });
+            elementCount *= dimension;
+        }
+
+        return new ElementCount((int)elementCount);
+    }
 }

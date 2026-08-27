@@ -24,10 +24,10 @@ public class LogixClientTests
     // Metadata the controller would report for a DINT tag — matches the DINT converter, so the type gate
     // lets the read/write through and only the device outcome decides the result.
     private static TagDefinition DintMetadata(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     private static TagDefinition RealMetadata(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Real, new DimensionCount(0), new ElementCount(1), new ElementLength(4));
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Real, MaxLength: null, new DimensionCount(0), new ElementCount(1));
 
     // 42 as a DINT on the wire. Spelled out rather than taken from BitConverter, which would re-derive
     // it through the same host-endianness assumption the converter makes and so agree by construction.

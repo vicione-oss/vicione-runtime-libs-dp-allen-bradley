@@ -9,8 +9,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// of. The wire codes the controller actually reports are the decoder's business; see
 /// <c>CipTypeCode</c>.
 /// <para>
-/// Every member is an elementary type, fixed in size by the type alone. Structures this addon does not
-/// model — the Logix <c>STRING</c>, a <c>TIMER</c>, a UDT — have no member here.
+/// Every member but <see cref="String"/> is an elementary type, fixed in size by the type alone.
+/// <see cref="String"/> is the one whose size is not: it names the family, and the <c>n</c> that
+/// completes it travels beside it as a
+/// <see cref="DataPort.DataPoints.TypeDeclaration.StringMaxLength"/>. Structures this addon does not
+/// model — <c>TIMER</c>, <c>COUNTER</c>, a UDT — have no member here.
 /// </para>
 /// </remarks>
 public enum AllenBradleyDataType
@@ -50,4 +53,11 @@ public enum AllenBradleyDataType
 
     /// <summary><c>LREAL</c> — an IEEE-754 double.</summary>
     Lreal,
+
+    /// <summary>
+    /// <c>STRING</c> — the predefined <c>.LEN : DINT</c> + <c>.DATA : SINT[n]</c> structure. The
+    /// <c>n</c> is not part of the type: the built-in <c>STRING</c> and a <c>STRING_20</c> are both
+    /// this, told apart by the capacity beside them.
+    /// </summary>
+    String,
 }

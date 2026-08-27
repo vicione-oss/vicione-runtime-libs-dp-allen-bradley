@@ -19,10 +19,10 @@ public class TagDefinitionsLoaderTests
         var factory = new FakeSystemTagFactory
         {
             ["@tags"] = TagsDataBuilder.Build(
-                new TagsDataBuilder.Entry("Motor.Speed", 0x00C4),
-                new TagsDataBuilder.Entry("Program:Main", 0x1000)),
+                new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4),
+                new TagsDataBuilder.TagEntry("Program:Main", 0x1000)),
             ["Program:Main.@tags"] = TagsDataBuilder.Build(
-                new TagsDataBuilder.Entry("Count", 0x00C4)),
+                new TagsDataBuilder.TagEntry("Count", 0x00C4)),
         };
         var browser = new TagDefinitionsLoader(factory);
 
@@ -39,7 +39,7 @@ public class TagDefinitionsLoaderTests
     {
         var factory = new FakeSystemTagFactory
         {
-            ["@tags"] = TagsDataBuilder.Build(new TagsDataBuilder.Entry("Motor.Speed", 0x00C4)),
+            ["@tags"] = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4)),
         };
         var browser = new TagDefinitionsLoader(factory);
 
