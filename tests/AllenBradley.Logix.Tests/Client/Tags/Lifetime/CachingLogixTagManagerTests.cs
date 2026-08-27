@@ -6,7 +6,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
@@ -53,11 +55,11 @@ public class CachingLogixTagManagerTests
         await LoadAsync(manager);
 
         // Act
-        var tag = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
+        var tag = manager.TagFor(CreateDInt("Motor.Speed"));
 
         // Assert
         tag.Metadata.Should().Be(Dint("Motor.Speed"));
-        tag.DataPoint.Should().Be(new DIntDataPoint(new TagName("Motor.Speed")));
+        tag.DataPoint.Should().Be(CreateDInt("Motor.Speed"));
     }
 
     [Fact]
@@ -71,7 +73,7 @@ public class CachingLogixTagManagerTests
         // Act
         // A tag absent from the schema still resolves — for diagnostics and uniform handling; null metadata
         // is the "not on the controller" signal verification reports.
-        var tag = manager.TagFor(new DIntDataPoint(new TagName("Ghost")));
+        var tag = manager.TagFor(CreateDInt("Ghost"));
 
         // Assert
         tag.Metadata.Should().BeNull();
@@ -87,8 +89,8 @@ public class CachingLogixTagManagerTests
 
         // Act
         // Distinct instances, equal by record value — the same data point, so the same tag (ADR-002).
-        var first = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
-        var second = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
+        var first = manager.TagFor(CreateDInt("Motor.Speed"));
+        var second = manager.TagFor(CreateDInt("Motor.Speed"));
 
         // Assert
         second.Should().BeSameAs(first);
@@ -104,8 +106,8 @@ public class CachingLogixTagManagerTests
         await LoadAsync(manager);
 
         // Act
-        var speed = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
-        var level = manager.TagFor(new DIntDataPoint(new TagName("Tank.Level")));
+        var speed = manager.TagFor(CreateDInt("Motor.Speed"));
+        var level = manager.TagFor(CreateDInt("Tank.Level"));
 
         // Assert
         level.Should().NotBeSameAs(speed);
@@ -122,7 +124,7 @@ public class CachingLogixTagManagerTests
         // Act
         // The schema is a hard connect precondition — a tag with no metadata to stamp on would be a
         // half-built object, so the ordering is enforced rather than papered over with a lazy load.
-        var tagFor = () => manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
+        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
 
         // Assert
         tagFor.Should().Throw<InvalidOperationException>();
@@ -136,8 +138,8 @@ public class CachingLogixTagManagerTests
         var factory = new CountingAccessFactory();
         var manager = NewManager(factory, new FakeSchemaBrowser());
         await LoadAsync(manager);
-        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
-        manager.TagFor(new DIntDataPoint(new TagName("Tank.Level")));
+        manager.TagFor(CreateDInt("Motor.Speed"));
+        manager.TagFor(CreateDInt("Tank.Level"));
 
         // Act
         manager.Dispose();
@@ -155,7 +157,7 @@ public class CachingLogixTagManagerTests
         var factory = new CountingAccessFactory();
         var manager = NewManager(factory, new FakeSchemaBrowser());
         await LoadAsync(manager);
-        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
+        manager.TagFor(CreateDInt("Motor.Speed"));
 
         // Act
         manager.Dispose();
@@ -172,8 +174,8 @@ public class CachingLogixTagManagerTests
         var factory = new CountingAccessFactory { ThrowOnDisposeFor = "Motor.Speed" };
         var manager = NewManager(factory, new FakeSchemaBrowser());
         await LoadAsync(manager);
-        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
-        manager.TagFor(new DIntDataPoint(new TagName("Tank.Level")));
+        manager.TagFor(CreateDInt("Motor.Speed"));
+        manager.TagFor(CreateDInt("Tank.Level"));
 
         // Act
         var dispose = () => manager.Dispose();
@@ -196,7 +198,7 @@ public class CachingLogixTagManagerTests
 
         // Act
         // Handing back a tag here would create one nothing disposes — the leak Dispose just closed.
-        var tagFor = () => manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed")));
+        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
 
         // Assert
         tagFor.Should().Throw<ObjectDisposedException>();

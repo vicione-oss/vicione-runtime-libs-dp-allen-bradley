@@ -6,8 +6,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
@@ -48,7 +50,7 @@ public class LogixClientReadTests
         using var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
         var readClient = new LogixClient(tagManager);
-        IReadOnlyList<ILogixDataPoint> group = [new DIntDataPoint(new TagName(DintTagName))];
+        IReadOnlyList<ILogixDataPoint> group = [CreateDInt(DintTagName)];
 
         // Act
         // Load the schema (the connect precondition), then read through the production client + converter
@@ -62,7 +64,6 @@ public class LogixClientReadTests
         var value = values[0];
         value.Quality.Should().Be(LogixQuality.Good);
         value.Value.Should().Be(expected);
-        value.Should().BeOfType<LogixDataPointValue<int>>().Which.Value.Should().Be(expected);
     }
 
     private static int ReadDintWithRawLibplctag(string tagName)

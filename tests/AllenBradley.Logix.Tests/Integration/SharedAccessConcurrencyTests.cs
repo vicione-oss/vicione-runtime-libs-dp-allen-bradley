@@ -7,8 +7,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
@@ -56,8 +58,8 @@ public class SharedAccessConcurrencyTests
         var accessFactory = new LogixTagAccessFactory(ClientInformation(), Timeout);
         using var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
-        var first = new DIntDataPoint(new TagName(DintTagName));
-        var second = new DIntDataPoint(new TagName(DintTagName));
+        var first = CreateDInt(DintTagName);
+        var second = CreateDInt(DintTagName);
         var readClient = new LogixClient(tagManager);
         IReadOnlyList<ILogixDataPoint> group = [first, second];
 

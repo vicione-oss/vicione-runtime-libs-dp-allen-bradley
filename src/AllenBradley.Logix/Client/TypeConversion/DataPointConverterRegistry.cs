@@ -31,6 +31,6 @@ internal static class DataPointConverterRegistry
     private static void Register<TDataPoint, TDomain>(
         Dictionary<Type, IDataPointConverter> converters,
         DataPointConverter<TDataPoint, TDomain> converter)
-        where TDataPoint : class, ILogixDataPoint =>
+        where TDataPoint : LogixDataPoint<TDomain> =>
         converters.Add(typeof(TDataPoint), converter);
 }

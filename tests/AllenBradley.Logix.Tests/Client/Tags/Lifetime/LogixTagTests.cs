@@ -3,7 +3,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
@@ -14,7 +16,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 /// </summary>
 public class LogixTagTests
 {
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"));
+    private static readonly DIntDataPoint Speed = CreateDInt("Motor.Speed");
 
     private static readonly TagDefinition DintMetadata =
         new(new TagName("Motor.Speed"), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, new DimensionCount(0), new ElementCount(1), new ElementLength(4));

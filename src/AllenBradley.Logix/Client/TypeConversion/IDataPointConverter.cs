@@ -29,12 +29,13 @@ internal interface IDataPointConverter
     // misread one. Null metadata does not conflict; the byte-size backstop stands in for the check there.
     bool ConflictsWith(TagDefinition? metadata);
 
-    // Decodes the raw little-endian buffer into the data point's typed value object (Good quality).
+    // Decodes the raw little-endian buffer into the data point's own typed value (Good quality). The
+    // value record belongs to the data point, not to the converter: this decodes bytes to a TDomain and
+    // hands it to LogixDataPoint<TDomain>.CreateLogixValue to be wrapped. A read that produced nothing
+    // to wrap has no converter in it at all — see BadLogixDataPointValue.
     ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
-    // Builds a Bad-quality value for a read that failed, without interpreting any bytes.
-    ILogixDataPointValue CreateBadValue(ILogixDataPoint dataPoint);
-
-    // Encodes the value carried by dataPointValue into buffer (little-endian). Rejects a null payload.
+    // Encodes the payload carried by dataPointValue into buffer (little-endian). Rejects a value that is
+    // not the typed value its data point makes — a Bad one above all, which carries no payload.
     void Encode(ILogixDataPointValue dataPointValue, Span<byte> buffer);
 }

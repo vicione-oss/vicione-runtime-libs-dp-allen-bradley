@@ -52,7 +52,7 @@ internal sealed class LogixReadBatch
             || entry.Converter.ConflictsWith(entry.Tag.Metadata)
             || result.Buffer.Length < entry.Converter.ByteSize.Value)
         {
-            return entry.Converter.CreateBadValue(entry.DataPoint);
+            return new BadLogixDataPointValue(entry.DataPoint);
         }
 
         return entry.Converter.Decode(entry.DataPoint, result.Buffer.Span);

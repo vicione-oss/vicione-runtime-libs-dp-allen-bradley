@@ -1,7 +1,9 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
@@ -43,7 +45,7 @@ public class TagDefinitionsTests
                 [new TagName("Motor.Speed")] = Dint("Motor.Speed"),
             });
 
-        var resolved = schema.Resolve(new DIntDataPoint(new TagName("Motor.Speed")));
+        var resolved = schema.Resolve(CreateDInt("Motor.Speed"));
 
         resolved.TagDefinition.Should().NotBeNull();
         resolved.TagDefinition!.Value.DataType.Should().Be(AllenBradleyDataType.Dint);
@@ -54,6 +56,6 @@ public class TagDefinitionsTests
     {
         var schema = new TagDefinitions(new Dictionary<TagName, TagDefinition>());
 
-        schema.Resolve(new DIntDataPoint(new TagName("Ghost"))).TagDefinition.Should().BeNull();
+        schema.Resolve(CreateDInt("Ghost")).TagDefinition.Should().BeNull();
     }
 }

@@ -2,8 +2,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
@@ -31,7 +33,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: AllenBradleyDataType.Dint));
+        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(atomicType: AllenBradleyDataType.Dint));
 
         LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
     }
@@ -39,7 +41,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheTagIsAbsent_ReportsNotFound()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Ghost")), device: null);
+        var resolved = Resolved(CreateDInt("Ghost"), device: null);
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -50,7 +52,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheAtomicTypeDiffers_ReportsTheMismatch()
     {
         // DINT configured, REAL on the controller.
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed")), Declaration(atomicType: AllenBradleyDataType.Real));
+        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(atomicType: AllenBradleyDataType.Real));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -60,7 +62,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAStructure_ReportsAShapeMismatch()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor")), Declaration(isStruct: true, atomicType: null));
+        var resolved = Resolved(CreateDInt("Motor"), Declaration(isStruct: true, atomicType: null));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -70,7 +72,7 @@ public class LogixConfigurationVerifierTests
     [Fact]
     public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
     {
-        var resolved = Resolved(new DIntDataPoint(new TagName("Counts")), Declaration(atomicType: AllenBradleyDataType.Dint, dimensionCount: 1));
+        var resolved = Resolved(CreateDInt("Counts"), Declaration(atomicType: AllenBradleyDataType.Dint, dimensionCount: 1));
 
         LogixConfigurationVerifier.GetMismatches(resolved)
             .Should().ContainSingle()
@@ -90,9 +92,9 @@ public class LogixConfigurationVerifierTests
 
         var result = await verifier.VerifyAsync(
             [
-                new DIntDataPoint(new TagName("Good")),
-                new DIntDataPoint(new TagName("WrongType")),
-                new DIntDataPoint(new TagName("Missing")),
+                CreateDInt("Good"),
+                CreateDInt("WrongType"),
+                CreateDInt("Missing"),
             ],
             TestContext.Current.CancellationToken);
 

@@ -3,7 +3,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 
@@ -16,8 +18,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// </summary>
 public class LogixClientTests
 {
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"));
-    private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"));
+    private static readonly DIntDataPoint Speed = CreateDInt("Motor.Speed");
+    private static readonly DIntDataPoint Level = CreateDInt("Tank.Level");
 
     // Metadata the controller would report for a DINT tag — matches the DINT converter, so the type gate
     // lets the read/write through and only the device outcome decides the result.
@@ -125,7 +127,7 @@ public class LogixClientTests
             [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
         };
         var client = new LogixClient(tagManager);
-        var value = new LogixDataPointValue<int>(Speed, 42, LogixQuality.Good);
+        var value = CreateValue(Speed, 42);
 
         // Act
         var write = async () => await client.WriteAsync([value], CancellationToken.None);
@@ -145,7 +147,7 @@ public class LogixClientTests
         var tag = FakeTag.Writing(Speed, RealMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
         var tagManager = new FakeTagManager { [Speed] = tag };
         var client = new LogixClient(tagManager);
-        var value = new LogixDataPointValue<int>(Speed, 42, LogixQuality.Good);
+        var value = CreateValue(Speed, 42);
 
         // Act
         var write = async () => await client.WriteAsync([value], CancellationToken.None);
@@ -168,8 +170,8 @@ public class LogixClientTests
         var client = new LogixClient(tagManager);
         ILogixDataPointValue[] values =
         [
-            new LogixDataPointValue<int>(Speed, 42, LogixQuality.Good),
-            new LogixDataPointValue<int>(Level, 7, LogixQuality.Good),
+            CreateValue(Speed, 42),
+            CreateValue(Level, 7),
         ];
 
         // Act
@@ -190,7 +192,7 @@ public class LogixClientTests
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
         var tagManager = new FakeTagManager { [Speed] = tag };
         var client = new LogixClient(tagManager);
-        var value = new LogixDataPointValue<int>(Speed, 42, LogixQuality.Good);
+        var value = CreateValue(Speed, 42);
 
         // Act
         await client.WriteAsync([value], CancellationToken.None);
@@ -201,9 +203,12 @@ public class LogixClientTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
     // that nobody wired a converter for.
-    private sealed record UnregisteredDataPoint : ILogixDataPoint
+    private sealed record UnregisteredDataPoint()
+        : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
-        public TagName TagName => new("Mystery.Tag");
+        protected override LogixDataTypeName TypeName => new("MYSTERY");
+
+        internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
 
     private sealed class FakeTagManager : ILogixTagManager
