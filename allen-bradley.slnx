@@ -17,6 +17,11 @@
     <Project Path="docs/AllenBradley.Logix.Documentation/AllenBradley.Logix.Documentation.csproj" />
     <Project Path="docs/AllenBradley.Legacy.Documentation/AllenBradley.Legacy.Documentation.csproj" />
   </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/deploy-logix-to-local-vicione.cmd" />
+    <File Path="scripts/deploy-logix-to-local-vicione.sh" />
+    <File Path="scripts/README.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/AllenBradley.Logix/AllenBradley.Logix.csproj" />
   </Folder>
