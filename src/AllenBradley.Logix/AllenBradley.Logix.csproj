@@ -12,6 +12,12 @@
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
   </ItemGroup>
 
+  <!-- Configuration file - always copy to output -->
+  <ItemGroup>
+    <None Update="allen-bradley-logix.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\Nodes\DataPoints\Scalars\Integers\" />
   </ItemGroup>

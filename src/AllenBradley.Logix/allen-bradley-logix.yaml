@@ -1,0 +1,260 @@
+Common:
+  Target: DataPort
+  ContentType: Rules
+  Version: 1.0
+  Date: 2026-08-24
+  Description: "Allen-Bradley Logix DataPort - symbolic tag addressing"
+  Author: "ifm software gmbh"
+  MetadataType: YAML
+  Namespace: "ViciOne.DataPort.AllenBradley.Logix"
+
+Root:
+  Id: "AllenBradley.Logix"
+  Name: "Allen-Bradley Logix"
+  Description: "DataPort for Allen-Bradley ControlLogix / CompactLogix controllers over CIP (EtherNet/IP)"
+  Icon: allen-bradley-logix
+  ChildNodes:
+    - Id: Device
+      MaxDepth: 64
+      MaxInstances: 16
+
+Nodes:
+
+  # ==================== DEVICE ===================================
+  # One node for both controller families: they speak CIP identically and libplctag maps
+  # them onto a single PLC type, so the family is a property rather than a node type.
+
+  - Id: Device
+    Type: DataPortNode
+    Name: "Logix Controller"
+    Description: "Allen-Bradley ControlLogix / CompactLogix controller reached over EtherNet/IP."
+    MetadataLength: 0
+    Icon: allen-bradley-logix
+    TransferDirections: [ Inbound, Outbound ]
+    PropertyCategories:
+      - Id: Connection
+        Properties:
+          - Id: Gateway
+            Required: true
+          - Id: Path
+            Required: true
+          - Id: ControllerType
+            Required: true
+          - Id: OperationTimeout
+      - Id: QueueConfiguration
+        Properties:
+          - Id: MaxPendingMessages
+          - Id: Strategy
+    ChildNodes:
+      - Id: ControllerTags
+
+  # ==================== TAG CONTAINERS ===============================
+  # Controller scope contributes no segment to a tag address: a controller-scope tag's
+  # name is its full symbolic address, so this node carries no properties. Program scope
+  # is the one that prefixes (Program:MainProgram.Tag) and arrives with its own node.
+
+  - Id: ControllerTags
+    MappingId: ControllerTags
+    Type: DataPortTreeNode
+    Name: "Controller"
+    Description: "Controller-scope tags. Adds no segment to the tag address."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: TagScope
+        Properties:
+          - Id: ControllerName
+            Required: true
+    ChildNodes:
+      - Id: DInt
+      - Id: String
+
+  # ==================== SCALAR NODES ===================================
+  #
+  # Description schema: docs/Siemens.S7.Documentation/shared/datapoint-description-schema.md
+  #   (S7's, adopted verbatim apart from the leading Logix-Type label)
+  # Wire-format source: docs/AllenBradley.Documentation/cip-protocol/
+
+  - Id: DInt
+    MappingId: DInt
+    Type: DataPortTreeNode
+    Name: "DInt"
+    Description: >-
+      Logix-Type: DINT (32-bit signed integer, CIP type code 0xC4)
+      Size: 4 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 3 = MSB
+      Range: −2 147 483 648..2 147 483 647
+    Icon: datapoint
+    DataTypes: [ Int32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  # A scalar in the model and a structure on the wire, so it is the one scalar whose size is not fixed
+  # by its type: the declared capacity comes with the tag, and MaxLength is what verification holds the
+  # controller to.
+
+  - Id: String
+    MappingId: String
+    Type: DataPortTreeNode
+    Name: "String"
+    Description: >-
+      Logix-Type: STRING (predefined structure, .LEN : DINT + .DATA : SINT[n])
+      Size: 4 + n bytes, padded to a 32-bit boundary (88 bytes for the built-in n = 82)
+      Encoding: Latin-1, one byte per character; .LEN little-endian two's complement
+      Layout: bytes 0..3 = .LEN, bytes 4..(4 + n) = .DATA
+      Range: 0..n characters; a longer value is rejected, never truncated
+    Icon: datapoint
+    DataTypes: [ String ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: MaxLength
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+# ==================== PROPERTY CATEGORIES ===========================
+
+PropertyCategories:
+
+  - Id: Connection
+    Name: "Connection"
+    Description: "Which controller to reach, and how long one operation against it may take"
+
+  - Id: QueueConfiguration
+    Name: "Queue Configuration"
+    Description: "How the outgoing write queue behaves when the controller cannot keep up"
+
+  - Id: TagScope
+    Name: "Scope"
+    Description: "Which part of the controller's tag space these tags live in"
+
+  - Id: TagAddress
+    Name: "Tag Address"
+    Description: "Studio 5000 tag name"
+
+  - Id: TagDeclaration
+    Name: "Tag Declaration"
+    Description: "How the tag is declared in Studio 5000, where the type alone does not say"
+
+  - Id: ReadConfiguration
+    Name: "Read configuration"
+    Description: "Configure properties for reading data points"
+
+# ==================== PROPERTIES ===================================
+
+Properties:
+
+  # ---- TagScope Properties ----
+  # Placeholder. It names the controller in the editor tree and reaches no address: CIP routes by
+  # gateway and path, never by controller name. It is here because the YAML consistency test fails a
+  # theory that discovers no cases, and controller scope has no property of its own to give it one.
+  # Delete it once the base test skips empty theories (Theory.SkipTestWithoutData) or once program
+  # scope adds a branch node that carries a real ProgramName.
+  - Id: ControllerName
+    Name: "Controller name"
+    Description: "Name of the controller as it appears in Studio 5000. Shown in the tree; not part of any tag address."
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: "Controller"
+
+  # ---- Connection Properties ----
+  - Id: Gateway
+    Name: "Gateway"
+    Description: "IP address or host name of the controller's EtherNet/IP interface"
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: ""
+
+  - Id: Path
+    Name: "CIP Path"
+    Description: "CIP routing path from the EtherNet/IP interface to the CPU, e.g. \"1,0\" for backplane slot 0"
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: "1,0"
+
+  - Id: ControllerType
+    Name: "Controller Type"
+    Description: "The Logix controller family"
+    DataType: UInt8
+    UiControl: NumericListBox
+    DefaultValue: 0
+    Elements: { 0: 'ControlLogix', 1: 'CompactLogix' }
+
+  - Id: OperationTimeout
+    Name: "Operation Timeout (ms)"
+    Description: "How long one tag read or write against this controller may take before it is aborted"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 5000
+    MinValue: 100
+
+  # ---- QueueConfiguration Properties ----
+  # Read by the outgoing port only. An inbound-only device carries the defaults and never
+  # builds a queue.
+  - Id: MaxPendingMessages
+    Name: "Max pending messages"
+    Description: "How many write batches may wait for the controller before the strategy below applies"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 100000
+    MinValue: 1
+
+  - Id: Strategy
+    Name: "Queue overflow strategy"
+    Description: "What a full write queue drops: the oldest batch keeps the freshest value moving, the newest preserves write order"
+    DataType: UInt8
+    UiControl: NumericListBox
+    DefaultValue: 0
+    Elements: { 0: 'Drop Oldest', 1: 'Drop Newest' }
+
+  # ---- TagAddress Properties ----
+  - Id: TagName
+    Name: "Tag name"
+    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\")"
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: ""
+
+  # ---- TagDeclaration Properties ----
+  - Id: MaxLength
+    Name: "Maximum length (characters)"
+    Description: "Character capacity the tag is declared with: 82 for the built-in STRING, 20 for a STRING_20"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 82
+    MinValue: 1
+
+  # ---- ReadConfiguration Properties ----
+  - Id: PollFrequency
+    Name: "Poll frequency (ms)"
+    Description: "Define how often the data point should be read from the controller"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 500
+    MinValue: 100
+
+# ==================== ICONS ========================================
+# 'folder' and 'datapoint' are the engine's own icons and are referenced without being
+# declared here. The controller glyph is a placeholder until there is real artwork.
+
+Icons:
+  - Id: allen-bradley-logix
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJjdXJyZW50Q29sb3IiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZD0iTSA0LDYgTCAyOCw2IEwgMjgsMjYgTCA0LDI2IFogTSA1LDcgTCA1LDI1IEwgMTIsMjUgTCAxMiw3IFogTSAxMyw3IEwgMTMsMjUgTCAxNywyNSBMIDE3LDcgWiBNIDE4LDcgTCAxOCwyNSBMIDIyLDI1IEwgMjIsNyBaIE0gMjMsNyBMIDIzLDI1IEwgMjcsMjUgTCAyNyw3IFoiLz48cGF0aCBkPSJNIDYsOCBMIDExLDggTCAxMSwxNCBMIDYsMTQgWiIvPjxwYXRoIGQ9Ik0gNywxNyBMIDEwLDE3IEwgMTAsMTkgTCA3LDE5IFogTSA3LDIxIEwgMTAsMjEgTCAxMCwyMyBMIDcsMjMgWiIvPjxwYXRoIGQ9Ik0gMTQsOSBMIDE2LDkgTCAxNiwxMSBMIDE0LDExIFogTSAxOSw5IEwgMjEsOSBMIDIxLDExIEwgMTksMTEgWiBNIDI0LDkgTCAyNiw5IEwgMjYsMTEgTCAyNCwxMSBaIi8+PC9nPjwvc3ZnPgo=
+    ContentType: Base64
