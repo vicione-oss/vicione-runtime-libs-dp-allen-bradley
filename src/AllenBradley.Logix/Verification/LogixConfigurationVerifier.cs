@@ -1,3 +1,4 @@
+using System.Globalization;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -63,7 +64,7 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
         // declaration (ADR-003) — the poll trusts the verdict reached here, so a mismatch that gets past
         // it is a mismatch nothing downstream will catch. The verifier only renders the kind it reports.
         var converter = DataPointConverterRegistry.GetConverter(dataPoint);
-        var mismatch = LogixTypeComparison.Compare(converter, resolved.TagDefinition);
+        var mismatch = LogixTypeComparison.Compare(converter, resolved);
         return mismatch switch
         {
             LogixTypeMismatch.None => [],
@@ -85,6 +86,22 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
                     $"Data type mismatch for tag '{dataPoint.TagName}': configured {converter.ExpectedTypeName}, " +
                     $"controller reports {Describe(device.DataType)}."),
             ],
+            LogixTypeMismatch.Atomic =>
+            [
+                new MismatchingConfiguration(
+                    $"Tag '{dataPoint.TagName}' is an elementary {Describe(device.DataType)} on the controller, " +
+                    $"but the structured type {converter.ExpectedTypeName} is configured."),
+            ],
+            // Rendered in characters, because that is what both sides of the comparison are and what the
+            // configuration is written in. The converter is asked for the configured capacity rather
+            // than the data point, which this method only knows through ILogixDataPoint.
+            LogixTypeMismatch.StringCapacity =>
+            [
+                new MismatchingConfiguration(
+                    $"Capacity mismatch for tag '{dataPoint.TagName}': the configured {converter.ExpectedTypeName} " +
+                    $"holds {Describe(converter.MaxLengthFor(dataPoint))} characters, " +
+                    $"but the controller declares {Describe(device.MaxLength)}."),
+            ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(resolved), mismatch, "Unhandled type mismatch kind."),
         };
@@ -96,4 +113,10 @@ internal sealed class LogixConfigurationVerifier(ILogixTagManager tagManager)
         AllenBradleyDataType.Unknown => "a type this addon does not model",
         { } type => type.ToString(),
     };
+
+    // A capacity is absent only for a type that has none to declare, which the capacity mismatch itself
+    // rules out on the configured side; the device side is null only for a structure the listing gave
+    // nothing to size.
+    private static string Describe(StringMaxLength? maxLength) =>
+        maxLength?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 }

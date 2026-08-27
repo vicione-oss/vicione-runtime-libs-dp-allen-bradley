@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -22,16 +23,18 @@ public class LogixDataPointTests
     {
         { CreateDInt("Motor.Speed"), "DINT" },
         { CreateReal("Tank.Level"), "REAL" },
+        { CreateString("Line.Label"), "STRING" },
     };
 
     public static TheoryData<ILogixDataPoint> EveryModelledType =>
-        [CreateDInt("Motor.Speed"), CreateReal("Tank.Level")];
+        [CreateDInt("Motor.Speed"), CreateReal("Tank.Level"), CreateString("Line.Label")];
 
     /// <summary>Each modelled point with an engine value of the .NET type it exchanges.</summary>
     public static TheoryData<ILogixDataPoint, object> EveryModelledTypeAndItsEngineValue => new()
     {
         { CreateDInt("Motor.Speed"), 42 },
         { CreateReal("Tank.Level"), 1.5f },
+        { CreateString("Line.Label"), "Hi" },
     };
 
     /// <summary>
@@ -43,6 +46,7 @@ public class LogixDataPointTests
     {
         { CreateDInt("Motor.Speed"), "42", typeof(int) },
         { CreateReal("Tank.Level"), 1.5d, typeof(float) },
+        { CreateString("Line.Label"), 42, typeof(string) },
     };
 
     [Theory]
@@ -186,5 +190,22 @@ public class LogixDataPointTests
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.Details.Should().Contain(expected.ToString()).And.Contain(engineValue.GetType().ToString());
+    }
+
+    [Theory]
+    [InlineData(82, true)]
+    [InlineData(83, false)]
+    public void AStringValue_IsInRangeWhileItFitsTheDeclaredCapacity(int length, bool expected)
+    {
+        // Arrange
+        // The only modelled type whose range is not simply its .NET type. This is the gate that turns an
+        // over-long write into a reported failure instead of the converter's exception.
+        var dataPoint = CreateString("Line.Label");
+
+        // Act
+        var value = CreateValue(dataPoint, new string('X', length));
+
+        // Assert
+        value.IsInValueRange().Should().Be(expected);
     }
 }

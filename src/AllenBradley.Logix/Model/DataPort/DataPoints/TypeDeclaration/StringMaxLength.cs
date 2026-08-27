@@ -1,13 +1,16 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
+
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 /// <summary>
 /// How many characters a Logix string tag can hold — the <c>n</c> of its <c>.DATA : SINT[n]</c> member.
 /// </summary>
 /// <remarks>
-/// It is what the controller's own listing reports, which <see cref="TagDefinition"/> carries, and what
-/// a tag is declared as in Studio 5000. The built-in <c>STRING</c> is <see cref="Standard"/>; a custom
-/// string type (<c>STRING_20</c>, <c>STRING_100</c>) has the same <c>.LEN</c> + <c>.DATA[n]</c> shape
-/// and a different <c>n</c>.
+/// It is both sides of the capacity check: what the tag is declared as in Studio 5000, which
+/// <see cref="LogixStringConverter"/> writes against, and what the controller's own listing reports,
+/// which <c>TagDefinition</c> carries. The built-in <c>STRING</c> is
+/// <see cref="Standard"/>; a custom string type (<c>STRING_20</c>, <c>STRING_100</c>) has the same
+/// <c>.LEN</c> + <c>.DATA[n]</c> shape and a different <c>n</c>.
 /// </remarks>
 /// <param name="Value">The character capacity.</param>
 public readonly record struct StringMaxLength(int Value)

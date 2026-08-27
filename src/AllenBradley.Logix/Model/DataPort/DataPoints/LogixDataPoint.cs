@@ -5,8 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// <summary>
 /// What every Logix data point carries whatever its type: the tag it addresses, how often it is polled,
 /// the channels it feeds, and the .NET type it exchanges. Concrete shapes add only their
-/// <see cref="TypeName"/>, their value record, and whatever configuration their type needs — nothing at
-/// all for the elementary types.
+/// <see cref="TypeName"/>, their value record, and whatever configuration their type needs — a
+/// <c>STRING</c>'s declared capacity, and nothing at all for the elementary types.
 /// </summary>
 /// <remarks>
 /// <see cref="Identifier"/> and <see cref="DataTypeName"/> are the framework's two diagnostic strings, and

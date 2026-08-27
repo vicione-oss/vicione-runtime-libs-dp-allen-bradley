@@ -1,6 +1,8 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
@@ -35,6 +37,15 @@ internal static class LogixDataPointTestDataFactory
 
     internal static RealDataPoint CreateReal(string tagName) =>
         new(new TagName(tagName), DefaultPollFrequency, NoChannels);
+
+    internal static StringDataPoint CreateString(string tagName) =>
+        CreateString(tagName, StringMaxLength.Standard.Value);
+
+    internal static StringDataPoint CreateString(string tagName, int maxLength) =>
+        CreateString(new TagName(tagName), maxLength);
+
+    internal static StringDataPoint CreateString(TagName tagName, int maxLength) =>
+        new(tagName, DefaultPollFrequency, NoChannels, new StringMaxLength(maxLength));
 
     /// <summary>The point's own typed value, carrying <paramref name="value"/> as it stands.</summary>
     internal static ILogixDataPointValue CreateValue<TDomain>(

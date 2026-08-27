@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -26,6 +27,7 @@ internal static class DataPointConverterRegistry
 
         Register(converters, new DIntConverter());
         Register(converters, new RealConverter());
+        Register(converters, new LogixStringConverter());
 
         return converters.ToFrozenDictionary();
     }

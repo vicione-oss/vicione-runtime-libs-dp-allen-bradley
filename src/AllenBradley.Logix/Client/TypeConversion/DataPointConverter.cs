@@ -16,8 +16,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // range rules that record carries.
 //
 // What a match *is* is not decided here or in any subclass. A converter states what it expects the tag
-// to be — ExpectedKind and ExpectedDataType — and LogixTypeComparison holds the one rule that reads a
-// TagDefinition against it.
+// to be — ExpectedKind, ExpectedDataType and MaxLengthOf — and LogixTypeComparison holds the one rule
+// that reads a TagDefinition against it. An elementary type and a STRING are then two sets of constants
+// rather than two comparisons that must agree.
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : LogixDataPoint<TDomain>
 {
@@ -26,6 +27,13 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
     public abstract LogixTypeKind ExpectedKind { get; }
 
     public abstract AllenBradleyDataType? ExpectedDataType { get; }
+
+    StringMaxLength? IDataPointConverter.MaxLengthFor(ILogixDataPoint dataPoint) =>
+        MaxLengthOf(Cast(dataPoint));
+
+    // The capacity the controller must declare for this data point, or null when the type fixes its own
+    // size and there is nothing left to agree on.
+    protected abstract StringMaxLength? MaxLengthOf(TDataPoint dataPoint);
 
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 

@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
@@ -21,11 +22,16 @@ public class LogixClientTests
 {
     private static readonly DIntDataPoint Speed = CreateDInt("Motor.Speed");
     private static readonly DIntDataPoint Level = CreateDInt("Tank.Level");
+    private static readonly StringDataPoint Label = CreateString("Line.Label");
 
     // Metadata the controller would report for a DINT tag — matches the DINT converter, so the type gate
     // lets the read/write through and only the device outcome decides the result.
     private static TagDefinition DintMetadata(string tagName) =>
         new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
+
+    // A built-in STRING as the listing reports it: a structure of .DATA[82] behind its .LEN.
+    private static TagDefinition StringMetadata(string tagName) =>
+        new(new TagName(tagName), LogixTypeKind.Structure, AllenBradleyDataType.String, StringMaxLength.Standard, new DimensionCount(0), new ElementCount(1));
 
     private static TagDefinition RealMetadata(string tagName) =>
         new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Real, MaxLength: null, new DimensionCount(0), new ElementCount(1));
@@ -169,6 +175,51 @@ public class LogixClientTests
         tag.Written.Should().Equal(FortyTwoAsDint);
     }
 
+    [Fact]
+    public async Task WriteAsync_AString_EncodesIntoTheBufferTheTagHandsOut()
+    {
+        // Arrange
+        // A STRING is the first type whose wire size is not fixed by its type. The batch takes the buffer
+        // from the tag rather than sizing one itself, so the 88 bytes that go out are the controller's
+        // own width for Line.Label — no converter is asked how wide a STRING is.
+        var tag = FakeTag.Writing(
+            Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok(), tagSize: 88);
+        var tagManager = new FakeTagManager { [Label] = tag };
+        var client = new LogixClient(tagManager);
+        var value = CreateValue(Label, "Hi");
+
+        // Act
+        await client.WriteAsync([value], CancellationToken.None);
+
+        // Assert
+        tag.Written.Should().HaveCount(88);
+        tag.Written.AsSpan(0, 4).ToArray().Should().Equal(2, 0, 0, 0);
+        tag.Written.AsSpan(4, 2).ToArray().Should().Equal((byte)'H', (byte)'i');
+    }
+
+    [Fact]
+    public async Task ReadAsync_AString_DecodesTheStructureIntoATypedValue()
+    {
+        // Arrange
+        var structure = new byte[88];
+        structure[0] = 2;
+        structure[4] = (byte)'H';
+        structure[5] = (byte)'i';
+        var tagManager = new FakeTagManager
+        {
+            [Label] = FakeTag.Reading(Label, StringMetadata("Line.Label"), LogixTagReadResult.Ok(structure)),
+        };
+        var client = new LogixClient(tagManager);
+
+        // Act
+        var values = await client.ReadAsync([Label], CancellationToken.None);
+
+        // Assert
+        values.Should().ContainSingle();
+        values[0].Quality.Should().Be(LogixQuality.Good);
+        values[0].Value.Should().Be("Hi");
+    }
+
     // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
     // that nobody wired a converter for.
     private sealed record UnregisteredDataPoint()
@@ -224,8 +275,9 @@ public class LogixClientTests
             new(dataPoint, metadata, tagSize: 0) { _readResult = result };
 
         public static FakeTag Writing(
-            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
-            new(dataPoint, metadata, tagSize: sizeof(int)) { _writeResult = result };
+            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result,
+            int tagSize = sizeof(int)) =>
+            new(dataPoint, metadata, tagSize) { _writeResult = result };
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
         {

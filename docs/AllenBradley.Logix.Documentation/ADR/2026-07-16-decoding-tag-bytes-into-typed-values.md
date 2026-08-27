@@ -17,7 +17,8 @@ Batch read and write must be **type-safe** in two senses, and both must hold:
   owns its data type. A configured data point can simply disagree with the controller. It might be
   configured as a 32-bit integer but actually be a float. (The sibling Siemens S7 addon does not
   have this problem, because its absolute addresses fix the type in the address itself.) So the
-  controller's actual type must be checked before any bytes are interpreted.
+  controller's actual type has to be read and compared with the configuration before any tag is
+  polled.
 
 The open design choice is what the converters consume. They could read the wrapper's typed getters
 (`GetInt32`, `GetString`, …), or they could decode the raw bytes themselves. One fact weighs on
@@ -38,15 +39,17 @@ direction is the base `Tag` plus raw buffers, with all marshalling owned by the 
 
 Chosen: **Option 1: a converter registry that decodes raw bytes**, guarded by a CIP type-code
 check. Raw bytes keep the codecs testable against captured buffers and independent of the wrapper
-surface that is being removed. The type-code check supplies the run-time half of "type-safe".
+surface that is being removed. The type-code check supplies the run-time half of "type-safe", and it
+is paid once per connection rather than once per read.
 
 ```csharp
 internal interface IDataPointConverter
 {
-    ushort CipTypeCode { get; }                                    // expected controller type
-    int ByteSize(ILogixDataPoint dp);
+    LogixTypeKind ExpectedKind { get; }                            // structure or elementary
+    AllenBradleyDataType? ExpectedDataType { get; }                // expected controller type
+    StringMaxLength? MaxLengthFor(ILogixDataPoint dp);             // expected capacity, or none
     ILogixDataPointValue Decode(ILogixDataPoint dp, ReadOnlySpan<byte> buffer);
-    void Encode(ILogixDataPoint dp, object value, Span<byte> buffer);
+    void Encode(ILogixDataPointValue value, Span<byte> buffer);
 }
 ```
 
@@ -59,9 +62,13 @@ internal interface IDataPointConverter
   The structural cases are the Logix `STRING` and packed BOOL arrays. The `STRING` is a structure
   holding a `DINT` length (Logix's 32-bit integer) followed by 82 `SINT` bytes (8-bit integers)
   and padding. Their exact layouts are confirmed by capturing buffers from the real controller.
-- **Before any decode**, the converter's expected CIP type code and byte size are compared with
-  the controller's actual type. A mismatch fails the read with a clear error instead of silently
-  misreading bytes. This is the run-time half of "type-safe".
+- **The type check is a connect-time check, not a per-read one.** What a converter expects the tag
+  to be is compared with the controller's own declaration once, by
+  [configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md), and a
+  mismatch aborts the connect. Decoding then reads the type the data point was configured for. Repeating
+  the comparison on every read would only re-reach a verdict already reached, on metadata that cannot
+  change while the connection lives, and it would let a misconfiguration that verification somehow let
+  through look like a device fault instead of the configuration error it is.
 - Conversion lives in `Client/`, **never** in the domain core. The domain declares *what* a data
   point exchanges (`ITypedDataPoint<TDomain>` fixes the .NET type). The client owns *how* to
   produce that value from libplctag's bytes. An architecture test enforces that only `Client`
@@ -99,12 +106,11 @@ completeness test with it.
 
 #### Cons
 
-The type-code check needs a source for the controller's actual type. This ADR fixed where the check
-sits, before any decode, but left the metadata source open and stood a byte-size guard in for now.
-That gap has since been closed by [Verifying configuration against the controller symbol
-table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads the type from
-the symbol table. One thing is still unconfirmed. The bytes `GetBuffer` returns for a structure tag
-might open with the two-byte `A0 02` marker that CIP uses to flag an abbreviated structure, plus the
+The type-code check needs a source for the controller's actual type, which this ADR left open. That gap
+has since been closed by [Verifying configuration against the controller symbol
+table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads the type from the
+symbol table at connect and owns the comparison. One thing is still unconfirmed. The bytes `GetBuffer`
+returns for a structure tag might open with the two-byte `A0 02` marker that CIP uses to flag an abbreviated structure, plus the
 template id, or they might carry only the member bytes. Which one it is decides every STRING and UDT
 offset, where a UDT is a user-defined type that the PLC programmer defines. Confirming it is an
 output of the buffer-capture work.
@@ -129,14 +135,16 @@ is simpler. There is one uniform path, and it is uniformly testable.
 
 ## More Information
 
-The runtime type-code check needed a source for the controller's actual type. That was left open
-here and has since been settled by [Verifying configuration against the controller symbol
-table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads it from the
-symbol table.
+The type-code check needed a source for the controller's actual type. That was left open here and has
+since been settled by [Verifying configuration against the controller symbol
+table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads it from the symbol
+table at connect. That is also where the check runs: the decode itself does not repeat it.
 
 - Wire formats:
   [CIP data types reference](../../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
-  (little-endian scalars, the Logix `STRING` structure, BOOL packing, the symbol-type bitfield)
+  (little-endian scalars) ·
+  [Symbolic tag data types](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  (the Logix `STRING` structure, BOOL packing, the symbol-type bitfield)
 - Related: [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) ·
   [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)
 - Upstream: [libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)

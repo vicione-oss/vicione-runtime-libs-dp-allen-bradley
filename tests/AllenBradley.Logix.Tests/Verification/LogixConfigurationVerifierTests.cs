@@ -88,6 +88,38 @@ public class LogixConfigurationVerifierTests
     }
 
     [Fact]
+    public void GetMismatches_WhenAStringMatchesTheDeclaredCapacity_ReportsNothing()
+    {
+        var resolved = Resolved(CreateString("Label"), StringDeclaration());
+
+        LogixConfigurationVerifier.GetMismatches(resolved).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetMismatches_WhenTheControllerTagIsElementaryButAStringIsConfigured_ReportsAShapeMismatch()
+    {
+        // The inverse of the structure case: a STRING configured onto a DINT tag.
+        var resolved = Resolved(CreateString("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Dint));
+
+        LogixConfigurationVerifier.GetMismatches(resolved)
+            .Should().ContainSingle()
+            .Which.Value.Should().Contain("STRING").And.Contain("Dint");
+    }
+
+    [Fact]
+    public void GetMismatches_WhenTheDeclaredStringCapacityDiffers_ReportsTheCapacity()
+    {
+        // A STRING (82) configured onto a STRING_20. A round trip of a short value would never show
+        // this — hence its own mismatch kind. Both numbers are characters, the unit the configuration
+        // is written in.
+        var resolved = Resolved(CreateString("Label"), StringDeclaration(maxLength: 20));
+
+        LogixConfigurationVerifier.GetMismatches(resolved)
+            .Should().ContainSingle()
+            .Which.Value.Should().Contain("82").And.Contain("20").And.Contain("characters");
+    }
+
+    [Fact]
     public async Task Verify_ReturnsOnlyTheMisconfiguredDataPoints()
     {
         var tagManager = new FakeTagManager
