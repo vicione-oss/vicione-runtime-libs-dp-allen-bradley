@@ -139,7 +139,8 @@ public class CachingLogixTagManagerTests
         await LoadAsync(manager);
 
         // Act
-        // Distinct instances, equal by record value — the same data point, so the same tag (ADR-002).
+        // Distinct instances, equal by record value — the same data point, so the same tag
+        // (ADR/2026-07-16-reusing-and-releasing-tag-handles.md).
         var first = manager.TagFor(CreateDInt("Motor.Speed"));
         var second = manager.TagFor(CreateDInt("Motor.Speed"));
 

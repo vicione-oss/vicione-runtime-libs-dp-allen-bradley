@@ -8,8 +8,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// <summary>
 /// Owns the controller's symbol table and hands out one <see cref="ILogixTag"/> per data
 /// point, keeping it for this manager's lifetime: an initialised tag is the reusable, expensive
-/// resource (ADR-002), and the schema is the browse-once metadata joined onto it. Data points are
-/// records, so the data point <em>is</em> the key — two points naming the same tag with the same shape
+/// resource (<c>ADR/2026-07-16-reusing-and-releasing-tag-handles.md</c>), and the schema is the
+/// browse-once metadata joined onto it. Data points are records, so the data point <em>is</em> the
+/// key — two points naming the same tag with the same shape
 /// share one tag. Poll frequency and channels are part of that shape, so the same tag configured at two
 /// frequencies is two points and gets two tags.
 /// </summary>

@@ -57,7 +57,8 @@ public class LogixClientTests
         var values = await client.ReadAsync(CreateGroup(Speed, Level), CancellationToken.None);
 
         // Assert
-        // Per-tag partial failure: the bad tag must not sink the group (ADR-004).
+        // Per-tag partial failure: the bad tag must not sink the group
+        // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
         values.Should().HaveCount(2);
         values[0].Quality.Should().Be(LogixQuality.Good);
         values[0].Value.Should().Be(42);
@@ -82,7 +83,8 @@ public class LogixClientTests
 
         // Assert
         // A decode that throws is still one tag's problem: it degrades its own point and leaves the rest
-        // of the group standing, exactly as a failed read does (ADR-004).
+        // of the group standing, exactly as a failed read does
+        // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
         values.Should().HaveCount(2);
         values[0].Quality.Should().Be(LogixQuality.Bad);
         values[1].Quality.Should().Be(LogixQuality.Good);

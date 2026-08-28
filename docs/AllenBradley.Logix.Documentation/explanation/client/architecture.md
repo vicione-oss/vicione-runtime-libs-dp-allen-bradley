@@ -12,7 +12,7 @@ they collaborate along to a scene each.
 | Scene | What it adds |
 |---|---|
 | [`client-connection-lifecycle`](../../diagrams/client-connection-lifecycle.excalidraw) | The pool, the factory and `ILogixClient`: who acquires a connection, who counts its holders, and where connect, disconnect and dispose land on the tag manager |
-| [`type-gate-and-verification`](../../diagrams/type-gate-and-verification.excalidraw) | Where the controller's own `TagDefinition` comes from, and the one comparison the verifier makes against it at connect (ADR-003). The filename predates that comparison becoming connect-only — there is no longer a gate on the read or write path |
+| [`type-gate-and-verification`](../../diagrams/type-gate-and-verification.excalidraw) | Where the controller's own `TagDefinition` comes from, and the one comparison the verifier makes against it at connect ([verifying configuration against the symbol table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)). The filename predates that comparison becoming connect-only — there is no longer a gate on the read or write path |
 | [`read-write-paths`](../../diagrams/read-write-paths.excalidraw) | One poll and one write end to end, and why a failed read degrades a point while a failed write throws |
 
 All four are Excalidraw sources under [`diagrams/`](../../diagrams); re-export the SVG and run the
@@ -22,7 +22,9 @@ font-fix after editing one.
 
 - **`ILogixReadClient` / `ILogixWriteClient`** are the two seams the dataports depend on — the
   incoming port reads, the outgoing port writes — kept split so each direction depends only on what it
-  uses (ADR-002). Each is the framework's own contract narrowed to our types —
+  uses ([maximizing throughput with one shared
+  connection](../../ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md)). Each is the
+  framework's own contract narrowed to our types —
   `IReadClient<LogixDataPointGroup, ILogixDataPointValue>` and `IWriteClient<ILogixDataPointValue>` —
   so a dataport base class can hold one without an adapter in between.
 - **`LogixDataPointGroup`** is what a read takes: the points that share a poll frequency, which is the
@@ -39,7 +41,8 @@ font-fix after editing one.
   (`DIntConverter`, `RealConverter`, `LogixStringConverter`) and to what it expects the controller to
   declare. Decoding does not re-check that expectation: `LogixConfigurationVerifier` compared it against
   the controller at connect and aborted on a disagreement, so the batches read and write the type the
-  configuration names (ADR-003).
+  configuration names ([verifying configuration against the symbol
+  table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)).
 
 ## Values are typed by their data point
 
@@ -124,8 +127,9 @@ having a `Drain` next to its `Dispose`.
   `DataPoint`, the controller's `Metadata`, and the read/write access — into the single object every
   consumer projects off.
 - **`SynchronizedLogixTagAccess` → `LogixTagAccess` → `libplctag Tag`** is the access chain. The
-  synchronized wrapper gates one whole operation at a time on a shared handle (ADR-001); the inner
-  adapter runs the read/write against the native `Tag` and maps its exceptions onto results.
+  synchronized wrapper gates one whole operation at a time on a shared handle ([a testable interface
+  over libplctag](../../ADR/2026-07-16-testable-libplctag-interface.md)); the inner adapter runs the
+  read/write against the native `Tag` and maps its exceptions onto results.
 - **`LogixTagAccessFactory`** (`ILogixTagAccessFactory`) builds those accesses — for data-point
   tags on behalf of the manager (`Create`), and for the `@tags` listing names on behalf of the
   definitions loader (`CreateForSchemaTag`).

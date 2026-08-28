@@ -53,8 +53,9 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
 
         // The converter is the single source of the expected type, and LogixTypeComparison the single
         // comparison. This is the only place a configured type is read against the controller's own
-        // declaration (ADR-003) — the poll trusts the verdict reached here, so a mismatch that gets past
-        // it is a mismatch nothing downstream will catch. The verifier only renders the kind it reports.
+        // declaration (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md) — the poll
+        // trusts the verdict reached here, so a mismatch that gets past it is a mismatch nothing
+        // downstream will catch. The verifier only renders the kind it reports.
         var converter = DataPointConverterRegistry.GetConverter(dataPoint);
         var mismatch = LogixTypeComparison.Compare(converter, resolved);
         return mismatch switch

@@ -3,8 +3,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 /// <summary>
 /// How the controller's type declaration disagrees with what a converter decodes, or
 /// <see cref="None"/> when they match. Configuration verification reaches this verdict once per connect
-/// and renders the kind as a misconfiguration message (ADR-003); nothing on the read or write path asks
-/// again, because a data point that reached the poll is one whose declaration already matched.
+/// and renders the kind as a misconfiguration message
+/// (<c>ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md</c>); nothing on the read or
+/// write path asks again, because a data point that reached the poll is one whose declaration already
+/// matched.
 /// </summary>
 internal enum LogixTypeMismatch
 {

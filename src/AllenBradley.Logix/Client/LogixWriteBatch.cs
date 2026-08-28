@@ -45,7 +45,8 @@ internal sealed class LogixWriteBatch
     //
     // The bytes go out as the configuration says they should. LogixConfigurationVerifier has already
     // diffed every configured data point against the controller's own declaration and aborted the connect
-    // on a disagreement (ADR-003), so a tag that is being written is a tag whose type already matched.
+    // on a disagreement (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md), so a tag
+    // that is being written is a tag whose type already matched.
     private static async Task<WriteOutcome> WriteEntryAsync(
         WriteEntry entry, CancellationToken cancellationToken)
     {

@@ -2,29 +2,28 @@
 
 ## Context and Problem Statement
 
-This decision covers `src/AllenBradley.Logix/Client/TypeConversion/`. That directory holds
-`IDataPointConverter`, `DataPointConverter<,>`, `DataPointConverterRegistry`, and the per-type
-converters. It was made
-under
+This decision covers how a tag's raw bytes become a data point's .NET value, and how the type a data
+point is configured as is held against the type the controller declares. The code sits in the client's
+type-conversion folder, `src/AllenBradley.Logix/Client/TypeConversion/`. Its only callers are the read
+and write batches and the configuration verifier. It was made under
 [issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
 
-Batch read and write must be **type-safe** in two senses, and both must hold:
+Batch read and write must be **type-safe** in two senses, and both must hold.
 
-- **At compile time.** The pieces that handle one data point (the batch entry, the byte decoder,
-  and the .NET value it produces) are tied together by generic type parameters, not by `object`
-  casts scattered through the code.
-- **At run time.** A Logix tag is addressed by name, and the controller, not our configuration,
-  owns its data type. A configured data point can simply disagree with the controller. It might be
-  configured as a 32-bit integer but actually be a float. (The sibling Siemens S7 addon does not
-  have this problem, because its absolute addresses fix the type in the address itself.) So the
-  controller's actual type has to be read and compared with the configuration before any tag is
-  polled.
+The first is compile time. The pieces that handle one data point (the batch entry, the byte decoder, and
+the .NET value it produces) are tied together by generic type parameters rather than by `object` casts
+scattered through the code.
+
+The second is run time. A Logix tag is addressed by name, and the controller owns its data type, not our
+configuration. A configured data point can simply disagree with the controller. It might be configured as
+a 32-bit integer and actually be a float. The sibling Siemens S7 addon does not have this problem, because
+its absolute addresses fix the type in the address itself. So the controller's own declaration has to be
+read and compared with the configuration before any tag is polled.
 
 The open design choice is what the converters consume. They could read the wrapper's typed getters
-(`GetInt32`, `GetString`, …), or they could decode the raw bytes themselves. One fact weighs on
-that choice. The wrapper's typed-mapper API (`Tag<M,T>`), which the connectivity spike used, is
-being removed upstream
-([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)). The library's
+(`GetInt32`, `GetString`, …), or they could decode the raw bytes themselves. One fact weighs on that
+choice. The wrapper's typed-mapper API (`Tag<M,T>`), which the connectivity spike used, is being removed
+upstream ([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)). The library's
 direction is the base `Tag` plus raw buffers, with all marshalling owned by the caller.
 
 ## Considered Options
@@ -37,57 +36,111 @@ direction is the base `Tag` plus raw buffers, with all marshalling owned by the 
 
 ## Decision Outcome
 
-Chosen: **Option 1: a converter registry that decodes raw bytes**, guarded by a CIP type-code
-check. Raw bytes keep the codecs testable against captured buffers and independent of the wrapper
-surface that is being removed. The type-code check supplies the run-time half of "type-safe", and it
-is paid once per connection rather than once per read.
+Chosen: **Option 1, a converter registry that decodes raw bytes**, guarded by a CIP type-code check. Raw
+bytes keep the codecs testable against a byte array and independent of the wrapper surface that is being
+removed. The type-code check supplies the run-time half of "type-safe", and it is paid once per connection
+rather than once per read.
 
-```csharp
-internal interface IDataPointConverter
-{
-    LogixTypeKind ExpectedKind { get; }                            // structure or elementary
-    AllenBradleyDataType? ExpectedDataType { get; }                // expected controller type
-    StringMaxLength? MaxLengthFor(ILogixDataPoint dp);             // expected capacity, or none
-    ILogixDataPointValue Decode(ILogixDataPoint dp, ReadOnlySpan<byte> buffer);
-    void Encode(ILogixDataPointValue value, Span<byte> buffer);
-}
-```
+A converter is one type's codec together with its expectation about the tag it reads. It states what shape
+it expects (elementary or structure) and what CIP type, plus a character capacity for the types that have
+one. It decodes a raw span into the data point's value, and encodes a value back into a buffer.
 
-- The registry boundary is the non-generic `IDataPointConverter`. A typed base class
-  `DataPointConverter<TDataPoint, TDomain>` performs the one unavoidable cast from `object` in a
-  single place. The registry is a `FrozenDictionary` keyed by data-point type, and a test fails
-  the build if any data-point type has no converter.
-- **Every converter decodes a `ReadOnlySpan<byte>`.** CIP transmits scalars little-endian, and
-  .NET is little-endian too, so a scalar is a direct `BinaryPrimitives` read with no byte swap.
-  The structural cases are the Logix `STRING` and packed BOOL arrays. The `STRING` is a structure
-  holding a `DINT` length (Logix's 32-bit integer) followed by 82 `SINT` bytes (8-bit integers)
-  and padding. Their exact layouts are confirmed by capturing buffers from the real controller.
-- **The type check is a connect-time check, not a per-read one.** What a converter expects the tag
-  to be is compared with the controller's own declaration once, by
-  [configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md), and a
-  mismatch aborts the connect. Decoding then reads the type the data point was configured for. Repeating
-  the comparison on every read would only re-reach a verdict already reached, on metadata that cannot
-  change while the connection lives, and it would let a misconfiguration that verification somehow let
-  through look like a device fault instead of the configuration error it is.
-- Conversion lives in `Client/`, **never** in the domain core. The domain declares *what* a data
-  point exchanges (`ITypedDataPoint<TDomain>` fixes the .NET type). The client owns *how* to
-  produce that value from libplctag's bytes. An architecture test enforces that only `Client`
-  depends on the libplctag assembly.
+- A converter is looked up by the data point's concrete type, and registration derives that key from the
+  converter's own type parameter rather than taking it from the caller. Filing a converter under a data
+  point it does not handle is therefore a compile error, not a run-time surprise. A lookup miss throws,
+  naming the type and pointing at the registry, so a data-point type added without a converter fails
+  immediately.
+- The registry's boundary is a non-generic interface, so one loop handles a batch of mixed types. A typed
+  base class performs the single cast back to the concrete data point, and a failure there can only mean
+  the registry routed the wrong converter, which is what its message says. Subclasses work entirely in
+  their own data-point and .NET types and never see `object`. Decoding builds the value through the data
+  point, so the point owns its value record instead of a converter inventing one. Encoding demands the
+  point's own typed value, which is what stops a failed read, carrying no payload, from being written back
+  to the controller.
+- The expectation is stated as data, in the same fields the controller's declaration reports its side in.
+  One comparison then holds the whole rule for every converter at once, shape first, then type, then
+  capacity. An elementary type and a `STRING` differ in the constants they supply rather than in a
+  comparison each writes for itself. The elementary base fixes the shape and has no capacity to state, and
+  the `STRING` is the one case whose expected capacity comes from the data point's configuration. The
+  Studio 5000 spelling a converter carries decides nothing. It only names the type in a misconfiguration
+  message and in a rejected write.
+- Every converter decodes a `ReadOnlySpan<byte>`. CIP transmits scalars little-endian and .NET is
+  little-endian too, so a scalar is a direct `BinaryPrimitives` read with no byte swap. The structural
+  cases are the Logix `STRING` and packed BOOL arrays. The `STRING` is a structure holding a `DINT` length
+  (Logix's 32-bit integer) followed by 82 `SINT` bytes (8-bit integers) and padding. The buffer starts at
+  that length, because libplctag strips the CIP abbreviated-structure marker into its own type-info store
+  (see Consequences). The length is the controller's claim about its own character data, so the decode
+  clamps it against the configured capacity and against the bytes actually in hand. The encode throws
+  rather than truncating an over-long value, and it zeroes the tail so a shorter value does not leave the
+  previous one visible in Studio 5000.
+- A converter states no width. It fills a buffer it is handed. A `STRING` and a `STRING_20` are one
+  converter and two widths, and the controller owns which, so the write batch takes the buffer from the
+  tag, at libplctag's own size for the handle, and the converter only writes into it.
+- The type check runs at connect, not on every read. What a converter expects the tag to be is compared
+  with the controller's declaration once, by
+  [configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md), which is
+  the comparison's only caller, and a mismatch aborts the connect. Decoding then reads the type the data
+  point was configured for. Repeating the comparison per read would re-reach a verdict already reached, on
+  metadata that cannot change while the connection lives. It would also let a misconfiguration that
+  verification somehow let through look like a device fault instead of the configuration error it is. A
+  reply too short for its type is caught narrowly on the read path and degrades that one data point to a
+  bad value, rather than sinking the group it is polled in.
+- Conversion lives in `Client/` and **never** in the domain core. The domain declares what a data point
+  exchanges, with the .NET type as a type parameter on the data point itself rather than a discriminator
+  beside it. The client owns how to produce that value from libplctag's bytes. The converters touch no
+  libplctag type at all. Only the tag-access adapter does, and only `Client` may depend on that assembly
+  (see Enforcement).
 
 ### Consequences
 
-The decision supports scalar elementary types today. Before structures can be modelled, two things
-must come out of the buffer-capture work against real DINT, REAL, STRING and BOOL buffers. The first
-is the exact layout `GetBuffer` returns for a structure tag, with or without the two-byte `A0 02`
-marker, since that decides every STRING and UDT offset. The second is the marshalling mechanism,
-either `StructLayout(Sequential, Pack = 4)` with `Marshal` or explicit `BinaryPrimitives` codecs.
+The decision carries the elementary scalars (`DINT`, `REAL`) and one structure, the Logix `STRING`. The
+structure work turned on two questions. One is settled and the other is committed to but unconfirmed.
+
+The marshalling mechanism is settled. Explicit `BinaryPrimitives` codecs, not
+`StructLayout(Sequential, Pack = 4)` with `Marshal`. That is what keeps a converter a pure function over a
+span, testable against a byte array.
+
+The structure buffer's starting offset is taken from libplctag rather than from a capture. `GetBuffer`
+returns only the member bytes. The library strips the two-byte `A0 02` abbreviated-structure marker and
+the template handle into its own type-info store, and re-attaches them on write. Its documented Logix
+string layout says the same thing, a count word of 4 bytes at offset 0, capacity 82, 2 pad bytes, 88
+total. The `STRING` codec is built on that, and every `STRING` and UDT offset hangs off it. Confirming it
+against the controller is what the wire-format probe and the device-tier round trip exist for, and neither
+has been run (see [the test-device setup](../../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md)).
+
+A second unconfirmed fact lands on this decision from the other side. The symbol-table listing carries no
+capacity of its own, so a `STRING`'s is read back from the declared element size by subtracting the 4-byte
+length prefix. If the controller declares the padded 88 instead of the 86 member bytes assumed, the codec
+and the declaration disagree by two characters, the comparison reports a capacity mismatch, and the
+connect aborts before a single `STRING` is polled.
+
+Packed BOOL arrays and UDTs are still unmodelled. A UDT needs its template (`@udt/<id>`) for a field-level
+layout. Both drop into this same registry when they arrive.
 
 ### Enforcement
 
-Three standing checks hold this decision in place. The completeness test fails the build when a
-data-point type lacks a converter. Each converter's unit tests pin its codec to captured buffers,
-so a layout regression fails without hardware. The architecture test fails the build if anything
-outside `Client` references the libplctag assembly.
+The registry's completeness is checked, but not exhaustively. A theory over every modelled data-point type
+asserts that each one resolves a converter and that the point and its converter spell the type the same
+way. That list is hand-maintained, so a type added without being added to it is a type nothing catches
+until the registry throws at run time. A reflection-driven test over every data point would close the gap
+and does not exist yet. What the miss itself does is pinned separately, against a data-point shape
+declared deliberately without a converter.
+
+Codec regressions fail without hardware. The `STRING` codec is pinned to hand-built byte arrays covering
+the length prefix at offset 0, the clamps, the Latin-1 fallback and the zeroed tail, and it is driven
+through the non-generic boundary so the routing cast and its message are under test too. The comparison's
+ordering is pinned against real converters, which is the one thing the verifier's messages cannot show,
+and the verifier itself is covered per mismatch kind. The client tests decode and encode a `DINT` and a
+`STRING` through the batches. The `REAL` codec has no test of its own and is reached only through the
+type-name theory.
+
+The device tier pins the same layouts against the real controller. It is written but unrun, a round trip
+of a program `STRING` through the production stack that also asserts the whole declaration the controller
+reports for that tag.
+
+Keeping conversion clear of the domain is a code-review rule. The `libplctag` package reference sits on
+the whole project, and an architecture test that fails the build when anything outside `Client` touches it
+is worth adding and does not exist yet.
 
 ## Pros and Cons of the Options
 
@@ -95,25 +148,27 @@ outside `Client` references the libplctag assembly.
 
 #### Pros
 
-The hard part needs no hardware to test. Every converter decodes a raw byte span, so each one runs
-against captured buffers, which are byte dumps taken once from the real controller. That byte-layout
-knowledge does not depend on libplctag either. If the client library were ever swapped, the codecs
-would survive and only the `ILogixTagAccess` adapter would be rewritten (see [A testable interface
-over libplctag](2026-07-16-testable-libplctag-interface.md)). It also avoids the upstream removal of
-the mapper API completely, because we never touch that API. And the S7 addon's registry pattern
-ports over directly, bringing the exhaustive dictionary, the single boundary cast, and the
-completeness test with it.
+The hard part needs no hardware to test. Every converter decodes a raw byte span, so each one runs against
+a byte array laid out the way the controller sends it. That byte-layout knowledge does not depend on
+libplctag either. If the client library were ever swapped, the codecs would survive and only the
+tag-access adapter would be rewritten (see [A testable interface over
+libplctag](2026-07-16-testable-libplctag-interface.md)). It also avoids the upstream removal of the mapper
+API completely, because we never touch that API. And the S7 addon's registry pattern ports over directly,
+bringing the exhaustive dictionary and the single boundary cast with it.
 
 #### Cons
 
-The type-code check needs a source for the controller's actual type, which this ADR left open. That gap
-has since been closed by [Verifying configuration against the controller symbol
-table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads the type from the
-symbol table at connect and owns the comparison. One thing is still unconfirmed. The bytes `GetBuffer`
-returns for a structure tag might open with the two-byte `A0 02` marker that CIP uses to flag an abbreviated structure, plus the
-template id, or they might carry only the member bytes. Which one it is decides every STRING and UDT
-offset, where a UDT is a user-defined type that the PLC programmer defines. Confirming it is an
-output of the buffer-capture work.
+Raw bytes are only half of "type-safe" on their own. The check needs a source for the controller's actual
+type, and supplying it is a decision of its own. [Verifying configuration against the controller symbol
+table](2026-07-21-verifying-configuration-against-the-symbol-table.md) reads that type from the symbol
+table at connect and owns the comparison. Without that browse there is nothing for a converter's
+expectation to be checked against.
+
+The byte layout also becomes ours to be right about. Nothing in a decode reports a wrong offset. It
+reports a plausible wrong value. That is why the `STRING` offsets, taken from libplctag's documented
+layout rather than from the wire, still want confirming against the controller. That includes whether the
+bytes open with the two-byte `A0 02` marker CIP uses to flag an abbreviated structure, which would shift
+every `STRING` and UDT offset. (A UDT is a user-defined type the PLC programmer declares.)
 
 ### Option 2: Converters on the wrapper's typed getters (rejected)
 
@@ -123,7 +178,7 @@ It ties the codecs to the API surface that upstream is removing, and it rules ou
 captured buffers, because a typed getter cannot be pointed at a saved byte dump. The typed getters
 are still fine for a quick throwaway experiment. They just cannot be the production converter input.
 
-### Option 3: The hybrid: raw bytes where needed, typed getters elsewhere (rejected)
+### Option 3: The hybrid, raw bytes where needed and typed getters elsewhere (rejected)
 
 The sibling S7 addon decodes raw bytes only for the cases where its client library (S7.Net) lays
 the bytes out incorrectly, and uses the library's typed values everywhere else.
@@ -135,10 +190,12 @@ is simpler. There is one uniform path, and it is uniformly testable.
 
 ## More Information
 
-The type-code check needed a source for the controller's actual type. That was left open here and has
-since been settled by [Verifying configuration against the controller symbol
-table](2026-07-21-verifying-configuration-against-the-symbol-table.md), which reads it from the symbol
-table at connect. That is also where the check runs: the decode itself does not repeat it.
+The controller's actual type comes from the symbol-table browse, and the comparison against it runs once
+per connect. See [Verifying configuration against the controller symbol
+table](2026-07-21-verifying-configuration-against-the-symbol-table.md). The decode does not repeat it.
+
+This record names roles rather than types. The folder is the entry point, and the current names live in
+the source and its comments. A rename should not oblige anyone to revisit a decision that has not changed.
 
 - Wire formats:
   [CIP data types reference](../../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
@@ -149,6 +206,5 @@ table at connect. That is also where the check runs: the decode itself does not 
   [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)
 - Upstream: [libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)
   (removal of the typed-mapper API)
-- S7 precedent: `Siemens.S7.Absolute/Client/DataItems/Conversion/` and S7's
-  conversion-architecture ADR
+- S7 precedent: its client's data-item conversion folder and its conversion-architecture ADR
 - [Issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5)

@@ -7,8 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 /// </summary>
 /// <remarks>
 /// One access may be shared across callers, and operations must not overlap on it —
-/// <see cref="SynchronizedLogixTagAccess"/> enforces that, and ADR-001 records why whole-exchange
-/// members are what make the gating sound.
+/// <see cref="SynchronizedLogixTagAccess"/> enforces that, and
+/// <c>ADR/2026-07-16-testable-libplctag-interface.md</c> records why whole-exchange members are what
+/// make the gating sound.
 /// <para>
 /// A device failure is a failed result, not an exception — a tag that will not read is an ordinary
 /// event in a polling group. Cancellation still throws.

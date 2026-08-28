@@ -4,8 +4,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 // naming the tag, so a read and a write can reach it at once — and overlapping operations on one
 // libplctag handle mispair completions inside the .NET wrapper and cascade into timeouts, while its
 // raw buffer accessors can race in the gaps between operations. Gating whole ILogixTagAccess
-// members closes both races at once; both are verified against the device (ADR-001). A separate
-// access never meets this gate, so a group's fan-out across tags is untouched.
+// members closes both races at once; both are verified against the device
+// (ADR/2026-07-16-testable-libplctag-interface.md). A separate access never meets this gate, so a
+// group's fan-out across tags is untouched.
 internal sealed class SynchronizedLogixTagAccess(ILogixTagAccess inner) : ILogixTagAccess
 {
     private readonly SemaphoreSlim _gate = new(1, 1);

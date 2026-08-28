@@ -81,8 +81,10 @@ reports 88 instead, the same tag decodes as a capacity of 84, `LogixTypeComparis
 read back as a capacity, because 88 is equally consistent with `.DATA[82]` and `.DATA[84]`.
 
 Fixing that means reading the template (`@udt/<id>`) for the honest `.DATA : SINT[n]`, which is the
-step ADR-003 already defers to structured data-point support. Run `StringWireFormatProbeTests` before
-that becomes necessary.
+step [verifying configuration against the symbol
+table](../../AllenBradley.Logix.Documentation/ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)
+already defers to structured data-point support. Run `StringWireFormatProbeTests` before that becomes
+necessary.
 
 ### Controller tags — IO-Link master (`AL1x2x_IOLink`)
 

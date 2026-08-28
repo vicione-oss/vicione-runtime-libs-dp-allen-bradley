@@ -16,8 +16,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// <para>
 /// The target is a <c>STRING</c> rather than a DINT on purpose. <c>strValue1</c> is a program tag, so it
 /// <em>is</em> in the <c>Program:MainProgram.@tags</c> listing and its metadata is non-null, which is what
-/// the ADR-003 comparison needs. <c>Counter.PRE</c>, the read suite's target, is a structure member absent
-/// from the flat listing, so nothing about its type can be checked at all.
+/// the comparison in <c>ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md</c> needs.
+/// <c>Counter.PRE</c>, the read suite's target, is a structure member absent from the flat listing, so
+/// nothing about its type can be checked at all.
 /// </para>
 /// <para>
 /// Each case also asserts the declaration the controller reports, spelled out whole and compared as one

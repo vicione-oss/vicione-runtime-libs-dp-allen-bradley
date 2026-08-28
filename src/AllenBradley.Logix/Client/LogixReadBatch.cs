@@ -42,8 +42,9 @@ internal sealed class LogixReadBatch
     //
     // What the bytes are is not re-litigated per read. LogixConfigurationVerifier has already diffed every
     // configured data point against the controller's own declaration and aborted the connect on a
-    // disagreement (ADR-003), so a tag that is being polled is a tag whose type already matched, and the
-    // decode reads the type it was configured for.
+    // disagreement (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md), so a tag that is
+    // being polled is a tag whose type already matched, and the decode reads the type it was configured
+    // for.
     private static async Task<ILogixDataPointValue> ReadEntryAsync(
         ReadEntry entry, CancellationToken cancellationToken)
     {
@@ -61,7 +62,8 @@ internal sealed class LogixReadBatch
         {
             // A reply too short for the type the data point was configured as. It should not happen on a
             // verified tag, and it is caught anyway for the same reason a failed read is a Bad value
-            // rather than an exception: one tag must not sink the group it is polled in (ADR-004).
+            // rather than an exception: one tag must not sink the group it is polled in
+            // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
             // Narrow on purpose — this is the buffer being the wrong shape for the decode, and nothing
             // else. A converter that throws anything else is a bug in the converter, and it travels.
             return new BadLogixDataPointValue(entry.DataPoint);

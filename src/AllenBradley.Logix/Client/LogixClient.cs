@@ -15,7 +15,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 /// One class serves both directions so the incoming and outgoing dataports — created separately but
 /// targeting the same controller — share its connection; the <see cref="ILogixReadClient"/> /
 /// <see cref="ILogixWriteClient"/> seams stay split so each dataport depends only on the direction
-/// it uses (ADR-002).
+/// it uses (<c>ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md</c>).
 /// <para>
 /// The whole lifecycle is the tag manager's: connect loads its schema, disconnect drains it, dispose
 /// ends it. Nothing else about the client is connection state, which is why the flag below is the only

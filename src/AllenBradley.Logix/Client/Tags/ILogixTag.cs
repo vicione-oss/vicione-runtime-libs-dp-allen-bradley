@@ -12,8 +12,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 /// </summary>
 /// <remarks>
 /// It wraps the minimal <see cref="Access.ILogixTagAccess"/> seam and adds two immutable getters, so the
-/// whole-exchange concurrency contract of ADR-001 is untouched: <see cref="Metadata"/> and
-/// <see cref="DataPoint"/> are data, not handle state. Disposal frees the inner handle.
+/// whole-exchange concurrency contract of <c>ADR/2026-07-16-testable-libplctag-interface.md</c> is
+/// untouched: <see cref="Metadata"/> and <see cref="DataPoint"/> are data, not handle state. Disposal
+/// frees the inner handle.
 /// </remarks>
 internal interface ILogixTag : IDisposable
 {

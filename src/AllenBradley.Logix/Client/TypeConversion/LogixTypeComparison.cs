@@ -5,7 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
 // The whole type rule, in one function: the controller's TagDefinition read against what a converter
 // expects the tag to be. Configuration verification is the only caller, and it runs once per connect
-// (ADR-003) — reads and writes trust the verdict it reached rather than re-reaching it per operation.
+// (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md) — reads and writes trust the
+// verdict it reached rather than re-reaching it per operation.
 //
 // It is generic over the converters because the expected side is data: a kind, a data type and a
 // capacity, which is the same shape the controller reports the actual side in. An elementary type and a

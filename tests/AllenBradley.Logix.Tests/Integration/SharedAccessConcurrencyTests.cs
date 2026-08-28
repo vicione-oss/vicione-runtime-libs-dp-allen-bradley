@@ -16,7 +16,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
 /// <summary>
 /// Verifies — against the real CompactLogix L32E — the two claims that justify <c>SynchronizedLogixTagAccess</c>,
-/// rather than taking ADR-001's word for them:
+/// rather than taking the word of <c>ADR/2026-07-16-testable-libplctag-interface.md</c> for them:
 /// <list type="number">
 /// <item>a group can name the same tag twice, so <c>CachingLogixTagManager</c> hands one shared tag to
 /// several concurrent readers (<see cref="Group_NamingTheSameTagTwice_SharesOneTag_AndReadsConsistently"/>);</item>
