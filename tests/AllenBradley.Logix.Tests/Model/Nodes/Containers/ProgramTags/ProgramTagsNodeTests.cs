@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
@@ -16,6 +17,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers
 /// </remarks>
 public sealed class ProgramTagsNodeTests
 {
+    private static readonly Guid s_channel = Guid.NewGuid();
+
     [Fact]
     public void MapToTypedNodes_WithAProgramContainerUnderAController_HangsItOffTheDevice()
     {
@@ -34,8 +37,8 @@ public sealed class ProgramTagsNodeTests
     }
 
     /// <remarks>
-    /// Every device node type offers the same program container: a program is a program whatever the
-    /// controller is, and the generation split that controller scope carries has nothing yet to gate.
+    /// Every device node type offers a program container. Which one follows the generation, the way
+    /// controller scope's does, because the types a program may hold are the controller's types.
     /// </remarks>
     [Theory]
     [InlineData(DeviceNode.ControlLogix5x70DesignId)]
@@ -46,7 +49,9 @@ public sealed class ProgramTagsNodeTests
     {
         // Arrange
         var communication = CreateCommunicationOf(
-            [CreateProgramTagsNode("MainProgram")], deviceDesignId);
+            [CreateProgramTagsNode(
+                "MainProgram", containerDesignId: ProgramTagsDesignIdFor(deviceDesignId))],
+            deviceDesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -76,5 +81,32 @@ public sealed class ProgramTagsNodeTests
         deviceNode.ConfigurationNodes.OfType<ProgramTagsNode>()
             .Select(static program => program.ProgramName.Value).Should()
             .BeEquivalentTo("MainProgram", "Conveyor");
+    }
+
+    /// <remarks>
+    /// The type only one generation has is what earns program scope two node types. Everything else about
+    /// the two is identical, so this and its 5x70 counterpart are the whole of the difference.
+    /// </remarks>
+    [Fact]
+    public void MapToTypedNodes_WithAnLRealUnderA5x80Program_HangsItOffTheProgram()
+    {
+        // Arrange
+        var communication = CreateCommunicationOf(
+            [
+                CreateProgramTagsNode(
+                    "MainProgram", ProgramTagsId, ProgramTagsNode.Logix5x80LinkedNodeTypeId),
+                CreateLRealNode(s_channel.ToString(), "Position", parentId: ProgramTagsId),
+            ],
+            DeviceNode.ControlLogix5x80DesignId);
+
+        // Act
+        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+
+        // Assert
+        deviceNode.ConfigurationNodes.Should().ContainSingle()
+            .Which.Should().BeOfType<ProgramTagsNode>()
+            .Which.DataPointNodes.Should().ContainSingle()
+            .Which.Should().BeOfType<LRealNode>()
+            .Which.TagName.Value.Should().Be("Position");
     }
 }

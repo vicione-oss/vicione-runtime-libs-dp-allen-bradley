@@ -141,10 +141,15 @@ internal static class LogixCommunicationTestDataFactory
     /// The container's node id, which the tags configured inside it name as their parent. Left to a fresh
     /// one when the container holds none.
     /// </param>
-    internal static Node CreateProgramTagsNode(string programName, Guid? id = null) =>
+    /// <param name="containerDesignId">
+    /// The container's node type, which decides the generation it holds its tags to. Defaults to the 5x70
+    /// one, matching <see cref="DeviceDesignId"/>.
+    /// </param>
+    internal static Node CreateProgramTagsNode(
+        string programName, Guid? id = null, string? containerDesignId = null) =>
         new()
         {
-            DesignId = ProgramTagsNode.LinkedNodeTypeId,
+            DesignId = containerDesignId ?? ProgramTagsNode.Logix5x70LinkedNodeTypeId,
             Name = programName,
             Id = id ?? NewGuid(),
             Properties = new Dictionary<string, Property>
@@ -168,6 +173,15 @@ internal static class LogixCommunicationTestDataFactory
             Strategy = (byte)QueueStrategy.DropOldest,
             Nodes = nodes,
         };
+
+    /// <summary>
+    /// The program container node type of the generation <paramref name="deviceDesignId"/> names — the
+    /// pairing the editor can build, and the only one the device accepts.
+    /// </summary>
+    internal static string ProgramTagsDesignIdFor(string deviceDesignId) =>
+        DeviceNode.TypeOf(deviceDesignId)!.Value.Generation is LogixGeneration.Logix5x80
+            ? ProgramTagsNode.Logix5x80LinkedNodeTypeId
+            : ProgramTagsNode.Logix5x70LinkedNodeTypeId;
 
     /// <summary>A device with no tags configured under it.</summary>
     internal static LogixCommunication CreateCommunication() => CreateCommunication([]);
@@ -226,7 +240,7 @@ internal static class LogixCommunicationTestDataFactory
     /// </remarks>
     internal static LinkedNode ProgramTagsLinkedNode(
         string name, params (string Key, object Value)[] properties) =>
-        LinkedNodeCarrying(ProgramTagsNode.LinkedNodeTypeId, name, properties);
+        LinkedNodeCarrying(ProgramTagsNode.Logix5x70LinkedNodeTypeId, name, properties);
 
     /// <summary>A string node carrying the three properties it needs, all well-formed.</summary>
     internal static LinkedNode ValidStringLinkedNode(

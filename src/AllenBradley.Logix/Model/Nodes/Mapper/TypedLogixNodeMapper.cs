@@ -22,7 +22,7 @@ public static class TypedLogixNodeMapper
             new DeviceNodeMapper(),
             [
                 new ControllerTags5x70NodeMapper(), new ControllerTags5x80NodeMapper(),
-                new ProgramTagsNodeMapper(),
+                new ProgramTags5x70NodeMapper(), new ProgramTags5x80NodeMapper(),
             ],
             [new DIntNodeMapper(), new LRealNodeMapper(), new StringNodeMapper()]);
 }

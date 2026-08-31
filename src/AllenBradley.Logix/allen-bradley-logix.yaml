@@ -54,7 +54,7 @@ Nodes:
           - Id: Strategy
     ChildNodes:
       - Id: ControllerTags5x70
-      - Id: ProgramTags
+      - Id: ProgramTags5x70
 
   - Id: DeviceControlLogix5x80
     Type: DataPortNode
@@ -66,7 +66,7 @@ Nodes:
     PropertyCategories: *controllogix-device-properties
     ChildNodes:
       - Id: ControllerTags5x80
-      - Id: ProgramTags
+      - Id: ProgramTags5x80
 
   # No Path: a CompactLogix clips onto a DIN rail whose virtual backplane puts the controller
   # at slot 0, so "1,0" is the only answer there is and DeviceNodeMapper supplies it. Asking
@@ -89,7 +89,7 @@ Nodes:
         Properties: *queue-properties
     ChildNodes:
       - Id: ControllerTags5x70
-      - Id: ProgramTags
+      - Id: ProgramTags5x70
 
   - Id: DeviceCompactLogix5x80
     Type: DataPortNode
@@ -101,7 +101,7 @@ Nodes:
     PropertyCategories: *compactlogix-device-properties
     ChildNodes:
       - Id: ControllerTags5x80
-      - Id: ProgramTags
+      - Id: ProgramTags5x80
 
   # ==================== TAG CONTAINERS ===============================
   # Controller scope contributes no segment to a tag address: a controller-scope tag's
@@ -142,28 +142,41 @@ Nodes:
       - Id: LReal
       - Id: String
 
-  # Program scope is the one that prefixes: every tag below this node addresses as
+  # Program scope is the one that prefixes: every tag below these nodes addresses as
   # Program:<ProgramName>.<TagName>, composed during the tree walk. A peer of controller scope
   # under the device rather than a child of it, the way Studio 5000's own tree puts them, and
   # uncapped — a controller has as many programs as it has.
   #
-  # One node type for both generations while there is no type only one of them may hold. LREAL
-  # under a program splits it, the way controller scope is already split.
+  # Split by generation for the reason controller scope is: LREAL is a 5x80 type, and the node
+  # type is what keeps the editor from offering it on a controller that has none.
 
-  - Id: ProgramTags
-    MappingId: ProgramTags
+  - Id: ProgramTags5x70
+    MappingId: ProgramTags5x70
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5x70 controller. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
-    PropertyCategories:
+    PropertyCategories: &program-tags-properties
       - Id: TagScope
         Properties:
           - Id: ProgramName
             Required: true
     ChildNodes:
       - Id: DInt
+      - Id: String
+
+  - Id: ProgramTags5x80
+    MappingId: ProgramTags5x80
+    Type: DataPortTreeNode
+    Name: "Program"
+    Description: "Program-scope tags of a 5x80 controller, which adds LREAL. Adds the Program:<name> segment to every tag address below it."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *program-tags-properties
+    ChildNodes:
+      - Id: DInt
+      - Id: LReal
       - Id: String
 
   # ==================== SCALAR NODES ===================================
