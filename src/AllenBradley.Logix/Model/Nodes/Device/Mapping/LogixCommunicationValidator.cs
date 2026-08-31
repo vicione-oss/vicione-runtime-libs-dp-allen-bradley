@@ -26,7 +26,7 @@ public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommuni
         RuleFor(static communication => communication.Path)
             .NotEmpty()
             .When(static communication =>
-                DeviceNode.ControllerFamilyOf(communication.DesignId) is LogixControllerFamily.ControlLogix)
+                DeviceNode.TypeOf(communication.DesignId)?.Family is LogixControllerFamily.ControlLogix)
             .WithMessage("Path must be a CIP routing path to the CPU, e.g. \"1,0\".");
 
         RuleFor(static communication => communication.OperationTimeout)

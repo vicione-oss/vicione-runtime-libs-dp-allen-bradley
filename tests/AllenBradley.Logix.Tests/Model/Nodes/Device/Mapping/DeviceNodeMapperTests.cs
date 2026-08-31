@@ -36,6 +36,26 @@ public sealed class DeviceNodeMapperTests
     }
 
     /// <remarks>
+    /// The generation is the other half of what a node type says, and the half that decides which data
+    /// types the tree below it may offer.
+    /// </remarks>
+    [Theory]
+    [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixGeneration.Logix5x70)]
+    [InlineData(DeviceNode.ControlLogix5x80DesignId, LogixGeneration.Logix5x80)]
+    public void CreateRootNode_NamesTheGenerationTheDeviceNodeTypeStandsFor(
+        string designId, LogixGeneration generation)
+    {
+        // Arrange
+        var communication = CreateCommunication() with { DesignId = designId };
+
+        // Act
+        var deviceNode = _mapper.CreateRootNode(communication);
+
+        // Assert
+        deviceNode.Generation.Should().Be(generation);
+    }
+
+    /// <remarks>
     /// The CompactLogix node has no <c>Path</c> to configure, so the mapper is the only thing that can
     /// supply one — and a DIN-rail controller's virtual backplane leaves it exactly one answer.
     /// </remarks>
