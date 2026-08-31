@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -34,6 +35,23 @@ internal static class LogixCommunicationTestDataFactory
         new()
         {
             DesignId = DIntNode.LinkedNodeTypeId,
+            Name = tagName,
+            Id = NewGuid(),
+            ParentId = s_controllerTagsId,
+            AffectedChannels = [channel],
+            TransferredChannels = [channel],
+            Properties = new Dictionary<string, Property>
+            {
+                { ILogixScalarNode.TagNamePropertyName, new Property { Value = tagName } },
+                { ILogixScalarNode.PollFrequencyPropertyName, new Property { Value = pollFrequency } },
+            },
+        };
+
+    /// <summary>A configured <c>LREAL</c> tag, routed to <paramref name="channel"/>.</summary>
+    internal static Node CreateLRealNode(string channel, string tagName, int pollFrequency = 100) =>
+        new()
+        {
+            DesignId = LRealNode.LinkedNodeTypeId,
             Name = tagName,
             Id = NewGuid(),
             ParentId = s_controllerTagsId,

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
@@ -41,6 +42,11 @@ public sealed record ControllerTagsNode(LinkedNode OriginalNode, string Controll
     /// <summary>Nothing nests inside controller scope yet — structures and programs are later slices.</summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Any scalar tag. Which types the controller actually has is the generation's business, and the
+    /// container cannot see it: two node ids share this one's <c>MappingId</c>, and its
+    /// <see cref="ParentConfigurationNode"/> is still unset while the engine attaches data points. The
+    /// device node holds that gate — see <see cref="DeviceNode.CanBeAdded(IConfigurationNode)"/>.
+    /// </summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => true;
 }
