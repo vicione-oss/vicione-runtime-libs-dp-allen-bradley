@@ -34,6 +34,9 @@ public sealed record DeviceNode(
     /// <summary>The manifest's node id for a CompactLogix 1769/5370 on a DIN rail.</summary>
     public const string CompactLogix5x70DesignId = "DeviceCompactLogix5x70";
 
+    /// <summary>The manifest's node id for a CompactLogix 5380/5480 on a DIN rail.</summary>
+    public const string CompactLogix5x80DesignId = "DeviceCompactLogix5x80";
+
     /// <summary>
     /// What the device node type <paramref name="designId"/> names stands for, or <c>null</c> for a node
     /// type this addon does not declare.
@@ -52,6 +55,8 @@ public sealed record DeviceNode(
             new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5x80),
         CompactLogix5x70DesignId =>
             new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5x70),
+        CompactLogix5x80DesignId =>
+            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5x80),
         _ => null,
     };
 

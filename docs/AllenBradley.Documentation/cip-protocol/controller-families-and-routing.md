@@ -176,7 +176,7 @@ in [Legacy PCCC tunneling](cip-networking-overview.md#legacy-pccc-tunneling).
 - libplctag, on the `path` attribute and its per-PLC-type conventions:
   <https://github.com/libplctag/libplctag/wiki/API#tag-string-attributes>
 - pycomm3, *Getting Started*, on CIP paths and slot numbers:
-  <https://docs.pycomm3.dev/en/latest/getting_started.html>
+  <https://pycomm3.readthedocs.io/en/latest/getting_started.html>
 
 ### Related in-tree docs
 

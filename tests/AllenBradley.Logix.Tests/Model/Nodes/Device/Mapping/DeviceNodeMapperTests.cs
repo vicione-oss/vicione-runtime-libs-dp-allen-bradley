@@ -21,7 +21,9 @@ public sealed class DeviceNodeMapperTests
     /// </remarks>
     [Theory]
     [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixControllerFamily.ControlLogix)]
+    [InlineData(DeviceNode.ControlLogix5x80DesignId, LogixControllerFamily.ControlLogix)]
     [InlineData(DeviceNode.CompactLogix5x70DesignId, LogixControllerFamily.CompactLogix)]
+    [InlineData(DeviceNode.CompactLogix5x80DesignId, LogixControllerFamily.CompactLogix)]
     public void CreateRootNode_NamesTheFamilyTheDeviceNodeTypeStandsFor(
         string designId, LogixControllerFamily family)
     {
@@ -42,6 +44,8 @@ public sealed class DeviceNodeMapperTests
     [Theory]
     [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixGeneration.Logix5x70)]
     [InlineData(DeviceNode.ControlLogix5x80DesignId, LogixGeneration.Logix5x80)]
+    [InlineData(DeviceNode.CompactLogix5x70DesignId, LogixGeneration.Logix5x70)]
+    [InlineData(DeviceNode.CompactLogix5x80DesignId, LogixGeneration.Logix5x80)]
     public void CreateRootNode_NamesTheGenerationTheDeviceNodeTypeStandsFor(
         string designId, LogixGeneration generation)
     {

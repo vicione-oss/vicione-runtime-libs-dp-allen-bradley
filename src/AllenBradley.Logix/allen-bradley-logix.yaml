@@ -23,6 +23,9 @@ Root:
     - Id: DeviceCompactLogix5x70
       MaxDepth: 64
       MaxInstances: 16
+    - Id: DeviceCompactLogix5x80
+      MaxDepth: 64
+      MaxInstances: 16
 
 Nodes:
 
@@ -74,7 +77,7 @@ Nodes:
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
-    PropertyCategories:
+    PropertyCategories: &compactlogix-device-properties
       - Id: Connection
         Properties:
           - Id: Gateway
@@ -82,6 +85,17 @@ Nodes:
           - Id: OperationTimeout
       - Id: QueueConfiguration
         Properties: *queue-properties
+    ChildNodes:
+      - Id: ControllerTags
+
+  - Id: DeviceCompactLogix5x80
+    Type: DataPortNode
+    Name: "CompactLogix 5x80"
+    Description: "Allen-Bradley CompactLogix 5380/5480 controller on a DIN rail, reached over EtherNet/IP."
+    MetadataLength: 0
+    Icon: allen-bradley-logix
+    TransferDirections: [ Inbound, Outbound ]
+    PropertyCategories: *compactlogix-device-properties
     ChildNodes:
       - Id: ControllerTags
 
