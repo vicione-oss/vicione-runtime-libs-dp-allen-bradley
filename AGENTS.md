@@ -6,18 +6,19 @@ Allen-Bradley DataPorts for .NET 10, speaking CIP over EtherNet/IP. Two addons a
 
 ## Current state — read this first
 
-The repo is **bootstrapped, not implemented**. `src/AllenBradley.Logix` compiles and deliberately does nothing: it holds
-the addon's identity and nothing else. Device nodes, the YAML manifest, the communication configuration and any client
-code arrive with the walking-skeleton slice.
+`src/AllenBradley.Logix` is a working addon, built slice by slice. It reads and writes tags against a real controller:
+the YAML manifest and the typed node model mapped from it, the incoming and outgoing ports, a pooled `LogixClient` over
+`libplctag`, per-type converters, and verification of a configuration against the controller's symbol table.
+**`libplctag` is a dependency of `src/`**, not of the tests alone — the driver question is settled.
 
-What *does* exist is a connectivity spike — `tests/AllenBradley.Logix.Tests/Integration/` — which talks to a real L32E
-over the Link Manager tunnel using `libplctag`. It proves the protocol works; it is not the addon. `libplctag` is a
-dependency of the **test** project only. Committing `src/` to a driver is the walking skeleton's decision, not a settled
-one.
+What is missing is most of the type vocabulary and most of the tree: structures, arrays, UDTs and program scope are all
+later slices. Before adding a data type or a node, read
+[`reference/datatype-support.md`](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) for what is
+implemented today, and [`explanation/tag-scoping.md`](docs/AllenBradley.Logix.Documentation/explanation/tag-scoping.md)
+for how scope becomes a container node. The **Legacy** addon still has no project.
 
-**The unit suite is a placeholder.** There is no addon behaviour to test yet, but MTP exits non-zero on a run that
-discovers nothing, so `PlaceholderTests` holds a single tautology to keep
-`dotnet test` green. It asserts nothing about the product. Delete it as soon as there is something real to assert.
+`tests/AllenBradley.Logix.Tests/Integration/` talks to a real L32E over the Link Manager tunnel. It began as a
+connectivity spike and is now the addon's hardware suite; a bare `dotnet test` never runs it.
 
 ## Quick Reference
 
@@ -100,7 +101,8 @@ Comprehensive documentation ships inside the NuGet packages themselves.
 | Test device setup          | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) |
 | Logix addon                | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                           |
 | Legacy addon               | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                         |
-| Addressing / dataport defs | `dataport-definition/`                                                                                                       |
+| Data types the port has    | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) |
+| Decision records           | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                     |
 
 ## GitLab & Version Control
 

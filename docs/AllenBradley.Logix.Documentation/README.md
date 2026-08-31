@@ -15,13 +15,14 @@ handle the generic data-port machinery (connection lifecycle, polling, write que
 validation, the typed-node framework). That machinery is **documented with the package**, not here.
 These pages cover only what the Logix port adds on top.
 
-> **Status.** The Logix DataPort is not built yet. This project is scaffolded; the Diátaxis folders
-> below (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in as the implementation lands. Until
-> then the authoritative material is the protocol background linked below.
+> **Status.** The port reads and writes tags against a real controller, and is being built slice by
+> slice — so these pages describe a moving target. `reference/` and `ADR/` track what has landed;
+> `how-to/` is still scaffolding.
 >
-> **Addressing is an open design question.** How a configuration-tree node maps to a Logix tag string
-> is not specified anywhere in this repo, and no grammar should be assumed — it gets designed against
-> a real controller as the port is built, and documented here under `reference/` when it is.
+> **Addressing is a plain tag name today.** A configuration node carries the symbolic address the
+> controller knows, and `ScalarNodePropertyValidator` accepts nothing more elaborate: no dotted
+> structure members, no array subscripts. What that rules out, and why it is a validation rule rather
+> than a parser, is in [`reference/datatype-support.md`](reference/datatype-support.md).
 
 ## New here?
 
