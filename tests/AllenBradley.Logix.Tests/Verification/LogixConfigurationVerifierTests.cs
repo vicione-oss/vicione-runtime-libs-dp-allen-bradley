@@ -2,8 +2,12 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
@@ -182,6 +186,67 @@ public class LogixConfigurationVerifierTests
         result.Should().AllSatisfy(m => m.MismatchingConfigurations.Should().ContainSingle()
             .Which.Value.Should().Contain(m.DataPoint.TagName.Value));
     }
+
+    /// <remarks>
+    /// The report names the composed address, not the bare tag name the integrator typed: <c>Count</c>
+    /// alone would send them looking for a tag that exists, under a program that does not.
+    /// </remarks>
+    [Fact]
+    public async Task Verify_ATagUnderAProgramTheControllerHasNot_ReportsTheQualifiedAddressAsNotFound()
+    {
+        // Arrange
+        var client = new FakeClient
+        {
+            ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
+        };
+        var dataPoints = DataPointsOf(CreateCommunicationOf(
+        [
+            CreateProgramTagsNode("NoSuchProgram", ProgramTagsId),
+            CreateDIntNode("Speed", "Count", parentId: ProgramTagsId),
+        ]));
+        var verifier = new LogixConfigurationVerifier(client);
+
+        // Act
+        var result = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.Should().ContainSingle()
+            .Which.MismatchingConfigurations.Should().ContainSingle()
+            .Which.Value.Should().Be("Tag 'Program:NoSuchProgram.Count' was not found on the controller.");
+    }
+
+    /// <remarks>
+    /// The counterpart that makes the case above mean something: the same bare tag name under the program
+    /// that owns it resolves. Without this, a prefix that composed nothing at all would look like a pass.
+    /// </remarks>
+    [Fact]
+    public async Task Verify_ATagUnderTheProgramThatOwnsIt_ReportsNothing()
+    {
+        // Arrange
+        var client = new FakeClient
+        {
+            ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
+        };
+        var dataPoints = DataPointsOf(CreateCommunicationOf(
+        [
+            CreateProgramTagsNode("MainProgram", ProgramTagsId),
+            CreateDIntNode("Speed", "Count", parentId: ProgramTagsId),
+        ]));
+        var verifier = new LogixConfigurationVerifier(client);
+
+        // Act
+        var result = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    // The tree the engine's configuration produces, walked into the points the verifier is handed. A
+    // hand-built point could not disagree with the walk about a program prefix, which is the whole
+    // question these two cases ask.
+    private static IReadOnlyList<ILogixDataPoint> DataPointsOf(LogixCommunication communication) =>
+        new LogixDataPointsGroupsMapper().ToDataPoints(
+            TypedLogixNodeMapper.Instance().MapToTypedNodes(communication));
 
     // Stands in for LogixClient: it maps a tag name to the metadata the controller would report and
     // resolves each data point against it, with null for a tag the controller does not have. Only
