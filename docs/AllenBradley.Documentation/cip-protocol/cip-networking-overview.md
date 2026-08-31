@@ -411,8 +411,8 @@ Mitigations for the classic (unsecured) case mirror those for any legacy PLC pro
   items: <https://github.com/wireshark/wireshark/tree/master/epan/dissectors>
 - OpENer (EIPStackGroup) — an open-source EtherNet/IP stack:
   <https://github.com/EIPStackGroup/OpENer>
-- pycomm3 — Python CIP driver and *CIP Reference* (services, class codes, status codes):
-  <https://docs.pycomm3.dev/en/latest/cip_reference.html>
+- pycomm3 — Python CIP driver and *CIP Reference* (encapsulation commands, services, class codes):
+  <https://pycomm3.readthedocs.io/en/latest/cip_reference.html>
 - Real Time Automation — *EtherNet/IP: A Technical Introduction*:
   <https://www.rtautomation.com/technologies/ethernetip/>
 

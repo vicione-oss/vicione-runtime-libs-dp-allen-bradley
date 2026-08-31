@@ -39,6 +39,9 @@ internal static class LogixDataPointTestDataFactory
     internal static RealDataPoint CreateReal(string tagName) =>
         new(new TagName(tagName), DefaultPollFrequency, NoChannels);
 
+    internal static LRealDataPoint CreateLReal(string tagName) =>
+        new(new TagName(tagName), DefaultPollFrequency, NoChannels);
+
     internal static StringDataPoint CreateString(string tagName) =>
         CreateString(tagName, StringMaxLength.Standard.Value);
 

@@ -118,6 +118,7 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: DInt
+      - Id: LReal
       - Id: String
 
   # ==================== SCALAR NODES ===================================
@@ -138,6 +139,33 @@ Nodes:
       Range: −2 147 483 648..2 147 483 647
     Icon: datapoint
     DataTypes: [ Int32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  # A 5x80 type. The 5x70 controllers have no LREAL, and the node type they are configured under
+  # is what keeps it off their tree.
+
+  - Id: LReal
+    MappingId: LReal
+    Type: DataPortTreeNode
+    Name: "LReal"
+    Description: >-
+      Logix-Type: LREAL (64-bit IEEE 754 double-precision float, CIP type code 0xCB)
+      Size: 8 bytes
+      Encoding: IEEE 754 double-precision float, little-endian
+      Layout: byte 0 = LSB (low mantissa), byte 7 = MSB (sign + high exponent)
+      Bits: 1 sign + 11 exponent + 52 mantissa
+      Range: ±2.23e−308..±1.79e+308
+    Icon: datapoint
+    DataTypes: [ Float64 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

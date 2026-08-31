@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -19,5 +20,5 @@ public static class TypedLogixNodeMapper
         new(
             new DeviceNodeMapper(),
             [new ControllerTagsNodeMapper()],
-            [new DIntNodeMapper(), new StringNodeMapper()]);
+            [new DIntNodeMapper(), new LRealNodeMapper(), new StringNodeMapper()]);
 }

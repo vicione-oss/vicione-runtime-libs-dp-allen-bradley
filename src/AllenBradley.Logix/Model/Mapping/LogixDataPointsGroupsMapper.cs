@@ -1,6 +1,8 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -51,6 +53,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     private static ILogixDataPoint ToDataPoint(IDataPointNode dataPointNode) => dataPointNode switch
     {
         DIntNode dInt => new DIntDataPoint(dInt.TagName, dInt.PollFrequency, dInt.Channels),
+        LRealNode lReal => new LRealDataPoint(lReal.TagName, lReal.PollFrequency, lReal.Channels),
         StringNode text => new StringDataPoint(text.TagName, text.PollFrequency, text.Channels, text.MaxLength),
         _ => throw new NotSupportedException(
             $"Unsupported Logix data point node type '{dataPointNode.GetType().Name}'."),
