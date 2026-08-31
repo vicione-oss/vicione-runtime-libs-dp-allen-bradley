@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTa
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ProgramTags;
@@ -108,5 +109,29 @@ public sealed class ProgramTagsNodeTests
             .Which.DataPointNodes.Should().ContainSingle()
             .Which.Should().BeOfType<LRealNode>()
             .Which.TagName.Value.Should().Be("Position");
+    }
+
+    /// <remarks>
+    /// The manifest keeps this off a 5x70's tree, so a configuration holding it did not come from the
+    /// editor. It is guarded anyway, because the alternative is a tag address the controller cannot
+    /// resolve reaching the poll.
+    /// </remarks>
+    [Fact]
+    public void MapToTypedNodes_WithAnLRealUnderA5x70Program_SaysTheControllerHasNoSuchType()
+    {
+        // Arrange
+        var communication = CreateCommunicationOf(
+            [
+                CreateProgramTagsNode("MainProgram", ProgramTagsId),
+                CreateLRealNode(s_channel.ToString(), "Position", parentId: ProgramTagsId),
+            ],
+            DeviceNode.ControlLogix5x70DesignId);
+
+        // Act
+        var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+
+        // Assert
+        mapping.Should().Throw<InvalidConfigurationException>()
+            .WithMessage("LREAL is not a data type of a Logix 5x70 controller.");
     }
 }

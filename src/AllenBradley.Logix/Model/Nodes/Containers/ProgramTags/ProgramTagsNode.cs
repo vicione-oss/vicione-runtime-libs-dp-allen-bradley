@@ -1,4 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
@@ -55,8 +57,22 @@ public sealed record ProgramTagsNode(
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
-    /// <summary>Any tag the controller has a type for.</summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) => true;
+    /// <summary>
+    /// Any tag the controller has a type for. The manifest already keeps a 5x70's editor from offering an
+    /// <c>LREAL</c> — the <c>ProgramTags5x70</c> node does not list one — so a configuration that reaches
+    /// here holding one was not built through the editor, and it names a type the controller cannot
+    /// resolve. Scope makes no difference to that: an <c>LREAL</c> is missing from a 5x70 everywhere.
+    /// </summary>
+    public bool CanBeAdded(IDataPointNode dataPointNode)
+    {
+        if (dataPointNode is LRealNode && Generation is LogixGeneration.Logix5x70)
+        {
+            throw new InvalidConfigurationException(
+                "LREAL is not a data type of a Logix 5x70 controller.");
+        }
+
+        return true;
+    }
 
     /// <inheritdoc />
     public TagScope Scope() => TagScope.Program(ProgramName);
