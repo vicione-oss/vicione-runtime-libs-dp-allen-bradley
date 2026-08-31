@@ -24,7 +24,15 @@ public sealed record LogixClientInformation(
 
 public readonly record struct Gateway(string Value);
 
-public readonly record struct Path(string Value);
+public readonly record struct Path(string Value)
+{
+    /// <summary>
+    /// The path to a controller that places itself on a virtual backplane: hop 1 is the backplane, and
+    /// slot 0 is where a DIN-rail controller always sits. Nothing about it is configurable, which is why
+    /// a CompactLogix node does not ask for a path at all.
+    /// </summary>
+    public static Path VirtualBackplane => new("1,0");
+}
 
 /// <summary>
 /// How long one tag read or write may take before libplctag aborts it. Per-device configuration rather

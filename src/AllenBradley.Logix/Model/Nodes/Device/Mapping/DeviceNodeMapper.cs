@@ -18,11 +18,12 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
     private readonly LogixCommunicationValidator _validator = new();
 
     /// <inheritdoc />
-    public DeviceNode CreateRootNode(LogixCommunication communication) =>
-        new(
-            communication,
-            ToClientInformation(communication),
-            ToControllerFamily(communication.DesignId));
+    public DeviceNode CreateRootNode(LogixCommunication communication)
+    {
+        var family = ToControllerFamily(communication.DesignId);
+
+        return new DeviceNode(communication, ToClientInformation(communication, family), family);
+    }
 
     /// <inheritdoc />
     public ValidationResult Validate(LogixCommunication communication) => _validator.Validate(communication);
@@ -38,11 +39,21 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
         _ => throw new InvalidConfigurationException($"Unknown device design id: '{designId}'."),
     };
 
-    private static LogixClientInformation ToClientInformation(LogixCommunication communication) =>
+    private static LogixClientInformation ToClientInformation(
+        LogixCommunication communication, LogixControllerFamily family) =>
         new(
             new Gateway(communication.Gateway),
-            new Path(communication.Path),
+            ToPath(communication, family),
             PropertyValueConverter.ToEnum<LogixControllerType>(
                 communication.ControllerType, nameof(LogixControllerType)),
             new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
+
+    /// <summary>
+    /// A CompactLogix is reached at slot 0 of its virtual backplane and its node never asks for a path.
+    /// A ControlLogix declares one, because its CPU sits wherever the chassis was built to put it.
+    /// </summary>
+    private static Path ToPath(LogixCommunication communication, LogixControllerFamily family) =>
+        family is LogixControllerFamily.CompactLogix
+            ? Path.VirtualBackplane
+            : new Path(communication.Path ?? string.Empty);
 }

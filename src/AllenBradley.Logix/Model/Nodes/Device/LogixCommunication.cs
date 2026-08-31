@@ -19,8 +19,13 @@ public sealed record LogixCommunication : DataPortCommunication
 {
     /// <summary>IP address or host name of the controller's EtherNet/IP interface.</summary>
     public required string Gateway { get; init; }
-    /// <summary>CIP routing path from that interface to the CPU, e.g. <c>"1,0"</c>.</summary>
-    public required string Path { get; init; }
+    /// <summary>
+    /// CIP routing path from that interface to the CPU, e.g. <c>"1,0"</c>. Absent on a CompactLogix,
+    /// whose virtual backplane fixes it at
+    /// <see cref="DataPort.Device.Path.VirtualBackplane"/>; a ControlLogix declares it, because its CPU
+    /// sits in whichever slot the chassis was built with.
+    /// </summary>
+    public string? Path { get; init; }
     /// <summary>
     /// The controller family, as the ordinal of a <see cref="DataPort.Device.LogixControllerType"/>.
     /// </summary>

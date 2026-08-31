@@ -37,6 +37,27 @@ public sealed class DeviceNodeMapperTests
         deviceNode.ControllerFamily.Should().Be(family);
     }
 
+    /// <remarks>
+    /// The CompactLogix node has no <c>Path</c> to configure, so the mapper is the only thing that can
+    /// supply one — and a DIN-rail controller's virtual backplane leaves it exactly one answer.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForACompactLogixWithNoPath_ReachesItAtSlotZeroOfTheVirtualBackplane()
+    {
+        // Arrange
+        var communication = CreateCommunication() with
+        {
+            DesignId = DeviceNode.CompactLogix5x70DesignId,
+            Path = null,
+        };
+
+        // Act
+        var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
+
+        // Assert
+        clientInformation.Path.Value.Should().Be("1,0");
+    }
+
     [Fact]
     public void CreateRootNode_CarriesEveryConnectionPropertyOntoTheClientInformation()
     {

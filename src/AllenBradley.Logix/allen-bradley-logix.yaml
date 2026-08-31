@@ -34,7 +34,7 @@ Nodes:
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
-    PropertyCategories: &device-properties
+    PropertyCategories:
       - Id: Connection
         Properties:
           - Id: Gateway
@@ -45,11 +45,15 @@ Nodes:
             Required: true
           - Id: OperationTimeout
       - Id: QueueConfiguration
-        Properties:
+        Properties: &queue-properties
           - Id: MaxPendingMessages
           - Id: Strategy
     ChildNodes:
       - Id: ControllerTags
+
+  # No Path: a CompactLogix clips onto a DIN rail whose virtual backplane puts the controller
+  # at slot 0, so "1,0" is the only answer there is and DeviceNodeMapper supplies it. Asking
+  # would be asking a question with one legal answer.
 
   - Id: DeviceCompactLogix5x70
     Type: DataPortNode
@@ -58,7 +62,16 @@ Nodes:
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
-    PropertyCategories: *device-properties
+    PropertyCategories:
+      - Id: Connection
+        Properties:
+          - Id: Gateway
+            Required: true
+          - Id: ControllerType
+            Required: true
+          - Id: OperationTimeout
+      - Id: QueueConfiguration
+        Properties: *queue-properties
     ChildNodes:
       - Id: ControllerTags
 
