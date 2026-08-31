@@ -17,6 +17,9 @@ Root:
     - Id: DeviceControlLogix5x70
       MaxDepth: 64
       MaxInstances: 16
+    - Id: DeviceCompactLogix5x70
+      MaxDepth: 64
+      MaxInstances: 16
 
 Nodes:
 
@@ -31,7 +34,7 @@ Nodes:
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
-    PropertyCategories:
+    PropertyCategories: &device-properties
       - Id: Connection
         Properties:
           - Id: Gateway
@@ -45,6 +48,17 @@ Nodes:
         Properties:
           - Id: MaxPendingMessages
           - Id: Strategy
+    ChildNodes:
+      - Id: ControllerTags
+
+  - Id: DeviceCompactLogix5x70
+    Type: DataPortNode
+    Name: "CompactLogix 5x70"
+    Description: "Allen-Bradley CompactLogix 1769/5370 controller on a DIN rail, reached over EtherNet/IP."
+    MetadataLength: 0
+    Icon: allen-bradley-logix
+    TransferDirections: [ Inbound, Outbound ]
+    PropertyCategories: *device-properties
     ChildNodes:
       - Id: ControllerTags
 

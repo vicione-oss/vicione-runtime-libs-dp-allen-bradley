@@ -21,17 +21,20 @@ public sealed class DeviceNodeMapperTests
     /// The node type <em>is</em> the answer — an integrator picks a ControlLogix by picking the
     /// ControlLogix node, and is never asked the family again.
     /// </remarks>
-    [Fact]
-    public void CreateRootNode_ForTheControlLogix5x70NodeType_MapsTheControlLogixFamily()
+    [Theory]
+    [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixControllerFamily.ControlLogix)]
+    [InlineData(DeviceNode.CompactLogix5x70DesignId, LogixControllerFamily.CompactLogix)]
+    public void CreateRootNode_NamesTheFamilyTheDeviceNodeTypeStandsFor(
+        string designId, LogixControllerFamily family)
     {
         // Arrange
-        var communication = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5x70DesignId };
+        var communication = CreateCommunication() with { DesignId = designId };
 
         // Act
         var deviceNode = _mapper.CreateRootNode(communication);
 
         // Assert
-        deviceNode.ControllerFamily.Should().Be(LogixControllerFamily.ControlLogix);
+        deviceNode.ControllerFamily.Should().Be(family);
     }
 
     [Fact]

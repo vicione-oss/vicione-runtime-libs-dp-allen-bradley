@@ -26,6 +26,9 @@ public sealed record DeviceNode(
     /// <summary>The manifest's node id for a ControlLogix 5550/5560/5570 in a 1756 chassis.</summary>
     public const string ControlLogix5x70DesignId = "DeviceControlLogix5x70";
 
+    /// <summary>The manifest's node id for a CompactLogix 1769/5370 on a DIN rail.</summary>
+    public const string CompactLogix5x70DesignId = "DeviceCompactLogix5x70";
+
     /// <inheritdoc />
     public IConfigurationNode? ParentConfigurationNode
     {

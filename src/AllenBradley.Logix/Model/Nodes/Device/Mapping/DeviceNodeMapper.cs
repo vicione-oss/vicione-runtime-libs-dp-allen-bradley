@@ -34,6 +34,7 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
     private static LogixControllerFamily ToControllerFamily(string designId) => designId switch
     {
         DeviceNode.ControlLogix5x70DesignId => LogixControllerFamily.ControlLogix,
+        DeviceNode.CompactLogix5x70DesignId => LogixControllerFamily.CompactLogix,
         _ => throw new InvalidConfigurationException($"Unknown device design id: '{designId}'."),
     };
 
