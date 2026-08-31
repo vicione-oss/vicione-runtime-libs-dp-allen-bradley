@@ -14,20 +14,20 @@ Root:
   Description: "DataPort for Allen-Bradley ControlLogix / CompactLogix controllers over CIP (EtherNet/IP)"
   Icon: allen-bradley-logix
   ChildNodes:
-    - Id: Device
+    - Id: DeviceControlLogix5x70
       MaxDepth: 64
       MaxInstances: 16
 
 Nodes:
 
   # ==================== DEVICE ===================================
-  # One node for both controller families: they speak CIP identically and libplctag maps
-  # them onto a single PLC type, so the family is a property rather than a node type.
+  # One node id per controller family and generation.The family decides how a request is routed to the CPU, the
+  # generation which data types the tree offers.
 
-  - Id: Device
+  - Id: DeviceControlLogix5x70
     Type: DataPortNode
-    Name: "Logix Controller"
-    Description: "Allen-Bradley ControlLogix / CompactLogix controller reached over EtherNet/IP."
+    Name: "ControlLogix 5x70"
+    Description: "Allen-Bradley ControlLogix 5550/5560/5570 controller in a 1756 chassis, reached over EtherNet/IP."
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]

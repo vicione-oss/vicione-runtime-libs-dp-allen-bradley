@@ -21,8 +21,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// </remarks>
 internal static class LogixCommunicationTestDataFactory
 {
-    /// <summary>The manifest's node id for the device, which the communication names as its design.</summary>
-    internal const string DeviceDesignId = "Device";
+    /// <summary>The device node type every configuration the factory makes is configured under.</summary>
+    internal const string DeviceDesignId = DeviceNode.ControlLogix5x70DesignId;
 
     /// <summary>The controller every configuration the factory makes points at.</summary>
     internal const string DefaultGateway = "10.0.0.1";

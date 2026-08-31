@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 
@@ -8,11 +9,30 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Map
 /// The step where four engine primitives become the <see cref="LogixClientInformation"/> the pool keys a
 /// connection under. Two of them change representation on the way — a byte becomes a
 /// <see cref="LogixControllerType"/> and a millisecond count becomes a <see cref="TimeSpan"/> — and a
-/// mistake in either is a port that talks to the wrong controller or gives up at the wrong time.
+/// mistake in either is a port that talks to the wrong controller or gives up at the wrong time. The
+/// design id changes representation too: it names the device node type, and the family it stands for is
+/// what the tree below is built against.
 /// </summary>
 public sealed class DeviceNodeMapperTests
 {
     private readonly DeviceNodeMapper _mapper = new();
+
+    /// <remarks>
+    /// The node type <em>is</em> the answer — an integrator picks a ControlLogix by picking the
+    /// ControlLogix node, and is never asked the family again.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForTheControlLogix5x70NodeType_MapsTheControlLogixFamily()
+    {
+        // Arrange
+        var communication = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5x70DesignId };
+
+        // Act
+        var deviceNode = _mapper.CreateRootNode(communication);
+
+        // Assert
+        deviceNode.ControllerFamily.Should().Be(LogixControllerFamily.ControlLogix);
+    }
 
     [Fact]
     public void CreateRootNode_CarriesEveryConnectionPropertyOntoTheClientInformation()
