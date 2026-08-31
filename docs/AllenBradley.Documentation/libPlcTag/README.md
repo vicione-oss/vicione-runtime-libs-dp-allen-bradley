@@ -14,8 +14,9 @@ onward).
 Each document says where the behaviour comes from (a source line in the C core or the wrapper, or a
 test that pins it against the real device), so a claim here can be re-verified rather than trusted.
 
-The docs split on the two libplctag object concepts: the implicit **shared session** that every handle
-to a controller funnels through, and the individual **per-tag handle** you drive.
+The docs split on the two libplctag object concepts — the implicit **shared session** that every handle
+to a controller funnels through, and the individual **per-tag handle** you drive — plus what the
+library hands back when a handle is used to **browse** the controller rather than to read a value.
 
 | Document | What it covers |
 |----------|----------------|
@@ -24,6 +25,9 @@ to a controller funnels through, and the individual **per-tag handle** you drive
 | **The per-tag handle** | |
 | [concurrent-operations-on-a-handle.md](concurrent-operations-on-a-handle.md) | What happens when two operations overlap on one handle: the native `PLCTAG_ERR_BUSY` guard, the wrapper's LIFO completion mispairing, and the raw-buffer race below it |
 | [tag-disposal-and-shutdown.md](tag-disposal-and-shutdown.md) | Why every `Tag` must be disposed deterministically. Native handles finalized after CLR teardown fail-fast the process with `0xC0000602` |
+| [what-the-tag-buffer-holds.md](what-the-tag-buffer-holds.md) | The buffer is **payload only, in the controller's layout**: protocol framing (the CIP type prefix, the Modbus header) is stripped before the copy, while count words, alignment padding, BOOL packing and wire byte order are not. Plus the bounds, bit-tag and return-value gotchas of `plc_tag_get_raw_bytes` |
+| **Browsing the controller** | |
+| [reading-a-udt-definition.md](reading-a-udt-definition.md) | Why a structure takes **two reads**: `@tags` names the template id, `@udt/<id>` gives members, offsets and names. The 14-byte header libplctag synthesises, the descriptor and name layout behind it, nested UDTs, and the Logix/Micro800-only limits |
 
 ## The one fact to carry into every other document
 

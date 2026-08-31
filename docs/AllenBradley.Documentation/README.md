@@ -68,6 +68,8 @@ client-agnostic protocol docs and **below** the client ADRs that consume them.
 | [libPlcTag/the-shared-session.md](libPlcTag/the-shared-session.md) | The one CIP session shared across handles to a controller, and request packing end to end: whether requests pack (`allow_packing` by PLC type), when and how large a pack gets (self-clocking thread, no linger timer, throughput tracks requests-in-flight), what you can steer (exclude or segregate, never compose), and why the reusable unit is the warm handle |
 | [libPlcTag/concurrent-operations-on-a-handle.md](libPlcTag/concurrent-operations-on-a-handle.md) | Why two overlapping operations on one handle mispair and cascade, and the raw-buffer race below the native BUSY guard |
 | [libPlcTag/tag-disposal-and-shutdown.md](libPlcTag/tag-disposal-and-shutdown.md) | Why every `Tag` must be disposed deterministically — finalized native handles fail-fast the process with `0xC0000602` |
+| [libPlcTag/what-the-tag-buffer-holds.md](libPlcTag/what-the-tag-buffer-holds.md) | What `GetBuffer` returns: payload only, with protocol framing stripped and the controller's own layout — count words, padding, BOOL packing, wire byte order — left intact |
+| [libPlcTag/reading-a-udt-definition.md](libPlcTag/reading-a-udt-definition.md) | Why UDT metadata takes both `@tags` and `@udt/<id>`, what the `@udt/` buffer actually contains, and how nested UDTs are walked |
 
 ### Implementation context — `context/`
 
