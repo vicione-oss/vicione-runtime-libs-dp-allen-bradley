@@ -168,8 +168,8 @@ slot, and a connect/reconnect/dispose lifecycle per class. Held as a future opti
 and never uniformly.
 
 There is also a keying change a later Option 2 carries. Today the choice is invisible in the code, because
-everything is keyed by controller. The connection record is gateway plus path plus controller family plus
-per-operation timeout, and the handle cache is scoped per device. Under Option 2 the session identity
+everything is keyed by controller. The connection record is gateway plus path plus per-operation timeout,
+and the handle cache is scoped per device. Under Option 2 the session identity
 would also carry the poll class. The clean mapping is then one manager and one session per class per
 device, where each poll-frequency DataPort has its own manager, its own `connection_group_id`, and its own
 handle cache, instead of one manager per device. Keeping that move cheap is a standing constraint on the

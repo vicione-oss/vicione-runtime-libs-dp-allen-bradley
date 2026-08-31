@@ -35,7 +35,7 @@ report for a tag.
 
 - **Classic Logix** — ControlLogix 5550/5555/5560/5570, CompactLogix 1769/5370 and earlier:
   `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `REAL`. No unsigned integers, no `LREAL`.
-- **5x80 controllers** — CompactLogix 5380, ControlLogix 5580 and 5480 — add the **extended data
+- **5x80 controllers** — ControlLogix 5580, CompactLogix 5380 and 5480 — add the **extended data
   types**: `USINT`, `UINT`, `UDINT`, `ULINT`, and `LREAL`. They need a recent controller firmware and
   a matching Studio 5000 version; for a given catalog number and revision the tool is the arbiter.
 

@@ -1,0 +1,160 @@
+# Splitting the Device Node by Family and Generation
+
+## Context and Problem Statement
+
+This decision covers the device node in `allen-bradley-logix.yaml` and the
+`Model/Nodes/Device/` types behind it. It settles how an integrator tells the addon which controller
+they are pointing it at. It was made under
+[issue #9: Split the device node by controller family and generation](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/9).
+
+The walking skeleton shipped one device node, `Device`, with a `ControllerType` property offering
+ControlLogix and CompactLogix. That property changed no behaviour: the access factory mapped both of
+its members onto `PlcType.ControlLogix`, because libplctag has one PLC type for the whole Logix-5000
+line. It was a required question whose answer was never read.
+
+Two things about a controller do matter, and neither was modelled.
+
+The **route path** differs by family. ControlLogix is the 1756 chassis line, so the CPU sits in
+whichever slot whoever assembled the chassis put it in, and the path has to be configured. A
+CompactLogix clips onto a DIN rail whose virtual backplane places the controller at slot 0, so its
+path is always `1,0`. Both nodes asked for a path, and a CompactLogix has no answer but the default —
+a question with one legal answer, and an invitation to get it wrong.
+
+The **atomic type vocabulary** differs by generation. The 5x70 controllers and everything before them
+have `BOOL`, `SINT`, `INT`, `DINT`, `LINT` and `REAL`. The 5x80 controllers add the unsigned integers
+and `LREAL`. See
+[symbolic-tag-data-types.md §2](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md#2-what-logix-exposes).
+Nothing stopped a 5x70 from being configured with a type it has not got, and the failure would have
+surfaced as a tag the controller could not resolve.
+
+So: does the addon ask these as properties on one node, or declare a node type per answer?
+
+## Considered Options
+
+- **Option 1: One `Device` node, family and generation as properties.** The shape the skeleton had,
+  extended with a second dropdown. One node id, one property list, one child list.
+- **Option 2: One node per family, generation as a property.** The path question is solved by the node
+  type; the type vocabulary stays a property the mapper reads.
+- **Option 3: One node per family and generation.** Four node ids —
+  `DeviceControlLogix5x70`, `DeviceControlLogix5x80`, `DeviceCompactLogix5x70`,
+  `DeviceCompactLogix5x80` — one `DeviceNode` in C#, told apart by `DesignId`.
+- **Option 4: One node per catalog number.** `Device1756L71`, `Device1769L32E`, and so on.
+
+## Decision Outcome
+
+Chosen: **Option 3.**
+
+The manifest declares four device nodes and the C# side keeps one `DeviceNode`, carrying a
+`LogixControllerFamily` and a `LogixGeneration` that `DeviceNodeMapper` resolves from
+`communication.DesignId`. This is the shape `s7-absolute.yaml` already uses for its seven
+`DeviceNNNN` ids, so an addon developer moving between the two repos finds the same thing.
+
+What decides it is that a node type can vary its **property list** and its **child list**, and a
+property cannot vary either. That is exactly what the two differences need:
+
+- The ControlLogix nodes declare `Path`; the CompactLogix nodes do not, and the mapper supplies
+  `Path.VirtualBackplane`. `LogixCommunicationValidator` holds a ControlLogix to declaring one, and a
+  CompactLogix to nothing.
+- `ControllerTags` splits into `ControllerTags5x70` and `ControllerTags5x80`, sharing one
+  `MappingId: ControllerTags` so a single `ControllerTagsNodeMapper` handles both. Only the child list
+  differs: the 5x80 container offers `LReal`, the 5x70 one does not.
+
+Under Option 1 both of those would have had to be runtime rules on a tree the editor still offers in
+full, which means an integrator can build a configuration the addon then refuses. Under Option 3 the
+editor cannot offer it in the first place.
+
+`ControllerType` is deleted rather than renamed. The family is now the node type, and it deliberately
+does **not** reach `LogixClientInformation`: that record is the client pool's key, so a field on it
+that no connection depends on would open a second session whenever two ports on one controller were
+configured under different node types. A ControlLogix and a CompactLogix at the same gateway and path
+are the same controller as far as CIP is concerned, and they compare equal.
+
+Option 4 is rejected. It multiplies node ids without adding information — nothing behind CIP
+distinguishes a 5570 from a 5580 beyond the two axes above — and it would need a new node for every
+part number Rockwell ships.
+
+### Consequences
+
+The node id is a configuration contract, so this is the expensive half of the decision. `Device` no
+longer exists, and a configuration referencing it maps to nothing. `DeviceNodeMapper` rejects an
+unrecognised design id outright rather than guessing, because a device node type with no family and
+no generation has nothing to fall back on. The addon is unreleased, so no stored configuration is
+affected today; after a release this rename would need a migration.
+
+`DeviceNode.TypeOf` and the manifest's device nodes are the same set, and nothing enforces that but
+a test. Adding a fifth device node means adding an arm there too.
+
+The runtime guard behind the `LREAL` split had to go somewhere unobvious: `DeviceNode.CanBeAdded`,
+not on the container it is about. Two node ids share the container's `MappingId`, so its own
+`LinkedNode` cannot say which of the two it came from, and its `ParentConfigurationNode` is still
+unset while the engine attaches its data points. A container is offered to the device node only once
+it holds its tags, which is the first moment the generation and the tags are in the same place.
+
+### Enforcement
+
+The YAML consistency test holds the manifest and the node model to each other. Beyond it, compliance
+is a code-review check on `DeviceNode`: a new device node type is a manifest node **and** an arm in
+`TypeOf`, and anything the family or generation decides is read off the `DeviceNode`, never
+configured a second time as a property.
+
+## Pros and Cons of the Options
+
+### Option 1: One `Device` node, family and generation as properties (rejected)
+
+#### Pros
+
+One node id, so nothing to migrate and nothing to keep in step with a switch in C#. It is also the
+only option under which the editor tree is the same whatever controller is configured, which is
+simpler to reason about if the differences did not matter.
+
+#### Cons
+
+The differences do matter, and a property cannot express either of them. The editor would offer
+`Path` to a CompactLogix that has one legal answer, and `LREAL` to a 5x70 that has no such type —
+both refused later, by rules that fire after the configuration is built rather than while it is being
+built. It also asks two questions whose answers the integrator has already given by choosing the
+controller they are configuring.
+
+### Option 2: One node per family, generation as a property (rejected)
+
+#### Pros
+
+It solves the path question, which is the more visible of the two, at half the node ids.
+
+#### Cons
+
+It leaves the type vocabulary as a runtime rule for the same reason Option 1 does, and it splits the
+model along one axis while leaving the other as a property — which is the harder shape to explain of
+the three.
+
+### Option 3: One node per family and generation (chosen)
+
+#### Pros
+
+Both differences become editor-time facts: a CompactLogix is not asked for a path, and a 5x70 is not
+offered an `LREAL`. The integrator answers once, by picking the node that names their controller. The
+C# side stays one `DeviceNode` with one switch, and the shape matches the S7 repo's.
+
+#### Cons
+
+Four node ids to keep in step with one switch, and a manifest whose device section is four nodes
+rather than one — mitigated by YAML anchors, since the four share two property shapes. It also
+renames the only device node there was.
+
+### Option 4: One node per catalog number (rejected)
+
+#### Cons
+
+Dozens of node ids carrying no information the two axes do not already carry, and a new one for every
+part number Rockwell ships. The catalog number is narrower than anything the addon acts on.
+
+## More Information
+
+- [`controller-families-and-routing.md`](../../AllenBradley.Documentation/cip-protocol/controller-families-and-routing.md)
+  — the two form factors, the lines, and why a chassis controller's path is not guessable
+- [`symbolic-tag-data-types.md`](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  — the two generations' type sets
+- [Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md)
+  — why the family stays off `LogixClientInformation`
+- [`CONTEXT.md`](../../../CONTEXT.md) — **controller family** and **controller generation**
+- [Issue #9: Split the device node by controller family and generation](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/9)

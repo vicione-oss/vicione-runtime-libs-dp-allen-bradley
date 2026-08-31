@@ -28,9 +28,16 @@ is shaped and what it supports, not which part number was bought.
 _Avoid_: controller type (reads as a catalog number), series (Rockwell's word for a hardware
 revision)
 
+**Controller generation**:
+How far along the Logix line a controller is — 5x70 and earlier, or 5x80 — which is what says which
+data types it has. It cuts across the family: a ControlLogix 5580 and a CompactLogix 5380 are both
+5x80.
+_Avoid_: series (a hardware revision within one catalog number), firmware revision (finer, and
+changes without the controller changing)
+
 **Catalog number**:
-The part number of one specific controller — `1756-L71`, `1769-L32E`. Narrower than a family and
-never a substitute for it.
+The part number of one specific controller — `1756-L71`, `1769-L32E`. Narrower than a family and a
+generation together, and never a substitute for either.
 
 **Studio 5000 Logix Designer**:
 The engineering tool a Logix project is authored in, and the authority for how tags are declared
