@@ -202,7 +202,7 @@ internal static class LogixCommunicationTestDataFactory
     /// missing rather than merely wrong.
     /// </summary>
     internal static LinkedNode ScalarLinkedNode(params (string Key, object Value)[] properties) =>
-        LinkedNodeCarrying(DIntNode.LinkedNodeTypeId, properties);
+        LinkedNodeCarrying(DIntNode.LinkedNodeTypeId, "TestTag", properties);
 
     /// <summary>A scalar node carrying the two properties every scalar needs, both well-formed.</summary>
     internal static LinkedNode ValidScalarLinkedNode(string tagName = "TestTag", int pollFrequency = 100) =>
@@ -214,7 +214,19 @@ internal static class LogixCommunicationTestDataFactory
     /// One string node as its mapper and validator see it, carrying exactly <paramref name="properties"/>.
     /// </summary>
     internal static LinkedNode StringLinkedNode(params (string Key, object Value)[] properties) =>
-        LinkedNodeCarrying(StringNode.LinkedNodeTypeId, properties);
+        LinkedNodeCarrying(StringNode.LinkedNodeTypeId, "TestTag", properties);
+
+    /// <summary>
+    /// One program container as its mapper and validator see it, labelled <paramref name="name"/> in the
+    /// editor tree and carrying exactly <paramref name="properties"/>.
+    /// </summary>
+    /// <remarks>
+    /// The editor label and the program name are separate on purpose: the validator's message names both,
+    /// and a helper that conflated them could not tell a wrong message from a right one.
+    /// </remarks>
+    internal static LinkedNode ProgramTagsLinkedNode(
+        string name, params (string Key, object Value)[] properties) =>
+        LinkedNodeCarrying(ProgramTagsNode.LinkedNodeTypeId, name, properties);
 
     /// <summary>A string node carrying the three properties it needs, all well-formed.</summary>
     internal static LinkedNode ValidStringLinkedNode(
@@ -224,13 +236,14 @@ internal static class LogixCommunicationTestDataFactory
             (ILogixScalarNode.PollFrequencyPropertyName, pollFrequency),
             (StringNode.MaxLengthPropertyName, maxLength ?? StringMaxLength.Standard.Value));
 
-    private static LinkedNode LinkedNodeCarrying(string designId, (string Key, object Value)[] properties) =>
+    private static LinkedNode LinkedNodeCarrying(
+        string designId, string name, (string Key, object Value)[] properties) =>
         LinkedNodeFactory.Create(
         [
             new Node
             {
                 DesignId = designId,
-                Name = "TestTag",
+                Name = name,
                 Id = NewGuid(),
                 Properties = properties.ToDictionary(
                     static property => property.Key,

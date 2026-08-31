@@ -55,9 +55,10 @@ public sealed class ScalarNodePropertyValidatorTests
     /// <remarks>
     /// Both separators are real Logix syntax — <c>Motor.Speed</c> is a structure member and
     /// <c>Program:MainProgram.Count</c> is a program-scoped tag — and the model's own doc comments use
-    /// them as examples. Neither is configurable yet: structures and program scope are slice 7, and this
-    /// is the gate that has to open when they arrive. The cases are here to make that a deliberate
-    /// change rather than a surprise.
+    /// them as examples. Neither is typed into this field. A program-scoped tag is configured as
+    /// <c>Count</c> under a program container, which is what supplies the prefix, so program scope came
+    /// and went without this gate opening. A structure member has no such container yet, and would be the
+    /// one that opens it.
     /// </remarks>
     [Theory]
     [InlineData("Motor.Speed")]
