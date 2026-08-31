@@ -41,8 +41,6 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
         new(
             new Gateway(communication.Gateway),
             ToPath(communication, family),
-            PropertyValueConverter.ToEnum<LogixControllerType>(
-                communication.ControllerType, nameof(LogixControllerType)),
             new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
 
     /// <summary>

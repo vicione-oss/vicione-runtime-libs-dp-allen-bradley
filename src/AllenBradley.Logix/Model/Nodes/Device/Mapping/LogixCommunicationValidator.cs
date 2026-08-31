@@ -29,10 +29,6 @@ public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommuni
                 DeviceNode.ControllerFamilyOf(communication.DesignId) is LogixControllerFamily.ControlLogix)
             .WithMessage("Path must be a CIP routing path to the CPU, e.g. \"1,0\".");
 
-        RuleFor(static communication => communication.ControllerType)
-            .Must(static controllerType => Enum.IsDefined((LogixControllerType)controllerType))
-            .WithMessage($"ControllerType must be one of: {string.Join(", ", Enum.GetNames<LogixControllerType>())}.");
-
         RuleFor(static communication => communication.OperationTimeout)
             .GreaterThanOrEqualTo(100)
             .WithMessage("OperationTimeout must be at least 100ms.");

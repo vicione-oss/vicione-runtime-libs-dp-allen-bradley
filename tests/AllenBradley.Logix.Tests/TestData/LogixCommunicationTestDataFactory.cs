@@ -101,7 +101,6 @@ internal static class LogixCommunicationTestDataFactory
             DesignId = DeviceDesignId,
             Gateway = DefaultGateway,
             Path = "1,0",
-            ControllerType = (byte)LogixControllerType.ControlLogix,
             MaxPendingMessages = maxPendingMessages,
             Strategy = (byte)strategy,
             Nodes = tagNodes is { Count: > 0 } ? WrapInControllerTags(tagNodes) : [],

@@ -10,16 +10,20 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 /// <remarks>
 /// It is a record, so equality is the "same connection" test the pool needs — and the timeout is part
 /// of it. Every value here arrives together from one device node, so two ports on one controller agree
-/// on all four or they are configured against two different devices.
+/// on all three or they are configured against two different devices.
+/// <para>
+/// The controller family is deliberately not here. It picks a node type and decides what that node
+/// offers, but it reaches nothing on the wire: libplctag opens a ControlLogix and a CompactLogix the
+/// same way. Carrying it would split one connection in two whenever two ports on one controller were
+/// configured under different node types.
+/// </para>
 /// </remarks>
 /// <param name="Gateway">Controller IP address or host name.</param>
 /// <param name="Path">CIP routing path to the CPU, e.g. <c>"1,0"</c>.</param>
-/// <param name="ControllerType">The Logix controller family (see <see cref="LogixControllerType"/>).</param>
 /// <param name="OperationTimeout">How long one tag read or write against this controller may take.</param>
 public sealed record LogixClientInformation(
     Gateway Gateway,
     Path Path,
-    LogixControllerType ControllerType,
     OperationTimeout OperationTimeout) : IClientInformation;
 
 public readonly record struct Gateway(string Value);

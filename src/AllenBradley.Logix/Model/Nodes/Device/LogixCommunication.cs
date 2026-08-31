@@ -26,10 +26,6 @@ public sealed record LogixCommunication : DataPortCommunication
     /// sits in whichever slot the chassis was built with.
     /// </summary>
     public string? Path { get; init; }
-    /// <summary>
-    /// The controller family, as the ordinal of a <see cref="DataPort.Device.LogixControllerType"/>.
-    /// </summary>
-    public required byte ControllerType { get; init; }
     /// <summary>How long one tag read or write against this controller may take, in milliseconds.</summary>
     public int OperationTimeout { get; init; } = 5_000;
     /// <summary>

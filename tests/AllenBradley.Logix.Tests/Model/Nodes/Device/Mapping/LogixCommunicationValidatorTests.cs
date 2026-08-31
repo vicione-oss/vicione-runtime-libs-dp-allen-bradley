@@ -8,8 +8,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Map
 
 /// <summary>
 /// What a device configuration has to satisfy before anything is built from it. The rules are the ones
-/// decidable without a controller: whether a gateway and path are there at all, and whether the two
-/// enum-backed bytes name something the model has.
+/// decidable without a controller: whether a gateway is there at all, whether a path is where the node
+/// type asks for one, and whether the numbers are in range.
 /// </summary>
 public sealed class LogixCommunicationValidatorTests
 {
@@ -96,36 +96,6 @@ public sealed class LogixCommunicationValidatorTests
 
         // Assert
         result.IsValid.Should().BeTrue();
-    }
-
-    /// <remarks>
-    /// The property is a byte on the wire and an enum in the model, so the only thing standing between a
-    /// configuration and an undefined <see cref="LogixControllerType"/> is this rule.
-    /// </remarks>
-    [Fact]
-    public void Validate_WithAControllerTypeTheModelDoesNotHave_Fails()
-    {
-        // Arrange
-
-        // Act
-        var result = Validate(static communication => communication with { ControllerType = 200 });
-
-        // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.ControllerType));
-    }
-
-    [Theory]
-    [InlineData(LogixControllerType.ControlLogix)]
-    [InlineData(LogixControllerType.CompactLogix)]
-    public void Validate_WithEveryControllerTypeTheModelHas_Passes(LogixControllerType controllerType)
-    {
-        // Arrange
-
-        // Act
-        var result = Validate(communication => communication with { ControllerType = (byte)controllerType });
-
-        // Assert
-        result.Should().BeEmpty();
     }
 
     [Theory]

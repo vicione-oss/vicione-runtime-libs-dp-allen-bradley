@@ -18,6 +18,5 @@ internal static class LogixClientTestDataFactory
     internal static LogixClientInformation CreateClientInformation(string gateway = DefaultGateway) =>
         new(new Gateway(gateway),
             new Path("1,0"),
-            LogixControllerType.ControlLogix,
             new OperationTimeout(TimeSpan.FromSeconds(5)));
 }

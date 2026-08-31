@@ -6,12 +6,10 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Mapping;
 
 /// <summary>
-/// The step where four engine primitives become the <see cref="LogixClientInformation"/> the pool keys a
-/// connection under. Two of them change representation on the way — a byte becomes a
-/// <see cref="LogixControllerType"/> and a millisecond count becomes a <see cref="TimeSpan"/> — and a
-/// mistake in either is a port that talks to the wrong controller or gives up at the wrong time. The
-/// design id changes representation too: it names the device node type, and the family it stands for is
-/// what the tree below is built against.
+/// The step where engine primitives become the <see cref="LogixClientInformation"/> the pool keys a
+/// connection under, and a mistake here is a port that talks to the wrong controller or gives up at the
+/// wrong time. The design id is the interesting input: it names the device node type, and the family it
+/// stands for decides where the path comes from without ever reaching the client information itself.
 /// </summary>
 public sealed class DeviceNodeMapperTests
 {
@@ -66,7 +64,6 @@ public sealed class DeviceNodeMapperTests
         {
             Gateway = "192.168.1.10",
             Path = "1,2",
-            ControllerType = (byte)LogixControllerType.CompactLogix,
             OperationTimeout = 750,
         };
 
@@ -76,23 +73,27 @@ public sealed class DeviceNodeMapperTests
         // Assert
         clientInformation.Gateway.Value.Should().Be("192.168.1.10");
         clientInformation.Path.Value.Should().Be("1,2");
-        clientInformation.ControllerType.Should().Be(LogixControllerType.CompactLogix);
         clientInformation.OperationTimeout.Value.Should().Be(TimeSpan.FromMilliseconds(750));
     }
 
-    [Theory]
-    [InlineData(LogixControllerType.ControlLogix)]
-    [InlineData(LogixControllerType.CompactLogix)]
-    public void CreateRootNode_MapsTheControllerTypeByItsOrdinal(LogixControllerType controllerType)
+    /// <remarks>
+    /// The pool keys a connection on this value, so a family that reached it would open a second session
+    /// to a controller two ports had merely described differently. Nothing about the family reaches the
+    /// wire: libplctag opens both as a ControlLogix.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForTwoFamiliesAtOneAddress_ProducesEqualClientInformation()
     {
         // Arrange
-        var communication = CreateCommunication() with { ControllerType = (byte)controllerType };
+        var controlLogix = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5x70DesignId };
+        var compactLogix = CreateCommunication() with { DesignId = DeviceNode.CompactLogix5x70DesignId };
 
         // Act
-        var rootNode = _mapper.CreateRootNode(communication);
+        var first = _mapper.CreateRootNode(controlLogix).ClientInformation;
+        var second = _mapper.CreateRootNode(compactLogix).ClientInformation;
 
         // Assert
-        rootNode.ClientInformation.ControllerType.Should().Be(controllerType);
+        first.Should().Be(second);
     }
 
     /// <remarks>

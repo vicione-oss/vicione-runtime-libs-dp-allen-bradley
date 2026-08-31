@@ -41,8 +41,6 @@ Nodes:
             Required: true
           - Id: Path
             Required: true
-          - Id: ControllerType
-            Required: true
           - Id: OperationTimeout
       - Id: QueueConfiguration
         Properties: &queue-properties
@@ -66,8 +64,6 @@ Nodes:
       - Id: Connection
         Properties:
           - Id: Gateway
-            Required: true
-          - Id: ControllerType
             Required: true
           - Id: OperationTimeout
       - Id: QueueConfiguration
@@ -215,14 +211,6 @@ Properties:
     DataType: String
     UiControl: TextBox
     DefaultValue: "1,0"
-
-  - Id: ControllerType
-    Name: "Controller Type"
-    Description: "The Logix controller family"
-    DataType: UInt8
-    UiControl: NumericListBox
-    DefaultValue: 0
-    Elements: { 0: 'ControlLogix', 1: 'CompactLogix' }
 
   - Id: OperationTimeout
     Name: "Operation Timeout (ms)"

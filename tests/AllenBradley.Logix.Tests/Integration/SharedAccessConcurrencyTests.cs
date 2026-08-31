@@ -204,7 +204,7 @@ public class SharedAccessConcurrencyTests
     }
 
     private static LogixClientInformation ClientInformation() =>
-        new(new Gateway(Gateway), new Path(Path), LogixControllerType.ControlLogix, new OperationTimeout(Timeout));
+        new(new Gateway(Gateway), new Path(Path), new OperationTimeout(Timeout));
 
     private static Tag NewRawTag() => new()
     {

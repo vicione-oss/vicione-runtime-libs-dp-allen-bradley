@@ -45,7 +45,7 @@ A fixed set of alternatives is an `enum`, not a struct of constants and not a `s
 named domain type, so it satisfies the "never a bare primitive" rule too. The tree already does this
 for [`AllenBradleyDataType`](../../src/AllenBradley.Logix/Model/AllenBradleyDataType.cs),
 [`LogixQuality`](../../src/AllenBradley.Logix/Model/DataPort/DataPoints/LogixQuality.cs) and
-[`LogixControllerType`](../../src/AllenBradley.Logix/Model/DataPort/Device/LogixControllerType.cs).
+[`LogixControllerFamily`](../../src/AllenBradley.Logix/Model/DataPort/Device/LogixControllerFamily.cs).
 
 Back an enum with its wire representation (`: byte`) only when the values *are* the wire codes, as
 [`CipTypeCode`](../../src/AllenBradley.Logix/Client/Tags/Definitions/CipTypeCode.cs) does. Otherwise

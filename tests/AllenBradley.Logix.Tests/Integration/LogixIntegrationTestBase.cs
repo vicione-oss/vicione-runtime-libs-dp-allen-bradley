@@ -48,7 +48,6 @@ public abstract class LogixIntegrationTestBase : IAsyncLifetime
         var clientInformation = new LogixClientInformation(
             new Gateway(Gateway),
             new Path(Path),
-            LogixControllerType.ControlLogix,
             new OperationTimeout(Timeout));
 
         var accessFactory = new LogixTagAccessFactory(clientInformation);
