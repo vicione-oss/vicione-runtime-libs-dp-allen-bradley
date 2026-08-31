@@ -6,9 +6,10 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 
 /// <summary>
-/// The controller-scope tag container. It carries no properties because controller scope contributes
+/// The controller-scope tag container. It declares no properties, because controller scope contributes
 /// no segment to a tag address: a tag configured under it addresses itself. Program scope is the one
-/// that prefixes — <c>Program:MainProgram.Count</c> — and gets its own node when it arrives.
+/// that prefixes — <c>Program:MainProgram.Count</c> — and <c>ProgramTagsNode</c> is where its
+/// <c>ProgramName</c> lives.
 /// </summary>
 /// <remarks>
 /// One type for the manifest's two containers, which differ only in what they may hold. The generation
@@ -19,17 +20,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 /// is held against the device's when the container is finally attached.
 /// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
-/// <param name="ControllerName">
-/// The controller's name in the editor tree. A placeholder — nothing reads it, and it reaches no tag
-/// address. See <see cref="ControllerNamePropertyName"/>.
-/// </param>
 /// <param name="Generation">
 /// The generation of the controller these tags are configured against, from the container's own node
 /// type. It decides which types may hang off this container.
 /// </param>
 public sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
-    string ControllerName,
     LogixGeneration Generation) : ILogixTagScopeNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a 5x70 controller's tag container.</summary>
@@ -37,18 +33,6 @@ public sealed record ControllerTagsNode(
 
     /// <summary>The manifest's <c>MappingId</c> for a 5x80 controller's tag container.</summary>
     public const string Logix5x80LinkedNodeTypeId = "ControllerTags5x80";
-
-    /// <summary>
-    /// The manifest property carrying <see cref="ControllerName"/>.
-    /// </summary>
-    /// <remarks>
-    /// The property exists so the YAML consistency test has a branch-node case to run: xUnit fails a
-    /// theory that discovers none, and controller scope contributes nothing to a tag address, so it has
-    /// no property of its own. Delete it — and the node's <see cref="ControllerName"/> with it — once
-    /// the base test sets <c>Theory.SkipTestWithoutData</c>, or once program scope brings a branch node
-    /// carrying a real <c>ProgramName</c>.
-    /// </remarks>
-    public const string ControllerNamePropertyName = nameof(ControllerName);
 
     /// <inheritdoc />
     public IConfigurationNode? ParentConfigurationNode { get; set; }

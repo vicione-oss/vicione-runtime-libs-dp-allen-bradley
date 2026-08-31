@@ -5,8 +5,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
 
 /// <summary>
-/// Maps a controller-scope container. It reads one property and validates none: the container's
-/// <see cref="ControllerTagsNode.ControllerName"/> is a placeholder that reaches no tag address.
+/// Maps a controller-scope container. It reads no property and validates none: the container declares
+/// none, because controller scope contributes no segment to a tag address.
 /// </summary>
 /// <remarks>
 /// One subclass per container node type, because the manifest gives each generation its own
@@ -23,10 +23,7 @@ internal abstract class ControllerTagsNodeMapper(LogixGeneration generation)
     public abstract string TargetLinkedNodeTypeId { get; }
 
     /// <inheritdoc />
-    public ControllerTagsNode Map(LinkedNode node) => new(
-        node,
-        node.GetRequiredPropertyValue<string>(ControllerTagsNode.ControllerNamePropertyName),
-        generation);
+    public ControllerTagsNode Map(LinkedNode node) => new(node, generation);
 
     /// <inheritdoc />
     public ValidationResult Validate(LinkedNode linkedNode) => new();

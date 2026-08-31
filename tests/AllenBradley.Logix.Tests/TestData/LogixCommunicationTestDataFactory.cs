@@ -124,10 +124,6 @@ internal static class LogixCommunicationTestDataFactory
                 : ControllerTagsNode.Logix5x70LinkedNodeTypeId),
             Name = "Controller",
             Id = s_controllerTagsId,
-            Properties = new Dictionary<string, Property>
-            {
-                { ControllerTagsNode.ControllerNamePropertyName, new Property { Value = "Controller" } },
-            },
         };
 
         return [controllerTags, .. tagNodes];

@@ -105,8 +105,8 @@ Nodes:
 
   # ==================== TAG CONTAINERS ===============================
   # Controller scope contributes no segment to a tag address: a controller-scope tag's
-  # name is its full symbolic address, so this node carries no properties. Program scope
-  # is the one that prefixes (Program:MainProgram.Tag) and arrives with its own node.
+  # name is its full symbolic address, so these nodes declare no properties at all. Program
+  # scope is the one that prefixes (Program:MainProgram.Tag), and ProgramName is its property.
   #
   # One per generation. Only the child list differs: LREAL is a 5x80 type, and this is what
   # keeps the editor from offering it on a controller that has none. Their MappingIds differ
@@ -120,11 +120,6 @@ Nodes:
     Description: "Controller-scope tags of a 5x70 controller. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
-    PropertyCategories: &controller-tags-properties
-      - Id: TagScope
-        Properties:
-          - Id: ControllerName
-            Required: true
     ChildNodes:
       - Id: DInt
       - Id: String
@@ -136,7 +131,6 @@ Nodes:
     Description: "Controller-scope tags of a 5x80 controller, which adds LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
-    PropertyCategories: *controller-tags-properties
     ChildNodes:
       - Id: DInt
       - Id: LReal
@@ -299,20 +293,9 @@ PropertyCategories:
 Properties:
 
   # ---- TagScope Properties ----
-  # Placeholder. It names the controller in the editor tree and reaches no address: CIP routes by
-  # gateway and path, never by controller name. It is here because the YAML consistency test fails a
-  # theory that discovers no cases, and controller scope has no property of its own to give it one.
-  # Delete it once the base test skips empty theories (Theory.SkipTestWithoutData) or once program
-  # scope adds a branch node that carries a real ProgramName.
-  - Id: ControllerName
-    Name: "Controller name"
-    Description: "Name of the controller as it appears in Studio 5000. Shown in the tree; not part of any tag address."
-    DataType: String
-    UiControl: TextBox
-    DefaultValue: "Controller"
-
-  # The real one this category was waiting for: it reaches an address. Every tag under the
-  # container carrying it is read and written as Program:<this>.<TagName>.
+  # The only one there is, and it reaches an address: every tag under the container carrying it
+  # is read and written as Program:<this>.<TagName>. Controller scope declares nothing here,
+  # because a controller-scope tag's own name is its full address.
   - Id: ProgramName
     Name: "Program name"
     Description: "Name of the program as it appears in Studio 5000. Tags below it address as \"Program:MainProgram.Count\"."

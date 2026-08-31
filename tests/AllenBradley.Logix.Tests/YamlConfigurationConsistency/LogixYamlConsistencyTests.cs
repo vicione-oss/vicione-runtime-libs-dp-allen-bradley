@@ -15,10 +15,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.YamlConfigurationConsi
 /// <remarks>
 /// Two of its theories — <c>ConfigurationMapperPropertyExistsInYamlNode</c> and
 /// <c>YamlConfigurationNodePropertyExistsInConfigurationMapper</c> — draw their data from branch-node
-/// properties, and xUnit fails a theory that discovers no cases. Controller scope contributes no
-/// segment to a tag address and so has no property of its own, which is why
-/// <see cref="ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.ControllerTagsNode.ControllerNamePropertyName"/>
-/// exists. The real fix is upstream, where the base test can set <c>Theory.SkipTestWithoutData</c>.
+/// properties, and xUnit fails a theory that discovers no cases. Controller scope has none to give them,
+/// contributing no segment to a tag address, and carried a placeholder until program scope arrived:
+/// <see cref="ProgramTagsNode.ProgramNamePropertyName"/> is the real branch-node property those theories
+/// now run on. Should it ever be the last one again, the fix is upstream, where the base test can set
+/// <c>Theory.SkipTestWithoutData</c>.
 /// </remarks>
 public class LogixYamlConsistencyTests :
     YamlConsistencyBaseTest<LogixCommunication, LogixYamlConsistencyTests, DeviceNode>,
