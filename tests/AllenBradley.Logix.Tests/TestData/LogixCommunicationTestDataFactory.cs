@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
@@ -123,6 +124,42 @@ internal static class LogixCommunicationTestDataFactory
 
         return [controllerTags, .. tagNodes];
     }
+
+    /// <summary>
+    /// A program-scope container named <paramref name="programName"/>, hanging directly off the device.
+    /// </summary>
+    /// <param name="programName">The program whose tags the container holds.</param>
+    /// <param name="id">
+    /// The container's node id, which the tags configured inside it name as their parent. Left to a fresh
+    /// one when the container holds none.
+    /// </param>
+    internal static Node CreateProgramTagsNode(string programName, Guid? id = null) =>
+        new()
+        {
+            DesignId = ProgramTagsNode.LinkedNodeTypeId,
+            Name = programName,
+            Id = id ?? NewGuid(),
+            Properties = new Dictionary<string, Property>
+            {
+                { ProgramTagsNode.ProgramNamePropertyName, new Property { Value = programName } },
+            },
+        };
+
+    /// <summary>
+    /// A device carrying <paramref name="nodes"/> exactly as given, wrapped in no container: for a
+    /// configuration whose own containers are what is under test.
+    /// </summary>
+    internal static LogixCommunication CreateCommunicationOf(
+        List<Node> nodes, string deviceDesignId = DeviceDesignId) =>
+        new()
+        {
+            DesignId = deviceDesignId,
+            Gateway = DefaultGateway,
+            Path = "1,0",
+            MaxPendingMessages = 100_000,
+            Strategy = (byte)QueueStrategy.DropOldest,
+            Nodes = nodes,
+        };
 
     /// <summary>A device with no tags configured under it.</summary>
     internal static LogixCommunication CreateCommunication() => CreateCommunication([]);

@@ -54,6 +54,7 @@ Nodes:
           - Id: Strategy
     ChildNodes:
       - Id: ControllerTags5x70
+      - Id: ProgramTags
 
   - Id: DeviceControlLogix5x80
     Type: DataPortNode
@@ -65,6 +66,7 @@ Nodes:
     PropertyCategories: *controllogix-device-properties
     ChildNodes:
       - Id: ControllerTags5x80
+      - Id: ProgramTags
 
   # No Path: a CompactLogix clips onto a DIN rail whose virtual backplane puts the controller
   # at slot 0, so "1,0" is the only answer there is and DeviceNodeMapper supplies it. Asking
@@ -87,6 +89,7 @@ Nodes:
         Properties: *queue-properties
     ChildNodes:
       - Id: ControllerTags5x70
+      - Id: ProgramTags
 
   - Id: DeviceCompactLogix5x80
     Type: DataPortNode
@@ -98,6 +101,7 @@ Nodes:
     PropertyCategories: *compactlogix-device-properties
     ChildNodes:
       - Id: ControllerTags5x80
+      - Id: ProgramTags
 
   # ==================== TAG CONTAINERS ===============================
   # Controller scope contributes no segment to a tag address: a controller-scope tag's
@@ -136,6 +140,30 @@ Nodes:
     ChildNodes:
       - Id: DInt
       - Id: LReal
+      - Id: String
+
+  # Program scope is the one that prefixes: every tag below this node addresses as
+  # Program:<ProgramName>.<TagName>, composed during the tree walk. A peer of controller scope
+  # under the device rather than a child of it, the way Studio 5000's own tree puts them, and
+  # uncapped — a controller has as many programs as it has.
+  #
+  # One node type for both generations while there is no type only one of them may hold. LREAL
+  # under a program splits it, the way controller scope is already split.
+
+  - Id: ProgramTags
+    MappingId: ProgramTags
+    Type: DataPortTreeNode
+    Name: "Program"
+    Description: "Program-scope tags. Adds the Program:<name> segment to every tag address below it."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: TagScope
+        Properties:
+          - Id: ProgramName
+            Required: true
+    ChildNodes:
+      - Id: DInt
       - Id: String
 
   # ==================== SCALAR NODES ===================================
@@ -269,6 +297,15 @@ Properties:
     DataType: String
     UiControl: TextBox
     DefaultValue: "Controller"
+
+  # The real one this category was waiting for: it reaches an address. Every tag under the
+  # container carrying it is read and written as Program:<this>.<TagName>.
+  - Id: ProgramName
+    Name: "Program name"
+    Description: "Name of the program as it appears in Studio 5000. Tags below it address as \"Program:MainProgram.Count\"."
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: "MainProgram"
 
   # ---- Connection Properties ----
   - Id: Gateway

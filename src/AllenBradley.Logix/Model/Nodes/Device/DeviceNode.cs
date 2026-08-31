@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -74,16 +75,17 @@ public sealed record DeviceNode(
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
     /// <summary>
-    /// A controller-scope container of this controller's own generation. The other one stands for a type
-    /// vocabulary this controller has not got, and would carry that answer down to the tags below it: a
-    /// <c>ControllerTags5x80</c> under a 5x70 device is what would let an <c>LREAL</c> past
-    /// <see cref="ControllerTagsNode.CanBeAdded(IDataPointNode)"/>, which believes the container.
+    /// A scope container: controller scope, of this controller's own generation, or a program. The other
+    /// controller-scope container stands for a type vocabulary this controller has not got, and would
+    /// carry that answer down to the tags below it: a <c>ControllerTags5x80</c> under a 5x70 device is
+    /// what would let an <c>LREAL</c> past <see cref="ControllerTagsNode.CanBeAdded(IDataPointNode)"/>,
+    /// which believes the container.
     /// </summary>
     /// <remarks>
-    /// A device node lists exactly one container node type as its child, so the editor cannot build the
-    /// mismatch — the same thing that is true of the <c>LREAL</c> itself, and the same reason to guard it
-    /// anyway. This is the one place the pairing is visible: the container is mapped before it is
-    /// attached, so it cannot check the device, but the device can check it.
+    /// A device node lists exactly one controller-scope container node type as its child, so the editor
+    /// cannot build the mismatch — the same thing that is true of the <c>LREAL</c> itself, and the same
+    /// reason to guard it anyway. This is the one place the pairing is visible: the container is mapped
+    /// before it is attached, so it cannot check the device, but the device can check it.
     /// </remarks>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {
@@ -94,7 +96,7 @@ public sealed record DeviceNode(
                 + $"'{OriginalCommunication.DesignId}' device.");
         }
 
-        return configurationNode is ControllerTagsNode;
+        return configurationNode is ControllerTagsNode or ProgramTagsNode;
     }
 
     /// <summary>Tags hang off a scope container, never off the device itself.</summary>
