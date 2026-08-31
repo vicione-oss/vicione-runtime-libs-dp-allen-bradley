@@ -17,7 +17,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// <param name="ProgramName">The program these tags live in, and the segment their addresses carry.</param>
 public sealed record ProgramTagsNode(
     LinkedNode OriginalNode,
-    ProgramName ProgramName) : IBranchConfigurationNode
+    ProgramName ProgramName) : ILogixTagScopeNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a program's tag container.</summary>
     public const string LinkedNodeTypeId = "ProgramTags";
@@ -42,4 +42,7 @@ public sealed record ProgramTagsNode(
 
     /// <summary>Any tag the controller has a type for.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => true;
+
+    /// <inheritdoc />
+    public TagScope Scope() => TagScope.Program(ProgramName);
 }

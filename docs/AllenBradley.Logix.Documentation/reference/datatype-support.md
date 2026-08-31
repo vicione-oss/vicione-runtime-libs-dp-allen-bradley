@@ -71,6 +71,11 @@ A tag address may reach into a structure — `Program:MainProgram.Counter.PRE` i
 `ScalarNodePropertyValidator` accepts only a plain tag name, so a dotted address fails validation
 before anything reaches the controller.
 
+That rule is about the *configured* name, and it does not stand in the way of program scope: a tag
+inside a program is configured as `Count` under a `ProgramTags` container, and
+`Program:MainProgram.Count` is composed from the container's `ProgramName` while the tree is walked
+into data points. See [tag scoping](../explanation/tag-scoping.md).
+
 One thing would still stand in the way if that gate opened. A member is **absent from the flat
 `@tags` listing**, so the tag definitions hold nothing for it and `LogixConfigurationVerifier` reports
 it as *not found on the controller*, which fails the connect. Since the poll trusts what verification

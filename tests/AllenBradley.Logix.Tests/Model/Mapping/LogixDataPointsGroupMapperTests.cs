@@ -59,6 +59,52 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     /// <remarks>
+    /// The configured tag name stays bare — <c>Count</c>, not <c>Program:MainProgram.Count</c>. The prefix
+    /// is the container's, composed here, which is what keeps a leaf ignorant of its scope.
+    /// </remarks>
+    [Fact]
+    public void ToDataPoints_ProgramScope_PrefixesTheAddressWithTheProgram()
+    {
+        // Arrange
+        var deviceNode = MapTree(CreateCommunicationOf(
+        [
+            CreateProgramTagsNode("MainProgram", ProgramTagsId),
+            CreateDIntNode("Speed", "Count", parentId: ProgramTagsId),
+        ]));
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        dataPoints.Should().ContainSingle()
+            .Which.TagName.Value.Should().Be("Program:MainProgram.Count");
+    }
+
+    /// <remarks>
+    /// The scopes are peers under the device, so the walk has to reach the right prefix per branch rather
+    /// than once for the tree. Two programs also prove the segment is the container's own and not the
+    /// first one the walk met.
+    /// </remarks>
+    [Fact]
+    public void ToDataPoints_BothScopesConfigured_PrefixesOnlyTheProgramTags()
+    {
+        // Arrange
+        var deviceNode = MapTree(CreateCommunicationOf(
+        [
+            .. WrapInControllerTags([CreateDIntNode("Speed", "MotorSpeed")], DeviceDesignId),
+            CreateProgramTagsNode("MainProgram", ProgramTagsId),
+            CreateDIntNode("Count", "Count", parentId: ProgramTagsId),
+        ]));
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        dataPoints.Select(static dataPoint => dataPoint.TagName.Value).Should()
+            .BeEquivalentTo("MotorSpeed", "Program:MainProgram.Count");
+    }
+
+    /// <remarks>
     /// The capacity is the half of a string node that has nowhere else to come from: the tag name and poll
     /// frequency are the scalar pair every type carries, but <c>MaxLength</c> is configuration the manifest
     /// supplies and the converter sizes its buffer from.

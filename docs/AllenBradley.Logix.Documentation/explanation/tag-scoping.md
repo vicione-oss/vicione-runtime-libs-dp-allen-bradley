@@ -64,21 +64,27 @@ readable and absent from both, which the
 verifier.
 
 > **Open.** Studio 5000 v32 and later allow programs to be nested inside other programs. Whether the
-> resulting tags address as `Program:Parent.Child.Tag` has not been confirmed against hardware, and
-> should be before the program-scope slice ships.
+> resulting tags address as `Program:Parent.Child.Tag` has not been confirmed against hardware, and the
+> bench L32E is too old to nest. The port offers flat programs only until it has been.
 
 ## What this means for the configuration tree
 
 Scope is configuration; structure nesting is discovery. The two look alike in an editor tree and
 behave nothing alike, and keeping them apart is what the node model is doing.
 
-`ControllerTagsNode` carries no properties that reach an address, because controller scope
-contributes no segment — a tag configured under it addresses itself. A program-scope node is the one
-that prefixes, and it needs a real `ProgramName` to do it. UDT members, by contrast, are never
-configured as containers: their path comes from the tag's own type declaration, read from the
-controller.
+Each scope is a container hanging off the device, and the two are peers — the way Studio 5000's own
+tree puts them, and not a program folder nested inside controller scope. `ControllerTagsNode` carries
+no property that reaches an address, because controller scope contributes no segment: a tag
+configured under it addresses itself. `ProgramTagsNode` is the one that prefixes, and its
+`ProgramName` is what it prefixes with. UDT members, by contrast, are never configured as containers:
+their path comes from the tag's own type declaration, read from the controller.
+
+The prefix is composed while the tree is walked into data points, never stored on the leaf. Each
+container answers with a `TagScope` — empty for controller scope, `Program:MainProgram` for a program
+— and the walk joins it to the configured tag name. So a tag is configured as `Count` wherever it
+sits, and the address `Program:MainProgram.Count` exists only from the data point outwards.
 
 The ordering consequence for verification is worth stating plainly. A program's tag listing cannot be
-read until its name is known, so `ProgramName` has to be validated as a well-formed name during
-mapping, and only then used to browse. Verification against the symbol table confirms the tags inside
-a program; it cannot be what discovers the program.
+read until its name is known, so `ProgramName` is validated as a well-formed name during mapping, and
+only then used to browse. Verification against the symbol table confirms the tags inside a program; it
+cannot be what discovers the program.

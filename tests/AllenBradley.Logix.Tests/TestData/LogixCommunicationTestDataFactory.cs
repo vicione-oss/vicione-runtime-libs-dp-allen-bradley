@@ -29,16 +29,23 @@ internal static class LogixCommunicationTestDataFactory
     /// <summary>The controller every configuration the factory makes points at.</summary>
     internal const string DefaultGateway = "10.0.0.1";
 
+    /// <summary>
+    /// The node id the factory's program container carries. A tag names it as its parent to be configured
+    /// inside that program rather than under controller scope.
+    /// </summary>
+    internal static readonly Guid ProgramTagsId = new("00000000-0000-0000-0000-000070726f67");
+
     private static readonly Guid s_controllerTagsId = new("00000000-0000-0000-0000-0000c0777a65");
 
     /// <summary>A configured <c>DINT</c> tag, routed to <paramref name="channel"/>.</summary>
-    internal static Node CreateDIntNode(string channel, string tagName, int pollFrequency = 100) =>
+    internal static Node CreateDIntNode(
+        string channel, string tagName, int pollFrequency = 100, Guid? parentId = null) =>
         new()
         {
             DesignId = DIntNode.LinkedNodeTypeId,
             Name = tagName,
             Id = NewGuid(),
-            ParentId = s_controllerTagsId,
+            ParentId = parentId ?? s_controllerTagsId,
             AffectedChannels = [channel],
             TransferredChannels = [channel],
             Properties = new Dictionary<string, Property>
@@ -49,13 +56,14 @@ internal static class LogixCommunicationTestDataFactory
         };
 
     /// <summary>A configured <c>LREAL</c> tag, routed to <paramref name="channel"/>.</summary>
-    internal static Node CreateLRealNode(string channel, string tagName, int pollFrequency = 100) =>
+    internal static Node CreateLRealNode(
+        string channel, string tagName, int pollFrequency = 100, Guid? parentId = null) =>
         new()
         {
             DesignId = LRealNode.LinkedNodeTypeId,
             Name = tagName,
             Id = NewGuid(),
-            ParentId = s_controllerTagsId,
+            ParentId = parentId ?? s_controllerTagsId,
             AffectedChannels = [channel],
             TransferredChannels = [channel],
             Properties = new Dictionary<string, Property>
@@ -70,13 +78,13 @@ internal static class LogixCommunicationTestDataFactory
     /// <paramref name="maxLength"/> characters.
     /// </summary>
     internal static Node CreateStringNode(
-        string channel, string tagName, int? maxLength = null, int pollFrequency = 100) =>
+        string channel, string tagName, int? maxLength = null, int pollFrequency = 100, Guid? parentId = null) =>
         new()
         {
             DesignId = StringNode.LinkedNodeTypeId,
             Name = tagName,
             Id = NewGuid(),
-            ParentId = s_controllerTagsId,
+            ParentId = parentId ?? s_controllerTagsId,
             AffectedChannels = [channel],
             TransferredChannels = [channel],
             Properties = new Dictionary<string, Property>
