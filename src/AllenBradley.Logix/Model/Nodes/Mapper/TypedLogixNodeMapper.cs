@@ -19,6 +19,6 @@ public static class TypedLogixNodeMapper
     public static TypedNodeMapper<LogixCommunication, DeviceNode> Instance() =>
         new(
             new DeviceNodeMapper(),
-            [new ControllerTagsNodeMapper()],
+            [new ControllerTags5x70NodeMapper(), new ControllerTags5x80NodeMapper()],
             [new DIntNodeMapper(), new LRealNodeMapper(), new StringNodeMapper()]);
 }

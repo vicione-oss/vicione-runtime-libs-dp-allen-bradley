@@ -1,5 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
@@ -8,69 +7,77 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device;
 
 /// <summary>
-/// The gate a tag container passes through on its way onto the device. The manifest keeps the editor
-/// from offering a type the controller has not got; this is the guard behind it, for a configuration
-/// that did not come from the editor.
+/// The gate a controller-scope container passes through on its way onto the device. A container's node
+/// type is what the tags below it are held to, so a container of the wrong generation would hand them
+/// the wrong answer — and this is the only place the two are visible at once.
 /// </summary>
 /// <remarks>
-/// Driven through the whole <see cref="TypedLogixNodeMapper"/> rather than by calling <c>CanBeAdded</c>
-/// directly, because the gate depends on the order the engine assembles the tree in: a container is
-/// offered to the device node only once it holds its data points, and that is the one moment the
-/// generation and the tags are in the same place.
+/// Driven through the whole <see cref="TypedLogixNodeMapper"/>, because the engine's dispatch is what
+/// attaches a container to a device and so the only thing that calls the guard.
 /// </remarks>
 public sealed class DeviceNodeTests
 {
     private static readonly Guid s_channel = Guid.NewGuid();
 
+    /// <remarks>
+    /// The mismatch is the way past <see cref="ControllerTagsNode.CanBeAdded(IDataPointNode)"/>: the
+    /// container believes its own node type, so a 5x80 one under a 5x70 device would let an
+    /// <c>LREAL</c> onto a controller that has none.
+    /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x70Controller_SaysTheControllerHasNoSuchType()
+    public void MapToTypedNodes_WithA5x80ContainerUnderA5x70Device_RefusesThePairing()
     {
         // Arrange
-        var communication = CreateCommunication([CreateLRealNode(s_channel.ToString(), "PrecisionValue")]) with
-        {
-            DesignId = DeviceNode.CompactLogix5x70DesignId,
-        };
+        var communication = CreateCommunication(
+            [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
+            deviceDesignId: DeviceNode.CompactLogix5x70DesignId,
+            containerDesignId: ControllerTagsNode.Logix5x80LinkedNodeTypeId);
 
         // Act
         var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
 
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
-            .WithMessage("LREAL is not a data type of a Logix 5x70 controller.");
-    }
-
-    [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x80Controller_HangsItOffControllerScope()
-    {
-        // Arrange
-        var communication = CreateCommunication([CreateLRealNode(s_channel.ToString(), "PrecisionValue")]) with
-        {
-            DesignId = DeviceNode.CompactLogix5x80DesignId,
-        };
-
-        // Act
-        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
-
-        // Assert
-        deviceNode.ConfigurationNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<ControllerTagsNode>()
-            .Which.DataPointNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<LRealNode>()
-            .Which.TagName.Value.Should().Be("PrecisionValue");
+            .WithMessage(
+                "A 'ControllerTags5x80' container cannot hang off a 'DeviceCompactLogix5x70' device.");
     }
 
     /// <remarks>
-    /// A <c>DINT</c> is every controller's type, so the generation must not gate anything but the types
-    /// a 5x70 genuinely lacks.
+    /// The other way round is a configuration error too, and a quieter one: a 5x70 container under a
+    /// 5x80 device offers fewer types than the controller has rather than more.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithADIntUnderA5x70Controller_HangsItOffControllerScope()
+    public void MapToTypedNodes_WithA5x70ContainerUnderA5x80Device_RefusesThePairing()
     {
         // Arrange
-        var communication = CreateCommunication([CreateDIntNode(s_channel.ToString(), "Counter")]) with
-        {
-            DesignId = DeviceNode.CompactLogix5x70DesignId,
-        };
+        var communication = CreateCommunication(
+            [CreateDIntNode(s_channel.ToString(), "Counter")],
+            deviceDesignId: DeviceNode.CompactLogix5x80DesignId,
+            containerDesignId: ControllerTagsNode.Logix5x70LinkedNodeTypeId);
+
+        // Act
+        var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+
+        // Assert
+        mapping.Should().Throw<InvalidConfigurationException>()
+            .WithMessage(
+                "A 'ControllerTags5x70' container cannot hang off a 'DeviceCompactLogix5x80' device.");
+    }
+
+    /// <remarks>
+    /// The guard must not cost the matching pairings anything — every configuration the editor can
+    /// actually produce is one of these.
+    /// </remarks>
+    [Theory]
+    [InlineData(DeviceNode.ControlLogix5x70DesignId)]
+    [InlineData(DeviceNode.ControlLogix5x80DesignId)]
+    [InlineData(DeviceNode.CompactLogix5x70DesignId)]
+    [InlineData(DeviceNode.CompactLogix5x80DesignId)]
+    public void MapToTypedNodes_WithTheContainerOfItsOwnGeneration_AttachesIt(string deviceDesignId)
+    {
+        // Arrange
+        var communication = CreateCommunication(
+            [CreateDIntNode(s_channel.ToString(), "Counter")], deviceDesignId: deviceDesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -78,6 +85,6 @@ public sealed class DeviceNodeTests
         // Assert
         deviceNode.ConfigurationNodes.Should().ContainSingle()
             .Which.Should().BeOfType<ControllerTagsNode>()
-            .Which.DataPointNodes.Should().ContainSingle();
+            .Which.Generation.Should().Be(deviceNode.Generation);
     }
 }

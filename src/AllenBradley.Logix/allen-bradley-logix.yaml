@@ -30,7 +30,7 @@ Root:
 Nodes:
 
   # ==================== DEVICE ===================================
-  # One node id per controller family and generation.The family decides how a request is routed to the CPU, the
+  # One node id per controller family and generation. The family decides how a request is routed to the CPU, the
   # generation which data types the tree offers.
 
   - Id: DeviceControlLogix5x70
@@ -104,12 +104,13 @@ Nodes:
   # name is its full symbolic address, so this node carries no properties. Program scope
   # is the one that prefixes (Program:MainProgram.Tag) and arrives with its own node.
   #
-  # One per generation, sharing a MappingId so a single ControllerTagsNodeMapper handles
-  # both. Only the child list differs: LREAL is a 5x80 type, and this is what keeps the
-  # editor from offering it on a controller that has none.
+  # One per generation. Only the child list differs: LREAL is a 5x80 type, and this is what
+  # keeps the editor from offering it on a controller that has none. Their MappingIds differ
+  # too, so the generation reaches the mapped node and the container can gate its own children
+  # by it — one thin ControllerTagsNodeMapper subclass each, over a shared base.
 
   - Id: ControllerTags5x70
-    MappingId: ControllerTags
+    MappingId: ControllerTags5x70
     Type: DataPortTreeNode
     Name: "Controller"
     Description: "Controller-scope tags of a 5x70 controller. Adds no segment to the tag address."
@@ -125,7 +126,7 @@ Nodes:
       - Id: String
 
   - Id: ControllerTags5x80
-    MappingId: ControllerTags
+    MappingId: ControllerTags5x80
     Type: DataPortTreeNode
     Name: "Controller"
     Description: "Controller-scope tags of a 5x80 controller, which adds LREAL. Adds no segment to the tag address."

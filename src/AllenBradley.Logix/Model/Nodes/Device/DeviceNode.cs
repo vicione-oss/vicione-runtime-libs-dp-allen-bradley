@@ -1,6 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -75,25 +74,24 @@ public sealed record DeviceNode(
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
     /// <summary>
-    /// A tag container, holding only tags this controller has a type for. The manifest already keeps a
-    /// 5x70's editor from offering an <c>LREAL</c> — its <c>ControllerTags5x70</c> node does not list one
-    /// — so a configuration that reaches here holding one was not built through the editor, and it names
-    /// a type the controller cannot resolve.
+    /// A controller-scope container of this controller's own generation. The other one stands for a type
+    /// vocabulary this controller has not got, and would carry that answer down to the tags below it: a
+    /// <c>ControllerTags5x80</c> under a 5x70 device is what would let an <c>LREAL</c> past
+    /// <see cref="ControllerTagsNode.CanBeAdded(IDataPointNode)"/>, which believes the container.
     /// </summary>
     /// <remarks>
-    /// The check is here rather than on the container because the device node is the only one that knows
-    /// the generation: two node ids share a <c>MappingId</c>, so a container's own <c>LinkedNode</c>
-    /// cannot tell which of the two it came from, and its <c>ParentConfigurationNode</c> is still unset
-    /// while the engine is attaching its data points. By the time a container is offered here it carries
-    /// them, which makes this the first moment both halves are in one place.
+    /// A device node lists exactly one container node type as its child, so the editor cannot build the
+    /// mismatch — the same thing that is true of the <c>LREAL</c> itself, and the same reason to guard it
+    /// anyway. This is the one place the pairing is visible: the container is mapped before it is
+    /// attached, so it cannot check the device, but the device can check it.
     /// </remarks>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {
-        if (Generation is LogixGeneration.Logix5x70 &&
-            configurationNode.DataPointNodes.Any(static node => node is LRealNode))
+        if (configurationNode is ControllerTagsNode tags && tags.Generation != Generation)
         {
             throw new InvalidConfigurationException(
-                "LREAL is not a data type of a Logix 5x70 controller.");
+                $"A '{tags.OriginalNode.DesignId}' container cannot hang off a "
+                + $"'{OriginalCommunication.DesignId}' device.");
         }
 
         return configurationNode is ControllerTagsNode;

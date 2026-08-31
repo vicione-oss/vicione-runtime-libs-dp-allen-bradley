@@ -1,4 +1,6 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
@@ -8,15 +10,33 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 /// no segment to a tag address: a tag configured under it addresses itself. Program scope is the one
 /// that prefixes — <c>Program:MainProgram.Count</c> — and gets its own node when it arrives.
 /// </summary>
+/// <remarks>
+/// One type for the manifest's two containers, which differ only in what they may hold. The generation
+/// arrives with the node rather than from the device node above, because the engine assembles a
+/// container's data points before it attaches the container to anything: nothing above it is reachable
+/// while <see cref="CanBeAdded(IDataPointNode)"/> runs. So this node takes its own node type's word for
+/// the generation, and <see cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> is where that word
+/// is held against the device's when the container is finally attached.
+/// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="ControllerName">
 /// The controller's name in the editor tree. A placeholder — nothing reads it, and it reaches no tag
 /// address. See <see cref="ControllerNamePropertyName"/>.
 /// </param>
-public sealed record ControllerTagsNode(LinkedNode OriginalNode, string ControllerName) : IBranchConfigurationNode
+/// <param name="Generation">
+/// The generation of the controller these tags are configured against, from the container's own node
+/// type. It decides which types may hang off this container.
+/// </param>
+public sealed record ControllerTagsNode(
+    LinkedNode OriginalNode,
+    string ControllerName,
+    LogixGeneration Generation) : IBranchConfigurationNode
 {
-    /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
-    public const string LinkedNodeTypeId = "ControllerTags";
+    /// <summary>The manifest's <c>MappingId</c> for a 5x70 controller's tag container.</summary>
+    public const string Logix5x70LinkedNodeTypeId = "ControllerTags5x70";
+
+    /// <summary>The manifest's <c>MappingId</c> for a 5x80 controller's tag container.</summary>
+    public const string Logix5x80LinkedNodeTypeId = "ControllerTags5x80";
 
     /// <summary>
     /// The manifest property carrying <see cref="ControllerName"/>.
@@ -43,10 +63,19 @@ public sealed record ControllerTagsNode(LinkedNode OriginalNode, string Controll
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
     /// <summary>
-    /// Any scalar tag. Which types the controller actually has is the generation's business, and the
-    /// container cannot see it: two node ids share this one's <c>MappingId</c>, and its
-    /// <see cref="ParentConfigurationNode"/> is still unset while the engine attaches data points. The
-    /// device node holds that gate — see <see cref="DeviceNode.CanBeAdded(IConfigurationNode)"/>.
+    /// Any tag the controller has a type for. The manifest already keeps a 5x70's editor from offering
+    /// an <c>LREAL</c> — the <c>ControllerTags5x70</c> node does not list one — so a configuration that
+    /// reaches here holding one was not built through the editor, and it names a type the controller
+    /// cannot resolve.
     /// </summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) => true;
+    public bool CanBeAdded(IDataPointNode dataPointNode)
+    {
+        if (dataPointNode is LRealNode && Generation is LogixGeneration.Logix5x70)
+        {
+            throw new InvalidConfigurationException(
+                "LREAL is not a data type of a Logix 5x70 controller.");
+        }
+
+        return true;
+    }
 }

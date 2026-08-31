@@ -89,12 +89,30 @@ internal static class LogixCommunicationTestDataFactory
             },
         };
 
-    /// <summary>Hangs <paramref name="tagNodes"/> off the controller-scope container they need a parent in.</summary>
-    internal static List<Node> WrapInControllerTags(IEnumerable<Node> tagNodes)
+    /// <summary>
+    /// Hangs <paramref name="tagNodes"/> off the controller-scope container they need a parent in, of the
+    /// generation <paramref name="deviceDesignId"/> names.
+    /// </summary>
+    /// <remarks>
+    /// The container's node type follows the device's because the manifest gives each generation its
+    /// own, and a configuration that paired them the other way is one the editor could not produce —
+    /// which is what <paramref name="containerDesignId"/> is for, since that pairing has a guard.
+    /// </remarks>
+    /// <param name="tagNodes">The tags to hang off the container.</param>
+    /// <param name="deviceDesignId">The device node type the container's own follows from.</param>
+    /// <param name="containerDesignId">
+    /// The container's node type, overriding the one <paramref name="deviceDesignId"/> implies.
+    /// </param>
+    internal static List<Node> WrapInControllerTags(
+        IEnumerable<Node> tagNodes, string deviceDesignId, string? containerDesignId = null)
     {
+        var generation = DeviceNode.TypeOf(deviceDesignId)!.Value.Generation;
+
         var controllerTags = new Node
         {
-            DesignId = ControllerTagsNode.LinkedNodeTypeId,
+            DesignId = containerDesignId ?? (generation is LogixGeneration.Logix5x80
+                ? ControllerTagsNode.Logix5x80LinkedNodeTypeId
+                : ControllerTagsNode.Logix5x70LinkedNodeTypeId),
             Name = "Controller",
             Id = s_controllerTagsId,
             Properties = new Dictionary<string, Property>
@@ -113,15 +131,19 @@ internal static class LogixCommunicationTestDataFactory
     internal static LogixCommunication CreateCommunication(
         List<Node> tagNodes,
         int maxPendingMessages = 100_000,
-        QueueStrategy strategy = QueueStrategy.DropOldest) =>
+        QueueStrategy strategy = QueueStrategy.DropOldest,
+        string deviceDesignId = DeviceDesignId,
+        string? containerDesignId = null) =>
         new()
         {
-            DesignId = DeviceDesignId,
+            DesignId = deviceDesignId,
             Gateway = DefaultGateway,
             Path = "1,0",
             MaxPendingMessages = maxPendingMessages,
             Strategy = (byte)strategy,
-            Nodes = tagNodes is { Count: > 0 } ? WrapInControllerTags(tagNodes) : [],
+            Nodes = tagNodes is { Count: > 0 }
+                ? WrapInControllerTags(tagNodes, deviceDesignId, containerDesignId)
+                : [],
         };
 
     /// <summary>A device with one <c>DINT</c> tag on <paramref name="channel"/>.</summary>

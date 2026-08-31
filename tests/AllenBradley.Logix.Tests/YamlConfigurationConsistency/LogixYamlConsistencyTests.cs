@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
@@ -28,7 +29,16 @@ public class LogixYamlConsistencyTests :
 
     public static HashSet<string> ExcludedCommunicationProperties => [];
 
-    public static Dictionary<Type, HashSet<string>> ExcludedConfigurationNodeProperties => [];
+    /// <remarks>
+    /// <see cref="ControllerTagsNode.Generation"/> is the one member of a branch node that is not a
+    /// declared property and never will be. It comes from the node type the container was configured
+    /// under — <c>ControllerTags5x70</c> or <c>ControllerTags5x80</c> — which is the whole point of
+    /// there being two: an integrator answers by picking a controller, not by filling in a field.
+    /// </remarks>
+    public static Dictionary<Type, HashSet<string>> ExcludedConfigurationNodeProperties => new()
+    {
+        [typeof(ControllerTagsNode)] = [nameof(ControllerTagsNode.Generation)],
+    };
 
     public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties => [];
 }

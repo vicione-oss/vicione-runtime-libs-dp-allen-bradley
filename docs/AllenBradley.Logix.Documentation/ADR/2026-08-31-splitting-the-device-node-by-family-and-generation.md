@@ -55,8 +55,7 @@ property cannot vary either. That is exactly what the two differences need:
 - The ControlLogix nodes declare `Path`; the CompactLogix nodes do not, and the mapper supplies
   `Path.VirtualBackplane`. `LogixCommunicationValidator` holds a ControlLogix to declaring one, and a
   CompactLogix to nothing.
-- `ControllerTags` splits into `ControllerTags5x70` and `ControllerTags5x80`, sharing one
-  `MappingId: ControllerTags` so a single `ControllerTagsNodeMapper` handles both. Only the child list
+- `ControllerTags` splits into `ControllerTags5x70` and `ControllerTags5x80`. Only the child list
   differs: the 5x80 container offers `LReal`, the 5x70 one does not.
 
 Under Option 1 both of those would have had to be runtime rules on a tree the editor still offers in
@@ -84,11 +83,23 @@ affected today; after a release this rename would need a migration.
 `DeviceNode.TypeOf` and the manifest's device nodes are the same set, and nothing enforces that but
 a test. Adding a fifth device node means adding an arm there too.
 
-The runtime guard behind the `LREAL` split had to go somewhere unobvious: `DeviceNode.CanBeAdded`,
-not on the container it is about. Two node ids share the container's `MappingId`, so its own
-`LinkedNode` cannot say which of the two it came from, and its `ParentConfigurationNode` is still
-unset while the engine attaches its data points. A container is offered to the device node only once
-it holds its tags, which is the first moment the generation and the tags are in the same place.
+The two tag containers carry **two** `MappingId`s rather than sharing one, which is a deviation from
+the `Plc1200`/`Plc1500` pattern S7 uses for the same situation. It is what puts the generation on the
+mapped `ControllerTagsNode`, so the container can gate its own children in `CanBeAdded`.
+
+Sharing one `MappingId` was tried first and does not work. A `LinkedNode` carries the `MappingId` as
+its `DesignId` and nothing else that identifies the manifest node, so a shared id leaves the container
+unable to tell which of the two it came from. Reaching upward instead is no better: the engine
+completes a container — maps it, attaches its data points — before it attaches the container to
+anything, so `ParentConfigurationNode` is still null while `CanBeAdded` runs. Both were established by
+probe, not by reading.
+
+The cost is a second mapper class. One mapper could claim both ids by overriding `IsTargetMapperFor`,
+and that works at run time, but the YAML consistency test resolves a node's mapper by
+`TargetLinkedNodeTypeId` alone and reports the second node as unmapped. So
+`ControllerTagsNodeMapper` is an abstract base carrying the generation, with a four-line subclass per
+node type. `ControllerTagsNode.Generation` is the one branch-node member that is not a declared
+property, and it is excluded in `LogixYamlConsistencyTests` for that reason.
 
 ### Enforcement
 
@@ -96,6 +107,12 @@ The YAML consistency test holds the manifest and the node model to each other. B
 is a code-review check on `DeviceNode`: a new device node type is a manifest node **and** an arm in
 `TypeOf`, and anything the family or generation decides is read off the `DeviceNode`, never
 configured a second time as a property.
+
+Two node types carrying the generation means a configuration can disagree with itself, and the
+container is the half that is believed: it gates its tags on its own node type without ever seeing
+the device. `DeviceNode.CanBeAdded(IConfigurationNode)` is where the two meet, so it refuses a
+container whose generation is not the device's — the pairing is not one the editor can build, which
+is exactly what is already true of the `LREAL` the container turns away.
 
 ## Pros and Cons of the Options
 

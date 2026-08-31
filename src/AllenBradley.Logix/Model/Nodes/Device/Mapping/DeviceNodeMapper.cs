@@ -2,7 +2,6 @@ using FluentValidation.Results;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping.Properties;
 using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
