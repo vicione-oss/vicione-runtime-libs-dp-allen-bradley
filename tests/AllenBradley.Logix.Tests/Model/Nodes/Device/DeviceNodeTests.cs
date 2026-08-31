@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
@@ -7,9 +8,9 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device;
 
 /// <summary>
-/// The gate a controller-scope container passes through on its way onto the device. A container's node
-/// type is what the tags below it are held to, so a container of the wrong generation would hand them
-/// the wrong answer — and this is the only place the two are visible at once.
+/// The gate a scope container passes through on its way onto the device. A container's node type is what
+/// the tags below it are held to, so a container of the wrong generation would hand them the wrong
+/// answer — and this is the only place the two are visible at once.
 /// </summary>
 /// <remarks>
 /// Driven through the whole <see cref="TypedLogixNodeMapper"/>, because the engine's dispatch is what
@@ -85,6 +86,61 @@ public sealed class DeviceNodeTests
         // Assert
         deviceNode.ConfigurationNodes.Should().ContainSingle()
             .Which.Should().BeOfType<ControllerTagsNode>()
+            .Which.Generation.Should().Be(deviceNode.Generation);
+    }
+
+    /// <remarks>
+    /// A program container is held to the same pairing, and for the same reason: it is what an
+    /// <c>LREAL</c> under a program is gated by, so a 5x80 one on a 5x70 device would open exactly the
+    /// hole the container's own guard is there to close.
+    /// </remarks>
+    [Theory]
+    [InlineData(
+        DeviceNode.ControlLogix5x70DesignId,
+        ProgramTagsNode.Logix5x80LinkedNodeTypeId,
+        "A 'ProgramTags5x80' container cannot hang off a 'DeviceControlLogix5x70' device.")]
+    [InlineData(
+        DeviceNode.ControlLogix5x80DesignId,
+        ProgramTagsNode.Logix5x70LinkedNodeTypeId,
+        "A 'ProgramTags5x70' container cannot hang off a 'DeviceControlLogix5x80' device.")]
+    public void MapToTypedNodes_WithAProgramContainerOfAnotherGeneration_RefusesThePairing(
+        string deviceDesignId, string containerDesignId, string expectedMessage)
+    {
+        // Arrange
+        var communication = CreateCommunicationOf(
+            [CreateProgramTagsNode("MainProgram", containerDesignId: containerDesignId)],
+            deviceDesignId);
+
+        // Act
+        var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+
+        // Assert
+        mapping.Should().Throw<InvalidConfigurationException>().WithMessage(expectedMessage);
+    }
+
+    /// <remarks>
+    /// The guard must not cost a program container of the matching generation anything — that pairing is
+    /// the only one the editor can build.
+    /// </remarks>
+    [Theory]
+    [InlineData(DeviceNode.ControlLogix5x70DesignId)]
+    [InlineData(DeviceNode.ControlLogix5x80DesignId)]
+    [InlineData(DeviceNode.CompactLogix5x70DesignId)]
+    [InlineData(DeviceNode.CompactLogix5x80DesignId)]
+    public void MapToTypedNodes_WithAProgramContainerOfItsOwnGeneration_AttachesIt(string deviceDesignId)
+    {
+        // Arrange
+        var communication = CreateCommunicationOf(
+            [CreateProgramTagsNode(
+                "MainProgram", containerDesignId: ProgramTagsDesignIdFor(deviceDesignId))],
+            deviceDesignId);
+
+        // Act
+        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+
+        // Assert
+        deviceNode.ConfigurationNodes.Should().ContainSingle()
+            .Which.Should().BeOfType<ProgramTagsNode>()
             .Which.Generation.Should().Be(deviceNode.Generation);
     }
 }
