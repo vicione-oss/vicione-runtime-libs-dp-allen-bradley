@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Mapping;
@@ -57,6 +58,26 @@ public sealed class DeviceNodeMapperTests
 
         // Assert
         deviceNode.Generation.Should().Be(generation);
+    }
+
+    /// <remarks>
+    /// The switch in <see cref="DeviceNode.TypeOf"/> and the manifest's device nodes are the same set,
+    /// and this is what says so out loud. A design id with no arm has no family and no generation, so
+    /// there is nothing to fall back on and nothing worth guessing — Micro800 is tag-based like a Logix
+    /// and would map to a tree it does not have.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForADeviceNodeTypeTheAddonDoesNotHave_NamesTheDesignId()
+    {
+        // Arrange
+        var communication = CreateCommunication() with { DesignId = "DeviceMicro800" };
+
+        // Act
+        var mapping = () => _mapper.CreateRootNode(communication);
+
+        // Assert
+        mapping.Should().Throw<InvalidConfigurationException>()
+            .WithMessage("Unknown device design id: 'DeviceMicro800'.");
     }
 
     /// <remarks>
