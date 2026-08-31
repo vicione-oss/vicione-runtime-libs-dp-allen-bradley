@@ -29,15 +29,12 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
     public ValidationResult Validate(LogixCommunication communication) => _validator.Validate(communication);
 
     /// <summary>
-    /// Reads the family off the node type the device was configured under. The manifest and this switch
-    /// are the same set: a design id with no arm here is a node the addon does not have.
+    /// Reads the family off the node type the device was configured under. A design id the addon does
+    /// not declare gets no further than here.
     /// </summary>
-    private static LogixControllerFamily ToControllerFamily(string designId) => designId switch
-    {
-        DeviceNode.ControlLogix5x70DesignId => LogixControllerFamily.ControlLogix,
-        DeviceNode.CompactLogix5x70DesignId => LogixControllerFamily.CompactLogix,
-        _ => throw new InvalidConfigurationException($"Unknown device design id: '{designId}'."),
-    };
+    private static LogixControllerFamily ToControllerFamily(string designId) =>
+        DeviceNode.ControllerFamilyOf(designId)
+        ?? throw new InvalidConfigurationException($"Unknown device design id: '{designId}'.");
 
     private static LogixClientInformation ToClientInformation(
         LogixCommunication communication, LogixControllerFamily family) =>

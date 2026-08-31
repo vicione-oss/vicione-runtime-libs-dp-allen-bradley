@@ -41,16 +41,61 @@ public sealed class LogixCommunicationValidatorTests
         result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.Gateway));
     }
 
+    /// <remarks>
+    /// A 1756 chassis puts the CPU wherever whoever built it put the CPU, so there is nothing to fall
+    /// back on: the message has to say what the property wants rather than offer a guess.
+    /// </remarks>
     [Fact]
-    public void Validate_WithoutAPath_Fails()
+    public void Validate_ForAControlLogixWithoutAPath_SaysWhatAPathIs()
+    {
+        // Arrange
+        var communication = CreateCommunication() with
+        {
+            DesignId = DeviceNode.ControlLogix5x70DesignId,
+            Path = null,
+        };
+
+        // Act
+        var result = _validator.Validate(communication);
+
+        // Assert
+        result.Errors.Should().ContainSingle()
+            .Which.ErrorMessage.Should().Be("Path must be a CIP routing path to the CPU, e.g. \"1,0\".");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void Validate_ForAControlLogixWithABlankPath_Fails(string path)
     {
         // Arrange
 
         // Act
-        var result = Validate(static communication => communication with { Path = "" });
+        var result = Validate(communication => communication with { Path = path });
 
         // Assert
         result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.Path));
+    }
+
+    /// <remarks>
+    /// The CompactLogix node declares no <c>Path</c>, so holding its configuration to one would reject
+    /// every device an integrator could actually configure under it.
+    /// </remarks>
+    [Fact]
+    public void Validate_ForACompactLogixWithoutAPath_Passes()
+    {
+        // Arrange
+        var communication = CreateCommunication() with
+        {
+            DesignId = DeviceNode.CompactLogix5x70DesignId,
+            Path = null,
+        };
+
+        // Act
+        var result = _validator.Validate(communication);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
     }
 
     /// <remarks>

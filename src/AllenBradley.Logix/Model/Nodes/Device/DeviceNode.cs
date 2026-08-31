@@ -29,6 +29,23 @@ public sealed record DeviceNode(
     /// <summary>The manifest's node id for a CompactLogix 1769/5370 on a DIN rail.</summary>
     public const string CompactLogix5x70DesignId = "DeviceCompactLogix5x70";
 
+    /// <summary>
+    /// The family the device node type <paramref name="designId"/> stands for, or <c>null</c> for a node
+    /// type this addon does not declare.
+    /// </summary>
+    /// <remarks>
+    /// Null rather than a throw, because the two callers want different things from an id they do not
+    /// know: <see cref="Mapping.DeviceNodeMapper"/> turns it into a configuration error, and
+    /// <see cref="Mapping.LogixCommunicationValidator"/> has no family rule to hold it to. This switch
+    /// and the manifest's device nodes are the same set.
+    /// </remarks>
+    public static LogixControllerFamily? ControllerFamilyOf(string designId) => designId switch
+    {
+        ControlLogix5x70DesignId => LogixControllerFamily.ControlLogix,
+        CompactLogix5x70DesignId => LogixControllerFamily.CompactLogix,
+        _ => null,
+    };
+
     /// <inheritdoc />
     public IConfigurationNode? ParentConfigurationNode
     {
