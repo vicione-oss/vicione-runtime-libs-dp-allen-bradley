@@ -298,20 +298,41 @@ Properties:
   # The only one there is, and it reaches an address: every tag under the container carrying it
   # is read and written as Program:<this>.<TagName>. Controller scope declares nothing here,
   # because a controller-scope tag's own name is its full address.
+  #
+  # The two rules below are the editor's half of LogixIdentifier.IsWellFormed, which decides the
+  # same names again at mapping time — a program name and a tag name are one rule, so they share
+  # one anchor here as they share one class there. It takes two rules because the C# pattern
+  # carries its length bound in a lookahead, and a manifest pattern is compiled
+  # RegexOptions.NonBacktracking, where there are none. \A and \z rather than ^ and $: in .NET
+  # $ also matches before a trailing newline, which would let "Count\n" through.
   - Id: ProgramName
     Name: "Program name"
     Description: "Name of the program as it appears in Studio 5000. Tags below it address as \"Program:MainProgram.Count\"."
     DataType: String
     UiControl: TextBox
     DefaultValue: "MainProgram"
+    Validations: &logix-identifier-validations
+      - Type: Regex
+        Pattern: '\A[A-Za-z_](_?[A-Za-z0-9])*\z'
+        Message: "Must start with a letter or an underscore, then letters, digits and single underscores — no two underscores in a row, and none at the end."
+      - Type: Regex
+        Pattern: '\A.{1,40}\z'
+        Message: "Must be 1 to 40 characters long."
 
   # ---- Connection Properties ----
+  # Both carry the non-empty rule LogixCommunicationValidator holds them to, and no more: neither
+  # a host name nor a CIP route has a shape this file could decide. A route is not always digits
+  # and commas — a hop into another chassis carries the IP of the interface it goes through.
   - Id: ConnectionEndpoint
     Name: "Connection endpoint"
     Description: "IP address or host name of the controller's EtherNet/IP interface"
     DataType: String
     UiControl: TextBox
     DefaultValue: ""
+    Validations:
+      - Type: Regex
+        Pattern: '\A\S+\z'
+        Message: "Connection endpoint must be the IP address or host name of the controller."
 
   # Two fields here and one string on the wire: libplctag has no port attribute and splits "host:port"
   # apart in its native core, so LogixClientInformation.GatewayAttribute joins them back up. Asking for
@@ -325,12 +346,18 @@ Properties:
     DefaultValue: 44818
     MinValue: 1
 
+  # The C# rule is conditional and this one is not, and they still say the same thing: a
+  # CompactLogix never reaches this property, because its device nodes do not reference it.
   - Id: CipRoutePath
     Name: "CIP route path"
     Description: "CIP route path from the EtherNet/IP interface to the CPU, one hop per port and address, e.g. \"1,0\" for backplane slot 0"
     DataType: String
     UiControl: TextBox
     DefaultValue: "1,0"
+    Validations:
+      - Type: Regex
+        Pattern: '\A\S+\z'
+        Message: "CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\"."
 
   - Id: OperationTimeout
     Name: "Operation Timeout (ms)"
@@ -358,14 +385,21 @@ Properties:
     UiControl: NumericListBox
     DefaultValue: 0
     Elements: { 0: 'Drop Oldest', 1: 'Drop Newest' }
+    # The bounds are the Enum.IsDefined check LogixCommunicationValidator makes, written the way a
+    # manifest can write it: QueueStrategy has these two members and no others.
+    MinValue: 0
+    MaxValue: 1
 
   # ---- TagAddress Properties ----
+  # The bare name, never an address: scope is composed by the tree walk, so the name rule here is
+  # the program container's rule unchanged.
   - Id: TagName
     Name: "Tag name"
     Description: "Studio 5000 tag name (e.g. \"MotorSpeed\")"
     DataType: String
     UiControl: TextBox
     DefaultValue: ""
+    Validations: *logix-identifier-validations
 
   # ---- TagDeclaration Properties ----
   - Id: MaxLength
