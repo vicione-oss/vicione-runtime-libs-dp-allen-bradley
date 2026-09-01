@@ -107,7 +107,8 @@ public sealed class DeviceNodeMapperTests
         // Arrange
         var communication = CreateCommunication() with
         {
-            Gateway = "192.168.1.10",
+            ConnectionEndpoint = "192.168.1.10",
+            TcpPort = 44819,
             CipRoutePath = "1,2",
             OperationTimeout = 750,
         };
@@ -116,7 +117,8 @@ public sealed class DeviceNodeMapperTests
         var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
 
         // Assert
-        clientInformation.Gateway.Value.Should().Be("192.168.1.10");
+        clientInformation.ConnectionEndpoint.Value.Should().Be("192.168.1.10");
+        clientInformation.TcpPort.Value.Should().Be(44819);
         clientInformation.CipRoutePath.Value.Should().Be("1,2");
         clientInformation.OperationTimeout.Value.Should().Be(TimeSpan.FromMilliseconds(750));
     }
@@ -177,24 +179,59 @@ public sealed class DeviceNodeMapperTests
     }
 
     [Fact]
-    public void CreateRootNode_ForADifferentGateway_ProducesDifferentClientInformation()
+    public void CreateRootNode_ForADifferentConnectionEndpoint_ProducesDifferentClientInformation()
     {
         // Arrange
         var communication = CreateCommunication();
 
         // Act
         var first = _mapper.CreateRootNode(communication).ClientInformation;
-        var second = _mapper.CreateRootNode(communication with { Gateway = "10.0.0.2" }).ClientInformation;
+        var second = _mapper.CreateRootNode(communication with { ConnectionEndpoint = "10.0.0.2" }).ClientInformation;
 
         // Assert
         first.Should().NotBe(second);
+    }
+
+    /// <remarks>
+    /// One address on two ports is two controllers as far as a session is concerned, so the port has to
+    /// be part of the pool's key rather than a detail the attribute string picks up later.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForADifferentTcpPort_ProducesDifferentClientInformation()
+    {
+        // Arrange
+        var communication = CreateCommunication();
+
+        // Act
+        var first = _mapper.CreateRootNode(communication).ClientInformation;
+        var second = _mapper.CreateRootNode(communication with { TcpPort = 44819 }).ClientInformation;
+
+        // Assert
+        first.Should().NotBe(second);
+    }
+
+    /// <remarks>
+    /// The manifest defaults the property, so a configuration that never mentions a port still has to
+    /// arrive at the registered one rather than at 0.
+    /// </remarks>
+    [Fact]
+    public void CreateRootNode_ForAConfigurationThatNamesNoPort_ReachesTheControllerOn44818()
+    {
+        // Arrange
+        var communication = CreateCommunication();
+
+        // Act
+        var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
+
+        // Assert
+        clientInformation.TcpPort.Should().Be(TcpPort.EtherNetIp);
     }
 
     [Fact]
     public void Validate_DelegatesToTheCommunicationValidator()
     {
         // Arrange
-        var communication = CreateCommunication() with { Gateway = "" };
+        var communication = CreateCommunication() with { ConnectionEndpoint = "" };
 
         // Act
         var result = _mapper.Validate(communication);

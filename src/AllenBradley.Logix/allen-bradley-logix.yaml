@@ -43,8 +43,9 @@ Nodes:
     PropertyCategories: &controllogix-device-properties
       - Id: Connection
         Properties:
-          - Id: Gateway
+          - Id: ConnectionEndpoint
             Required: true
+          - Id: TcpPort
           - Id: CipRoutePath
             Required: true
           - Id: OperationTimeout
@@ -82,8 +83,9 @@ Nodes:
     PropertyCategories: &compactlogix-device-properties
       - Id: Connection
         Properties:
-          - Id: Gateway
+          - Id: ConnectionEndpoint
             Required: true
+          - Id: TcpPort
           - Id: OperationTimeout
       - Id: QueueConfiguration
         Properties: *queue-properties
@@ -304,12 +306,24 @@ Properties:
     DefaultValue: "MainProgram"
 
   # ---- Connection Properties ----
-  - Id: Gateway
-    Name: "Gateway"
+  - Id: ConnectionEndpoint
+    Name: "Connection endpoint"
     Description: "IP address or host name of the controller's EtherNet/IP interface"
     DataType: String
     UiControl: TextBox
     DefaultValue: ""
+
+  # Two fields here and one string on the wire: libplctag has no port attribute and splits "host:port"
+  # apart in its native core, so LogixClientInformation.GatewayAttribute joins them back up. Asking for
+  # an address with a colon in it would push that parsing onto the integrator
+  # (docs/AllenBradley.Documentation/libPlcTag/the-port-in-the-gateway-attribute.md).
+  - Id: TcpPort
+    Name: "TCP port"
+    Description: "TCP port the controller's EtherNet/IP interface listens on. 44818 is the registered one; change it only for a NAT rule or a tunnel that moved it"
+    DataType: UInt16
+    UiControl: NumericUpDown
+    DefaultValue: 44818
+    MinValue: 1
 
   - Id: CipRoutePath
     Name: "CIP route path"

@@ -18,15 +18,44 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 /// configured under different node types.
 /// </para>
 /// </remarks>
-/// <param name="Gateway">Controller IP address or host name.</param>
-/// <param name="CipRoutePath">CIP route path to the CPU, e.g. <c>"1,0"</c>.</param>
+/// <param name="ConnectionEndpoint">Controller IP address or host name.</param>
+/// <param name="TcpPort">The TCP port that endpoint listens on, 44818 unless something moved it.</param>
+/// <param name="CipRoutePath">CIP route path from that endpoint to the CPU, e.g. <c>"1,0"</c>.</param>
 /// <param name="OperationTimeout">How long one tag read or write against this controller may take.</param>
 public sealed record LogixClientInformation(
-    Gateway Gateway,
+    ConnectionEndpoint ConnectionEndpoint,
+    TcpPort TcpPort,
     CipRoutePath CipRoutePath,
-    OperationTimeout OperationTimeout) : IClientInformation;
+    OperationTimeout OperationTimeout) : IClientInformation
+{
+    /// <summary>
+    /// Endpoint and port joined the way libplctag's <c>gateway</c> attribute wants them,
+    /// <c>"10.0.0.1:44818"</c>. It has no port attribute of its own and splits the colon out in the
+    /// native core, so this is the one place the two are a single string
+    /// (<c>docs/AllenBradley.Documentation/libPlcTag/the-port-in-the-gateway-attribute.md</c>).
+    /// </summary>
+    public string GatewayAttribute => $"{ConnectionEndpoint.Value}:{TcpPort.Value}";
+}
 
-public readonly record struct Gateway(string Value);
+/// <summary>
+/// Where an EtherNet/IP session is opened: the IP address or host name of the controller, or of the
+/// bridge in front of it. The port it answers on is <see cref="Device.TcpPort"/>, kept apart from the
+/// address here and joined only for libplctag.
+/// </summary>
+public readonly record struct ConnectionEndpoint(string Value);
+
+/// <summary>
+/// The TCP port the EtherNet/IP session is opened on. Nothing to do with a CIP port, which is a hop in
+/// a route path.
+/// </summary>
+public readonly record struct TcpPort(ushort Value)
+{
+    /// <summary>
+    /// The port ODVA registered for EtherNet/IP, and the one a controller answers on unless something
+    /// between it and us — a NAT rule, a tunnel — moved it.
+    /// </summary>
+    public static TcpPort EtherNetIp => new(44818);
+}
 
 public readonly record struct CipRoutePath(string Value)
 {

@@ -14,8 +14,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag
 /// shared one and a shared access takes one operation at a time.
 /// </remarks>
 /// <param name="clientInformation">
-/// Gateway, CIP route path and per-operation timeout — everything the attribute string needs, carried by
-/// the same value the pool keys the connection under.
+/// Connection endpoint, TCP port, CIP route path and per-operation timeout — everything the attribute
+/// string needs, carried by the same value the pool keys the connection under.
 /// </param>
 internal sealed class LogixTagAccessFactory(LogixClientInformation clientInformation) : ILogixTagAccessFactory
 {
@@ -25,7 +25,9 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     /// </summary>
     private const PlcType LogixPlcType = PlcType.ControlLogix;
 
-    private readonly string _gateway = clientInformation.Gateway.Value;
+    // Endpoint and port go onto the handle as one "host:port" string, because that is the only shape
+    // libplctag's gateway attribute has. LogixClientInformation composes it.
+    private readonly string _gateway = clientInformation.GatewayAttribute;
     private readonly string _cipRoutePath = clientInformation.CipRoutePath.Value;
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 

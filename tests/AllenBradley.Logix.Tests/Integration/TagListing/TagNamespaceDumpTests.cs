@@ -15,7 +15,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing
 [Collection(PlcCollection.Name)]
 public class TagNamespaceDumpTests
 {
-    private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
+    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
     private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
     private static readonly string DumpPath = Environment.GetEnvironmentVariable("CIP_DUMP_PATH") ?? "tag-namespace-dump.txt";
 
@@ -34,7 +34,7 @@ public class TagNamespaceDumpTests
         // Arrange
 
         // Act
-        var listing = new PlcTagLister(Gateway, CipRoutePath, Timeout).List();
+        var listing = new PlcTagLister(ConnectionEndpoint, CipRoutePath, Timeout).List();
 
         // Assert
         var report = Render(listing);
@@ -50,7 +50,7 @@ public class TagNamespaceDumpTests
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"Gateway {Gateway}  CIP route path {CipRoutePath}");
+        sb.AppendLine($"ConnectionEndpoint {ConnectionEndpoint}  CIP route path {CipRoutePath}");
         sb.AppendLine();
 
         sb.AppendLine("Controller tags");

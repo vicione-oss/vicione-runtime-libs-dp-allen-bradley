@@ -35,7 +35,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 [Collection(PlcCollection.Name)]
 public abstract class LogixIntegrationTestBase : IAsyncLifetime
 {
-    private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
+    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
     private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
@@ -45,7 +45,8 @@ public abstract class LogixIntegrationTestBase : IAsyncLifetime
     protected LogixIntegrationTestBase()
     {
         var clientInformation = new LogixClientInformation(
-            new Gateway(Gateway),
+            new ConnectionEndpoint(ConnectionEndpoint),
+            TcpPort.EtherNetIp,
             new CipRoutePath(CipRoutePath),
             new OperationTimeout(Timeout));
 

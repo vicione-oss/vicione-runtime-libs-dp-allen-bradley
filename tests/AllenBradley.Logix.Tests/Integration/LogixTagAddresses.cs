@@ -7,7 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// </summary>
 /// <remarks>
 /// These are constants, not environment variables, because they name what is *on* the device — which
-/// gateway reaches it is environment, and that stays overridable in
+/// connection endpoint reaches it is environment, and that stays overridable in
 /// <see cref="LogixIntegrationTestBase"/>.
 /// </remarks>
 internal static class LogixTagAddresses

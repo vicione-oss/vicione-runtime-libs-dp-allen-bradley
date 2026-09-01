@@ -41,7 +41,8 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
     private static LogixClientInformation ToClientInformation(
         LogixCommunication communication, LogixControllerFamily family) =>
         new(
-            new Gateway(communication.Gateway),
+            new ConnectionEndpoint(communication.ConnectionEndpoint),
+            new TcpPort(communication.TcpPort),
             ToCipRoutePath(communication, family),
             new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
 

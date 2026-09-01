@@ -1,9 +1,9 @@
 # Modelling conventions: the types we define
 
 **Every domain type we introduce is a `readonly record struct` or an `enum`. Never a bare
-primitive.** A gateway is not a `string`, and a CIP type code is not a `byte`. Give each domain
-concept its own named type, and the compiler will stop you passing a route path where a gateway was
-meant, or a raw `ushort` where a decoded symbol type belongs.
+primitive.** A connection endpoint is not a `string`, and a CIP type code is not a `byte`. Give each
+domain concept its own named type, and the compiler will stop you passing a route path where a
+connection endpoint was meant, or a raw `ushort` where a decoded symbol type belongs.
 
 This rule governs the types **we** define to carry domain data across our own boundaries. It does not
 reach the primitives we borrow from the wire, from libplctag, or from
@@ -17,11 +17,11 @@ identity you mutate over time. A `readonly record struct` matches that shape exa
 value equality, no heap allocation, and immutability the compiler enforces.
 
 Wrap a single primitive in a one-field record struct rather than passing it raw. The tree already
-does this with `Gateway` and `CipRoutePath` in
+does this with `ConnectionEndpoint` and `CipRoutePath` in
 [`Model/DataPort/Device/LogixClientInformation.cs`](../../src/AllenBradley.Logix/Model/DataPort/Device/LogixClientInformation.cs):
 
 ```csharp
-public readonly record struct Gateway(string Value);
+public readonly record struct ConnectionEndpoint(string Value);
 
 public readonly record struct CipRoutePath(string Value);
 ```
@@ -36,8 +36,8 @@ House rules for these types:
 - **`readonly` always.** A mutable struct is a footgun. The record is a snapshot, not a variable.
 - **Positional for pure carriers.** Prefer `record struct Foo(Bar Bar, Baz Baz)` and document each
   parameter with `<param>` XML doc, as `LogixClientInformation` does.
-- **Name the concept, not the primitive.** `Gateway`, not `GatewayString`. The type already says it
-  is a value.
+- **Name the concept, not the primitive.** `ConnectionEndpoint`, not `ConnectionEndpointString`. The
+  type already says it is a value.
 
 ## Closed sets: `enum`
 
@@ -66,7 +66,8 @@ the tree qualify.
   substituted through the interface. So do the value records they nest.
 - **Types that must satisfy a base contract from the extensions package.** `LogixClientInformation`
   is a `sealed record` because it implements `IClientInformation` and is used as a cache key by
-  reference. Its *fields* are still `Gateway` and `CipRoutePath` record structs, not raw strings.
+  reference. Its *fields* are still `ConnectionEndpoint` and `CipRoutePath` record structs, not raw
+  strings.
 
 Reach for this deliberately, and prefer `sealed record` over `sealed class` so you keep value
 equality. If you are only wrapping data, you almost certainly want a struct.

@@ -6,7 +6,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 
 /// <summary>
 /// Rejects a device configuration the client stack could not be built from, before anything opens a
-/// socket. It checks only what is decidable here — a controller that answers at the gateway and CIP route
+/// socket. It checks only what is decidable here — a controller that answers at the connection endpoint and CIP route
 /// path is the connect's business, not this class's.
 /// </summary>
 /// <remarks>
@@ -19,15 +19,19 @@ public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommuni
 {
     public LogixCommunicationValidator()
     {
-        RuleFor(static communication => communication.Gateway)
+        RuleFor(static communication => communication.ConnectionEndpoint)
             .NotEmpty()
-            .WithMessage("Gateway must be the IP address or host name of the controller.");
+            .WithMessage("Connection endpoint must be the IP address or host name of the controller.");
 
         RuleFor(static communication => communication.CipRoutePath)
             .NotEmpty()
             .When(static communication =>
                 DeviceNode.TypeOf(communication.DesignId)?.Family is LogixControllerFamily.ControlLogix)
             .WithMessage("CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\".");
+
+        RuleFor(static communication => communication.TcpPort)
+            .GreaterThan((ushort)0)
+            .WithMessage("TCP port must be at least 1.");
 
         RuleFor(static communication => communication.OperationTimeout)
             .GreaterThanOrEqualTo(100)

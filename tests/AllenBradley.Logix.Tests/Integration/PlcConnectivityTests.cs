@@ -21,7 +21,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 public class PlcConnectivityTests
 {
     // ── Connection configuration ──────────────────────────────────────────────
-    private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
+    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
     private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
     private static readonly string TagName = Environment.GetEnvironmentVariable("CIP_TAG_NAME") ?? "Program:MainProgram.strValue1";
 
@@ -34,7 +34,7 @@ public class PlcConnectivityTests
         // Arrange
         using var tag = new Tag();
         tag.Name = TagName;
-        tag.Gateway = Gateway;
+        tag.Gateway = ConnectionEndpoint;
         tag.Path = CipRoutePath;
         tag.PlcType = PlcType.ControlLogix;
         tag.Protocol = Protocol.ab_eip;
@@ -59,7 +59,7 @@ public class PlcConnectivityTests
         // Arrange
         using var tag = new Tag();
         tag.Name = TagName;
-        tag.Gateway = Gateway;
+        tag.Gateway = ConnectionEndpoint;
         tag.Path = CipRoutePath;
         tag.PlcType = PlcType.ControlLogix;
         tag.Protocol = Protocol.ab_eip;

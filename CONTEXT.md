@@ -142,6 +142,18 @@ path names.
 One CIP request carrying several services, so many tag reads cross the network in a single
 round-trip. Abbreviated MSP.
 
+**Connection endpoint**:
+The device an EtherNet/IP session is opened against, identified by its IP address or host name. It
+may be the controller itself or a bridge in front of it, which is why it names a connection rather
+than a controller. Configured as `ConnectionEndpoint`, with the **TCP port** beside it.
+_Avoid_: gateway (libplctag's word), IP address alone
+
+**TCP port**:
+Which socket on the connection endpoint the session is opened on — 44818, the port ODVA registered
+for EtherNet/IP, unless a NAT rule or a tunnel moved it. A property of its own, `TcpPort`, joined to
+the endpoint as `host:port` only where libplctag is handed the pair.
+_Avoid_: port alone, which in this domain is a hop's port number
+
 **Route path**:
 How a request travels from the device that terminates the session to the controller, expressed as a
 sequence of hops. It describes hardware the network cannot see, which is why no IP address implies
@@ -312,5 +324,3 @@ Terms we still need and Rockwell does not supply, recorded so nobody invents a t
   instances per scope, but never names the set. Studio 5000 has two named collections — Controller
   Tags and Program Tags — not one. Candidates: symbol table, tag listing.
   Note `@tags` is libplctag's own token and has no standing here.
-- **The device whose IP address identifies a controller.** It may be the controller or a bridge in
-  front of it. Candidates: gateway (libplctag's word), EtherNet/IP interface.

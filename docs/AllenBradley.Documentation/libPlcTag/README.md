@@ -22,6 +22,7 @@ library hands back when a handle is used to **browse** the controller rather tha
 |----------|----------------|
 | **The shared session** | |
 | [the-shared-session.md](the-shared-session.md) | The one CIP session shared across every handle to a gateway/path/PLC, and request packing end to end: **whether** requests pack (`allow_packing` by PLC type), **when and how large** a pack gets (the self-clocking thread, no linger timer, throughput as a function of requests-in-flight), and **what you can steer** (exclude a tag or segregate a session, but never compose an exact bundle). It also covers why the reusable unit is the warm handle |
+| [the-port-in-the-gateway-attribute.md](the-port-in-the-gateway-attribute.md) | Why there is no port attribute: the gateway string carries `host:port`, split in the native core (`session_handler` and `conn_handler`), defaulting to 44818. Why we still model the port separately, and where the two are joined |
 | **The per-tag handle** | |
 | [concurrent-operations-on-a-handle.md](concurrent-operations-on-a-handle.md) | What happens when two operations overlap on one handle: the native `PLCTAG_ERR_BUSY` guard, the wrapper's LIFO completion mispairing, and the raw-buffer race below it |
 | [tag-disposal-and-shutdown.md](tag-disposal-and-shutdown.md) | Why every `Tag` must be disposed deterministically. Native handles finalized after CLR teardown fail-fast the process with `0xC0000602` |

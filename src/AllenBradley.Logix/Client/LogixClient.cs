@@ -37,7 +37,7 @@ internal sealed class LogixClient(
     LogixClientInformation clientInformation,
     ILogger<LogixClient> logger) : ILogixClient
 {
-    private readonly string _gateway = clientInformation.Gateway.Value;
+    private readonly string _connectionEndpoint = clientInformation.ConnectionEndpoint.Value;
     private readonly string _cipRoutePath = clientInformation.CipRoutePath.Value;
     private readonly Lock _gate = new();
 
@@ -67,17 +67,17 @@ internal sealed class LogixClient(
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (_connected)
             {
-                logger.AlreadyConnected(_gateway, _cipRoutePath);
+                logger.AlreadyConnected(_connectionEndpoint, _cipRoutePath);
                 return;
             }
         }
 
         try
         {
-            logger.LoadingTagDefinitions(_gateway, _cipRoutePath);
+            logger.LoadingTagDefinitions(_connectionEndpoint, _cipRoutePath);
             await tagManager.LoadTagDefinitionsAsync(cancellationToken).ConfigureAwait(false);
         }
-        // Every way a browse can fail — an unreachable gateway, a route path that goes nowhere, a
+        // Every way a browse can fail — an unreachable connection endpoint, a route path that goes nowhere, a
         // controller that will not answer @tags — means the same thing to the caller of a connect, so
         // they arrive as the one exception the framework expects from an acquire.
         //
@@ -85,9 +85,9 @@ internal sealed class LogixClient(
         // cancellation is the caller's own shutdown, and a client disposed mid-browse is a caller bug.
         catch (Exception ex) when (ex is not (OperationCanceledException or ObjectDisposedException))
         {
-            logger.ConnectFailed(ex, _gateway, _cipRoutePath);
+            logger.ConnectFailed(ex, _connectionEndpoint, _cipRoutePath);
             throw new ConnectionFailureException(
-                $"Could not connect to the Logix controller at '{_gateway}' via CIP route path '{_cipRoutePath}'.", ex);
+                $"Could not connect to the Logix controller at '{_connectionEndpoint}' via CIP route path '{_cipRoutePath}'.", ex);
         }
 
         lock (_gate)
@@ -95,7 +95,7 @@ internal sealed class LogixClient(
             _connected = true;
         }
 
-        logger.Connected(_gateway, _cipRoutePath);
+        logger.Connected(_connectionEndpoint, _cipRoutePath);
     }
 
     /// <inheritdoc />
@@ -110,7 +110,7 @@ internal sealed class LogixClient(
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (!_connected)
             {
-                logger.AlreadyDisconnected(_gateway, _cipRoutePath);
+                logger.AlreadyDisconnected(_connectionEndpoint, _cipRoutePath);
                 return Task.CompletedTask;
             }
 
@@ -118,7 +118,7 @@ internal sealed class LogixClient(
             _connected = false;
         }
 
-        logger.Disconnected(_gateway, _cipRoutePath);
+        logger.Disconnected(_connectionEndpoint, _cipRoutePath);
         return Task.CompletedTask;
     }
 
@@ -154,7 +154,7 @@ internal sealed class LogixClient(
             if (!_connected)
             {
                 throw new InvalidOperationException(
-                    $"The client for '{_gateway}' via CIP route path '{_cipRoutePath}' must be connected before its data " +
+                    $"The client for '{_connectionEndpoint}' via CIP route path '{_cipRoutePath}' must be connected before its data " +
                     "points can be resolved; connect is what browses the symbol table they resolve against.");
             }
         }

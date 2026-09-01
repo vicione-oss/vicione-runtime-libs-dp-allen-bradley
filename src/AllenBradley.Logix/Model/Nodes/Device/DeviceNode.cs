@@ -108,5 +108,5 @@ public sealed record DeviceNode(
 
     /// <inheritdoc />
     public DeviceIdentifier DeviceIdentifier =>
-        new($"{ClientInformation.Gateway.Value}/{ClientInformation.CipRoutePath.Value}");
+        new($"{ClientInformation.GatewayAttribute}/{ClientInformation.CipRoutePath.Value}");
 }

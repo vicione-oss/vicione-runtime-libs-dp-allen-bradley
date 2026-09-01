@@ -30,7 +30,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 [Collection(PlcCollection.Name)]
 public class SharedAccessConcurrencyTests
 {
-    private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
+    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
     private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     // A COUNTER's .PRE member is a stable DINT we can read and write without disturbing the program (see
@@ -203,11 +203,15 @@ public class SharedAccessConcurrencyTests
     }
 
     private static LogixClientInformation ClientInformation() =>
-        new(new Gateway(Gateway), new CipRoutePath(CipRoutePath), new OperationTimeout(Timeout));
+        new(
+            new ConnectionEndpoint(ConnectionEndpoint),
+            TcpPort.EtherNetIp,
+            new CipRoutePath(CipRoutePath),
+            new OperationTimeout(Timeout));
 
     private static Tag NewRawTag() => new()
     {
-        Gateway = Gateway,
+        Gateway = ConnectionEndpoint,
         Path = CipRoutePath,
         PlcType = PlcType.ControlLogix,
         Protocol = Protocol.ab_eip,

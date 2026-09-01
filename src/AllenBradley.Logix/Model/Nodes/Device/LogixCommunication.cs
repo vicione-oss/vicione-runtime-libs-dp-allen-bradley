@@ -18,7 +18,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 public sealed record LogixCommunication : DataPortCommunication
 {
     /// <summary>IP address or host name of the controller's EtherNet/IP interface.</summary>
-    public required string Gateway { get; init; }
+    public required string ConnectionEndpoint { get; init; }
+    /// <summary>
+    /// TCP port that interface listens on. Its own property rather than a suffix on the address, even
+    /// though libplctag takes the two as one <c>host:port</c> string —
+    /// <see cref="DataPort.Device.LogixClientInformation.GatewayAttribute"/> is where they are joined.
+    /// </summary>
+    public ushort TcpPort { get; init; } = 44818;
     /// <summary>
     /// CIP route path from that interface to the CPU, e.g. <c>"1,0"</c>. Absent on a CompactLogix,
     /// whose virtual backplane fixes it at

@@ -61,7 +61,7 @@ public sealed class OutgoingDataPortTests : IDisposable
         var clientInformation = outgoing.ClientInformation;
 
         // Assert
-        clientInformation.Gateway.Value.Should().Be(DefaultGateway);
+        clientInformation.ConnectionEndpoint.Value.Should().Be(DefaultConnectionEndpoint);
     }
 
     [Fact]

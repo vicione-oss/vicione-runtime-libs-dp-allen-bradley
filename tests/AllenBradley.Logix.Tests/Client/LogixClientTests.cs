@@ -316,7 +316,7 @@ public class LogixClientTests
     public async Task ConnectAsync_WhenTheBrowseFails_ThrowsConnectionFailureAndStaysDisconnected()
     {
         // Arrange
-        // A schema exception is what an unreachable gateway or a dead route path comes back as. The
+        // A schema exception is what an unreachable connection endpoint or a dead route path comes back as. The
         // framework's acquire contract is a single exception type, so it must not reach the caller raw.
         var tagManager = new FakeTagManager
         {

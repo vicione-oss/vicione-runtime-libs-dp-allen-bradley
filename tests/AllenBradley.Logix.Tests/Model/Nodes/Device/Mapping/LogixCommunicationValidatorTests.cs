@@ -8,8 +8,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Map
 
 /// <summary>
 /// What a device configuration has to satisfy before anything is built from it. The rules are the ones
-/// decidable without a controller: whether a gateway is there at all, whether a CIP route path is where
-/// the node type asks for one, and whether the numbers are in range.
+/// decidable without a controller: whether a connection endpoint is there at all, whether a CIP route path is where the node
+/// type asks for one, and whether the numbers are in range.
 /// </summary>
 public sealed class LogixCommunicationValidatorTests
 {
@@ -30,15 +30,31 @@ public sealed class LogixCommunicationValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Validate_WithoutAGateway_Fails(string gateway)
+    public void Validate_WithoutAGateway_Fails(string connectionEndpoint)
     {
         // Arrange
 
         // Act
-        var result = Validate(communication => communication with { Gateway = gateway });
+        var result = Validate(communication => communication with { ConnectionEndpoint = connectionEndpoint });
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.Gateway));
+        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.ConnectionEndpoint));
+    }
+
+    /// <remarks>
+    /// A <c>ushort</c> already bounds the port above, so 0 is the only value left to reject — and it is
+    /// the one a configuration written without the manifest's default would carry.
+    /// </remarks>
+    [Fact]
+    public void Validate_WithATcpPortOfZero_Fails()
+    {
+        // Arrange
+
+        // Act
+        var result = Validate(static communication => communication with { TcpPort = 0 });
+
+        // Assert
+        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.TcpPort));
     }
 
     /// <remarks>

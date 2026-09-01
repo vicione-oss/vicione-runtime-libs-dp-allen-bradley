@@ -27,7 +27,7 @@ internal static class LogixCommunicationTestDataFactory
     internal const string DeviceDesignId = DeviceNode.ControlLogix5x70DesignId;
 
     /// <summary>The controller every configuration the factory makes points at.</summary>
-    internal const string DefaultGateway = "10.0.0.1";
+    internal const string DefaultConnectionEndpoint = "10.0.0.1";
 
     /// <summary>
     /// The node id the factory's program container carries. A tag names it as its parent to be configured
@@ -163,7 +163,7 @@ internal static class LogixCommunicationTestDataFactory
         new()
         {
             DesignId = deviceDesignId,
-            Gateway = DefaultGateway,
+            ConnectionEndpoint = DefaultConnectionEndpoint,
             CipRoutePath = "1,0",
             MaxPendingMessages = 100_000,
             Strategy = (byte)QueueStrategy.DropOldest,
@@ -192,7 +192,7 @@ internal static class LogixCommunicationTestDataFactory
         new()
         {
             DesignId = deviceDesignId,
-            Gateway = DefaultGateway,
+            ConnectionEndpoint = DefaultConnectionEndpoint,
             CipRoutePath = "1,0",
             MaxPendingMessages = maxPendingMessages,
             Strategy = (byte)strategy,
