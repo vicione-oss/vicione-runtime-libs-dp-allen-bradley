@@ -45,9 +45,27 @@ and spelled.
 _Avoid_: RSLogix 5000 (its name before v21 — still what many engineers say, but the two are the
 same tool)
 
+**Project**:
+Everything one controller runs, authored offline as a single `.ACD` file and downloaded whole. One
+project per controller: a download replaces what was there, so two cannot be combined in a
+controller, only merged offline through `.L5X` export and import.
+_Avoid_: solution, workspace, application (Micro800's word for its own project, so it belongs to the
+Legacy world)
+
+**Task**:
+The scheduling unit of a project — continuous, periodic or event — holding an ordered list of the
+programs it runs. It holds no tags, and its name is part of no address.
+_Avoid_: thread, cycle, OB (the S7 word)
+
 **Program**:
-A container of routines with a tag scope of its own. A controller runs many; they do not nest for
-addressing purposes.
+A container of routines with a tag scope of its own, scheduled by exactly one task. A controller runs
+many; they do not nest for addressing purposes.
+_Avoid_: task (what schedules a program — and the level above it in Studio 5000's tree, which is
+where the two get confused)
+
+**Routine**:
+One body of executable code inside a program, in ladder, structured text, function block or SFC. It
+declares no tags: a program's tags are shared by all of its routines.
 
 ### Controller hardware
 
@@ -171,6 +189,18 @@ _Avoid_: global scope
 A namespace private to one program. No other program can reach into it, and there is no aliasing
 across programs.
 _Avoid_: local scope
+
+**Local tag**:
+A program-scope tag that only its own program can reach — the ordinary kind, and everything a
+program held before parameters existed.
+_Avoid_: private tag, local variable
+
+**Program parameter**:
+A program-scope tag declared with a direction — Input, Output, InOut or Public — so that data can be
+connected to it from the controller scope or from another program. Available from Logix Designer
+v24; it lives in the same namespace as a local tag and is addressed the same way.
+_Avoid_: argument; routine parameter and Add-On Instruction parameter (both real Rockwell terms for
+other mechanisms, so say which parameter is meant)
 
 **Tag type**:
 What a tag _does_, as declared: base, alias, produced or consumed. This is Rockwell's "Type" in the
