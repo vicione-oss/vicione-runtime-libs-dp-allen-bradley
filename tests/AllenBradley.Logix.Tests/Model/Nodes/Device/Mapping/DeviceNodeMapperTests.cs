@@ -10,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Map
 /// The step where engine primitives become the <see cref="LogixClientInformation"/> the pool keys a
 /// connection under, and a mistake here is a port that talks to the wrong controller or gives up at the
 /// wrong time. The design id is the interesting input: it names the device node type, and the family it
-/// stands for decides where the path comes from without ever reaching the client information itself.
+/// stands for decides where the CIP route path comes from without ever reaching the client information itself.
 /// </summary>
 public sealed class DeviceNodeMapperTests
 {
@@ -81,24 +81,24 @@ public sealed class DeviceNodeMapperTests
     }
 
     /// <remarks>
-    /// The CompactLogix node has no <c>Path</c> to configure, so the mapper is the only thing that can
+    /// The CompactLogix node has no <c>CipRoutePath</c> to configure, so the mapper is the only thing that can
     /// supply one — and a DIN-rail controller's virtual backplane leaves it exactly one answer.
     /// </remarks>
     [Fact]
-    public void CreateRootNode_ForACompactLogixWithNoPath_ReachesItAtSlotZeroOfTheVirtualBackplane()
+    public void CreateRootNode_ForACompactLogixWithNoCipRoutePath_ReachesItAtSlotZeroOfTheVirtualBackplane()
     {
         // Arrange
         var communication = CreateCommunication() with
         {
             DesignId = DeviceNode.CompactLogix5x70DesignId,
-            Path = null,
+            CipRoutePath = null,
         };
 
         // Act
         var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
 
         // Assert
-        clientInformation.Path.Value.Should().Be("1,0");
+        clientInformation.CipRoutePath.Value.Should().Be("1,0");
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public sealed class DeviceNodeMapperTests
         var communication = CreateCommunication() with
         {
             Gateway = "192.168.1.10",
-            Path = "1,2",
+            CipRoutePath = "1,2",
             OperationTimeout = 750,
         };
 
@@ -117,7 +117,7 @@ public sealed class DeviceNodeMapperTests
 
         // Assert
         clientInformation.Gateway.Value.Should().Be("192.168.1.10");
-        clientInformation.Path.Value.Should().Be("1,2");
+        clientInformation.CipRoutePath.Value.Should().Be("1,2");
         clientInformation.OperationTimeout.Value.Should().Be(TimeSpan.FromMilliseconds(750));
     }
 

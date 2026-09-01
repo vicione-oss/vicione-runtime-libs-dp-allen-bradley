@@ -4,7 +4,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
@@ -37,7 +36,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 public abstract class LogixIntegrationTestBase : IAsyncLifetime
 {
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
 
@@ -47,7 +46,7 @@ public abstract class LogixIntegrationTestBase : IAsyncLifetime
     {
         var clientInformation = new LogixClientInformation(
             new Gateway(Gateway),
-            new Path(Path),
+            new CipRoutePath(CipRoutePath),
             new OperationTimeout(Timeout));
 
         var accessFactory = new LogixTagAccessFactory(clientInformation);

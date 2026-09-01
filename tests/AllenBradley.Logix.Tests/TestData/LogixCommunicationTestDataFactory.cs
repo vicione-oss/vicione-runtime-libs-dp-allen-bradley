@@ -164,7 +164,7 @@ internal static class LogixCommunicationTestDataFactory
         {
             DesignId = deviceDesignId,
             Gateway = DefaultGateway,
-            Path = "1,0",
+            CipRoutePath = "1,0",
             MaxPendingMessages = 100_000,
             Strategy = (byte)QueueStrategy.DropOldest,
             Nodes = nodes,
@@ -193,7 +193,7 @@ internal static class LogixCommunicationTestDataFactory
         {
             DesignId = deviceDesignId,
             Gateway = DefaultGateway,
-            Path = "1,0",
+            CipRoutePath = "1,0",
             MaxPendingMessages = maxPendingMessages,
             Strategy = (byte)strategy,
             Nodes = tagNodes is { Count: > 0 }

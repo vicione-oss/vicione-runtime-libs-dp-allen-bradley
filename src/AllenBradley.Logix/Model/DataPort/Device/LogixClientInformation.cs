@@ -19,23 +19,23 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 /// </para>
 /// </remarks>
 /// <param name="Gateway">Controller IP address or host name.</param>
-/// <param name="Path">CIP routing path to the CPU, e.g. <c>"1,0"</c>.</param>
+/// <param name="CipRoutePath">CIP route path to the CPU, e.g. <c>"1,0"</c>.</param>
 /// <param name="OperationTimeout">How long one tag read or write against this controller may take.</param>
 public sealed record LogixClientInformation(
     Gateway Gateway,
-    Path Path,
+    CipRoutePath CipRoutePath,
     OperationTimeout OperationTimeout) : IClientInformation;
 
 public readonly record struct Gateway(string Value);
 
-public readonly record struct Path(string Value)
+public readonly record struct CipRoutePath(string Value)
 {
     /// <summary>
-    /// The path to a controller that places itself on a virtual backplane: hop 1 is the backplane, and
-    /// slot 0 is where a DIN-rail controller always sits. Nothing about it is configurable, which is why
-    /// a CompactLogix node does not ask for a path at all.
+    /// The CIP route path to a controller that places itself on a virtual backplane: hop 1 is the backplane,
+    /// and slot 0 is where a DIN-rail controller always sits. Nothing about it is configurable, which is
+    /// why a CompactLogix node does not ask for a route path at all.
     /// </summary>
-    public static Path VirtualBackplane => new("1,0");
+    public static CipRoutePath VirtualBackplane => new("1,0");
 }
 
 /// <summary>

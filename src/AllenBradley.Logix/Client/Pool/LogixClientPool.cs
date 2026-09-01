@@ -79,7 +79,7 @@ internal sealed class LogixClientPool
     public async ValueTask<ILogixClient> AcquireConnectedAsync(
         LogixClientInformation clientInformation, CancellationToken cancellationToken)
     {
-        _logger.AcquiringClient(clientInformation.Gateway.Value, clientInformation.Path.Value);
+        _logger.AcquiringClient(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
 
         var entry = GetOrCreatePooledClient(clientInformation, cancellationToken);
 
@@ -102,7 +102,7 @@ internal sealed class LogixClientPool
             // A cancelled acquire is the caller walking away, not the controller failing.
             if (ex is not OperationCanceledException)
             {
-                _logger.AcquireClientFailed(ex, clientInformation.Gateway.Value, clientInformation.Path.Value);
+                _logger.AcquireClientFailed(ex, clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
             }
 
             await ReleaseReferenceAsync(entry, clientInformation).ConfigureAwait(false);
@@ -117,7 +117,7 @@ internal sealed class LogixClientPool
     public async ValueTask ReleaseAsync(
         LogixClientInformation clientInformation, CancellationToken cancellationToken)
     {
-        _logger.ReleasingClient(clientInformation.Gateway.Value, clientInformation.Path.Value);
+        _logger.ReleasingClient(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
 
         PooledClient? entry;
 
@@ -128,7 +128,7 @@ internal sealed class LogixClientPool
             entry = _pooledClients.GetValueOrDefault(clientInformation);
             if (entry is null)
             {
-                _logger.ClientNotFoundInPool(clientInformation.Gateway.Value, clientInformation.Path.Value);
+                _logger.ClientNotFoundInPool(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
                 return;
             }
         }
@@ -182,13 +182,13 @@ internal sealed class LogixClientPool
             {
                 existing.IncrementRefCount();
                 _logger.ReusingPooledClient(
-                    clientInformation.Gateway.Value, clientInformation.Path.Value, existing.RefCount);
+                    clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value, existing.RefCount);
                 return existing;
             }
 
             var entry = new PooledClient(_clientFactory.Create(clientInformation), cancellationToken);
             _pooledClients[clientInformation] = entry;
-            _logger.CreatedPooledClient(clientInformation.Gateway.Value, clientInformation.Path.Value);
+            _logger.CreatedPooledClient(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
             return entry;
         }
     }
@@ -207,7 +207,7 @@ internal sealed class LogixClientPool
         {
             if (!entry.DecrementRefCount())
             {
-                _logger.RefCountUnderflow(clientInformation.Gateway.Value, clientInformation.Path.Value);
+                _logger.RefCountUnderflow(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
             }
 
             // Removed by identity, not by key: this entry may already have been replaced by a later
@@ -218,7 +218,7 @@ internal sealed class LogixClientPool
             if (!tearDown)
             {
                 _logger.ClientReleased(
-                    clientInformation.Gateway.Value, clientInformation.Path.Value, entry.RefCount);
+                    clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value, entry.RefCount);
             }
         }
 
@@ -241,7 +241,7 @@ internal sealed class LogixClientPool
     private async ValueTask DisconnectAndDisposeAsync(
         ILogixClient client, LogixClientInformation clientInformation)
     {
-        _logger.DisconnectingPooledClient(clientInformation.Gateway.Value, clientInformation.Path.Value);
+        _logger.DisconnectingPooledClient(clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
         try
         {
             await client.DisconnectAsync(CancellationToken.None).ConfigureAwait(false);
@@ -249,7 +249,7 @@ internal sealed class LogixClientPool
         catch (Exception ex)
         {
             _logger.DisconnectPooledClientFailed(
-                ex, clientInformation.Gateway.Value, clientInformation.Path.Value);
+                ex, clientInformation.Gateway.Value, clientInformation.CipRoutePath.Value);
         }
         finally
         {

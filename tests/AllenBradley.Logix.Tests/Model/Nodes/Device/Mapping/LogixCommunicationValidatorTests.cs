@@ -8,8 +8,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Map
 
 /// <summary>
 /// What a device configuration has to satisfy before anything is built from it. The rules are the ones
-/// decidable without a controller: whether a gateway is there at all, whether a path is where the node
-/// type asks for one, and whether the numbers are in range.
+/// decidable without a controller: whether a gateway is there at all, whether a CIP route path is where
+/// the node type asks for one, and whether the numbers are in range.
 /// </summary>
 public sealed class LogixCommunicationValidatorTests
 {
@@ -46,13 +46,13 @@ public sealed class LogixCommunicationValidatorTests
     /// back on: the message has to say what the property wants rather than offer a guess.
     /// </remarks>
     [Fact]
-    public void Validate_ForAControlLogixWithoutAPath_SaysWhatAPathIs()
+    public void Validate_ForAControlLogixWithoutACipRoutePath_SaysWhatACipRoutePathIs()
     {
         // Arrange
         var communication = CreateCommunication() with
         {
             DesignId = DeviceNode.ControlLogix5x70DesignId,
-            Path = null,
+            CipRoutePath = null,
         };
 
         // Act
@@ -60,35 +60,35 @@ public sealed class LogixCommunicationValidatorTests
 
         // Assert
         result.Errors.Should().ContainSingle()
-            .Which.ErrorMessage.Should().Be("Path must be a CIP routing path to the CPU, e.g. \"1,0\".");
+            .Which.ErrorMessage.Should().Be("CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\".");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Validate_ForAControlLogixWithABlankPath_Fails(string path)
+    public void Validate_ForAControlLogixWithABlankCipRoutePath_Fails(string cipRoutePath)
     {
         // Arrange
 
         // Act
-        var result = Validate(communication => communication with { Path = path });
+        var result = Validate(communication => communication with { CipRoutePath = cipRoutePath });
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.Path));
+        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.CipRoutePath));
     }
 
     /// <remarks>
-    /// The CompactLogix node declares no <c>Path</c>, so holding its configuration to one would reject
+    /// The CompactLogix node declares no <c>CipRoutePath</c>, so holding its configuration to one would reject
     /// every device an integrator could actually configure under it.
     /// </remarks>
     [Fact]
-    public void Validate_ForACompactLogixWithoutAPath_Passes()
+    public void Validate_ForACompactLogixWithoutACipRoutePath_Passes()
     {
         // Arrange
         var communication = CreateCommunication() with
         {
             DesignId = DeviceNode.CompactLogix5x70DesignId,
-            Path = null,
+            CipRoutePath = null,
         };
 
         // Act

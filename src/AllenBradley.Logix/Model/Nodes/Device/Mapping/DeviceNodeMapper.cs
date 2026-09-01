@@ -2,7 +2,6 @@ using FluentValidation.Results;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
-using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 
@@ -43,15 +42,15 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
         LogixCommunication communication, LogixControllerFamily family) =>
         new(
             new Gateway(communication.Gateway),
-            ToPath(communication, family),
+            ToCipRoutePath(communication, family),
             new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
 
     /// <summary>
-    /// A CompactLogix is reached at slot 0 of its virtual backplane and its node never asks for a path.
-    /// A ControlLogix declares one, because its CPU sits wherever the chassis was built to put it.
+    /// A CompactLogix is reached at slot 0 of its virtual backplane and its node never asks for a route
+    /// path. A ControlLogix declares one, because its CPU sits wherever the chassis was built to put it.
     /// </summary>
-    private static Path ToPath(LogixCommunication communication, LogixControllerFamily family) =>
+    private static CipRoutePath ToCipRoutePath(LogixCommunication communication, LogixControllerFamily family) =>
         family is LogixControllerFamily.CompactLogix
-            ? Path.VirtualBackplane
-            : new Path(communication.Path ?? string.Empty);
+            ? CipRoutePath.VirtualBackplane
+            : new CipRoutePath(communication.CipRoutePath ?? string.Empty);
 }

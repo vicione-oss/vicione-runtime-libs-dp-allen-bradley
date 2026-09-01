@@ -14,8 +14,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag
 /// shared one and a shared access takes one operation at a time.
 /// </remarks>
 /// <param name="clientInformation">
-/// Gateway, path and per-operation timeout — everything the attribute string needs, carried by the same
-/// value the pool keys the connection under.
+/// Gateway, CIP route path and per-operation timeout — everything the attribute string needs, carried by
+/// the same value the pool keys the connection under.
 /// </param>
 internal sealed class LogixTagAccessFactory(LogixClientInformation clientInformation) : ILogixTagAccessFactory
 {
@@ -26,7 +26,7 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     private const PlcType LogixPlcType = PlcType.ControlLogix;
 
     private readonly string _gateway = clientInformation.Gateway.Value;
-    private readonly string _path = clientInformation.Path.Value;
+    private readonly string _cipRoutePath = clientInformation.CipRoutePath.Value;
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
@@ -42,7 +42,7 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
         var tag = new Tag
         {
             Gateway = _gateway,
-            Path = _path,
+            Path = _cipRoutePath,
             PlcType = LogixPlcType,
             Protocol = Protocol.ab_eip,
             Name = tagName.Value,

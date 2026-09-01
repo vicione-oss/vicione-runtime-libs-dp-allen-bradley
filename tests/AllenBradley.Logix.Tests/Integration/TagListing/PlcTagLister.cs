@@ -3,7 +3,7 @@ using libplctag.DataTypes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
-public class PlcTagLister(string gateway, string path, TimeSpan timeout)
+public class PlcTagLister(string gateway, string cipRoutePath, TimeSpan timeout)
 {
     private const ushort TypeIsStruct = 0x8000;
     private const ushort TypeIsSystem = 0x1000;
@@ -31,7 +31,7 @@ public class PlcTagLister(string gateway, string path, TimeSpan timeout)
         using var tag = new Tag<TagInfoPlcMapper, TagInfo[]>
         {
             Gateway = gateway,
-            Path = path,
+            Path = cipRoutePath,
             PlcType = PlcType.ControlLogix,
             Protocol = Protocol.ab_eip,
             Name = "@tags",
@@ -51,7 +51,7 @@ public class PlcTagLister(string gateway, string path, TimeSpan timeout)
             using var programTag = new Tag<TagInfoPlcMapper, TagInfo[]>
             {
                 Gateway = gateway,
-                Path = path,
+                Path = cipRoutePath,
                 PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
                 Name = $"{tag.Name}.@tags",
@@ -79,7 +79,7 @@ public class PlcTagLister(string gateway, string path, TimeSpan timeout)
             using var udtTag = new Tag<UdtInfoPlcMapper, UdtInfo>
             {
                 Gateway = gateway,
-                Path = path,
+                Path = cipRoutePath,
                 PlcType = PlcType.ControlLogix,
                 Protocol = Protocol.ab_eip,
                 Name = $"@udt/{udtId}",

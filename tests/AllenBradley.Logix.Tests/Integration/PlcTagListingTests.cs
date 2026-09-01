@@ -7,7 +7,7 @@ public class PlcTagListingTests(ITestOutputHelper output)
 {
     // ── Connection configuration ──────────────────────────────────────────────
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
     // ─────────────────────────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ public class PlcTagListingTests(ITestOutputHelper output)
     public void ListAllTags_OutputsControllerTagsProgramTagsAndUdts()
     {
         // Arrange
-        var lister = new PlcTagLister(Gateway, Path, Timeout);
+        var lister = new PlcTagLister(Gateway, CipRoutePath, Timeout);
 
         // Act
         var listing = lister.List();

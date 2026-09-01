@@ -30,7 +30,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegrationTestBase
 {
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
 
@@ -71,7 +71,7 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
         using var tag = new Tag
         {
             Gateway = Gateway,
-            Path = Path,
+            Path = CipRoutePath,
             PlcType = PlcType.ControlLogix,
             Protocol = Protocol.ab_eip,
             Name = tagName,

@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing
 /// what type each one actually is, and which of them are plain atomic scalars a first read can target.
 ///
 ///   CIP_GATEWAY    – IP address of the PLC/gateway  (default: 192.168.0.100)
-///   CIP_PATH       – Routing path                   (default: 1,0)
+///   CIP_PATH       – CIP route path                 (default: 1,0)
 ///   CIP_DUMP_PATH  – Where to write the dump        (default: tag-namespace-dump.txt)
 /// </summary>
 [Trait("Category", "Integration")]
@@ -16,7 +16,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing
 public class TagNamespaceDumpTests
 {
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string CipPath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
     private static readonly string DumpPath = Environment.GetEnvironmentVariable("CIP_DUMP_PATH") ?? "tag-namespace-dump.txt";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
@@ -34,7 +34,7 @@ public class TagNamespaceDumpTests
         // Arrange
 
         // Act
-        var listing = new PlcTagLister(Gateway, CipPath, Timeout).List();
+        var listing = new PlcTagLister(Gateway, CipRoutePath, Timeout).List();
 
         // Assert
         var report = Render(listing);
@@ -50,7 +50,7 @@ public class TagNamespaceDumpTests
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"Gateway {Gateway}  Path {CipPath}");
+        sb.AppendLine($"Gateway {Gateway}  CIP route path {CipRoutePath}");
         sb.AppendLine();
 
         sb.AppendLine("Controller tags");

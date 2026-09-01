@@ -1,5 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
@@ -17,6 +16,6 @@ internal static class LogixClientTestDataFactory
 
     internal static LogixClientInformation CreateClientInformation(string gateway = DefaultGateway) =>
         new(new Gateway(gateway),
-            new Path("1,0"),
+            new CipRoutePath("1,0"),
             new OperationTimeout(TimeSpan.FromSeconds(5)));
 }

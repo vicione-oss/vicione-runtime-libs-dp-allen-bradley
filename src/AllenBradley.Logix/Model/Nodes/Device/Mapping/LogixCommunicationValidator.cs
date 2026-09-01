@@ -6,14 +6,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 
 /// <summary>
 /// Rejects a device configuration the client stack could not be built from, before anything opens a
-/// socket. It checks only what is decidable here — a controller that answers to the gateway and path is
-/// the connect's business, not this class's.
+/// socket. It checks only what is decidable here — a controller that answers at the gateway and CIP route
+/// path is the connect's business, not this class's.
 /// </summary>
 /// <remarks>
 /// One rule depends on the device node type: a chassis controller's CPU sits in whichever slot the
-/// chassis was built with, so a ControlLogix has to declare a path and is held to it. A CompactLogix is
-/// never asked for one, and <see cref="DeviceNodeMapper"/> supplies
-/// <see cref="DataPort.Device.Path.VirtualBackplane"/>.
+/// chassis was built with, so a ControlLogix has to declare a route path and is held to it. A
+/// CompactLogix is never asked for one, and <see cref="DeviceNodeMapper"/> supplies
+/// <see cref="DataPort.Device.CipRoutePath.VirtualBackplane"/>.
 /// </remarks>
 public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommunication>
 {
@@ -23,11 +23,11 @@ public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommuni
             .NotEmpty()
             .WithMessage("Gateway must be the IP address or host name of the controller.");
 
-        RuleFor(static communication => communication.Path)
+        RuleFor(static communication => communication.CipRoutePath)
             .NotEmpty()
             .When(static communication =>
                 DeviceNode.TypeOf(communication.DesignId)?.Family is LogixControllerFamily.ControlLogix)
-            .WithMessage("Path must be a CIP routing path to the CPU, e.g. \"1,0\".");
+            .WithMessage("CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\".");
 
         RuleFor(static communication => communication.OperationTimeout)
             .GreaterThanOrEqualTo(100)

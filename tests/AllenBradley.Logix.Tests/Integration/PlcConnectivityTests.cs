@@ -13,7 +13,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 ///
 /// Configure the device below or via environment variables:
 ///   CIP_GATEWAY   – IP address of the PLC/gateway  (default: 192.168.0.100)
-///   CIP_PATH      – Routing path                   (default: 1,0)
+///   CIP_PATH      – CIP route path                 (default: 1,0)
 ///   CIP_TAG_NAME  – Tag to write/read              (default: Program:MainProgram.strValue1)
 /// </summary>
 [Trait("Category", "Integration")]
@@ -22,7 +22,7 @@ public class PlcConnectivityTests
 {
     // ── Connection configuration ──────────────────────────────────────────────
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
     private static readonly string TagName = Environment.GetEnvironmentVariable("CIP_TAG_NAME") ?? "Program:MainProgram.strValue1";
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
@@ -35,7 +35,7 @@ public class PlcConnectivityTests
         using var tag = new Tag();
         tag.Name = TagName;
         tag.Gateway = Gateway;
-        tag.Path = Path;
+        tag.Path = CipRoutePath;
         tag.PlcType = PlcType.ControlLogix;
         tag.Protocol = Protocol.ab_eip;
         tag.Timeout = Timeout;
@@ -60,7 +60,7 @@ public class PlcConnectivityTests
         using var tag = new Tag();
         tag.Name = TagName;
         tag.Gateway = Gateway;
-        tag.Path = Path;
+        tag.Path = CipRoutePath;
         tag.PlcType = PlcType.ControlLogix;
         tag.Protocol = Protocol.ab_eip;
         tag.Timeout = Timeout;

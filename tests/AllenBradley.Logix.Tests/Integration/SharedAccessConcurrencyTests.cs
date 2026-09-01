@@ -8,7 +8,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using Path = ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.Path;
 
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
@@ -32,7 +31,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 public class SharedAccessConcurrencyTests
 {
     private static readonly string Gateway = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string Path = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
+    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
 
     // A COUNTER's .PRE member is a stable DINT we can read and write without disturbing the program (see
     // LogixClientReadTests). Override with CIP_DINT_TAG if your device differs.
@@ -204,12 +203,12 @@ public class SharedAccessConcurrencyTests
     }
 
     private static LogixClientInformation ClientInformation() =>
-        new(new Gateway(Gateway), new Path(Path), new OperationTimeout(Timeout));
+        new(new Gateway(Gateway), new CipRoutePath(CipRoutePath), new OperationTimeout(Timeout));
 
     private static Tag NewRawTag() => new()
     {
         Gateway = Gateway,
-        Path = Path,
+        Path = CipRoutePath,
         PlcType = PlcType.ControlLogix,
         Protocol = Protocol.ab_eip,
         Name = DintTagName,
