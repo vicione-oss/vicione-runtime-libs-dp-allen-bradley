@@ -17,12 +17,22 @@ The **chassis-based** shape is a kit. You buy a metal frame, a power supply, a c
 communication and I/O modules, then assemble them. PLC-5 (1771 chassis), the modular SLC 500 (1746),
 and every generation of ControlLogix from the 1997 5550 to today's 5580 work this way. The controller
 is *one module among several*, which is why "a ControlLogix" colloquially means the assembled chassis
-rather than the controller in it.
+rather than the controller in it. A 5550 through 5570 has no network port of its own and reaches
+Ethernet only through an ENxT module in another slot; a 5580 has one on the controller, so a modern
+chassis needs no communication module — but it still needs the frame, the supply, and a slot.
 
-The **all-in-one** shape puts controller, power input, and Ethernet port into a single DIN-rail unit,
-with I/O clipped onto a local bus beside it. MicroLogix, Micro800, and the whole CompactLogix line
-(1769, 5370, 5380, 5480) are built this way. A Siemens engineer will recognise the shape from an
-S7-1200 or S7-1500 CPU.
+The **DIN-rail** shape has no chassis and no backplane connector. Modules clip together on the rail
+and reach each other over a local bus, and the Ethernet port is on the controller itself. MicroLogix,
+Micro800, and the whole CompactLogix line (1769, 5370, 5380, 5480) are built this way. A Siemens
+engineer will recognise the shape from an S7-1200 or S7-1500 CPU.
+
+How much else is integrated varies *within* that shape, and the CompactLogix line is not uniform. A
+5370, 5380 or 5480 takes its 24V DC on the controller, so controller, power input and Ethernet really
+are one unit. A 1769 does not: it needs a separate 1769-PA2/PB2 supply on the rail, and the
+controller must sit within four modules of it. That is the shape of the
+[L32E on the test bench](../context/TEST-DEVICE-SETUP.md). What the whole line does share is the
+absence of a communications bus — no CompactLogix can be given a second Ethernet port by adding a
+module, because there is no slot to add one to.
 
 ### The lines
 
@@ -121,7 +131,7 @@ onward. The module's own slot never appears in the path, because you already sel
 
 | Family | Conventional path | Why |
 |--------|-------------------|-----|
-| CompactLogix (1769, 5370, 5380) | `1,0` | Ethernet is on the controller, whose virtual backplane position is 0 |
+| CompactLogix (1769, 5370, 5380, 5480) | `1,0` | Ethernet is on the controller, whose virtual backplane position is 0 |
 | ControlLogix 1756, via an ENxT module | `1,<cpu slot>` | The slot is chosen by whoever built the chassis |
 | ControlLogix 5580, via its onboard port | `1,<cpu slot>` | Still routes across the backplane, back to itself |
 | SoftLogix 5800 | `1,<virtual slot>` | Virtual chassis. The controller is usually placed at slot 0 |
