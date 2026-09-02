@@ -26,7 +26,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 /// </param>
 public sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
-    LogixGeneration Generation) : ILogixTagScopeNode
+    LogixGeneration Generation) : ITagScopeNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a 5x70 controller's tag container.</summary>
     public const string Logix5x70LinkedNodeTypeId = "ControllerTags5x70";

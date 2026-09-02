@@ -12,7 +12,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 /// Both scopes answer both questions, which is why they are one interface rather than two type tests.
 /// The leaves below stay ignorant of either — a tag is configured as a bare name whatever it hangs under.
 /// </remarks>
-public interface ILogixTagScopeNode : IBranchConfigurationNode
+public interface ITagScopeNode : IBranchConfigurationNode
 {
     /// <summary>
     /// The generation of the controller these tags are configured against, from the container's own node

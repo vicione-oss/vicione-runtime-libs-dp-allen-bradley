@@ -77,7 +77,7 @@ public sealed record DeviceNode(
     /// A scope container of this controller's own generation — controller scope, or a program. The other
     /// container of each pair stands for a type vocabulary this controller has not got, and would carry
     /// that answer down to the tags below it: a <c>ControllerTags5x80</c> under a 5x70 device is what
-    /// would let an <c>LREAL</c> past <see cref="ILogixTagScopeNode.CanBeAdded(IDataPointNode)"/>, which
+    /// would let an <c>LREAL</c> past <see cref="ITagScopeNode.CanBeAdded(IDataPointNode)"/>, which
     /// believes the container.
     /// </summary>
     /// <remarks>
@@ -88,19 +88,24 @@ public sealed record DeviceNode(
     /// </remarks>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {
-        if (configurationNode is not ILogixTagScopeNode scopeNode)
+        if (configurationNode is not ITagScopeNode tagScopeNode)
         {
             return false;
         }
 
-        if (scopeNode.Generation != Generation)
+        if (!IsFromSameGeneration(tagScopeNode))
         {
             throw new InvalidConfigurationException(
-                $"A '{scopeNode.OriginalNode.DesignId}' container cannot hang off a "
+                $"A '{tagScopeNode.OriginalNode.DesignId}' container cannot hang off a "
                 + $"'{OriginalCommunication.DesignId}' device.");
         }
 
         return true;
+    }
+
+    private bool IsFromSameGeneration(ITagScopeNode scopeNode)
+    {
+        return scopeNode.Generation == Generation;
     }
 
     /// <summary>Tags hang off a scope container, never off the device itself.</summary>

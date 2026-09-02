@@ -31,7 +31,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 public sealed record ProgramTagsNode(
     LinkedNode OriginalNode,
     ProgramName ProgramName,
-    LogixGeneration Generation) : ILogixTagScopeNode
+    LogixGeneration Generation) : ITagScopeNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5x70 controller.</summary>
     public const string Logix5x70LinkedNodeTypeId = "ProgramTags5x70";

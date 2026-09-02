@@ -55,7 +55,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     // scope through: the device root, which holds no tags of its own, and later a structure container,
     // whose path is read off the controller rather than configured.
     private static TagScope ScopeOf(IConfigurationNode configurationNode, TagScope enclosingScope) =>
-        configurationNode is ILogixTagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
+        configurationNode is ITagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
 
     // The node-to-point pairing for each type the addon models. A node reaching here that this switch
     // does not name has a node mapper and no data point behind it, which the manifest cannot express and
