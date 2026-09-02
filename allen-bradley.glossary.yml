@@ -1,0 +1,521 @@
+# yaml-language-server: $schema=https://www.schemastore.org/contextive-glossary.json
+#
+# Contextive glossary for the Allen-Bradley bounded context, translated from CONTEXT.md.
+# CONTEXT.md stays the prose original for now; keep the two in step until one is retired.
+#
+# How the Markdown maps onto Contextive:
+#   - Every "**Term**" entry is a term. Its paragraph is the definition, Markdown intact.
+#   - The "_Avoid_" line lives under `meta` as "Avoid:", so it renders in the hover.
+#   - `aliases` list other names for the *same* concept, including avoided ones, so that hovering
+#     "rack" or "gateway" shows the definition and the reason to say it differently. Words that name
+#     a *different* concept (task for program, connection for session) are not aliases; they appear
+#     only under "Avoid:".
+#   - "Boundary with the host" is a second context, ViciOne DataPort.
+#   - "Open" has no Contextive form and is kept as a comment at the end of the file.
+
+contexts:
+  - name: Allen-Bradley
+    domainVisionStatement: >-
+      The language of Allen-Bradley programmable controllers and the Common Industrial Protocol
+      they speak. These are Rockwell's and ODVA's words, not ours: where the two authorities
+      disagree, or where a word means one thing in the engineering tool and another on the wire,
+      the entry says so.
+
+    # Two halves: the tag model — what a controller holds and how it is named — and reaching one —
+    # the hardware a request crosses and the protocol it crosses it on.
+    terms:
+      # ----------------------------------------------------------------------------------------
+      # The controller
+      # ----------------------------------------------------------------------------------------
+      - name: Controller
+        definition: >-
+          The programmable controller itself — the thing that executes logic and holds tags.
+          Rockwell's word for every Logix product.
+        aliases:
+          - PLC
+        meta:
+          "Avoid:": >-
+            PLC (generic), CPU (a module, not the machine), processor (Rockwell's word for the
+            PLC-5 / SLC-500 generation, so it belongs to the Legacy world)
+
+      - name: Logix
+        definition: >-
+          The controller generation that addresses data by tag — ControlLogix, CompactLogix,
+          GuardLogix, SoftLogix. Rockwell also writes Logix 5000, and uses it for the whole line
+          rather than any one product.
+        aliases:
+          - Logix 5000
+
+      - name: Controller family
+        definition: >-
+          Which line a controller belongs to: ControlLogix, CompactLogix, Micro800. It says how the
+          hardware is shaped and what it supports, not which part number was bought.
+        meta:
+          "Avoid:": >-
+            controller type (reads as a catalog number), series (Rockwell's word for a hardware
+            revision)
+
+      - name: Controller generation
+        definition: >-
+          How far along the Logix line a controller is — 5X70 and earlier, or 5X80 — which is what
+          says which data types it has. It cuts across the family: a ControlLogix 5580 and a
+          CompactLogix 5380 are both 5X80.
+        meta:
+          "Avoid:": >-
+            series (a hardware revision within one catalog number), firmware revision (finer, and
+            changes without the controller changing)
+
+      - name: Catalog number
+        definition: >-
+          The part number of one specific controller — `1756-L71`, `1769-L32E`. Narrower than a
+          family and a generation together, and never a substitute for either.
+
+      - name: Studio 5000 Logix Designer
+        definition: >-
+          The engineering tool a Logix project is authored in, and the authority for how tags are
+          declared and spelled.
+        aliases:
+          - Logix Designer
+          - Studio 5000
+          - RSLogix 5000
+        meta:
+          "Avoid:": >-
+            RSLogix 5000 (its name before v21 — still what many engineers say, but the two are the
+            same tool)
+
+      - name: Project
+        definition: >-
+          Everything one controller runs, authored offline as a single `.ACD` file and downloaded
+          whole. One project per controller: a download replaces what was there, so two cannot be
+          combined in a controller, only merged offline through `.L5X` export and import.
+        meta:
+          "Avoid:": >-
+            solution, workspace, application (Micro800's word for its own project, so it belongs to
+            the Legacy world)
+
+      - name: Task
+        definition: >-
+          The scheduling unit of a project — continuous, periodic or event — holding an ordered list
+          of the programs it runs. It holds no tags, and its name is part of no address.
+        meta:
+          "Avoid:": thread, cycle, OB (the S7 word)
+
+      - name: Program
+        definition: >-
+          A container of routines with a tag scope of its own, scheduled by exactly one task. A
+          controller runs many; they do not nest for addressing purposes.
+        meta:
+          "Avoid:": >-
+            task (what schedules a program — and the level above it in Studio 5000's tree, which is
+            where the two get confused)
+
+      - name: Routine
+        definition: >-
+          One body of executable code inside a program, in ladder, structured text, function block
+          or SFC. It declares no tags: a program's tags are shared by all of its routines.
+
+      # ----------------------------------------------------------------------------------------
+      # Controller hardware
+      # ----------------------------------------------------------------------------------------
+      - name: Chassis
+        definition: >-
+          The frame a modular controller's parts mount into, with a fixed number of positions — 4,
+          7, 10, 13 or 17. A chassis on its own is metal and a bus: nothing in it is a controller
+          by default.
+        aliases:
+          - rack
+        meta:
+          "Avoid:": >-
+            rack (the PLC-5 word, and the one everyone says colloquially — Rockwell's own
+            literature says chassis)
+
+      - name: Slot
+        definition: >-
+          One numbered position in a chassis, counted from zero, left to right. The power supply
+          hangs outside the numbering; everything else occupies exactly one slot and is addressed
+          by it.
+
+      - name: Module
+        definition: >-
+          Anything that occupies a slot — a controller, a communication module, an I/O module. One
+          chassis may hold several controllers, each with its own tags.
+
+      - name: Backplane
+        definition: >-
+          The passive bus along the back of a chassis. CIP does not treat it as an implementation
+          detail of the hardware: it is a network like any other, and a slot number is a node
+          address on it.
+
+      - name: Virtual backplane
+        definition: >-
+          The same model presented by hardware that has no chassis — a CompactLogix on a DIN rail,
+          or a SoftLogix on a PC — so that routing works unchanged. The controller places itself at
+          slot 0.
+
+      # ----------------------------------------------------------------------------------------
+      # Reaching a controller
+      # ----------------------------------------------------------------------------------------
+      - name: CIP
+        definition: >-
+          The Common Industrial Protocol, administered by ODVA: an object model and a service set,
+          defined independently of any wire.
+        aliases:
+          - Common Industrial Protocol
+
+      - name: EtherNet/IP
+        definition: >-
+          CIP carried over Ethernet. The `IP` is **Industrial Protocol**, not Internet Protocol.
+
+      - name: Encapsulation
+        definition: >-
+          The wrapper that carries CIP over TCP and UDP — a fixed 24-byte header, of which the
+          Session Handle is the part every later message echoes.
+
+      - name: Session
+        definition: >-
+          One EtherNet/IP conversation over TCP 44818, opened with `RegisterSession` and identified
+          by the Session Handle the target returns. Every request travels inside one. Note that
+          libplctag uses the word for the pair — a session plus the CIP connection opened over it —
+          so say whose sense is meant when quoting the library.
+        meta:
+          "Avoid:": >-
+            connection — a session is not a CIP connection, and the two are separately established
+
+      - name: CIP connection
+        definition: >-
+          A reservation of resources at both ends, opened with a `Forward Open` and consuming one
+          of the controller's finite connection slots. Requests sent over one are _connected_
+          messaging; requests sent without one are _unconnected_.
+        meta:
+          "Avoid:": session, socket
+
+      - name: Forward Open
+        definition: >-
+          The Connection Manager service that opens a CIP connection, carrying the route path to
+          the device the connection terminates at.
+
+      - name: Originator
+        definition: >-
+          ODVA's name for the end of a CIP conversation that opens it. A client is always the
+          originator; the other end is the target.
+        meta:
+          "Avoid:": master / slave, client / server (right idea, wrong vocabulary for CIP)
+
+      - name: Target
+        definition: >-
+          ODVA's name for the other end of a CIP conversation: the device the originator addresses.
+          A client is never the target.
+        meta:
+          "Avoid:": master / slave, client / server (right idea, wrong vocabulary for CIP)
+
+      - name: Explicit messaging
+        definition: >-
+          Request and reply against a named object — reads, writes and tag enumeration. This is the
+          whole of what a data-collection client does.
+
+      - name: Implicit messaging
+        definition: >-
+          Cyclic I/O exchange over UDP 2222, scheduled by an RPI rather than requested. Not how a
+          client reads tags.
+        meta:
+          "Avoid:": using "I/O messaging" for explicit reads
+
+      - name: Message Router
+        definition: >-
+          The object every explicit request is addressed to, which dispatches it to the object the
+          request path names.
+
+      - name: Multiple Service Packet
+        definition: >-
+          One CIP request carrying several services, so many tag reads cross the network in a
+          single round-trip. Abbreviated MSP.
+        aliases:
+          - MSP
+
+      - name: Connection endpoint
+        definition: >-
+          The device an EtherNet/IP session is opened against, identified by its IP address or host
+          name. It may be the controller itself or a bridge in front of it, which is why it names a
+          connection rather than a controller. Configured as `ConnectionEndpoint`, with the
+          **TCP port** beside it.
+        aliases:
+          - gateway
+        meta:
+          "Avoid:": gateway (libplctag's word), IP address alone
+
+      - name: TCP port
+        definition: >-
+          Which socket on the connection endpoint the session is opened on — 44818, the port ODVA
+          registered for EtherNet/IP, unless a NAT rule or a tunnel moved it. A property of its
+          own, `TcpPort`, joined to the endpoint as `host:port` only where libplctag is handed the
+          pair.
+        meta:
+          "Avoid:": port alone, which in this domain is a hop's port number
+
+      - name: Route path
+        definition: >-
+          How a request travels from the device that terminates the session to the controller,
+          expressed as a sequence of hops. It describes hardware the network cannot see, which is
+          why no IP address implies it.
+        aliases:
+          - routing path
+          - CIP path
+          - connection path
+        meta:
+          "Avoid:": routing path, CIP path, connection path, path alone
+
+      - name: Hop
+        definition: >-
+          One step of a route path: a **port** and an **address**. `1,0` is a single hop.
+
+      - name: Port
+        definition: >-
+          In a route path: which network the message leaves by — `1` is the backplane, `2` is the
+          module's own network port. Nothing to do with a TCP port; say "TCP port" whenever that is
+          what is meant.
+
+      - name: Bridge
+        definition: >-
+          A module that forwards CIP from one network to another — a 1756-EN2T between Ethernet and
+          a backplane, a 1756-DHRIO between a backplane and DH+. Bridging is what makes a route path
+          have more than one hop.
+
+      - name: PCCC
+        definition: >-
+          The older Allen-Bradley protocol that file-addressed controllers speak, tunnelled inside
+          CIP to reach them. The Legacy world's protocol, named here so it is not mistaken for a CIP
+          service.
+
+      # ----------------------------------------------------------------------------------------
+      # Tags
+      # ----------------------------------------------------------------------------------------
+      - name: Tag
+        definition: >-
+          A named area of a controller's memory holding a typed value. In Logix it is the _only_
+          way to address data — there is no memory layout to point at, and none survives a
+          download.
+        meta:
+          "Avoid:": >-
+            variable, point, register, data point (the host's word — see the ViciOne DataPort
+            context)
+
+      - name: Tag name
+        definition: >-
+          The identifier a tag is declared with, unique within its scope. Letters, digits and
+          underscores, up to 40 characters. The controller preserves the case it was declared with
+          but resolves names case-insensitively.
+
+      - name: Scope
+        definition: >-
+          Which part of a controller a tag is visible in — controller scope or program scope. Scope
+          is part of a tag's identity, so two tags may share a name if they sit in different
+          scopes.
+
+      - name: Controller scope
+        definition: >-
+          The controller's single global namespace. Every program and every external client can
+          reach a tag in it.
+        aliases:
+          - global scope
+        meta:
+          "Avoid:": global scope
+
+      - name: Program scope
+        definition: >-
+          A namespace private to one program. No other program can reach into it, and there is no
+          aliasing across programs.
+        aliases:
+          - local scope
+        meta:
+          "Avoid:": local scope
+
+      - name: Local tag
+        definition: >-
+          A program-scope tag that only its own program can reach — the ordinary kind, and
+          everything a program held before parameters existed.
+        aliases:
+          - private tag
+          - local variable
+        meta:
+          "Avoid:": private tag, local variable
+
+      - name: Program parameter
+        definition: >-
+          A program-scope tag declared with a direction — Input, Output, InOut or Public — so that
+          data can be connected to it from the controller scope or from another program. Available
+          from Logix Designer v24; it lives in the same namespace as a local tag and is addressed
+          the same way.
+        meta:
+          "Avoid:": >-
+            argument; routine parameter and Add-On Instruction parameter (both real Rockwell terms
+            for other mechanisms, so say which parameter is meant)
+
+      - name: Tag type
+        definition: >-
+          What a tag _does_, as declared: base, alias, produced or consumed. This is Rockwell's
+          "Type" in the tag-creation dialog and is **not** the tag's data type — the two are
+          separate declarations.
+        meta:
+          "Avoid:": saying "type" alone for either this or the data type
+
+      - name: Base tag
+        definition: >-
+          Rockwell uses this for two things: a tag that stores its own data (the default tag type),
+          and the tag an alias points at. Say which one you mean.
+        meta:
+          "Avoid:": >-
+            using it for the leading segment of an address — that is not a Rockwell sense of the
+            word
+
+      - name: Alias tag
+        definition: >-
+          A tag that is a second name for another tag, or for one of its members or elements.
+
+      - name: Produced tag
+        definition: >-
+          A tag one controller publishes for others to read. Must be controller-scoped, as must the
+          consumed tag that receives it.
+
+      - name: Consumed tag
+        definition: >-
+          The tag in another controller that receives a produced tag. Must be controller-scoped, as
+          must the produced tag it receives.
+
+      # ----------------------------------------------------------------------------------------
+      # Data types
+      # ----------------------------------------------------------------------------------------
+      - name: Data type
+        definition: >-
+          What a tag stores — either an atomic type or a structure. Declared per tag and reported
+          by the controller.
+
+      - name: Atomic data type
+        definition: >-
+          A data type holding a single value: `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `REAL`,
+          `LREAL`.
+        aliases:
+          - elementary
+        meta:
+          "Avoid:": >-
+            elementary (ODVA's word for the same set — permitted only when quoting the CIP
+            specification), primitive, scalar (see Scalar — a different axis)
+
+      - name: Structure
+        definition: >-
+          A data type holding several named members. Four origins: predefined (`TIMER`, `COUNTER`,
+          `STRING`), module-defined, Add-On Instruction, and user-defined.
+
+      - name: User-defined data type
+        definition: >-
+          A structure an engineer declares in the project. The universal shorthand is UDT.
+        aliases:
+          - UDT
+
+      - name: Add-On Instruction
+        definition: >-
+          A reusable instruction with its own data type. Only its instance tag is reachable from
+          outside; its locals are not.
+        aliases:
+          - AOI
+
+      - name: Member
+        definition: >-
+          A named field of a structure, reached with a dot — `Timer1.PRE`. **A member is not a
+          tag**: it has no declaration of its own and never appears when a controller enumerates
+          its tags.
+        meta:
+          "Avoid:": field, property, sub-tag
+
+      - name: Dimension
+        definition: >-
+          One axis of an array. A tag has at most three.
+
+      - name: Element
+        definition: >-
+          One entry in an array, reached with brackets — `Arr[5]`. **Not a tag**, for the same
+          reason a member is not.
+
+      - name: Scalar
+        definition: >-
+          A tag with no dimensions. Orthogonal to atomic/structure: a `DINT[10]` has an atomic data
+          type and is not scalar; a `TIMER` is scalar and is not atomic.
+
+      - name: STRING
+        definition: >-
+          The predefined structure Logix models text with: a `.LEN` member holding the _current_
+          character count, and a `.DATA` member of `SINT`, 82 characters by default. A project may
+          declare narrower or wider string types.
+
+      - name: Maximum characters
+        definition: >-
+          The character capacity a string type is declared with — the size of its `.DATA`. Distinct
+          from `.LEN`, which is how many of them are currently in use.
+        meta:
+          "Avoid:": length, max length (in Logix, "length" is `.LEN`, the current value)
+
+      # ----------------------------------------------------------------------------------------
+      # On the wire
+      # ----------------------------------------------------------------------------------------
+      - name: Symbol
+        definition: >-
+          A tag as CIP represents it — one instance of the Symbol object, class `0x6B`, carrying a
+          Symbol Name and a Symbol Type. Not a second concept: a symbol _is_ a tag, seen from the
+          protocol.
+        meta:
+          "Avoid:": >-
+            the RSLogix 500 sense — a mnemonic for a data-file address such as `N7:0` — which
+            belongs to the Legacy world and means something else entirely
+
+      - name: Symbol Name
+        definition: >-
+          Attribute 1 of a Symbol object: the tag's name.
+
+      - name: Symbol Type
+        definition: >-
+          Attribute 2 of a Symbol object: a 16-bit field saying whether the tag is a structure, its
+          array rank, and either its atomic type code or the id of its template.
+
+      - name: Template
+        definition: >-
+          The layout of a structure data type, held by the controller as an instance of the
+          Template object, class `0x6C`, and referenced by id from a structure's Symbol Type. It is
+          what turns a structure from a byte count into named members.
+
+      - name: Type code
+        definition: >-
+          The one-byte CIP code identifying an atomic type on the wire — `0xC4` for `DINT`, `0xCA`
+          for `REAL`. Structures have no type code; they carry a template id instead.
+
+  # Boundary with the host. The addon translates between the Allen-Bradley language and
+  # ViciOne.Suite.DataPort's. These are the host's words, recorded here so they are not reused for
+  # Allen-Bradley concepts.
+  - name: ViciOne DataPort
+    domainVisionStatement: >-
+      The host the addon translates the Allen-Bradley language into. Host words are not ours to
+      redefine, and they must not be used for Allen-Bradley concepts.
+    terms:
+      - name: Data point
+        definition: >-
+          The host's configured unit of exchange. A data point _resolves to_ a tag; it is not a
+          tag.
+
+      - name: Node
+        definition: >-
+          A position in the configuration tree.
+
+      - name: Quality
+        definition: >-
+          The host's verdict on a read value.
+
+# Open
+#
+# Terms we still need and Rockwell does not supply, recorded so nobody invents a third word for
+# them. Contextive has no place for an unnamed term, so they live here until one is settled.
+#
+#   - The string that reaches a value. `Motor.Speed` and `Arr[5]` are neither tag names nor tags.
+#     CIP encodes them as a chain of symbolic, member and element segments; Rockwell has no crisp
+#     project-level word. Candidates: tag address, tag path.
+#   - The collection of a controller's symbols. Rockwell names the Symbol object and enumerates its
+#     instances per scope, but never names the set. Studio 5000 has two named collections —
+#     Controller Tags and Program Tags — not one. Candidates: symbol table, tag listing.
+#     Note `@tags` is libplctag's own token and has no standing here.
