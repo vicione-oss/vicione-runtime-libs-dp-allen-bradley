@@ -1,6 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
@@ -19,7 +17,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// The generation split controller scope carries is mirrored here, for the same reason and by the same
 /// means: one type for the manifest's two containers, which differ only in what they may hold, and the
 /// generation arriving with the node rather than from the device above — nothing above a container is
-/// reachable while its own <see cref="CanBeAdded(IDataPointNode)"/> runs.
+/// reachable while <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/> runs. What a scope may
+/// hold is the same question in both scopes, so <see cref="ITagScopeNode"/> answers it for both: an
+/// <c>LREAL</c> is missing from a 5x70 whether it was configured under a program or under the controller.
 /// </para>
 /// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
@@ -56,23 +56,6 @@ public sealed record ProgramTagsNode(
     /// resulting tags address as <c>Program:Parent.Child.Tag</c> is unconfirmed against hardware.
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
-
-    /// <summary>
-    /// Any tag the controller has a type for. The manifest already keeps a 5x70's editor from offering an
-    /// <c>LREAL</c> — the <c>ProgramTags5x70</c> node does not list one — so a configuration that reaches
-    /// here holding one was not built through the editor, and it names a type the controller cannot
-    /// resolve. Scope makes no difference to that: an <c>LREAL</c> is missing from a 5x70 everywhere.
-    /// </summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode)
-    {
-        if (dataPointNode is LRealNode && Generation is LogixGeneration.Logix5x70)
-        {
-            throw new InvalidConfigurationException(
-                "LREAL is not a data type of a Logix 5x70 controller.");
-        }
-
-        return true;
-    }
 
     /// <inheritdoc />
     public TagScope Scope() => TagScope.Program(ProgramName);

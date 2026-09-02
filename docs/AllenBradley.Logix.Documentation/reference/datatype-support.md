@@ -28,10 +28,18 @@ cannot resolve.
 
 The device node type is what decides. A 5x80 device node's controller-scope container is
 `ControllerTags5x80`, which lists `LReal` among its children; the 5x70 container does not, so the
-editor never offers it. `ControllerTagsNode.CanBeAdded` is the guard behind that for a configuration
+editor never offers it. `ITagScopeNode.CanBeAdded` is the guard behind that for a configuration
 the editor did not build, and `DeviceNode.CanBeAdded` refuses a container whose generation is not its
 device's — the pairing the first guard rests on. See
 [Splitting the device node by family and generation](../ADR/2026-08-31-splitting-the-device-node-by-family-and-generation.md).
+
+`LRealNode` states the rule itself, as `ILogixScalarNode.MinimumGeneration`: the oldest generation
+whose vocabulary has the type. `ITagScopeNode` compares it against the container's own generation and
+implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
+one line on the node and no edit to a container. The default is the oldest generation the addon
+addresses, which is why `DIntNode` and `StringNode` say nothing. The comparison reads `LogixGeneration`
+in declaration order, and the members are numbered — `Logix5x70 = 70` — so a later generation slots in
+at its own number.
 
 ### `STRING`
 

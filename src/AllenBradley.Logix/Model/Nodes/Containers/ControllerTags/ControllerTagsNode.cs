@@ -1,6 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
@@ -12,12 +10,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 /// <c>ProgramName</c> lives.
 /// </summary>
 /// <remarks>
-/// One type for the manifest's two containers, which differ only in what they may hold. The generation
-/// arrives with the node rather than from the device node above, because the engine assembles a
-/// container's data points before it attaches the container to anything: nothing above it is reachable
-/// while <see cref="CanBeAdded(IDataPointNode)"/> runs. So this node takes its own node type's word for
-/// the generation, and <see cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> is where that word
-/// is held against the device's when the container is finally attached.
+/// One type for the manifest's two containers, which differ only in what they may hold — a difference
+/// <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/> enforces for both scopes at once. The
+/// generation arrives with the node rather than from the device node above, because the engine assembles
+/// a container's data points before it attaches the container to anything: nothing above it is reachable
+/// while that guard runs. So this node takes its own node type's word for the generation, and
+/// <see cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> is where that word is held against the
+/// device's when the container is finally attached.
 /// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="Generation">
@@ -45,23 +44,6 @@ public sealed record ControllerTagsNode(
 
     /// <summary>Nothing nests inside controller scope yet — structures and programs are later slices.</summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
-
-    /// <summary>
-    /// Any tag the controller has a type for. The manifest already keeps a 5x70's editor from offering
-    /// an <c>LREAL</c> — the <c>ControllerTags5x70</c> node does not list one — so a configuration that
-    /// reaches here holding one was not built through the editor, and it names a type the controller
-    /// cannot resolve.
-    /// </summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode)
-    {
-        if (dataPointNode is LRealNode && Generation is LogixGeneration.Logix5x70)
-        {
-            throw new InvalidConfigurationException(
-                "LREAL is not a data type of a Logix 5x70 controller.");
-        }
-
-        return true;
-    }
 
     /// <inheritdoc />
     public TagScope Scope() => TagScope.Controller;

@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -17,6 +18,17 @@ internal sealed record LRealNode(LinkedNode OriginalNode, TagName TagName, PollF
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "LReal";
+
+    /// <summary>
+    /// The 5x80 controllers are the ones that have an <c>LREAL</c>; a 5x70 cannot resolve a tag of this
+    /// type at all.
+    /// </summary>
+    /// <remarks>
+    /// Implemented explicitly, because it is the one thing this node says that is not configuration: the
+    /// YAML consistency test reads a data point node's public properties and expects every one of them to
+    /// be a property the manifest declares.
+    /// </remarks>
+    LogixGeneration ILogixScalarNode.MinimumGeneration => LogixGeneration.Logix5x80;
 
     /// <inheritdoc />
     public IConfigurationNode? Parent { get; set; }

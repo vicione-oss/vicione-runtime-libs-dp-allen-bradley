@@ -1,4 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
@@ -27,4 +29,34 @@ public interface ITagScopeNode : IBranchConfigurationNode
     /// manifest declares and this one is composed rather than configured.
     /// </remarks>
     TagScope Scope();
+
+    /// <summary>
+    /// Any tag whose type the controller has, which the container answers by holding the type's
+    /// <see cref="ILogixScalarNode.MinimumGeneration"/> against its own generation.
+    /// </summary>
+    /// <remarks>
+    /// Implemented here rather than by each scope, because scope makes no difference to it: a type the
+    /// controller has not got is missing from controller scope and from every program alike. Implementing
+    /// it here is also what stops the next container from having to remember the rule.
+    /// <para>
+    /// It throws where it might return false, the way
+    /// <see cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> does. The manifest keeps the editor
+    /// from offering a type the controller lacks — a <c>ControllerTags5x70</c> node lists no <c>LReal</c>
+    /// among its children — so a configuration that reaches here holding one was not built through the
+    /// editor. A silent refusal would leave an integrator with a tag that vanished; the alternative to the
+    /// throw is a tag address the controller cannot resolve reaching the poll.
+    /// </para>
+    /// </remarks>
+    bool IConfigurationNode.CanBeAdded(IDataPointNode dataPointNode)
+    {
+        // Every data point node is a scalar for now; structures and arrays are later slices, and they
+        // will carry a minimum generation of their own through the same interface.
+        if (dataPointNode is ILogixScalarNode scalarNode && scalarNode.MinimumGeneration > Generation)
+        {
+            throw new InvalidConfigurationException(
+                $"'{dataPointNode.OriginalNode.DesignId}' is not a data type of a {Generation} controller.");
+        }
+
+        return true;
+    }
 }

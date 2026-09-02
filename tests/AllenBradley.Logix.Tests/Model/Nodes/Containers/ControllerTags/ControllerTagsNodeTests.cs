@@ -34,7 +34,7 @@ public sealed class ControllerTagsNodeTests
 
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
-            .WithMessage("LREAL is not a data type of a Logix 5x70 controller.");
+            .WithMessage("'LReal' is not a data type of a Logix5x70 controller.");
     }
 
     [Fact]

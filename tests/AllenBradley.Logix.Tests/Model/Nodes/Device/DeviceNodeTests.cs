@@ -21,7 +21,7 @@ public sealed class DeviceNodeTests
     private static readonly Guid s_channel = Guid.NewGuid();
 
     /// <remarks>
-    /// The mismatch is the way past <see cref="ControllerTagsNode.CanBeAdded(IDataPointNode)"/>: the
+    /// The mismatch is the way past <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/>: the
     /// container believes its own node type, so a 5x80 one under a 5x70 device would let an
     /// <c>LREAL</c> onto a controller that has none.
     /// </remarks>

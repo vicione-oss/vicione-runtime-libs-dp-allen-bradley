@@ -11,9 +11,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 /// <c>docs/AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md</c>.
 /// <para>
 /// <strong>The members are ordered, and the order is load-bearing.</strong> Generations are a sequence
-/// and a Logix type vocabulary only grows along it, so the question "does this controller have that
-/// type?" is one generation compared against another. The values are the numbers already in the names,
-/// so a later generation slots in at its own number and nothing is renumbered.
+/// and a Logix type vocabulary only grows along it, so a type node says which generation it arrived
+/// with — <see cref="Nodes.DataPoints.Scalars.ILogixScalarNode.MinimumGeneration"/> — and a container
+/// compares. The values are the numbers already in the names, so a later generation slots in at its own
+/// number and nothing is renumbered.
 /// </para>
 /// </remarks>
 public enum LogixGeneration
