@@ -33,8 +33,8 @@ public class LogixYamlConsistencyTests :
 
     /// <remarks>
     /// A container's <c>Generation</c> is the one member of a branch node that is not a declared property
-    /// and never will be. It comes from the node type the container was configured under — the 5x70 one
-    /// or the 5x80 one — which is the whole point of there being two of each: an integrator answers by
+    /// and never will be. It comes from the node type the container was configured under — the 5X70 one
+    /// or the 5X80 one — which is the whole point of there being two of each: an integrator answers by
     /// picking a controller, not by filling in a field.
     /// </remarks>
     public static Dictionary<Type, HashSet<string>> ExcludedConfigurationNodeProperties => new()

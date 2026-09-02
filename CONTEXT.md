@@ -29,9 +29,9 @@ _Avoid_: controller type (reads as a catalog number), series (Rockwell's word fo
 revision)
 
 **Controller generation**:
-How far along the Logix line a controller is — 5x70 and earlier, or 5x80 — which is what says which
+How far along the Logix line a controller is — 5X70 and earlier, or 5X80 — which is what says which
 data types it has. It cuts across the family: a ControlLogix 5580 and a CompactLogix 5380 are both
-5x80.
+5X80.
 _Avoid_: series (a hardware revision within one catalog number), firmware revision (finer, and
 changes without the controller changing)
 

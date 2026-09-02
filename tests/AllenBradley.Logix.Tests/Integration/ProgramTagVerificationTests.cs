@@ -29,7 +29,7 @@ public class ProgramTagVerificationTests : LogixIntegrationTestBase
                 CreateProgramTagsNode("MainProgram", ProgramTagsId),
                 CreateStringNode("Label", "strValue1", maxLength: 82, parentId: ProgramTagsId),
             ],
-            DeviceNode.CompactLogix5x70DesignId);
+            DeviceNode.CompactLogix5X70DesignId);
 
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
         var dataPoints = new LogixDataPointsGroupsMapper().ToDataPoints(deviceNode);

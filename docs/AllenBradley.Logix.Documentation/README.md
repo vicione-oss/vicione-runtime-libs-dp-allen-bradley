@@ -4,7 +4,7 @@ Documentation for the **Logix** Allen-Bradley DataPort — **symbolic tag addres
 `Motor.Speed`, `Arr[5]`) over **CIP / EtherNet/IP**. It targets the Logix controller family across
 **all its generations** — **ControlLogix**, **CompactLogix**, **GuardLogix**, **SoftLogix**,
 programmed in Studio 5000 Logix Designer — spanning both the classic type set and the extended one
-the 5x80 controllers add.
+the 5X80 controllers add.
 
 **Micro800** (programmed in Connected Components Workbench) speaks the same symbolic tag protocol
 but is **not in scope**: whether it lands here as a device family or in a port of its own is an open

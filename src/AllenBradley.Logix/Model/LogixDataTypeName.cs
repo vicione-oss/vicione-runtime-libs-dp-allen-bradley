@@ -17,7 +17,7 @@ public readonly record struct LogixDataTypeName(string Value)
     /// <summary>An IEEE-754 single.</summary>
     public static LogixDataTypeName Real => new("REAL");
 
-    /// <summary>An IEEE-754 double. A 5x80 controller's type; a 5x70 has no such thing.</summary>
+    /// <summary>An IEEE-754 double. A 5X80 controller's type; a 5X70 has no such thing.</summary>
     public static LogixDataTypeName LReal => new("LREAL");
 
     /// <summary>The predefined string structure — <c>.LEN</c> + <c>.DATA</c>.</summary>

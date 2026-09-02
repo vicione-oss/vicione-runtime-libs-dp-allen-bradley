@@ -46,7 +46,7 @@ public sealed class ProgramTagsNodePropertyValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().ContainSingle().Which.ErrorMessage.Should().Be(
             $"The program name '{programName}' in node 'Main' "
-            + $"({ProgramTagsNode.Logix5x70LinkedNodeTypeId}) is not a valid Logix program name.");
+            + $"({ProgramTagsNode.Logix5X70LinkedNodeTypeId}) is not a valid Logix program name.");
     }
 
     /// <remarks>

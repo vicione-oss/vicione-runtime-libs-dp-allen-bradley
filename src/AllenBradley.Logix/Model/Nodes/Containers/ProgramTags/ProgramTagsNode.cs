@@ -19,7 +19,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// generation arriving with the node rather than from the device above — nothing above a container is
 /// reachable while <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/> runs. What a scope may
 /// hold is the same question in both scopes, so <see cref="ITagScopeNode"/> answers it for both: an
-/// <c>LREAL</c> is missing from a 5x70 whether it was configured under a program or under the controller.
+/// <c>LREAL</c> is missing from a 5X70 whether it was configured under a program or under the controller.
 /// </para>
 /// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
@@ -33,11 +33,11 @@ public sealed record ProgramTagsNode(
     ProgramName ProgramName,
     LogixGeneration Generation) : ITagScopeNode
 {
-    /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5x70 controller.</summary>
-    public const string Logix5x70LinkedNodeTypeId = "ProgramTags5x70";
+    /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5X70 controller.</summary>
+    public const string Logix5X70LinkedNodeTypeId = "ProgramTags5X70";
 
-    /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5x80 controller.</summary>
-    public const string Logix5x80LinkedNodeTypeId = "ProgramTags5x80";
+    /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5X80 controller.</summary>
+    public const string Logix5X80LinkedNodeTypeId = "ProgramTags5X80";
 
     /// <summary>The manifest property carrying <see cref="ProgramName"/>.</summary>
     public const string ProgramNamePropertyName = nameof(ProgramName);

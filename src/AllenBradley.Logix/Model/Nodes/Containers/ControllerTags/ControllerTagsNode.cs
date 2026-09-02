@@ -27,11 +27,11 @@ public sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
     LogixGeneration Generation) : ITagScopeNode
 {
-    /// <summary>The manifest's <c>MappingId</c> for a 5x70 controller's tag container.</summary>
-    public const string Logix5x70LinkedNodeTypeId = "ControllerTags5x70";
+    /// <summary>The manifest's <c>MappingId</c> for a 5X70 controller's tag container.</summary>
+    public const string Logix5X70LinkedNodeTypeId = "ControllerTags5X70";
 
-    /// <summary>The manifest's <c>MappingId</c> for a 5x80 controller's tag container.</summary>
-    public const string Logix5x80LinkedNodeTypeId = "ControllerTags5x80";
+    /// <summary>The manifest's <c>MappingId</c> for a 5X80 controller's tag container.</summary>
+    public const string Logix5X80LinkedNodeTypeId = "ControllerTags5X80";
 
     /// <inheritdoc />
     public IConfigurationNode? ParentConfigurationNode { get; set; }

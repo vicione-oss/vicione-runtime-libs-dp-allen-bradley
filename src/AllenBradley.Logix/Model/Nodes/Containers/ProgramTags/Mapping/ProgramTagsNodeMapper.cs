@@ -37,16 +37,16 @@ internal abstract class ProgramTagsNodeMapper(LogixGeneration generation)
     public ValidationResult Validate(LinkedNode linkedNode) => _validator.Validate(linkedNode);
 }
 
-/// <summary>Maps a program's tag container on a 5x70 controller, which has no <c>LREAL</c>.</summary>
-internal sealed class ProgramTags5x70NodeMapper() : ProgramTagsNodeMapper(LogixGeneration.Logix5x70)
+/// <summary>Maps a program's tag container on a 5X70 controller, which has no <c>LREAL</c>.</summary>
+internal sealed class ProgramTags5X70NodeMapper() : ProgramTagsNodeMapper(LogixGeneration.Logix5X70)
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => ProgramTagsNode.Logix5x70LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => ProgramTagsNode.Logix5X70LinkedNodeTypeId;
 }
 
-/// <summary>Maps a program's tag container on a 5x80 controller, which adds <c>LREAL</c>.</summary>
-internal sealed class ProgramTags5x80NodeMapper() : ProgramTagsNodeMapper(LogixGeneration.Logix5x80)
+/// <summary>Maps a program's tag container on a 5X80 controller, which adds <c>LREAL</c>.</summary>
+internal sealed class ProgramTags5X80NodeMapper() : ProgramTagsNodeMapper(LogixGeneration.Logix5X80)
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => ProgramTagsNode.Logix5x80LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => ProgramTagsNode.Logix5X80LinkedNodeTypeId;
 }

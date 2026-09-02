@@ -21,10 +21,10 @@ public sealed class DeviceNodeMapperTests
     /// ControlLogix node, and is never asked the family again.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixControllerFamily.ControlLogix)]
-    [InlineData(DeviceNode.ControlLogix5x80DesignId, LogixControllerFamily.ControlLogix)]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId, LogixControllerFamily.CompactLogix)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId, LogixControllerFamily.CompactLogix)]
+    [InlineData(DeviceNode.ControlLogix5X70DesignId, LogixControllerFamily.ControlLogix)]
+    [InlineData(DeviceNode.ControlLogix5X80DesignId, LogixControllerFamily.ControlLogix)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId, LogixControllerFamily.CompactLogix)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId, LogixControllerFamily.CompactLogix)]
     public void CreateRootNode_NamesTheFamilyTheDeviceNodeTypeStandsFor(
         string designId, LogixControllerFamily family)
     {
@@ -43,10 +43,10 @@ public sealed class DeviceNodeMapperTests
     /// types the tree below it may offer.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5x70DesignId, LogixGeneration.Logix5x70)]
-    [InlineData(DeviceNode.ControlLogix5x80DesignId, LogixGeneration.Logix5x80)]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId, LogixGeneration.Logix5x70)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId, LogixGeneration.Logix5x80)]
+    [InlineData(DeviceNode.ControlLogix5X70DesignId, LogixGeneration.Logix5X70)]
+    [InlineData(DeviceNode.ControlLogix5X80DesignId, LogixGeneration.Logix5X80)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId, LogixGeneration.Logix5X70)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId, LogixGeneration.Logix5X80)]
     public void CreateRootNode_NamesTheGenerationTheDeviceNodeTypeStandsFor(
         string designId, LogixGeneration generation)
     {
@@ -90,7 +90,7 @@ public sealed class DeviceNodeMapperTests
         // Arrange
         var communication = CreateCommunication() with
         {
-            DesignId = DeviceNode.CompactLogix5x70DesignId,
+            DesignId = DeviceNode.CompactLogix5X70DesignId,
             CipRoutePath = null,
         };
 
@@ -132,8 +132,8 @@ public sealed class DeviceNodeMapperTests
     public void CreateRootNode_ForTwoFamiliesAtOneAddress_ProducesEqualClientInformation()
     {
         // Arrange
-        var controlLogix = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5x70DesignId };
-        var compactLogix = CreateCommunication() with { DesignId = DeviceNode.CompactLogix5x70DesignId };
+        var controlLogix = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5X70DesignId };
+        var compactLogix = CreateCommunication() with { DesignId = DeviceNode.CompactLogix5X70DesignId };
 
         // Act
         var first = _mapper.CreateRootNode(controlLogix).ClientInformation;

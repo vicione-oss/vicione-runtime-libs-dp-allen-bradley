@@ -30,7 +30,7 @@ public interface ILogixScalarNode : IDataPointNode
     /// anything — most Logix types have always been there. A type never leaves a vocabulary once it is
     /// in it, which is what makes one bound enough to describe availability.
     /// </remarks>
-    LogixGeneration MinimumGeneration => LogixGeneration.Logix5x70;
+    LogixGeneration MinimumGeneration => LogixGeneration.Logix5X70;
 
     /// <summary>The symbolic tag address this node configures.</summary>
     TagName TagName { get; }

@@ -21,8 +21,8 @@ public static class TypedLogixNodeMapper
         new(
             new DeviceNodeMapper(),
             [
-                new ControllerTags5x70NodeMapper(), new ControllerTags5x80NodeMapper(),
-                new ProgramTags5x70NodeMapper(), new ProgramTags5x80NodeMapper(),
+                new ControllerTags5X70NodeMapper(), new ControllerTags5X80NodeMapper(),
+                new ProgramTags5X70NodeMapper(), new ProgramTags5X80NodeMapper(),
             ],
             [new DIntNodeMapper(), new LRealNodeMapper(), new StringNodeMapper()]);
 }

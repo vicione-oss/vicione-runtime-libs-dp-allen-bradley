@@ -14,16 +14,16 @@ Root:
   Description: "DataPort for Allen-Bradley ControlLogix / CompactLogix controllers over CIP (EtherNet/IP)"
   Icon: allen-bradley-logix
   ChildNodes:
-    - Id: DeviceControlLogix5x70
+    - Id: DeviceControlLogix5X70
       MaxDepth: 64
       MaxInstances: 16
-    - Id: DeviceControlLogix5x80
+    - Id: DeviceControlLogix5X80
       MaxDepth: 64
       MaxInstances: 16
-    - Id: DeviceCompactLogix5x70
+    - Id: DeviceCompactLogix5X70
       MaxDepth: 64
       MaxInstances: 16
-    - Id: DeviceCompactLogix5x80
+    - Id: DeviceCompactLogix5X80
       MaxDepth: 64
       MaxInstances: 16
 
@@ -33,9 +33,9 @@ Nodes:
   # One node id per controller family and generation. The family decides how a request is routed to the CPU, the
   # generation which data types the tree offers.
 
-  - Id: DeviceControlLogix5x70
+  - Id: DeviceControlLogix5X70
     Type: DataPortNode
-    Name: "ControlLogix 5x70"
+    Name: "ControlLogix 5X70"
     Description: "Allen-Bradley ControlLogix 5550/5560/5570 controller in a 1756 chassis, reached over EtherNet/IP."
     MetadataLength: 0
     Icon: allen-bradley-logix
@@ -54,28 +54,28 @@ Nodes:
           - Id: MaxPendingMessages
           - Id: Strategy
     ChildNodes:
-      - Id: ControllerTags5x70
-      - Id: ProgramTags5x70
+      - Id: ControllerTags5X70
+      - Id: ProgramTags5X70
 
-  - Id: DeviceControlLogix5x80
+  - Id: DeviceControlLogix5X80
     Type: DataPortNode
-    Name: "ControlLogix 5x80"
+    Name: "ControlLogix 5X80"
     Description: "Allen-Bradley ControlLogix 5580 controller in a 1756 chassis, reached over EtherNet/IP."
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: *controllogix-device-properties
     ChildNodes:
-      - Id: ControllerTags5x80
-      - Id: ProgramTags5x80
+      - Id: ControllerTags5X80
+      - Id: ProgramTags5X80
 
   # No CipRoutePath: a CompactLogix clips onto a DIN rail whose virtual backplane puts the controller
   # at slot 0, so "1,0" is the only answer there is and DeviceNodeMapper supplies it. Asking
   # would be asking a question with one legal answer.
 
-  - Id: DeviceCompactLogix5x70
+  - Id: DeviceCompactLogix5X70
     Type: DataPortNode
-    Name: "CompactLogix 5x70"
+    Name: "CompactLogix 5X70"
     Description: "Allen-Bradley CompactLogix 1769/5370 controller on a DIN rail, reached over EtherNet/IP."
     MetadataLength: 0
     Icon: allen-bradley-logix
@@ -90,47 +90,47 @@ Nodes:
       - Id: QueueConfiguration
         Properties: *queue-properties
     ChildNodes:
-      - Id: ControllerTags5x70
-      - Id: ProgramTags5x70
+      - Id: ControllerTags5X70
+      - Id: ProgramTags5X70
 
-  - Id: DeviceCompactLogix5x80
+  - Id: DeviceCompactLogix5X80
     Type: DataPortNode
-    Name: "CompactLogix 5x80"
+    Name: "CompactLogix 5X80"
     Description: "Allen-Bradley CompactLogix 5380/5480 controller on a DIN rail, reached over EtherNet/IP."
     MetadataLength: 0
     Icon: allen-bradley-logix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: *compactlogix-device-properties
     ChildNodes:
-      - Id: ControllerTags5x80
-      - Id: ProgramTags5x80
+      - Id: ControllerTags5X80
+      - Id: ProgramTags5X80
 
   # ==================== TAG CONTAINERS ===============================
   # Controller scope contributes no segment to a tag address: a controller-scope tag's
   # name is its full symbolic address, so these nodes declare no properties at all. Program
   # scope is the one that prefixes (Program:MainProgram.Tag), and ProgramName is its property.
   #
-  # One per generation. Only the child list differs: LREAL is a 5x80 type, and this is what
+  # One per generation. Only the child list differs: LREAL is a 5X80 type, and this is what
   # keeps the editor from offering it on a controller that has none. Their MappingIds differ
   # too, so the generation reaches the mapped node and the container can gate its own children
   # by it — one thin ControllerTagsNodeMapper subclass each, over a shared base.
 
-  - Id: ControllerTags5x70
-    MappingId: ControllerTags5x70
+  - Id: ControllerTags5X70
+    MappingId: ControllerTags5X70
     Type: DataPortTreeNode
     Name: "Controller"
-    Description: "Controller-scope tags of a 5x70 controller. Adds no segment to the tag address."
+    Description: "Controller-scope tags of a 5X70 controller. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
       - Id: DInt
       - Id: String
 
-  - Id: ControllerTags5x80
-    MappingId: ControllerTags5x80
+  - Id: ControllerTags5X80
+    MappingId: ControllerTags5X80
     Type: DataPortTreeNode
     Name: "Controller"
-    Description: "Controller-scope tags of a 5x80 controller, which adds LREAL. Adds no segment to the tag address."
+    Description: "Controller-scope tags of a 5X80 controller, which adds LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
@@ -143,14 +143,14 @@ Nodes:
   # under the device rather than a child of it, the way Studio 5000's own tree puts them, and
   # uncapped — a controller has as many programs as it has.
   #
-  # Split by generation for the reason controller scope is: LREAL is a 5x80 type, and the node
+  # Split by generation for the reason controller scope is: LREAL is a 5X80 type, and the node
   # type is what keeps the editor from offering it on a controller that has none.
 
-  - Id: ProgramTags5x70
-    MappingId: ProgramTags5x70
+  - Id: ProgramTags5X70
+    MappingId: ProgramTags5X70
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags of a 5x70 controller. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5X70 controller. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: &program-tags-properties
@@ -162,11 +162,11 @@ Nodes:
       - Id: DInt
       - Id: String
 
-  - Id: ProgramTags5x80
-    MappingId: ProgramTags5x80
+  - Id: ProgramTags5X80
+    MappingId: ProgramTags5X80
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags of a 5x80 controller, which adds LREAL. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5X80 controller, which adds LREAL. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
@@ -204,7 +204,7 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
-  # A 5x80 type. The 5x70 controllers have no LREAL, and the node type they are configured under
+  # A 5X80 type. The 5X70 controllers have no LREAL, and the node type they are configured under
   # is what keeps it off their tree.
 
   - Id: LReal

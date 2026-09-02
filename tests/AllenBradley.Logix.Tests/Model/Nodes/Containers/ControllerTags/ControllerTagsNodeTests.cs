@@ -22,28 +22,28 @@ public sealed class ControllerTagsNodeTests
     private static readonly Guid s_channel = Guid.NewGuid();
 
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x70Controller_SaysTheControllerHasNoSuchType()
+    public void MapToTypedNodes_WithAnLRealUnderA5X70Controller_SaysTheControllerHasNoSuchType()
     {
         // Arrange
         var communication = CreateCommunication(
             [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
-            deviceDesignId: DeviceNode.CompactLogix5x70DesignId);
+            deviceDesignId: DeviceNode.CompactLogix5X70DesignId);
 
         // Act
         var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
 
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
-            .WithMessage("'LReal' is not a data type of a Logix5x70 controller.");
+            .WithMessage("'LReal' is not a data type of a Logix5X70 controller.");
     }
 
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x80Controller_HangsItOffControllerScope()
+    public void MapToTypedNodes_WithAnLRealUnderA5X80Controller_HangsItOffControllerScope()
     {
         // Arrange
         var communication = CreateCommunication(
             [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
-            deviceDesignId: DeviceNode.CompactLogix5x80DesignId);
+            deviceDesignId: DeviceNode.CompactLogix5X80DesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -58,15 +58,15 @@ public sealed class ControllerTagsNodeTests
 
     /// <remarks>
     /// A <c>DINT</c> is every controller's type, so the generation must not gate anything but the types
-    /// a 5x70 genuinely lacks.
+    /// a 5X70 genuinely lacks.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithADIntUnderA5x70Controller_HangsItOffControllerScope()
+    public void MapToTypedNodes_WithADIntUnderA5X70Controller_HangsItOffControllerScope()
     {
         // Arrange
         var communication = CreateCommunication(
             [CreateDIntNode(s_channel.ToString(), "Counter")],
-            deviceDesignId: DeviceNode.CompactLogix5x70DesignId);
+            deviceDesignId: DeviceNode.CompactLogix5X70DesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -82,8 +82,8 @@ public sealed class ControllerTagsNodeTests
     /// A device pointing at the wrong one would gate the wrong set of types.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId, ControllerTagsNode.Logix5x70LinkedNodeTypeId)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId, ControllerTagsNode.Logix5x80LinkedNodeTypeId)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId, ControllerTagsNode.Logix5X70LinkedNodeTypeId)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId, ControllerTagsNode.Logix5X80LinkedNodeTypeId)]
     public void MapToTypedNodes_MapsBothContainerNodeTypes(string deviceDesignId, string containerDesignId)
     {
         // Arrange

@@ -67,7 +67,7 @@ public sealed class LogixCommunicationValidatorTests
         // Arrange
         var communication = CreateCommunication() with
         {
-            DesignId = DeviceNode.ControlLogix5x70DesignId,
+            DesignId = DeviceNode.ControlLogix5X70DesignId,
             CipRoutePath = null,
         };
 
@@ -103,7 +103,7 @@ public sealed class LogixCommunicationValidatorTests
         // Arrange
         var communication = CreateCommunication() with
         {
-            DesignId = DeviceNode.CompactLogix5x70DesignId,
+            DesignId = DeviceNode.CompactLogix5X70DesignId,
             CipRoutePath = null,
         };
 

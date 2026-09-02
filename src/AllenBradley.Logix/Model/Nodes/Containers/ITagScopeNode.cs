@@ -41,7 +41,7 @@ public interface ITagScopeNode : IBranchConfigurationNode
     /// <para>
     /// It throws where it might return false, the way
     /// <see cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> does. The manifest keeps the editor
-    /// from offering a type the controller lacks — a <c>ControllerTags5x70</c> node lists no <c>LReal</c>
+    /// from offering a type the controller lacks — a <c>ControllerTags5X70</c> node lists no <c>LReal</c>
     /// among its children — so a configuration that reaches here holding one was not built through the
     /// editor. A silent refusal would leave an integrator with a tag that vanished; the alternative to the
     /// throw is a tag address the controller cannot resolve reaching the poll.

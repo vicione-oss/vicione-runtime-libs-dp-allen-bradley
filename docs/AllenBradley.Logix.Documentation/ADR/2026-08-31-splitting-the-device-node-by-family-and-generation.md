@@ -20,11 +20,11 @@ CompactLogix clips onto a DIN rail whose virtual backplane places the controller
 path is always `1,0`. Both nodes asked for a path, and a CompactLogix has no answer but the default —
 a question with one legal answer, and an invitation to get it wrong.
 
-The **atomic type vocabulary** differs by generation. The 5x70 controllers and everything before them
-have `BOOL`, `SINT`, `INT`, `DINT`, `LINT` and `REAL`. The 5x80 controllers add the unsigned integers
+The **atomic type vocabulary** differs by generation. The 5X70 controllers and everything before them
+have `BOOL`, `SINT`, `INT`, `DINT`, `LINT` and `REAL`. The 5X80 controllers add the unsigned integers
 and `LREAL`. See
 [symbolic-tag-data-types.md §2](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md#2-what-logix-exposes).
-Nothing stopped a 5x70 from being configured with a type it has not got, and the failure would have
+Nothing stopped a 5X70 from being configured with a type it has not got, and the failure would have
 surfaced as a tag the controller could not resolve.
 
 So: does the addon ask these as properties on one node, or declare a node type per answer?
@@ -36,8 +36,8 @@ So: does the addon ask these as properties on one node, or declare a node type p
 - **Option 2: One node per family, generation as a property.** The path question is solved by the node
   type; the type vocabulary stays a property the mapper reads.
 - **Option 3: One node per family and generation.** Four node ids —
-  `DeviceControlLogix5x70`, `DeviceControlLogix5x80`, `DeviceCompactLogix5x70`,
-  `DeviceCompactLogix5x80` — one `DeviceNode` in C#, told apart by `DesignId`.
+  `DeviceControlLogix5X70`, `DeviceControlLogix5X80`, `DeviceCompactLogix5X70`,
+  `DeviceCompactLogix5X80` — one `DeviceNode` in C#, told apart by `DesignId`.
 - **Option 4: One node per catalog number.** `Device1756L71`, `Device1769L32E`, and so on.
 
 ## Decision Outcome
@@ -55,8 +55,8 @@ property cannot vary either. That is exactly what the two differences need:
 - The ControlLogix nodes declare `Path`; the CompactLogix nodes do not, and the mapper supplies
   `Path.VirtualBackplane`. `LogixCommunicationValidator` holds a ControlLogix to declaring one, and a
   CompactLogix to nothing.
-- `ControllerTags` splits into `ControllerTags5x70` and `ControllerTags5x80`. Only the child list
-  differs: the 5x80 container offers `LReal`, the 5x70 one does not.
+- `ControllerTags` splits into `ControllerTags5X70` and `ControllerTags5X80`. Only the child list
+  differs: the 5X80 container offers `LReal`, the 5X70 one does not.
 
 Under Option 1 both of those would have had to be runtime rules on a tree the editor still offers in
 full, which means an integrator can build a configuration the addon then refuses. Under Option 3 the
@@ -127,7 +127,7 @@ simpler to reason about if the differences did not matter.
 #### Cons
 
 The differences do matter, and a property cannot express either of them. The editor would offer
-`Path` to a CompactLogix that has one legal answer, and `LREAL` to a 5x70 that has no such type —
+`Path` to a CompactLogix that has one legal answer, and `LREAL` to a 5X70 that has no such type —
 both refused later, by rules that fire after the configuration is built rather than while it is being
 built. It also asks two questions whose answers the integrator has already given by choosing the
 controller they are configuring.
@@ -148,7 +148,7 @@ the three.
 
 #### Pros
 
-Both differences become editor-time facts: a CompactLogix is not asked for a path, and a 5x70 is not
+Both differences become editor-time facts: a CompactLogix is not asked for a path, and a 5X70 is not
 offered an `LREAL`. The integrator answers once, by picking the node that names their controller. The
 C# side stays one `DeviceNode` with one switch, and the shape matches the S7 repo's.
 

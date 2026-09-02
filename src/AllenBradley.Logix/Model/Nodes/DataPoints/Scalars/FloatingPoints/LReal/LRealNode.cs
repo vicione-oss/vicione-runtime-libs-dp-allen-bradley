@@ -20,7 +20,7 @@ internal sealed record LRealNode(LinkedNode OriginalNode, TagName TagName, PollF
     public const string LinkedNodeTypeId = "LReal";
 
     /// <summary>
-    /// The 5x80 controllers are the ones that have an <c>LREAL</c>; a 5x70 cannot resolve a tag of this
+    /// The 5X80 controllers are the ones that have an <c>LREAL</c>; a 5X70 cannot resolve a tag of this
     /// type at all.
     /// </summary>
     /// <remarks>
@@ -28,7 +28,7 @@ internal sealed record LRealNode(LinkedNode OriginalNode, TagName TagName, PollF
     /// YAML consistency test reads a data point node's public properties and expects every one of them to
     /// be a property the manifest declares.
     /// </remarks>
-    LogixGeneration ILogixScalarNode.MinimumGeneration => LogixGeneration.Logix5x80;
+    LogixGeneration ILogixScalarNode.MinimumGeneration => LogixGeneration.Logix5X80;
 
     /// <inheritdoc />
     public IConfigurationNode? Parent { get; set; }

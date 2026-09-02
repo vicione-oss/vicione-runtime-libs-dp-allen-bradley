@@ -26,7 +26,7 @@ public sealed class ProgramTagsNodeTests
         // Arrange
         var communication = CreateCommunicationOf(
             [CreateProgramTagsNode("MainProgram")],
-            deviceDesignId: DeviceNode.ControlLogix5x70DesignId);
+            deviceDesignId: DeviceNode.ControlLogix5X70DesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -42,10 +42,10 @@ public sealed class ProgramTagsNodeTests
     /// controller scope's does, because the types a program may hold are the controller's types.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5x70DesignId)]
-    [InlineData(DeviceNode.ControlLogix5x80DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X70DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X80DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId)]
     public void MapToTypedNodes_WithAProgramContainerUnderAnyDevice_HangsItOffTheDevice(string deviceDesignId)
     {
         // Arrange
@@ -86,19 +86,19 @@ public sealed class ProgramTagsNodeTests
 
     /// <remarks>
     /// The type only one generation has is what earns program scope two node types. Everything else about
-    /// the two is identical, so this and its 5x70 counterpart are the whole of the difference.
+    /// the two is identical, so this and its 5X70 counterpart are the whole of the difference.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x80Program_HangsItOffTheProgram()
+    public void MapToTypedNodes_WithAnLRealUnderA5X80Program_HangsItOffTheProgram()
     {
         // Arrange
         var communication = CreateCommunicationOf(
             [
                 CreateProgramTagsNode(
-                    "MainProgram", ProgramTagsId, ProgramTagsNode.Logix5x80LinkedNodeTypeId),
+                    "MainProgram", ProgramTagsId, ProgramTagsNode.Logix5X80LinkedNodeTypeId),
                 CreateLRealNode(s_channel.ToString(), "Position", parentId: ProgramTagsId),
             ],
-            DeviceNode.ControlLogix5x80DesignId);
+            DeviceNode.ControlLogix5X80DesignId);
 
         // Act
         var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -112,12 +112,12 @@ public sealed class ProgramTagsNodeTests
     }
 
     /// <remarks>
-    /// The manifest keeps this off a 5x70's tree, so a configuration holding it did not come from the
+    /// The manifest keeps this off a 5X70's tree, so a configuration holding it did not come from the
     /// editor. It is guarded anyway, because the alternative is a tag address the controller cannot
     /// resolve reaching the poll.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5x70Program_SaysTheControllerHasNoSuchType()
+    public void MapToTypedNodes_WithAnLRealUnderA5X70Program_SaysTheControllerHasNoSuchType()
     {
         // Arrange
         var communication = CreateCommunicationOf(
@@ -125,13 +125,13 @@ public sealed class ProgramTagsNodeTests
                 CreateProgramTagsNode("MainProgram", ProgramTagsId),
                 CreateLRealNode(s_channel.ToString(), "Position", parentId: ProgramTagsId),
             ],
-            DeviceNode.ControlLogix5x70DesignId);
+            DeviceNode.ControlLogix5X70DesignId);
 
         // Act
         var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
 
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
-            .WithMessage("'LReal' is not a data type of a Logix5x70 controller.");
+            .WithMessage("'LReal' is not a data type of a Logix5X70 controller.");
     }
 }

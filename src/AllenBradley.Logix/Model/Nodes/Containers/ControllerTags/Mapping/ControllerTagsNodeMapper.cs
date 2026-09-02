@@ -29,16 +29,16 @@ internal abstract class ControllerTagsNodeMapper(LogixGeneration generation)
     public ValidationResult Validate(LinkedNode linkedNode) => new();
 }
 
-/// <summary>Maps the tag container of a 5x70 controller, which has no <c>LREAL</c>.</summary>
-internal sealed class ControllerTags5x70NodeMapper() : ControllerTagsNodeMapper(LogixGeneration.Logix5x70)
+/// <summary>Maps the tag container of a 5X70 controller, which has no <c>LREAL</c>.</summary>
+internal sealed class ControllerTags5X70NodeMapper() : ControllerTagsNodeMapper(LogixGeneration.Logix5X70)
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => ControllerTagsNode.Logix5x70LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => ControllerTagsNode.Logix5X70LinkedNodeTypeId;
 }
 
-/// <summary>Maps the tag container of a 5x80 controller, which adds <c>LREAL</c>.</summary>
-internal sealed class ControllerTags5x80NodeMapper() : ControllerTagsNodeMapper(LogixGeneration.Logix5x80)
+/// <summary>Maps the tag container of a 5X80 controller, which adds <c>LREAL</c>.</summary>
+internal sealed class ControllerTags5X80NodeMapper() : ControllerTagsNodeMapper(LogixGeneration.Logix5X80)
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => ControllerTagsNode.Logix5x80LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => ControllerTagsNode.Logix5X80LinkedNodeTypeId;
 }

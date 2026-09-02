@@ -14,7 +14,7 @@ the wire layout of each type is in the
 |------------|-------------------|-----------|-----------|------------------------|-------------|
 | `DINT`     | `DIntDataPoint`   | `int`     | 4         | `DIntConverter`        | all         |
 | `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
-| `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5x80 only   |
+| `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
 | `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
 
 Every converter decodes a raw little-endian span. CIP and .NET are both little-endian, so the
@@ -23,11 +23,11 @@ atomic types need no byte swap.
 ### `LREAL`
 
 An IEEE-754 double, and the first type the port offers on some controllers and not others. The
-5x70 controllers have no `LREAL` at all, so configuring one there addresses a type the controller
+5X70 controllers have no `LREAL` at all, so configuring one there addresses a type the controller
 cannot resolve.
 
-The device node type is what decides. A 5x80 device node's controller-scope container is
-`ControllerTags5x80`, which lists `LReal` among its children; the 5x70 container does not, so the
+The device node type is what decides. A 5X80 device node's controller-scope container is
+`ControllerTags5X80`, which lists `LReal` among its children; the 5X70 container does not, so the
 editor never offers it. `ITagScopeNode.CanBeAdded` is the guard behind that for a configuration
 the editor did not build, and `DeviceNode.CanBeAdded` refuses a container whose generation is not its
 device's — the pairing the first guard rests on. See
@@ -38,7 +38,7 @@ whose vocabulary has the type. `ITagScopeNode` compares it against the container
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
 addresses, which is why `DIntNode` and `StringNode` say nothing. The comparison reads `LogixGeneration`
-in declaration order, and the members are numbered — `Logix5x70 = 70` — so a later generation slots in
+in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later generation slots in
 at its own number.
 
 ### `STRING`
@@ -64,7 +64,7 @@ Verification checks the declared capacity as well as the shape, because a round 
 |-------------------------------------|--------------------------------------------------------------------|
 | `BOOL`                              | 1 byte as an atomic tag; `BOOL[]` packs into 32-bit words           |
 | `SINT` / `INT` / `LINT`             | Elementary, direct decode — the same shape as `DINT`                |
-| `USINT` / `UINT` / `UDINT` / `ULINT`| 5x80 controllers only, and gated the way `LREAL` is                 |
+| `USINT` / `UINT` / `UDINT` / `ULINT`| 5X80 controllers only, and gated the way `LREAL` is                 |
 | `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
 | UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |
 | Arrays of any type                  | The model carries scalars only; an array tag is a shape mismatch    |

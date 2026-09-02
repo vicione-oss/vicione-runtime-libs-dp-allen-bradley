@@ -26,16 +26,16 @@ public sealed record DeviceNode(
     LogixGeneration Generation) : IRootConfigurationNode<LogixCommunication>
 {
     /// <summary>The manifest's node id for a ControlLogix 5550/5560/5570 in a 1756 chassis.</summary>
-    public const string ControlLogix5x70DesignId = "DeviceControlLogix5x70";
+    public const string ControlLogix5X70DesignId = "DeviceControlLogix5X70";
 
     /// <summary>The manifest's node id for a ControlLogix 5580 in a 1756 chassis.</summary>
-    public const string ControlLogix5x80DesignId = "DeviceControlLogix5x80";
+    public const string ControlLogix5X80DesignId = "DeviceControlLogix5X80";
 
     /// <summary>The manifest's node id for a CompactLogix 1769/5370 on a DIN rail.</summary>
-    public const string CompactLogix5x70DesignId = "DeviceCompactLogix5x70";
+    public const string CompactLogix5X70DesignId = "DeviceCompactLogix5X70";
 
     /// <summary>The manifest's node id for a CompactLogix 5380/5480 on a DIN rail.</summary>
-    public const string CompactLogix5x80DesignId = "DeviceCompactLogix5x80";
+    public const string CompactLogix5X80DesignId = "DeviceCompactLogix5X80";
 
     /// <summary>
     /// What the device node type <paramref name="designId"/> names stands for, or <c>null</c> for a node
@@ -49,14 +49,14 @@ public sealed record DeviceNode(
     /// </remarks>
     public static DeviceNodeType? TypeOf(string designId) => designId switch
     {
-        ControlLogix5x70DesignId =>
-            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5x70),
-        ControlLogix5x80DesignId =>
-            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5x80),
-        CompactLogix5x70DesignId =>
-            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5x70),
-        CompactLogix5x80DesignId =>
-            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5x80),
+        ControlLogix5X70DesignId =>
+            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X70),
+        ControlLogix5X80DesignId =>
+            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X80),
+        CompactLogix5X70DesignId =>
+            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X70),
+        CompactLogix5X80DesignId =>
+            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X80),
         _ => null,
     };
 
@@ -76,7 +76,7 @@ public sealed record DeviceNode(
     /// <summary>
     /// A scope container of this controller's own generation — controller scope, or a program. The other
     /// container of each pair stands for a type vocabulary this controller has not got, and would carry
-    /// that answer down to the tags below it: a <c>ControllerTags5x80</c> under a 5x70 device is what
+    /// that answer down to the tags below it: a <c>ControllerTags5X80</c> under a 5X70 device is what
     /// would let an <c>LREAL</c> past <see cref="ITagScopeNode.CanBeAdded(IDataPointNode)"/>, which
     /// believes the container.
     /// </summary>

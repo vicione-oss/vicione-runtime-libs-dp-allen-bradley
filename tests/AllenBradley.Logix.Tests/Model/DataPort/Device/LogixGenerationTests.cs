@@ -12,15 +12,15 @@ public sealed class LogixGenerationTests
     [Fact]
     public void Generations_AreOrderedOldestFirst()
     {
-        (LogixGeneration.Logix5x70 < LogixGeneration.Logix5x80).Should().BeTrue();
+        (LogixGeneration.Logix5X70 < LogixGeneration.Logix5X80).Should().BeTrue();
     }
 
     /// <remarks>
-    /// The values are the numbers in the names, so a 5x90 slots in at 90 and nothing before it moves.
+    /// The values are the numbers in the names, so a 5X90 slots in at 90 and nothing before it moves.
     /// </remarks>
     [Theory]
-    [InlineData(LogixGeneration.Logix5x70, 70)]
-    [InlineData(LogixGeneration.Logix5x80, 80)]
+    [InlineData(LogixGeneration.Logix5X70, 70)]
+    [InlineData(LogixGeneration.Logix5X80, 80)]
     public void Generation_IsNumberedAfterTheControllerLine(LogixGeneration generation, int expected)
     {
         ((int)generation).Should().Be(expected);

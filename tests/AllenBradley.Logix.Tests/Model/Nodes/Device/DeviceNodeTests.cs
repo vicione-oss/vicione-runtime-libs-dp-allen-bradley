@@ -22,17 +22,17 @@ public sealed class DeviceNodeTests
 
     /// <remarks>
     /// The mismatch is the way past <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/>: the
-    /// container believes its own node type, so a 5x80 one under a 5x70 device would let an
+    /// container believes its own node type, so a 5X80 one under a 5X70 device would let an
     /// <c>LREAL</c> onto a controller that has none.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithA5x80ContainerUnderA5x70Device_RefusesThePairing()
+    public void MapToTypedNodes_WithA5X80ContainerUnderA5X70Device_RefusesThePairing()
     {
         // Arrange
         var communication = CreateCommunication(
             [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
-            deviceDesignId: DeviceNode.CompactLogix5x70DesignId,
-            containerDesignId: ControllerTagsNode.Logix5x80LinkedNodeTypeId);
+            deviceDesignId: DeviceNode.CompactLogix5X70DesignId,
+            containerDesignId: ControllerTagsNode.Logix5X80LinkedNodeTypeId);
 
         // Act
         var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -40,21 +40,21 @@ public sealed class DeviceNodeTests
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
             .WithMessage(
-                "A 'ControllerTags5x80' container cannot hang off a 'DeviceCompactLogix5x70' device.");
+                "A 'ControllerTags5X80' container cannot hang off a 'DeviceCompactLogix5X70' device.");
     }
 
     /// <remarks>
-    /// The other way round is a configuration error too, and a quieter one: a 5x70 container under a
-    /// 5x80 device offers fewer types than the controller has rather than more.
+    /// The other way round is a configuration error too, and a quieter one: a 5X70 container under a
+    /// 5X80 device offers fewer types than the controller has rather than more.
     /// </remarks>
     [Fact]
-    public void MapToTypedNodes_WithA5x70ContainerUnderA5x80Device_RefusesThePairing()
+    public void MapToTypedNodes_WithA5X70ContainerUnderA5X80Device_RefusesThePairing()
     {
         // Arrange
         var communication = CreateCommunication(
             [CreateDIntNode(s_channel.ToString(), "Counter")],
-            deviceDesignId: DeviceNode.CompactLogix5x80DesignId,
-            containerDesignId: ControllerTagsNode.Logix5x70LinkedNodeTypeId);
+            deviceDesignId: DeviceNode.CompactLogix5X80DesignId,
+            containerDesignId: ControllerTagsNode.Logix5X70LinkedNodeTypeId);
 
         // Act
         var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
@@ -62,7 +62,7 @@ public sealed class DeviceNodeTests
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
             .WithMessage(
-                "A 'ControllerTags5x70' container cannot hang off a 'DeviceCompactLogix5x80' device.");
+                "A 'ControllerTags5X70' container cannot hang off a 'DeviceCompactLogix5X80' device.");
     }
 
     /// <remarks>
@@ -70,10 +70,10 @@ public sealed class DeviceNodeTests
     /// actually produce is one of these.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5x70DesignId)]
-    [InlineData(DeviceNode.ControlLogix5x80DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X70DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X80DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId)]
     public void MapToTypedNodes_WithTheContainerOfItsOwnGeneration_AttachesIt(string deviceDesignId)
     {
         // Arrange
@@ -91,18 +91,18 @@ public sealed class DeviceNodeTests
 
     /// <remarks>
     /// A program container is held to the same pairing, and for the same reason: it is what an
-    /// <c>LREAL</c> under a program is gated by, so a 5x80 one on a 5x70 device would open exactly the
+    /// <c>LREAL</c> under a program is gated by, so a 5X80 one on a 5X70 device would open exactly the
     /// hole the container's own guard is there to close.
     /// </remarks>
     [Theory]
     [InlineData(
-        DeviceNode.ControlLogix5x70DesignId,
-        ProgramTagsNode.Logix5x80LinkedNodeTypeId,
-        "A 'ProgramTags5x80' container cannot hang off a 'DeviceControlLogix5x70' device.")]
+        DeviceNode.ControlLogix5X70DesignId,
+        ProgramTagsNode.Logix5X80LinkedNodeTypeId,
+        "A 'ProgramTags5X80' container cannot hang off a 'DeviceControlLogix5X70' device.")]
     [InlineData(
-        DeviceNode.ControlLogix5x80DesignId,
-        ProgramTagsNode.Logix5x70LinkedNodeTypeId,
-        "A 'ProgramTags5x70' container cannot hang off a 'DeviceControlLogix5x80' device.")]
+        DeviceNode.ControlLogix5X80DesignId,
+        ProgramTagsNode.Logix5X70LinkedNodeTypeId,
+        "A 'ProgramTags5X70' container cannot hang off a 'DeviceControlLogix5X80' device.")]
     public void MapToTypedNodes_WithAProgramContainerOfAnotherGeneration_RefusesThePairing(
         string deviceDesignId, string containerDesignId, string expectedMessage)
     {
@@ -123,10 +123,10 @@ public sealed class DeviceNodeTests
     /// the only one the editor can build.
     /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5x70DesignId)]
-    [InlineData(DeviceNode.ControlLogix5x80DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x70DesignId)]
-    [InlineData(DeviceNode.CompactLogix5x80DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X70DesignId)]
+    [InlineData(DeviceNode.ControlLogix5X80DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X70DesignId)]
+    [InlineData(DeviceNode.CompactLogix5X80DesignId)]
     public void MapToTypedNodes_WithAProgramContainerOfItsOwnGeneration_AttachesIt(string deviceDesignId)
     {
         // Arrange
