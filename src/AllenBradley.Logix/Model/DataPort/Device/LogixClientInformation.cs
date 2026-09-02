@@ -3,9 +3,9 @@ using ViciOne.Suite.DataPort.Extensions.Client;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 /// <summary>
-/// Identifies a single controller and says how long one operation against it may take: the pieces of
-/// the libplctag attribute string that pick out one device, plus the timeout stamped onto every handle
-/// built for it. It is the key <c>LogixClientPool</c> holds a connection under.
+/// Identifies a single controller and says how long one operation against it may take: the address,
+/// port and route path that pick out one device, plus the timeout stamped onto every handle built for
+/// it. It is the key <c>LogixClientPool</c> holds a connection under.
 /// </summary>
 /// <remarks>
 /// It is a record, so equality is the "same connection" test the pool needs — and the timeout is part
@@ -26,21 +26,12 @@ public sealed record LogixClientInformation(
     ConnectionEndpoint ConnectionEndpoint,
     TcpPort TcpPort,
     CipRoutePath CipRoutePath,
-    OperationTimeout OperationTimeout) : IClientInformation
-{
-    /// <summary>
-    /// Endpoint and port joined the way libplctag's <c>gateway</c> attribute wants them,
-    /// <c>"10.0.0.1:44818"</c>. It has no port attribute of its own and splits the colon out in the
-    /// native core, so this is the one place the two are a single string
-    /// (<c>docs/AllenBradley.Documentation/libPlcTag/the-port-in-the-gateway-attribute.md</c>).
-    /// </summary>
-    public string GatewayAttribute => $"{ConnectionEndpoint.Value}:{TcpPort.Value}";
-}
+    OperationTimeout OperationTimeout) : IClientInformation;
 
 /// <summary>
 /// Where an EtherNet/IP session is opened: the IP address or host name of the controller, or of the
 /// bridge in front of it. The port it answers on is <see cref="Device.TcpPort"/>, kept apart from the
-/// address here and joined only for libplctag.
+/// address here and joined only where a client needs them as one string.
 /// </summary>
 public readonly record struct ConnectionEndpoint(string Value);
 

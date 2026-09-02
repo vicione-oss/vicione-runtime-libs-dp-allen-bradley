@@ -21,8 +21,8 @@ public sealed record LogixCommunication : DataPortCommunication
     public required string ConnectionEndpoint { get; init; }
     /// <summary>
     /// TCP port that interface listens on. Its own property rather than a suffix on the address, even
-    /// though libplctag takes the two as one <c>host:port</c> string —
-    /// <see cref="DataPort.Device.LogixClientInformation.GatewayAttribute"/> is where they are joined.
+    /// though libplctag takes the two as one <c>host:port</c> string — the client layer's
+    /// <c>GatewayAttribute</c> is where they are joined.
     /// </summary>
     public ushort TcpPort { get; init; } = 44818;
     /// <summary>

@@ -107,6 +107,11 @@ public sealed record DeviceNode(
     public bool CanBeAdded(IDataPointNode dataPointNode) => false;
 
     /// <inheritdoc />
+    /// <remarks>
+    /// Address, port and route path, which together pick out one CPU. That it reads like libplctag's
+    /// gateway attribute is a coincidence of shape — nothing hands this string to a client.
+    /// </remarks>
     public DeviceIdentifier DeviceIdentifier =>
-        new($"{ClientInformation.GatewayAttribute}/{ClientInformation.CipRoutePath.Value}");
+        new($"{ClientInformation.ConnectionEndpoint.Value}:{ClientInformation.TcpPort.Value}"
+            + $"/{ClientInformation.CipRoutePath.Value}");
 }

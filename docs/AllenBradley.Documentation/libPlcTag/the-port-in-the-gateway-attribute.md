@@ -6,7 +6,7 @@ splits them apart. Write `10.0.0.1` and you get EtherNet/IP's registered port. W
 `10.0.0.1:44819` and you get 44819.
 
 This is a **library fact, not our decision**. It is why the port is a property of ours that never
-reaches libplctag under its own name: the model joins address and port back into one string on the
+reaches libplctag under its own name: the client joins address and port back into one string on the
 way down.
 
 ## Where the split happens
@@ -30,8 +30,9 @@ so the colon is invisible until the connect.
 ## What it means for the client
 
 The manifest asks for the two apart — `ConnectionEndpoint` for the address, `TcpPort` for the port,
-defaulted to 44818 — and `LogixClientInformation.GatewayAttribute` joins them. `LogixTagAccessFactory`
-reads that one property onto `Tag.Gateway` and never builds the string itself.
+defaulted to 44818 — and `GatewayAttribute` joins them. It sits next to `LogixTagAccessFactory` in the
+libplctag layer rather than on `LogixClientInformation`, because the joining is the library's rule and
+nothing else in the port has a use for the joined string.
 
 Splitting what the library joins buys three things:
 

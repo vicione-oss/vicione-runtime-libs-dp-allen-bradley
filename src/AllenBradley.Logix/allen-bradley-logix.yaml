@@ -335,7 +335,7 @@ Properties:
         Message: "Connection endpoint must be the IP address or host name of the controller."
 
   # Two fields here and one string on the wire: libplctag has no port attribute and splits "host:port"
-  # apart in its native core, so LogixClientInformation.GatewayAttribute joins them back up. Asking for
+  # apart in its native core, so the client layer's GatewayAttribute joins them back up. Asking for
   # an address with a colon in it would push that parsing onto the integrator
   # (docs/AllenBradley.Documentation/libPlcTag/the-port-in-the-gateway-attribute.md).
   - Id: TcpPort
