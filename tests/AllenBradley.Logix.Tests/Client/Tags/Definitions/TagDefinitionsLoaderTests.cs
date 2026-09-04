@@ -63,7 +63,7 @@ public class TagDefinitionsLoaderTests
         var browser = new TagDefinitionsLoader(factory);
 
         // Act
-        var browse = async () => await browser.LoadAsync(TestContext.Current.CancellationToken);
+        var browse = browser.Awaiting(b => b.LoadAsync(TestContext.Current.CancellationToken));
 
         // Assert
         await browse.Should().ThrowAsync<DataRetrievalException>();

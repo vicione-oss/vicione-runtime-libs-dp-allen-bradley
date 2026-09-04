@@ -35,6 +35,12 @@ data types it has. It cuts across the family: a ControlLogix 5580 and a CompactL
 _Avoid_: series (a hardware revision within one catalog number), firmware revision (finer, and
 changes without the controller changing)
 
+**Controller kind**:
+A family and a generation together, which is what one device node in the manifest stands for and all a
+port ever needs to know about the controller it was configured against. A CompactLogix 5380 and a
+CompactLogix 5480 are the same kind.
+_Avoid_: controller type (reads as a catalog number), model
+
 **Catalog number**:
 The part number of one specific controller — `1756-L71`, `1769-L32E`. Narrower than a family and a
 generation together, and never a substitute for either.

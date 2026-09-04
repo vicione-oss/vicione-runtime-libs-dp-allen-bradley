@@ -10,20 +10,15 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 /// carries the <see cref="LogixClientInformation"/> the pool keys a connection under, so a port holds
 /// its device identity in one place rather than re-deriving it from the communication record.
 /// </summary>
-/// <remarks>
-/// One type for every device node the manifest declares. What differs between them — the controller
-/// family, and later the generation — arrives as a value read off the design id, the way S7's single
-/// <c>DeviceNode</c> tells its seven node ids apart.
-/// </remarks>
 /// <param name="OriginalCommunication">The configuration this node was mapped from.</param>
 /// <param name="ClientInformation">Which controller to reach, and how long an operation against it may take.</param>
-/// <param name="ControllerFamily">The line the controller belongs to, from the design id it was configured under.</param>
-/// <param name="Generation">How far along that line it is, from the same design id.</param>
+/// <param name="ControllerKind">
+/// The family and generation of the controller, from the design id it was configured under.
+/// </param>
 public sealed record DeviceNode(
     LogixCommunication OriginalCommunication,
     LogixClientInformation ClientInformation,
-    LogixControllerFamily ControllerFamily,
-    LogixGeneration Generation) : IRootConfigurationNode<LogixCommunication>
+    LogixControllerKind ControllerKind) : IRootConfigurationNode<LogixCommunication>
 {
     /// <summary>The manifest's node id for a ControlLogix 5550/5560/5570 in a 1756 chassis.</summary>
     public const string ControlLogix5X70DesignId = "DeviceControlLogix5X70";
@@ -41,23 +36,28 @@ public sealed record DeviceNode(
     /// What the device node type <paramref name="designId"/> names stands for, or <c>null</c> for a node
     /// type this addon does not declare.
     /// </summary>
-    /// <remarks>
-    /// Null rather than a throw, because the two callers want different things from an id they do not
-    /// know: <see cref="Mapping.DeviceNodeMapper"/> turns it into a configuration error, and
-    /// <see cref="Mapping.LogixCommunicationValidator"/> has no family rule to hold it to. This switch
-    /// and the manifest's device nodes are the same set.
-    /// </remarks>
-    public static DeviceNodeType? TypeOf(string designId) => designId switch
+    public static LogixControllerKind? KindOf(string designId) => designId switch
     {
-        ControlLogix5X70DesignId =>
-            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X70),
-        ControlLogix5X80DesignId =>
-            new DeviceNodeType(LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X80),
-        CompactLogix5X70DesignId =>
-            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X70),
-        CompactLogix5X80DesignId =>
-            new DeviceNodeType(LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X80),
+        ControlLogix5X70DesignId => LogixControllerKind.ControlLogix5X70,
+        ControlLogix5X80DesignId => LogixControllerKind.ControlLogix5X80,
+        CompactLogix5X70DesignId => LogixControllerKind.CompactLogix5X70,
+        CompactLogix5X80DesignId => LogixControllerKind.CompactLogix5X80,
         _ => null,
+    };
+
+    /// <summary>
+    /// The node id a controller of <paramref name="controllerKind"/> is configured under —
+    /// <see cref="KindOf"/> read the other way round.
+    /// </summary>
+    public static string DesignIdFor(LogixControllerKind controllerKind) => controllerKind switch
+    {
+        (LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X70) => ControlLogix5X70DesignId,
+        (LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X80) => ControlLogix5X80DesignId,
+        (LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X70) => CompactLogix5X70DesignId,
+        (LogixControllerFamily.CompactLogix, LogixGeneration.Logix5X80) => CompactLogix5X80DesignId,
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(controllerKind),
+            $"No device node for a {controllerKind.Generation} {controllerKind.Family}."),
     };
 
     /// <inheritdoc />
@@ -80,12 +80,6 @@ public sealed record DeviceNode(
     /// would let an <c>LREAL</c> past <see cref="ITagScopeNode.CanBeAdded(IDataPointNode)"/>, which
     /// believes the container.
     /// </summary>
-    /// <remarks>
-    /// A device node lists exactly one container node type per scope as its child, so the editor cannot
-    /// build the mismatch — the same thing that is true of the <c>LREAL</c> itself, and the same reason to
-    /// guard it anyway. This is the one place the pairing is visible: a container is mapped before it is
-    /// attached, so it cannot check the device, but the device can check it.
-    /// </remarks>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {
         if (configurationNode is not ITagScopeNode tagScopeNode)
@@ -93,29 +87,25 @@ public sealed record DeviceNode(
             return false;
         }
 
-        if (!IsFromSameGeneration(tagScopeNode))
+        if (tagScopeNode.Generation != ControllerKind.Generation)
         {
-            throw new InvalidConfigurationException(
-                $"A '{tagScopeNode.OriginalNode.DesignId}' container cannot hang off a "
-                + $"'{OriginalCommunication.DesignId}' device.");
+            throw InvalidChildNodeException(tagScopeNode);
         }
 
         return true;
     }
 
-    private bool IsFromSameGeneration(ITagScopeNode scopeNode)
+    private InvalidConfigurationException InvalidChildNodeException(ITagScopeNode tagScopeNode)
     {
-        return scopeNode.Generation == Generation;
+        return new InvalidConfigurationException(
+            $"A '{tagScopeNode.OriginalNode.DesignId}' container cannot be added to "
+            + $"'{OriginalCommunication.DesignId}' device.");
     }
 
     /// <summary>Tags hang off a scope container, never off the device itself.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => false;
 
     /// <inheritdoc />
-    /// <remarks>
-    /// Address, port and route path, which together pick out one CPU. That it reads like libplctag's
-    /// gateway attribute is a coincidence of shape — nothing hands this string to a client.
-    /// </remarks>
     public DeviceIdentifier DeviceIdentifier =>
         new($"{ClientInformation.ConnectionEndpoint.Value}:{ClientInformation.TcpPort.Value}"
             + $"/{ClientInformation.CipRoutePath.Value}");

@@ -1,0 +1,105 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
+using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
+
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ControllerTags.Mapping;
+
+/// <summary>The mapper on its own: a node in, a container out, without the tree walk around it.</summary>
+public sealed class ControllerTagsNodeMapperTests
+{
+    private static readonly LinkedNode X70ControllerNode =
+        CreateLinkedNode(ControllerTagsNode.Logix5X70LinkedNodeTypeId, "Controller");
+
+    private static readonly LinkedNode X80ControllerNode =
+        CreateLinkedNode(ControllerTagsNode.Logix5X80LinkedNodeTypeId, "Controller");
+
+    private readonly IBranchConfigurationNodeMapper<ControllerTagsNode> _x70NodeMapper =
+        new ControllerTags5X70NodeMapper();
+
+    private readonly IBranchConfigurationNodeMapper<ControllerTagsNode> _x80NodeMapper =
+        new ControllerTags5X80NodeMapper();
+
+    [Fact]
+    public void AContainerMappedByThe5X70MapperIsStampedWithLogix5X70()
+    {
+        // Arrange
+        var node = X70ControllerNode;
+
+        // Act
+        var controllerTagsNode = _x70NodeMapper.Map(node);
+
+        // Assert
+        controllerTagsNode.Generation.Should().Be(LogixGeneration.Logix5X70);
+    }
+
+    [Fact]
+    public void AContainerMappedByThe5X80MapperIsStampedWithLogix5X80()
+    {
+        // Arrange
+        var node = X80ControllerNode;
+
+        // Act
+        var controllerTagsNode = _x80NodeMapper.Map(node);
+
+        // Assert
+        controllerTagsNode.Generation.Should().Be(LogixGeneration.Logix5X80);
+    }
+
+    [Theory]
+    [InlineData(ControllerTagsNode.Logix5X70LinkedNodeTypeId, true)]
+    [InlineData(ControllerTagsNode.Logix5X80LinkedNodeTypeId, false)]
+    public void The5X70MapperClaimsA5X70ContainerAndNoOther(string linkedNodeTypeId, bool expected)
+    {
+        // Arrange
+        var node = CreateLinkedNode(linkedNodeTypeId, "Controller");
+
+        // Act
+        var isTargetMapper = _x70NodeMapper.IsTargetMapperFor(node);
+
+        // Assert
+        isTargetMapper.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(ControllerTagsNode.Logix5X80LinkedNodeTypeId, true)]
+    [InlineData(ControllerTagsNode.Logix5X70LinkedNodeTypeId, false)]
+    public void The5X80MapperClaimsA5X80ContainerAndNoOther(string linkedNodeTypeId, bool expected)
+    {
+        // Arrange
+        var node = CreateLinkedNode(linkedNodeTypeId, "Controller");
+
+        // Act
+        var isTargetMapper = _x80NodeMapper.IsTargetMapperFor(node);
+
+        // Assert
+        isTargetMapper.Should().Be(expected);
+    }
+
+    [Fact]
+    public void MapKeepsTheNodeItWasMappedFrom()
+    {
+        // Arrange
+        var node = X70ControllerNode;
+
+        // Act
+        var controllerTagsNode = _x70NodeMapper.Map(node);
+
+        // Assert
+        controllerTagsNode.OriginalNode.Should().BeSameAs(node);
+    }
+
+    [Fact]
+    public void AControllerTagsNodeIsValidSinceItDeclaresNoProperties()
+    {
+        // Arrange
+        var node = X70ControllerNode;
+
+        // Act
+        var validation = _x70NodeMapper.Validate(node);
+
+        // Assert
+        validation.IsValid.Should().BeTrue();
+    }
+}

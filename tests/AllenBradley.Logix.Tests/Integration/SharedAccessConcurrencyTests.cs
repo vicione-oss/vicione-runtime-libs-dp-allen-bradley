@@ -1,14 +1,13 @@
 using libplctag;
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
@@ -58,11 +57,12 @@ public class SharedAccessConcurrencyTests
         var accessFactory = new LogixTagAccessFactory(clientInformation);
         var tagManager = new CachingLogixTagManager(
             accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
-        var first = CreateDInt(DintTagName);
-        var second = CreateDInt(DintTagName);
+        var first = new DIntDataPoint(new TagName(DintTagName), DefaultPollFrequency, NoChannels);
+        var second = new DIntDataPoint(new TagName(DintTagName), DefaultPollFrequency, NoChannels);
         using var readClient = new LogixClient(
             tagManager, clientInformation, NullLogger<LogixClient>.Instance);
-        var group = CreateGroup(first, second);
+        ILogixDataPoint[] dataPoints = [first, second];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
         await readClient.ConnectAsync(CancellationToken.None);

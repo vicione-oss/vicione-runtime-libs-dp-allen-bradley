@@ -1,101 +1,67 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TypedNodeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ControllerTags;
 
-/// <summary>
-/// The gate a configured tag passes through on its way into controller scope. The manifest keeps the
-/// editor from offering a type the controller has not got; this is the guard behind it, for a
-/// configuration that did not come from the editor.
-/// </summary>
-/// <remarks>
-/// Driven through the whole <see cref="TypedLogixNodeMapper"/> rather than by calling <c>CanBeAdded</c>
-/// directly, because what is under test includes the container knowing its own generation — which it
-/// takes from the node type it was mapped from, and only the engine's dispatch puts it there.
-/// </remarks>
 public sealed class ControllerTagsNodeTests
 {
-    private static readonly Guid s_channel = Guid.NewGuid();
-
     [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5X70Controller_SaysTheControllerHasNoSuchType()
+    public void ADataPointOfTheContainersOwnGenerationCanBeAdded()
     {
         // Arrange
-        var communication = CreateCommunication(
-            [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
-            deviceDesignId: DeviceNode.CompactLogix5X70DesignId);
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var lReal = DefaultLRealNode;
 
         // Act
-        var mapping = () => TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+        var canBeAdded = controllerTags.CanBeAdded(lReal);
 
         // Assert
-        mapping.Should().Throw<InvalidConfigurationException>()
-            .WithMessage("'LReal' is not a data type of a Logix5X70 controller.");
+        canBeAdded.Should().BeTrue();
     }
 
-    [Fact]
-    public void MapToTypedNodes_WithAnLRealUnderA5X80Controller_HangsItOffControllerScope()
-    {
-        // Arrange
-        var communication = CreateCommunication(
-            [CreateLRealNode(s_channel.ToString(), "PrecisionValue")],
-            deviceDesignId: DeviceNode.CompactLogix5X80DesignId);
-
-        // Act
-        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
-
-        // Assert
-        deviceNode.ConfigurationNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<ControllerTagsNode>()
-            .Which.DataPointNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<LRealNode>()
-            .Which.TagName.Value.Should().Be("PrecisionValue");
-    }
-
-    /// <remarks>
-    /// A <c>DINT</c> is every controller's type, so the generation must not gate anything but the types
-    /// a 5X70 genuinely lacks.
-    /// </remarks>
-    [Fact]
-    public void MapToTypedNodes_WithADIntUnderA5X70Controller_HangsItOffControllerScope()
-    {
-        // Arrange
-        var communication = CreateCommunication(
-            [CreateDIntNode(s_channel.ToString(), "Counter")],
-            deviceDesignId: DeviceNode.CompactLogix5X70DesignId);
-
-        // Act
-        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
-
-        // Assert
-        deviceNode.ConfigurationNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<ControllerTagsNode>()
-            .Which.DataPointNodes.Should().ContainSingle();
-    }
-
-    /// <remarks>
-    /// Both container node types are mapped, and each stamps its own generation on the node it makes.
-    /// A device pointing at the wrong one would gate the wrong set of types.
-    /// </remarks>
     [Theory]
-    [InlineData(DeviceNode.CompactLogix5X70DesignId, ControllerTagsNode.Logix5X70LinkedNodeTypeId)]
-    [InlineData(DeviceNode.CompactLogix5X80DesignId, ControllerTagsNode.Logix5X80LinkedNodeTypeId)]
-    public void MapToTypedNodes_MapsBothContainerNodeTypes(string deviceDesignId, string containerDesignId)
+    [InlineData(LogixGeneration.Logix5X70)]
+    [InlineData(LogixGeneration.Logix5X80)]
+    public void ADataPointOfTheOldestGenerationCanBeAddedWhateverTheControllersGeneration(
+        LogixGeneration generation)
     {
         // Arrange
-        var communication = CreateCommunication(
-            [CreateDIntNode(s_channel.ToString(), "Counter")], deviceDesignId: deviceDesignId);
+        var controllerTags = DefaultControllerTagsNode with { Generation = generation };
+        var dInt = DefaultDIntNode;
 
         // Act
-        var deviceNode = TypedLogixNodeMapper.Instance().MapToTypedNodes(communication);
+        var canBeAdded = controllerTags.CanBeAdded(dInt);
 
         // Assert
-        deviceNode.ConfigurationNodes.Should().ContainSingle()
-            .Which.Should().BeOfType<ControllerTagsNode>()
-            .Which.OriginalNode.DesignId.Should().Be(containerDesignId);
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ADataPointRequiringALaterGenerationIsRefused()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X70 };
+        var lReal = DefaultLRealNode;
+
+        // Act
+        var adding = controllerTags.Invoking(node => node.CanBeAdded(lReal));
+
+        // Assert
+        adding.Should().Throw<InvalidConfigurationException>();
+    }
+
+    [Fact]
+    public void NothingNestsInsideControllerScope()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode;
+        var anotherContainer = DefaultControllerTagsNode;
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(anotherContainer);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
     }
 }

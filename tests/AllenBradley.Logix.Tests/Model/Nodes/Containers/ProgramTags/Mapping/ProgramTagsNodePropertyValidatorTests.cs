@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ProgramTags.Mapping;
 
@@ -18,77 +19,69 @@ public sealed class ProgramTagsNodePropertyValidatorTests
     [InlineData("_Staging", "a leading underscore, which Studio 5000 allows")]
     [InlineData("Line_2_Fill", "single underscores between characters")]
     [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "exactly the 40-character limit")]
-    public void Validate_AcceptsAProgramNameStudio5000WouldDeclare(string programName, string because)
+    public void AProgramNameStudio5000WouldDeclareIsAccepted(string programName, string validBecause)
     {
         // Arrange
-        var node = ProgramTagsLinkedNode("Main", (ProgramTagsNode.ProgramNamePropertyName, programName));
+        var node = ProgramNodeNamed(programName);
 
         // Act
-        var result = _validator.Validate(node);
+        var validation = _validator.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeTrue(because);
+        validation.IsValid.Should().BeTrue(validBecause);
     }
 
     [Theory]
     [InlineData("1Main")]
     [InlineData("Main Prog")]
     [InlineData("Main__1")]
-    public void Validate_RejectsAProgramNameStudio5000CouldNotDeclare(string programName)
+    public void AProgramNameStudio5000CouldNotDeclareIsRefusedByName(string programName)
     {
         // Arrange
-        var node = ProgramTagsLinkedNode("Main", (ProgramTagsNode.ProgramNamePropertyName, programName));
+        var node = ProgramNodeNamed(programName);
 
         // Act
-        var result = _validator.Validate(node);
+        var validation = _validator.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle().Which.ErrorMessage.Should().Be(
-            $"The program name '{programName}' in node 'Main' "
+        validation.IsValid.Should().BeFalse();
+        validation.Errors.Should().ContainSingle().Which.ErrorMessage.Should().Be(
+            $"The program name '{programName}' in node '{programName}' "
             + $"({ProgramTagsNode.Logix5X70LinkedNodeTypeId}) is not a valid Logix program name.");
     }
 
-    /// <remarks>
-    /// The qualified address is what an integrator reaches for when they know the tag's full name. It is
-    /// the container's job to add <c>Program:</c>, so typing it here would compose
-    /// <c>Program:Program:MainProgram.Count</c> and find nothing.
-    /// </remarks>
     [Theory]
     [InlineData("", "an empty name prefixes nothing")]
     [InlineData("Main_", "a trailing underscore is rejected")]
     [InlineData("Program:MainProgram", "the qualified form belongs to the address, not to this field")]
     [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "41 characters is one past the limit")]
-    public void Validate_RejectsWhatIsNotAProgramName(string programName, string because)
+    public void WhatIsNotAProgramNameIsRefusedOnTheProgramNameProperty(string programName, string invalidBecause)
     {
         // Arrange
-        var node = ProgramTagsLinkedNode("Main", (ProgramTagsNode.ProgramNamePropertyName, programName));
+        var node = ProgramNodeNamed(programName);
 
         // Act
-        var result = _validator.Validate(node);
+        var validation = _validator.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeFalse(because);
-        result.Errors.Should().ContainSingle()
+        validation.IsValid.Should().BeFalse(invalidBecause);
+        validation.Errors.Should().ContainSingle()
             .Which.PropertyName.Should().Be(ProgramTagsNode.ProgramNamePropertyName);
     }
 
-    /// <remarks>
-    /// The name rule is skipped when the property is absent, so it has nothing to say about a container
-    /// carrying none. Without that <c>When</c> guard it would throw out of <c>GetRequiredPropertyValue</c>
-    /// while the configuration was being validated, rather than being reported as the missing property it
-    /// is.
-    /// </remarks>
     [Fact]
-    public void Validate_WhenTheProgramNameIsMissing_DoesNotThrow()
+    public void AMissingProgramNameIsLeftToTheRequiredPropertyRule()
     {
         // Arrange
-        var node = ProgramTagsLinkedNode("Main");
+        var node = CreateLinkedNode(ProgramTagsNode.Logix5X70LinkedNodeTypeId, "Main");
 
         // Act
-        var validate = () => _validator.Validate(node);
+        var validation = _validator.Validate(node);
 
         // Assert
-        validate.Should().NotThrow();
+        validation.Errors.Should().BeEmpty();
     }
+
+    private static LinkedNode ProgramNodeNamed(string programName) => CreateLinkedNode(
+        ProgramTagsNode.Logix5X70LinkedNodeTypeId, programName, CreateProgramName(programName));
 }

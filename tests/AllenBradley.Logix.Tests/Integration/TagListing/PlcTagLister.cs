@@ -1,5 +1,4 @@
 using libplctag;
-using libplctag.DataTypes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
 
@@ -28,15 +27,13 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
     // the process on exit (exit code 0xC0000602) even when every test has passed.
     private TagInfo[] ReadControllerTags()
     {
-        using var tag = new Tag<TagInfoPlcMapper, TagInfo[]>
-        {
-            Gateway = connectionEndpoint,
-            Path = cipRoutePath,
-            PlcType = PlcType.ControlLogix,
-            Protocol = Protocol.ab_eip,
-            Name = "@tags",
-            Timeout = timeout
-        };
+        using var tag = new Tag<TagInfoPlcMapper, TagInfo[]>();
+        tag.Gateway = connectionEndpoint;
+        tag.Path = cipRoutePath;
+        tag.PlcType = PlcType.ControlLogix;
+        tag.Protocol = Protocol.ab_eip;
+        tag.Name = "@tags";
+        tag.Timeout = timeout;
 
         tag.Read();
         return tag.Value;
@@ -48,15 +45,13 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
 
         foreach (var tag in controllerTags.Where(t => t.Name.StartsWith("Program:")))
         {
-            using var programTag = new Tag<TagInfoPlcMapper, TagInfo[]>
-            {
-                Gateway = connectionEndpoint,
-                Path = cipRoutePath,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Name = $"{tag.Name}.@tags",
-                Timeout = timeout
-            };
+            using var programTag = new Tag<TagInfoPlcMapper, TagInfo[]>();
+            programTag.Gateway = connectionEndpoint;
+            programTag.Path = cipRoutePath;
+            programTag.PlcType = PlcType.ControlLogix;
+            programTag.Protocol = Protocol.ab_eip;
+            programTag.Name = $"{tag.Name}.@tags";
+            programTag.Timeout = timeout;
 
             programTag.Read();
             result[tag.Name] = programTag.Value;
@@ -76,15 +71,13 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
 
         foreach (var udtId in udtIds)
         {
-            using var udtTag = new Tag<UdtInfoPlcMapper, UdtInfo>
-            {
-                Gateway = connectionEndpoint,
-                Path = cipRoutePath,
-                PlcType = PlcType.ControlLogix,
-                Protocol = Protocol.ab_eip,
-                Name = $"@udt/{udtId}",
-                Timeout = timeout
-            };
+            using var udtTag = new Tag<UdtInfoPlcMapper, UdtInfo>();
+            udtTag.Gateway = connectionEndpoint;
+            udtTag.Path = cipRoutePath;
+            udtTag.PlcType = PlcType.ControlLogix;
+            udtTag.Protocol = Protocol.ab_eip;
+            udtTag.Name = $"@udt/{udtId}";
+            udtTag.Timeout = timeout;
 
             udtTag.Read();
             result.Add(udtTag.Value);

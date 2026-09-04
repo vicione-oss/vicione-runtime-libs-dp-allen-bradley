@@ -8,7 +8,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
-using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -23,11 +22,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// dropped. What a tag holds is not re-checked here — <c>LogixConfigurationVerifier</c> settled that at
 /// connect — so the metadata on these fakes only feeds <c>ResolveDataPoints</c>.
 /// </summary>
+// Every act here captures the `using var client` — as a Record delegate invoked on the spot, or as an
+// Awaiting one the assertion invokes a line later. Neither outlives the test method.
+// ReSharper disable AccessToDisposedClosure
 public class LogixClientTests
 {
-    private static readonly DIntDataPoint Speed = CreateDInt("Motor.Speed");
-    private static readonly DIntDataPoint Level = CreateDInt("Tank.Level");
-    private static readonly StringDataPoint Label = CreateString("Line.Label");
+    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly StringDataPoint Label = new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
 
     // Metadata the controller would report for a DINT tag. It is what ResolveDataPoints hands to
     // verification; the read and write paths never look at it, so only the device outcome decides those.
@@ -52,9 +54,11 @@ public class LogixClientTests
             [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
         };
         using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Speed, Level];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var values = await client.ReadAsync(CreateGroup(Speed, Level), CancellationToken.None);
+        var values = await client.ReadAsync(group, CancellationToken.None);
 
         // Assert
         // Per-tag partial failure: the bad tag must not sink the group
@@ -79,7 +83,8 @@ public class LogixClientTests
         using var client = CreateClient(tagManager);
 
         // Act
-        var values = await client.ReadAsync(CreateGroup(Speed, Level), CancellationToken.None);
+        ILogixDataPoint[] dataPoints = [Speed, Level];
+        var values = await client.ReadAsync(new LogixDataPointGroup(DefaultPollFrequency, dataPoints), CancellationToken.None);
 
         // Assert
         // A decode that throws is still one tag's problem: it degrades its own point and leaves the rest
@@ -104,15 +109,16 @@ public class LogixClientTests
             [unconvertible] = FakeTag.Reading(unconvertible, metadata: null, LogixTagReadResult.Ok(FortyTwoAsDint)),
         };
         using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Speed, unconvertible];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var read = async () => await client.ReadAsync(
-            CreateGroup(Speed, unconvertible), CancellationToken.None);
+        var read = await Record.ExceptionAsync(() => client.ReadAsync(group, CancellationToken.None).AsTask());
 
         // Assert
         // The group resolves whole before any I/O, so a data point wired up without a converter is a
         // configuration error that costs no round trip and leaves no half-read group behind.
-        await read.Should().ThrowAsync<InvalidOperationException>();
+        read.Should().BeOfType<InvalidOperationException>();
         speedTag.WasRead.Should().BeFalse();
     }
 
@@ -125,10 +131,11 @@ public class LogixClientTests
             [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
         };
         using var client = CreateClient(tagManager);
-        var value = CreateValue(Speed, 42);
+        
+        var value = Speed.CreateLogixValue(42);
 
         // Act
-        var write = async () => await client.WriteAsync([value], CancellationToken.None);
+        var write = client.Awaiting(c => c.WriteAsync([value], CancellationToken.None));
 
         // Assert
         // Silence here would be a dropped write the caller cannot detect.
@@ -148,12 +155,12 @@ public class LogixClientTests
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values =
         [
-            CreateValue(Speed, 42),
-            CreateValue(Level, 7),
+            Speed.CreateLogixValue(42),
+            Level.CreateLogixValue(7),
         ];
 
         // Act
-        var write = async () => await client.WriteAsync(values, CancellationToken.None);
+        var write = client.Awaiting(c => c.WriteAsync(values, CancellationToken.None));
 
         // Assert
         // A failing tag does not stop its siblings, so reporting only the first would leave the caller
@@ -170,7 +177,7 @@ public class LogixClientTests
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
         var tagManager = new FakeTagManager { [Speed] = tag };
         using var client = CreateClient(tagManager);
-        var value = CreateValue(Speed, 42);
+        ILogixDataPointValue value = Speed.CreateLogixValue(42);
 
         // Act
         await client.WriteAsync([value], CancellationToken.None);
@@ -190,7 +197,7 @@ public class LogixClientTests
             Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok(), tagSize: 88);
         var tagManager = new FakeTagManager { [Label] = tag };
         using var client = CreateClient(tagManager);
-        var value = CreateValue(Label, "Hi");
+        var value = (ILogixDataPointValue)Label.CreateLogixValue("Hi");
 
         // Act
         await client.WriteAsync([value], CancellationToken.None);
@@ -214,9 +221,11 @@ public class LogixClientTests
             [Label] = FakeTag.Reading(Label, StringMetadata("Line.Label"), LogixTagReadResult.Ok(structure)),
         };
         using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Label];
+        var logixDataPointGroup = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var values = await client.ReadAsync(CreateGroup(Label), CancellationToken.None);
+        var values = await client.ReadAsync(logixDataPointGroup, CancellationToken.None);
 
         // Assert
         values.Should().ContainSingle();
@@ -262,14 +271,14 @@ public class LogixClientTests
         using var client = CreateClient(tagManager);
 
         // Act
-        var resolve = async () => await client.ResolveDataPoints([Speed], CancellationToken.None);
+        var resolve = await Record.ExceptionAsync(() => client.ResolveDataPoints([Speed], CancellationToken.None));
 
         // Assert
         // A connect is the precondition, and the dataport base always satisfies it: it builds the
         // verifier from the client it has just acquired. Browsing here instead would open handles on a
         // client that does not consider itself connected — which a later disconnect would then skip
         // freeing, and a handle left to its finalizer fail-fasts the process (0xC0000602).
-        await resolve.Should().ThrowAsync<InvalidOperationException>();
+        resolve.Should().BeOfType<InvalidOperationException>();
         tagManager.SchemaLoads.Should().Be(0);
     }
 
@@ -286,7 +295,7 @@ public class LogixClientTests
         await client.DisconnectAsync(CancellationToken.None);
 
         // Act
-        var resolve = async () => await client.ResolveDataPoints([Speed], CancellationToken.None);
+        var resolve = client.Awaiting(c => c.ResolveDataPoints([Speed], CancellationToken.None));
 
         // Assert
         // The disconnect dropped the schema these would resolve against, so the precondition is about
@@ -325,11 +334,11 @@ public class LogixClientTests
         using var client = CreateClient(tagManager);
 
         // Act
-        var connect = async () => await client.ConnectAsync(CancellationToken.None);
+        var connect = await Record.ExceptionAsync(() => client.ConnectAsync(CancellationToken.None));
 
         // Assert
-        (await connect.Should().ThrowAsync<ConnectionFailureException>())
-            .WithInnerException<DataRetrievalException>();
+        connect.Should().BeOfType<ConnectionFailureException>()
+            .Which.InnerException.Should().BeOfType<DataRetrievalException>();
         client.IsConnected.Should().BeFalse();
     }
 
@@ -344,10 +353,10 @@ public class LogixClientTests
         await cts.CancelAsync();
 
         // Act
-        var connect = async () => await client.ConnectAsync(cts.Token);
+        var connect = await Record.ExceptionAsync(() => client.ConnectAsync(cts.Token));
 
         // Assert
-        await connect.Should().ThrowAsync<OperationCanceledException>();
+        connect.Should().BeAssignableTo<OperationCanceledException>();
         client.IsConnected.Should().BeFalse();
     }
 
@@ -399,17 +408,17 @@ public class LogixClientTests
         client.Dispose();
 
         // Act
-        var connect = async () => await client.ConnectAsync(CancellationToken.None);
+        var connect = await Record.ExceptionAsync(() => client.ConnectAsync(CancellationToken.None));
 
         // Assert
         // Dispose is terminal: a disposed client's tag manager is gone, so reviving it would hand out
         // tags nothing owns. The pool builds a fresh client instead.
-        await connect.Should().ThrowAsync<ObjectDisposedException>();
+        connect.Should().BeOfType<ObjectDisposedException>();
         tagManager.SchemaLoads.Should().Be(0);
     }
 
     private static LogixClient CreateClient(ILogixTagManager tagManager) =>
-        new(tagManager, CreateClientInformation(), TestLogging.CreateLogger<LogixClient>());
+        new(tagManager, DefaultClientInformation(), TestLogging.CreateLogger<LogixClient>());
 
     // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
     // that nobody wired a converter for.

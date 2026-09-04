@@ -1,6 +1,9 @@
 using System.Globalization;
 using System.Text;
 using libplctag;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
@@ -10,23 +13,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// <c>STRING</c> work was specified against, so they can be read off a real controller and recorded in
 /// TEST-DEVICE-SETUP.md. <b>Delete it once they are.</b>
 /// </summary>
-/// <remarks>
-/// <para>Two of the three were settled from libplctag's own documented Logix string layout — count word
-/// 4 bytes at offset 0, capacity 82, 2 pad bytes, 88 total — which says the library strips the
-/// <c>A0 02 HH HH</c> abbreviated-structure prefix into its own type-info store and hands the caller
-/// only the member bytes. This prints the buffer so that claim is checked against the wire rather than
-/// believed.</para>
-/// <list type="number">
-/// <item>Does the buffer start at <c>.LEN</c>, or at the <c>A0 02 HH HH</c> prefix? Every offset in
-/// <c>LogixStringConverter</c> hangs off this.</item>
-/// <item>What <c>ElementLength</c> does the listing report for <c>strValue1</c> — 86 (the members) or
-/// 88 (padded)? <c>TagsDecoder</c> assumes 86 and subtracts the 4-byte <c>.LEN</c> to get the
-/// capacity, so 88 would decode every built-in <c>STRING</c> as <c>.DATA[84]</c> and degrade its
-/// every read. This is the fact with the most riding on it.</item>
-/// <item>Is <c>strValue1</c> a built-in <c>STRING</c> (<c>.DATA[82]</c>) or a custom string type? Sets
-/// the expected <c>StringMaxLength</c>.</item>
-/// </list>
-/// </remarks>
 public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegrationTestBase
 {
     private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
@@ -38,7 +24,7 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
     public async Task ProbeStrValue1_PrintsTheRawBufferAndTheDecodedDeclaration()
     {
         // Arrange
-        var dataPoint = CreateString(LogixTagAddresses.StrValue1);
+        var dataPoint = new StringDataPoint(new TagName(LogixTagAddresses.StrValue1), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
         var tag = TagManager.TagFor(dataPoint);
 
         // Act
@@ -68,15 +54,13 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
     // between its GetString and our decode is the interesting signal.
     private static string DescribeWithRawLibplctag(string tagName)
     {
-        using var tag = new Tag
-        {
-            Gateway = ConnectionEndpoint,
-            Path = CipRoutePath,
-            PlcType = PlcType.ControlLogix,
-            Protocol = Protocol.ab_eip,
-            Name = tagName,
-            Timeout = Timeout,
-        };
+        using var tag = new Tag();
+        tag.Gateway = ConnectionEndpoint;
+        tag.Path = CipRoutePath;
+        tag.PlcType = PlcType.ControlLogix;
+        tag.Protocol = Protocol.ab_eip;
+        tag.Name = tagName;
+        tag.Timeout = Timeout;
 
         tag.Read();
 

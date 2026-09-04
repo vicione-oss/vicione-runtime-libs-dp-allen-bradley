@@ -7,10 +7,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// CIP Symbol object, class <c>0x6B</c>): whether it is a structure, its array rank, and — for an
 /// atomic type — its elementary data type.
 /// </summary>
-/// <remarks>
-/// Bit layout per the CIP data types reference, section "The Logix symbol-type bitfield": bit 15 marks
-/// a structure, bits 14–13 hold the dimension count, and the low byte is the atomic CIP code.
-/// </remarks>
 internal static class SymbolType
 {
     private const ushort StructMask = 0x8000;

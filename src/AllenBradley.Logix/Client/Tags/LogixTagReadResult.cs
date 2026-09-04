@@ -4,10 +4,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 /// The outcome of one <see cref="Access.ILogixTagAccess.ReadAsync"/>: the raw bytes it read, or why it
 /// failed.
 /// </summary>
-/// <remarks>
-/// The result is a self-contained snapshot: the access is shared and synchronized per exchange, so
-/// anything queried from it after the call returns could already belong to another caller's operation.
-/// </remarks>
 internal readonly record struct LogixTagReadResult
 {
     private LogixTagReadResult(ReadOnlyMemory<byte> buffer, string? error)

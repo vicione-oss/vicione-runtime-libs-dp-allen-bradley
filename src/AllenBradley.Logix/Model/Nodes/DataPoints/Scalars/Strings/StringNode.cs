@@ -10,11 +10,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// A configured <c>STRING</c> tag. The configuration-time half of <see cref="StringDataPoint"/>: this is
 /// what the manifest produces, that is what the client reads.
 /// </summary>
-/// <remarks>
-/// It carries one thing the elementary scalars do not — the declared capacity. A string's size follows
-/// its declaration rather than its type (a <c>STRING_20</c> is the same structure and 24 bytes), so the
-/// capacity is configuration, and it is what verification holds the controller to.
-/// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads it.</param>

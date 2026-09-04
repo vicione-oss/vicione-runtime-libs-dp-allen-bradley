@@ -1,14 +1,18 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
-
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ProgramTagsNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
@@ -44,7 +48,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
     {
         // Arrange
-        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Dint));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Dint));
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -57,7 +61,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheTagIsAbsent_ReportsNotFound()
     {
         // Arrange
-        var resolved = Resolved(CreateDInt("Ghost"), device: null);
+        var resolved = Resolved(new DIntDataPoint(new TagName("Ghost"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), device: null);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -72,7 +76,7 @@ public class LogixConfigurationVerifierTests
     {
         // Arrange
         // DINT configured, REAL on the controller.
-        var resolved = Resolved(CreateDInt("Motor.Speed"), Declaration(dataType: AllenBradleyDataType.Real));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Real));
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -86,7 +90,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheControllerTagIsAStructure_ReportsAShapeMismatch()
     {
         // Arrange
-        var resolved = Resolved(CreateDInt("Motor"), StringDeclaration());
+        var resolved = Resolved(new DIntDataPoint(new TagName("Motor"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), StringDeclaration());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -100,7 +104,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
     {
         // Arrange
-        var resolved = Resolved(CreateDInt("Counts"), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
+        var resolved = Resolved(new DIntDataPoint(new TagName("Counts"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -114,7 +118,7 @@ public class LogixConfigurationVerifierTests
     public void GetMismatches_WhenAStringMatchesTheDeclaredCapacity_ReportsNothing()
     {
         // Arrange
-        var resolved = Resolved(CreateString("Label"), StringDeclaration());
+        var resolved = Resolved(new StringDataPoint(new TagName("Label"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), StringDeclaration());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -129,7 +133,7 @@ public class LogixConfigurationVerifierTests
         // Arrange
         // The inverse of the structure case: a STRING configured onto a DINT tag.
         var resolved = Resolved(
-            CreateString("Motor.Speed"),
+            new StringDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)),
             Declaration(dataType: AllenBradleyDataType.Dint));
 
         // Act
@@ -148,7 +152,7 @@ public class LogixConfigurationVerifierTests
         // this — hence its own mismatch kind. Both numbers are characters, the unit the configuration
         // is written in.
         var resolved = Resolved(
-            CreateString("Label"),
+            new StringDataPoint(new TagName("Label"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)),
             StringDeclaration(maxLength: 20));
 
         // Act
@@ -174,9 +178,9 @@ public class LogixConfigurationVerifierTests
         // Act
         var result = await verifier.Verify(
             [
-                CreateDInt("Good"),
-                CreateDInt("WrongType"),
-                CreateDInt("Missing"),
+                new DIntDataPoint(new TagName("Good"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
+                new DIntDataPoint(new TagName("WrongType"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
+                new DIntDataPoint(new TagName("Missing"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
             ],
             TestContext.Current.CancellationToken);
 
@@ -187,10 +191,6 @@ public class LogixConfigurationVerifierTests
             .Which.Value.Should().Contain(m.DataPoint.TagName.Value));
     }
 
-    /// <remarks>
-    /// The report names the composed address, not the bare tag name the integrator typed: <c>Count</c>
-    /// alone would send them looking for a tag that exists, under a program that does not.
-    /// </remarks>
     [Fact]
     public async Task Verify_ATagUnderAProgramTheControllerHasNot_ReportsTheQualifiedAddressAsNotFound()
     {
@@ -199,10 +199,11 @@ public class LogixConfigurationVerifierTests
         {
             ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
         };
+        var noSuchProgram = CreateProgramTagsNode("NoSuchProgram");
         var dataPoints = DataPointsOf(CreateCommunicationOf(
         [
-            CreateProgramTagsNode("NoSuchProgram", ProgramTagsId),
-            CreateDIntNode("Speed", "Count", parentId: ProgramTagsId),
+            noSuchProgram,
+            CreateDIntNode("Speed", "Count", noSuchProgram.Id),
         ]));
         var verifier = new LogixConfigurationVerifier(client);
 
@@ -215,10 +216,6 @@ public class LogixConfigurationVerifierTests
             .Which.Value.Should().Be("Tag 'Program:NoSuchProgram.Count' was not found on the controller.");
     }
 
-    /// <remarks>
-    /// The counterpart that makes the case above mean something: the same bare tag name under the program
-    /// that owns it resolves. Without this, a prefix that composed nothing at all would look like a pass.
-    /// </remarks>
     [Fact]
     public async Task Verify_ATagUnderTheProgramThatOwnsIt_ReportsNothing()
     {
@@ -227,10 +224,11 @@ public class LogixConfigurationVerifierTests
         {
             ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
         };
+        var mainProgram = CreateProgramTagsNode("MainProgram");
         var dataPoints = DataPointsOf(CreateCommunicationOf(
         [
-            CreateProgramTagsNode("MainProgram", ProgramTagsId),
-            CreateDIntNode("Speed", "Count", parentId: ProgramTagsId),
+            mainProgram,
+            CreateDIntNode("Speed", "Count", mainProgram.Id),
         ]));
         var verifier = new LogixConfigurationVerifier(client);
 

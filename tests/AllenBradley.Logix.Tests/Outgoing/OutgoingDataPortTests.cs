@@ -13,7 +13,9 @@ using ViciOne.Suite.DataPort.Extensions.Client;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Outgoing.QueueProcessing;
 using ViciOne.Suite.DataPort.Extensions.Testing.Assertions;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ControllerTagsNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.Extensions.Testing.Assertions.EventualAssertions;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Outgoing;
@@ -23,18 +25,17 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Outgoing;
 /// conversion gate a value crosses on its way to the queue, and the verifier a connect runs. The queue,
 /// the retry loop and the backpressure rules are the framework's and are tested with it.
 /// </summary>
-/// <remarks>
-/// Every write assertion goes through <c>Eventually</c> because <c>SendAsync</c> enqueues and returns —
-/// the write happens on the queue processor. The delay provider is instant so a retry costs no wall
-/// clock.
-/// </remarks>
 public sealed class OutgoingDataPortTests : IDisposable
 {
     private const string Channel = "MotorSpeed";
     private const string TagName = "MotorSpeed";
 
+    /// <summary>Controller scope on the device, the container the single configured tag hangs off.</summary>
+    private static readonly Node ControllerTagsNode = CreateControllerTagsNodeFor();
+
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
     private readonly ILogixClient _client = Substitute.For<ILogixClient>();
+
     private readonly IClientLifecycleManager<ILogixClient, LogixClientInformation> _lifecycleManager =
         Substitute.For<IClientLifecycleManager<ILogixClient, LogixClientInformation>>();
 
@@ -55,7 +56,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task ClientInformation_IsTheDeviceNodesOwn()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
 
         // Act
         var clientInformation = outgoing.ClientInformation;
@@ -68,7 +70,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task ConnectAsync_AcquiresTheClientForItsController()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
 
         // Act
         await outgoing.ConnectAsync(CancellationToken.None);
@@ -82,7 +85,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task DisconnectAsync_ReleasesTheClient()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
@@ -93,15 +97,12 @@ public sealed class OutgoingDataPortTests : IDisposable
             .ReleaseAsync(Arg.Any<LogixClientInformation>(), Arg.Any<CancellationToken>());
     }
 
-    /// <remarks>
-    /// The verifier the port creates is the incoming port's, so a tag the controller declares as
-    /// something else fails the connect here too rather than becoming a write that retries forever.
-    /// </remarks>
     [Fact]
     public async Task ConnectAsync_TagMissingFromTheController_FailsTheConnect()
     {
         // Arrange
-        var communication = CommunicationWithSingleDInt(Channel, TagName);
+        var communication = CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]);
         _client.ResolveDataPoints(Arg.Any<IReadOnlyList<ILogixDataPoint>>(), Arg.Any<CancellationToken>())
             .Returns(callInfo => Task.FromResult<IReadOnlyList<ResolvedDataPoint>>(
             [
@@ -112,7 +113,8 @@ public sealed class OutgoingDataPortTests : IDisposable
         await using var outgoing = CreatePort(communication);
 
         // Act
-        var connect = () => outgoing.ConnectAsync(CancellationToken.None);
+        // ReSharper disable once AccessToDisposedClosure — the assertion below invokes it in scope
+        var connect = outgoing.Awaiting(port => port.ConnectAsync(CancellationToken.None));
 
         // Assert
         await connect.Should().ThrowAsync<InvalidConfigurationException>();
@@ -122,7 +124,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task SendAsync_ValueOnAConfiguredChannel_WritesItAsThatTagsTypedValue()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
@@ -141,7 +144,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task SendAsync_ValueOfTheWrongType_DropsTheBatch()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act — a DINT carries an int, and "not a number" cannot become one
@@ -151,22 +155,21 @@ public sealed class OutgoingDataPortTests : IDisposable
         await NothingIsWritten(outgoing);
     }
 
-    /// <remarks>
-    /// One unmatched channel is a configuration concern, not a threat to controller state, so the
-    /// framework skips it and keeps going — unlike a conversion failure, which drops the batch.
-    /// </remarks>
     [Fact]
     public async Task SendAsync_ValueOnAnUnconfiguredChannel_IsSkipped()
     {
         // Arrange
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
-        var send = () => outgoing.SendAsync(1, [ExternalValue("NoSuchChannel", 42)], CancellationToken.None);
+        // ReSharper disable once AccessToDisposedClosure — Record invokes it before it returns
+        var send = await Record.ExceptionAsync(
+            () => outgoing.SendAsync(1, [ExternalValue("NoSuchChannel", 42)], CancellationToken.None));
 
         // Assert
-        await send.Should().NotThrowAsync();
+        send.Should().BeNull();
         await NothingIsWritten(outgoing);
     }
 
@@ -180,7 +183,8 @@ public sealed class OutgoingDataPortTests : IDisposable
                 ? throw new LogixTagException("The controller refused the write.")
                 : ValueTask.CompletedTask);
 
-        await using var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        await using var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
@@ -190,12 +194,6 @@ public sealed class OutgoingDataPortTests : IDisposable
         Eventually(() => attempts).Should().Be(3, "the infinite retry policy should not give up on two failures");
     }
 
-    /// <remarks>
-    /// The pair below is what holds <c>MaxPendingMessages</c> and <c>Strategy</c> to the queue the port
-    /// builds from them. Both jam the head batch in retry and then overrun a two-slot queue; they differ
-    /// only in the strategy, and so does their outcome. Neither would fail if the size were left at its
-    /// hundred-thousand default, because a queue that never fills has no strategy to apply.
-    /// </remarks>
     [Fact]
     public async Task SendAsync_WhenTheQueueOverrunsUnderDropOldest_TheStuckHeadGivesWayToNewerValues()
     {
@@ -233,7 +231,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task DisposeAsync_CalledTwice_ReleasesTheClientOnce()
     {
         // Arrange
-        var outgoing = CreatePort(CommunicationWithSingleDInt(Channel, TagName));
+        var outgoing = CreatePort(CreateCommunicationOf(
+            [ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
@@ -280,7 +279,12 @@ public sealed class OutgoingDataPortTests : IDisposable
 
     /// <summary>A device whose queue is small enough that a handful of sends overruns it.</summary>
     private static LogixCommunication SmallQueue(QueueStrategy strategy) =>
-        CreateCommunication([CreateDIntNode(Channel, TagName)], maxPendingMessages: 2, strategy);
+        CreateCommunicationOf([ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)])
+            with
+            {
+                MaxPendingMessages = 2,
+                Strategy = (byte)strategy,
+            };
 
     private static int Payload(IReadOnlyList<ILogixDataPointValue> batch) => (int)batch[0].Value!;
 

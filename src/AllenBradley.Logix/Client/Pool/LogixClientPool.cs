@@ -10,31 +10,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
 /// instead of opening two (the shared-connection ADR). Released down to zero, the client is
 /// disconnected and disposed.
 /// </summary>
-/// <remarks>
-/// <para>
-/// A process-wide singleton, because sharing is the whole point and two pools would defeat it:
-/// dataports built independently at startup all have to find the same one.
-/// </para>
-/// <para>
-/// <b>The connect is the entry.</b> An entry holds its connect as a <see cref="Lazy{T}"/> of a task, so
-/// every caller takes one path — increment the count under the lock, then await that one task. The
-/// caller that created the entry and the callers that arrived while it was still browsing are the same
-/// code, which is what keeps a second connect from starting and a second cleanup from disagreeing with
-/// the first. The lazy runs the connect exactly once and <em>outside</em> the pool lock, so one slow
-/// browse never blocks acquires for unrelated controllers.
-/// </para>
-/// <para>
-/// <b>One way out.</b> Every acquire that does not hand a client back — the connect failed, the wait was
-/// cancelled, the pool was disposed underneath it — gives its reference back through
-/// <see cref="ReleaseReferenceAsync"/>, the same routine <see cref="ReleaseAsync"/> uses. Whichever of
-/// those it was, the last reference out is what tears the entry down.
-/// </para>
-/// <para>
-/// <b>The key is the controller.</b> That is the scoping the shared-connection ADR chose, and the axis a
-/// later per-poll-class split would extend: it would widen <see cref="LogixClientInformation"/> rather
-/// than change anything here.
-/// </para>
-/// </remarks>
 internal sealed class LogixClientPool
     : IClientLifecycleManager<ILogixClient, LogixClientInformation>, IAsyncDisposable
 {
@@ -45,8 +20,8 @@ internal sealed class LogixClientPool
 
     private bool _disposed;
 
-    private static readonly Lock s_initLock = new();
-    private static LogixClientPool? s_instance;
+    private static readonly Lock SInitLock = new();
+    private static LogixClientPool? _sInstance;
 
     private LogixClientPool(ILoggerFactory loggerFactory, ILogixClientFactory clientFactory)
     {
@@ -57,9 +32,9 @@ internal sealed class LogixClientPool
     /// <summary>The pool every dataport shares. The first caller's <paramref name="loggerFactory"/> wins.</summary>
     internal static LogixClientPool GetInstance(ILoggerFactory loggerFactory)
     {
-        lock (s_initLock)
+        lock (SInitLock)
         {
-            return s_instance ??= new LogixClientPool(loggerFactory, new LogixClientFactory(loggerFactory));
+            return _sInstance ??= new LogixClientPool(loggerFactory, new LogixClientFactory(loggerFactory));
         }
     }
 
@@ -228,16 +203,12 @@ internal sealed class LogixClientPool
         }
     }
 
-    /// <remarks>Caller must hold <see cref="_poolLock"/>.</remarks>
+    /// <summary>Caller must hold <see cref="_poolLock"/>.</summary>
     private bool RemoveIfStillPooled(LogixClientInformation clientInformation, PooledClient entry) =>
         _pooledClients.TryGetValue(clientInformation, out var current)
         && ReferenceEquals(current, entry)
         && _pooledClients.Remove(clientInformation);
 
-    /// <remarks>
-    /// The disconnect is attempted even for a client whose connect failed: it is idempotent, and a
-    /// connect that got as far as loading a schema before it threw has handles to drain.
-    /// </remarks>
     private async ValueTask DisconnectAndDisposeAsync(
         ILogixClient client, LogixClientInformation clientInformation)
     {
@@ -268,11 +239,6 @@ internal sealed class LogixClientPool
     }
 
     /// <summary>One pooled client, its holder count, and the single connect every holder awaits.</summary>
-    /// <remarks>
-    /// <see cref="Connected"/> is <see cref="LazyThreadSafetyMode.ExecutionAndPublication"/>, so the
-    /// connect runs once however many callers reach it at once, and it runs on the first await rather
-    /// than at construction — which is what keeps it off the pool's lock.
-    /// </remarks>
     /// <param name="client">The client this entry pools.</param>
     /// <param name="cancellationToken">
     /// The creating caller's token. It drives the connect itself, so a later holder's cancellation

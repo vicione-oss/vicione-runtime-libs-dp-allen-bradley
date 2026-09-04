@@ -11,24 +11,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 /// The controller client: reads and writes Logix data points over one shared tag manager, and owns that
 /// manager's lifetime.
 /// </summary>
-/// <remarks>
-/// One class serves both directions so the incoming and outgoing dataports — created separately but
-/// targeting the same controller — share its connection; the <see cref="ILogixReadClient"/> /
-/// <see cref="ILogixWriteClient"/> seams stay split so each dataport depends only on the direction
-/// it uses (<c>ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md</c>).
-/// <para>
-/// The whole lifecycle is the tag manager's: connect loads its schema, disconnect drains it, dispose
-/// ends it. Nothing else about the client is connection state, which is why the flag below is the only
-/// bookkeeping here.
-/// </para>
-/// <para>
-/// <b>What "connected" claims.</b> libplctag opens no socket until a handle is first read and exposes
-/// no connection status, so there is no transport state for the flag to mirror and it does not pretend
-/// to be one. It records what this client did: <see cref="ConnectAsync"/> browsed the symbol table and
-/// nothing has since dropped it. Connect is the only thing that sets it, which is what lets
-/// <see cref="DisconnectAsync"/> read it to decide whether there are handles to free.
-/// </para>
-/// </remarks>
 /// <param name="tagManager">Resolves the tag for each data point this client reads or writes.</param>
 /// <param name="clientInformation">The controller this client talks to — named in every log line.</param>
 /// <param name="logger">Records the browse, which is the slow part of a connect.</param>
@@ -99,10 +81,6 @@ internal sealed class LogixClient(
     }
 
     /// <inheritdoc />
-    /// <remarks>
-    /// Freeing handles is local work with nothing to wait on, and it is cleanup, so the token is not
-    /// honoured: a cancelled disconnect that skipped the drain would leave handles for the finalizer.
-    /// </remarks>
     public Task DisconnectAsync(CancellationToken cancellationToken)
     {
         lock (_gate)

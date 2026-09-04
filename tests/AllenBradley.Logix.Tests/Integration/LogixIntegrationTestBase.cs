@@ -12,25 +12,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// <c>LogixTagAccessFactory</c> → <c>LogixSchemaBrowser</c> → <c>CachingLogixTagManager</c> →
 /// <c>LogixClient</c>. Every layer a derived suite exercises is the shipping code; this only supplies
 /// the connection settings. Requires the device reachable (see TEST-DEVICE-SETUP.md).
+/// Disposing the client is not optional: under MTP a libplctag handle left to its finalizer fail-fasts the
+/// process with <c>0xC0000602</c> on otherwise green tests.
 /// </summary>
-/// <remarks>
-/// <para>
-/// The stack is assembled here rather than taken from <c>LogixClientFactory</c> so that
-/// <see cref="TagManager"/> stays reachable — a suite needs the controller's declaration for a tag, and
-/// the factory's product hides it. It is the same chain the factory builds, which is what makes that
-/// shape worth trusting.
-/// </para>
-/// <para>
-/// <see cref="InitializeAsync"/> connects, which is the browse the whole stack is gated on:
-/// <c>TagFor</c> throws until it has run, and it doubles as the session warm-up.
-/// </para>
-/// <para>
-/// <b>Disposing the client is not optional.</b> Under MTP the test assembly <em>is</em> the process, so
-/// its exit code is the suite's. A libplctag handle left to its finalizer is freed after CLR teardown
-/// and fail-fasts the run with <c>0xC0000602</c> — on otherwise green tests. The client owns the tag
-/// manager, which owns every handle, so disposing it here is what frees them.
-/// </para>
-/// </remarks>
 [Trait("Category", "Integration")]
 [Collection(PlcCollection.Name)]
 public abstract class LogixIntegrationTestBase : IAsyncLifetime

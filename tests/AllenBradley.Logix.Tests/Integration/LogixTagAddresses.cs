@@ -5,11 +5,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// about the device, so a controller change is a one-line edit here rather than a hunt through the
 /// suites. See the test-device setup for the full tag inventory.
 /// </summary>
-/// <remarks>
-/// These are constants, not environment variables, because they name what is *on* the device — which
-/// connection endpoint reaches it is environment, and that stays overridable in
-/// <see cref="LogixIntegrationTestBase"/>.
-/// </remarks>
 internal static class LogixTagAddresses
 {
     /// <summary>The program's STRING test tag. The round-trip suite writes it.</summary>

@@ -17,10 +17,5 @@ internal interface ILogixTagAccessFactory
     /// <c>Program:&lt;name&gt;.@tags</c> or <c>@udt/&lt;id&gt;</c>. Used to browse the symbol table for
     /// configuration verification; the caller owns disposing the transient access once it has read.
     /// </summary>
-    /// <remarks>
-    /// These are libplctag pseudo-names, not tags: they turn into a Symbol object (<c>0x6B</c>) or
-    /// Template object (<c>0x6C</c>) browse and appear in no listing. In particular they are nothing to
-    /// do with a <em>system tag</em>, which is a real tag carrying bit <c>0x1000</c> in its symbol type.
-    /// </remarks>
     ILogixTagAccess CreateForSchemaTag(TagName tagName);
 }

@@ -18,24 +18,23 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
     /// <inheritdoc />
     public DeviceNode CreateRootNode(LogixCommunication communication)
     {
-        var nodeType = ToNodeType(communication.DesignId);
+        var controllerKind = ToControllerKind(communication.DesignId);
 
         return new DeviceNode(
             communication,
-            ToClientInformation(communication, nodeType.Family),
-            nodeType.Family,
-            nodeType.Generation);
+            ToClientInformation(communication, controllerKind.Family),
+            controllerKind);
     }
 
     /// <inheritdoc />
     public ValidationResult Validate(LogixCommunication communication) => _validator.Validate(communication);
 
     /// <summary>
-    /// Reads the family and generation off the node type the device was configured under. A design id
-    /// the addon does not declare gets no further than here.
+    /// Reads the family and generation off the node the device was configured under. A design id the
+    /// addon does not declare gets no further than here.
     /// </summary>
-    private static DeviceNodeType ToNodeType(string designId) =>
-        DeviceNode.TypeOf(designId)
+    private static LogixControllerKind ToControllerKind(string designId) =>
+        DeviceNode.KindOf(designId)
         ?? throw new InvalidConfigurationException($"Unknown device design id: '{designId}'.");
 
     private static LogixClientInformation ToClientInformation(

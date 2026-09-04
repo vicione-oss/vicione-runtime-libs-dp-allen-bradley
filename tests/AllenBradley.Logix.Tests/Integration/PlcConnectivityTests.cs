@@ -1,4 +1,3 @@
-using AwesomeAssertions;
 using libplctag;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;

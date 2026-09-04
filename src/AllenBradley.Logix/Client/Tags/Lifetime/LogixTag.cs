@@ -11,9 +11,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// whole-exchange gating of <c>ADR/2026-07-16-testable-libplctag-interface.md</c> is preserved).
 /// Disposing this disposes the inner handle exactly once.
 /// </summary>
-/// <param name="dataPoint">The configured data point.</param>
-/// <param name="metadata">The controller's declaration for the tag, or <c>null</c> when it is absent.</param>
-/// <param name="access">The access this tag reads and writes over.</param>
 internal sealed record LogixTag(ILogixDataPoint DataPoint, TagDefinition? Metadata, ILogixTagAccess Access)
     : ILogixTag
 {

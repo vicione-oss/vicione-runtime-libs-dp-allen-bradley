@@ -4,7 +4,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Verification;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
@@ -22,10 +21,6 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     /// Resolves every data point against the metadata on the device, then returns one entry per
     /// <b>misconfigured</b> one; a fully matching configuration returns an empty list.
     /// </summary>
-    /// <remarks>
-    /// The dataport base builds this verifier from the client it has just connected, so the symbol table
-    /// is already browsed and nothing here touches the device.
-    /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     public async ValueTask<IReadOnlyList<MisconfiguredDataPoint<ILogixDataPoint>>> Verify(
         IReadOnlyList<ILogixDataPoint> dataPoints, CancellationToken cancellationToken)

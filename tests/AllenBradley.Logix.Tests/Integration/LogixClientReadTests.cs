@@ -1,6 +1,6 @@
 using libplctag;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
@@ -27,7 +27,8 @@ public class LogixClientReadTests : LogixIntegrationTestBase
         // Read the DINT with a raw libplctag handle to establish the expected value. Cross-checking
         // against libplctag's own typed getter proves our raw-buffer decode is byte-correct.
         var expected = ReadDintWithRawLibplctag(LogixTagAddresses.CounterPreset);
-        var group = CreateGroup(CreateDInt(LogixTagAddresses.CounterPreset));
+        ILogixDataPoint[] dataPoints = [new DIntDataPoint(new TagName(LogixTagAddresses.CounterPreset), DefaultPollFrequency, NoChannels)];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
         // Read through the production client + converter stack. The target is a COUNTER member, absent
@@ -44,15 +45,13 @@ public class LogixClientReadTests : LogixIntegrationTestBase
 
     private static int ReadDintWithRawLibplctag(string tagName)
     {
-        using var tag = new Tag
-        {
-            Gateway = ConnectionEndpoint,
-            Path = CipRoutePath,
-            PlcType = PlcType.ControlLogix,
-            Protocol = Protocol.ab_eip,
-            Name = tagName,
-            Timeout = Timeout,
-        };
+        using var tag = new Tag();
+        tag.Gateway = ConnectionEndpoint;
+        tag.Path = CipRoutePath;
+        tag.PlcType = PlcType.ControlLogix;
+        tag.Protocol = Protocol.ab_eip;
+        tag.Name = tagName;
+        tag.Timeout = Timeout;
 
         tag.Read();
         return tag.GetInt32(0);

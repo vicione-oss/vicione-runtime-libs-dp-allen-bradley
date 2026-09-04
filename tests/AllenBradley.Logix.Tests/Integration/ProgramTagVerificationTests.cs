@@ -3,6 +3,8 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ProgramTagsNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
@@ -11,12 +13,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// configuration tree composes, and the key the symbol-table browse files a program tag under. Both are
 /// <c>Program:MainProgram.strValue1</c> by construction, and this is what holds them to it.
 /// </summary>
-/// <remarks>
-/// The whole chain is the shipping code — <see cref="TypedLogixNodeMapper"/> to
-/// <see cref="LogixDataPointsGroupsMapper"/> to <see cref="LogixConfigurationVerifier"/> over the
-/// connected client — because a prefix that agreed with itself and not with the controller would pass
-/// every unit test in the suite. Requires the device reachable (see TEST-DEVICE-SETUP.md).
-/// </remarks>
 public class ProgramTagVerificationTests : LogixIntegrationTestBase
 {
     [Fact]
@@ -24,10 +20,11 @@ public class ProgramTagVerificationTests : LogixIntegrationTestBase
     {
         // Arrange
         // strValue1 is program-scoped on the L32E — configured bare, under the program that owns it.
+        var mainProgram = CreateProgramTagsNode("MainProgram");
         var communication = CreateCommunicationOf(
             [
-                CreateProgramTagsNode("MainProgram", ProgramTagsId),
-                CreateStringNode("Label", "strValue1", maxLength: 82, parentId: ProgramTagsId),
+                mainProgram,
+                CreateStringNode("Label", "strValue1", mainProgram.Id, maxLength: 82),
             ],
             DeviceNode.CompactLogix5X70DesignId);
 

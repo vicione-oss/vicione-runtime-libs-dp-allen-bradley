@@ -7,11 +7,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 /// The segment one tag scope contributes to the addresses inside it. Controller scope contributes none —
 /// a tag in it addresses itself — and a program contributes <c>Program:MainProgram</c>.
 /// </summary>
-/// <remarks>
-/// This is the whole of address composition from the configuration tree: a scope and a bare tag name,
-/// joined by a dot. A structure member nests further, and its path is not this type's business: it comes
-/// from the tag's own type declaration read off the controller, never from what an integrator configured.
-/// </remarks>
 /// <param name="Segment">The prefix, without the dot that joins it to a tag name. Empty for controller scope.</param>
 public readonly record struct TagScope(string Segment)
 {

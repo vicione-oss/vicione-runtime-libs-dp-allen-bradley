@@ -8,13 +8,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 /// per <c>Connection</c> declaration in <c>allen-bradley-logix.yaml</c>.
 /// <see cref="Mapping.DeviceNodeMapper"/> turns it into the
 /// <see cref="DataPort.Device.LogixClientInformation"/> the client stack is built from.
+/// The property names are a contract with the manifest, held by the YAML consistency test.
 /// </summary>
-/// <remarks>
-/// Primitives rather than the model's value types, because this is what deserialization hands over.
-/// The property names are a contract with the manifest — the YAML consistency test holds the two sides
-/// to each other.
-/// </remarks>
-[Communication(LogixDataPort.AddonId)]
+[Communication(LogixDataPort.DataPortId)]
 public sealed record LogixCommunication : DataPortCommunication
 {
     /// <summary>IP address or host name of the controller's EtherNet/IP interface.</summary>

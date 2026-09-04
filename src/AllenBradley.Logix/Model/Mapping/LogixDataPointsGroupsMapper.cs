@@ -17,13 +17,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 /// Turns a configured node tree into the runtime data points both ports work from, and groups them by
 /// poll frequency for the incoming one. One mapper serves both directions — the outgoing port takes the
 /// flat list and ignores the grouping.
+/// The walk composes each tag's address from the scope its container names, so a configured tag name stays
+/// bare.
 /// </summary>
-/// <remarks>
-/// The walk carries the scope its containers name, and composing an address is the one thing it does
-/// beyond collecting: a tag under <c>ControllerTags</c> addresses itself, one under a program addresses
-/// as <c>Program:MainProgram.Count</c>. The configured tag name stays bare either way — the prefix
-/// belongs to the container, so a leaf never has to know which scope it hangs under.
-/// </remarks>
 internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogixDataPoint, LogixDataPointGroup,
     DeviceNode, LogixCommunication>
 {

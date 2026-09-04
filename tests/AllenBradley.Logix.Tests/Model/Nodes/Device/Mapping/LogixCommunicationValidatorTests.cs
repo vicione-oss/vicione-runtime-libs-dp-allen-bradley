@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Outgoing.QueueProcessing;
@@ -6,177 +5,168 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Mapping;
 
-/// <summary>
-/// What a device configuration has to satisfy before anything is built from it. The rules are the ones
-/// decidable without a controller: whether a connection endpoint is there at all, whether a CIP route path is where the node
-/// type asks for one, and whether the numbers are in range.
-/// </summary>
+/// <summary>What a device configuration has to satisfy before anything is built from it.</summary>
 public sealed class LogixCommunicationValidatorTests
 {
     private readonly LogixCommunicationValidator _validator = new();
 
     [Fact]
-    public void Validate_TheFactorysConfiguration_Passes()
+    public void TheConfigurationEverySuiteBuildsOnIsValid()
     {
         // Arrange
+        var communication = DefaultTestCommunication();
 
         // Act
-        var result = _validator.Validate(CreateCommunication());
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.IsValid.Should().BeTrue("the suites' own configuration must not be one the port refuses");
+        validation.IsValid.Should().BeTrue("the suites' own configuration must not be one the port refuses");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Validate_WithoutAGateway_Fails(string connectionEndpoint)
+    public void AConfigurationThatNamesNoControllerIsRefused(string connectionEndpoint)
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { ConnectionEndpoint = connectionEndpoint };
 
         // Act
-        var result = Validate(communication => communication with { ConnectionEndpoint = connectionEndpoint });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.ConnectionEndpoint));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.ConnectionEndpoint));
     }
 
-    /// <remarks>
-    /// A <c>ushort</c> already bounds the port above, so 0 is the only value left to reject — and it is
-    /// the one a configuration written without the manifest's default would carry.
-    /// </remarks>
     [Fact]
-    public void Validate_WithATcpPortOfZero_Fails()
+    public void ATcpPortOfZeroIsRefused()
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { TcpPort = 0 };
 
         // Act
-        var result = Validate(static communication => communication with { TcpPort = 0 });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.TcpPort));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.TcpPort));
     }
 
-    /// <remarks>
-    /// A 1756 chassis puts the CPU wherever whoever built it put the CPU, so there is nothing to fall
-    /// back on: the message has to say what the property wants rather than offer a guess.
-    /// </remarks>
     [Fact]
-    public void Validate_ForAControlLogixWithoutACipRoutePath_SaysWhatACipRoutePathIs()
+    public void AControlLogixWithoutACipRoutePathIsToldWhatACipRoutePathIs()
     {
         // Arrange
-        var communication = CreateCommunication() with
+        var communication = DefaultTestCommunication() with
         {
             DesignId = DeviceNode.ControlLogix5X70DesignId,
             CipRoutePath = null,
         };
 
         // Act
-        var result = _validator.Validate(communication);
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Errors.Should().ContainSingle()
+        validation.Errors.Should().ContainSingle()
             .Which.ErrorMessage.Should().Be("CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\".");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Validate_ForAControlLogixWithABlankCipRoutePath_Fails(string cipRoutePath)
+    public void AControlLogixWithABlankCipRoutePathIsRefused(string cipRoutePath)
     {
         // Arrange
+        var communication = DefaultTestCommunication() with
+        {
+            DesignId = DeviceNode.ControlLogix5X70DesignId,
+            CipRoutePath = cipRoutePath,
+        };
 
         // Act
-        var result = Validate(communication => communication with { CipRoutePath = cipRoutePath });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.CipRoutePath));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.CipRoutePath));
     }
 
-    /// <remarks>
-    /// The CompactLogix node declares no <c>CipRoutePath</c>, so holding its configuration to one would reject
-    /// every device an integrator could actually configure under it.
-    /// </remarks>
     [Fact]
-    public void Validate_ForACompactLogixWithoutACipRoutePath_Passes()
+    public void ACompactLogixNeedsNoCipRoutePath()
     {
         // Arrange
-        var communication = CreateCommunication() with
+        var communication = DefaultTestCommunication() with
         {
             DesignId = DeviceNode.CompactLogix5X70DesignId,
             CipRoutePath = null,
         };
 
         // Act
-        var result = _validator.Validate(communication);
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        validation.IsValid.Should().BeTrue();
     }
 
     [Theory]
     [InlineData(99)]
     [InlineData(0)]
     [InlineData(-1)]
-    public void Validate_WithAnOperationTimeoutBelowTheFloor_Fails(int operationTimeout)
+    public void AnOperationTimeoutBelowTheFloorIsRefused(int operationTimeout)
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { OperationTimeout = operationTimeout };
 
         // Act
-        var result = Validate(communication => communication with { OperationTimeout = operationTimeout });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.OperationTimeout));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.OperationTimeout));
     }
 
-    /// <remarks>
-    /// A zero-capacity queue would accept no write at all, and the failure would look like a controller
-    /// problem rather than a configuration one.
-    /// </remarks>
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public void Validate_WithAQueueThatCanHoldNothing_Fails(int maxPendingMessages)
+    public void AQueueThatCanHoldNothingIsRefused(int maxPendingMessages)
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { MaxPendingMessages = maxPendingMessages };
 
         // Act
-        var result = Validate(communication => communication with { MaxPendingMessages = maxPendingMessages });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.MaxPendingMessages));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.MaxPendingMessages));
     }
 
     [Fact]
-    public void Validate_WithAQueueStrategyTheFrameworkDoesNotHave_Fails()
+    public void AQueueStrategyTheFrameworkDoesNotHaveIsRefused()
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { Strategy = 200 };
 
         // Act
-        var result = Validate(static communication => communication with { Strategy = 200 });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().ContainSingle().Which.Should().Be(nameof(LogixCommunication.Strategy));
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(nameof(LogixCommunication.Strategy));
     }
 
     [Theory]
     [InlineData(QueueStrategy.DropOldest)]
     [InlineData(QueueStrategy.DropNewest)]
-    public void Validate_WithEveryQueueStrategyTheFrameworkHas_Passes(QueueStrategy strategy)
+    public void EveryQueueStrategyTheFrameworkHasIsAccepted(QueueStrategy strategy)
     {
         // Arrange
+        var communication = DefaultTestCommunication() with { Strategy = (byte)strategy };
 
         // Act
-        var result = Validate(communication => communication with { Strategy = (byte)strategy });
+        var validation = _validator.Validate(communication);
 
         // Assert
-        result.Should().BeEmpty();
+        validation.IsValid.Should().BeTrue();
     }
-
-    /// <summary>The properties the validator objected to, so a case names a property rather than a message.</summary>
-    private IReadOnlyList<string> Validate(Func<LogixCommunication, LogixCommunication> change) =>
-    [
-        .. _validator.Validate(change(CreateCommunication()))
-            .Errors.Select(static error => error.PropertyName),
-    ];
 }

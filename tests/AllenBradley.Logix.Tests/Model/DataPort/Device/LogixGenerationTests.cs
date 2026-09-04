@@ -10,19 +10,28 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.Device;
 public sealed class LogixGenerationTests
 {
     [Fact]
-    public void Generations_AreOrderedOldestFirst()
+    public void GenerationsAreOrderedOldestFirst()
     {
-        (LogixGeneration.Logix5X70 < LogixGeneration.Logix5X80).Should().BeTrue();
+        // Arrange
+
+        // Act
+        var olderFirst = LogixGeneration.Logix5X70 < LogixGeneration.Logix5X80;
+
+        // Assert
+        olderFirst.Should().BeTrue();
     }
 
-    /// <remarks>
-    /// The values are the numbers in the names, so a 5X90 slots in at 90 and nothing before it moves.
-    /// </remarks>
     [Theory]
     [InlineData(LogixGeneration.Logix5X70, 70)]
     [InlineData(LogixGeneration.Logix5X80, 80)]
-    public void Generation_IsNumberedAfterTheControllerLine(LogixGeneration generation, int expected)
+    public void AGenerationIsNumberedAfterTheControllerLine(LogixGeneration generation, int expectedNumber)
     {
-        ((int)generation).Should().Be(expected);
+        // Arrange
+
+        // Act
+        var number = (int)generation;
+
+        // Assert
+        number.Should().Be(expectedNumber);
     }
 }

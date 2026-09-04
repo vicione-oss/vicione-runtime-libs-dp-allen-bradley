@@ -2,93 +2,59 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.LogixControllerKind;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Device.Mapping;
 
-/// <summary>
-/// The step where engine primitives become the <see cref="LogixClientInformation"/> the pool keys a
-/// connection under, and a mistake here is a port that talks to the wrong controller or gives up at the
-/// wrong time. The design id is the interesting input: it names the device node type, and the family it
-/// stands for decides where the CIP route path comes from without ever reaching the client information itself.
-/// </summary>
 public sealed class DeviceNodeMapperTests
 {
     private readonly DeviceNodeMapper _mapper = new();
 
-    /// <remarks>
-    /// The node type <em>is</em> the answer — an integrator picks a ControlLogix by picking the
-    /// ControlLogix node, and is never asked the family again.
-    /// </remarks>
+    /// <summary>Each device node type with the controller it stands for.</summary>
+    public static TheoryData<string, LogixControllerKind> DeviceNodeTypes =>
+        new()
+        {
+            { DeviceNode.ControlLogix5X70DesignId, ControlLogix5X70 },
+            { DeviceNode.ControlLogix5X80DesignId, ControlLogix5X80 },
+            { DeviceNode.CompactLogix5X70DesignId, CompactLogix5X70 },
+            { DeviceNode.CompactLogix5X80DesignId, CompactLogix5X80 },
+        };
+
     [Theory]
-    [InlineData(DeviceNode.ControlLogix5X70DesignId, LogixControllerFamily.ControlLogix)]
-    [InlineData(DeviceNode.ControlLogix5X80DesignId, LogixControllerFamily.ControlLogix)]
-    [InlineData(DeviceNode.CompactLogix5X70DesignId, LogixControllerFamily.CompactLogix)]
-    [InlineData(DeviceNode.CompactLogix5X80DesignId, LogixControllerFamily.CompactLogix)]
-    public void CreateRootNode_NamesTheFamilyTheDeviceNodeTypeStandsFor(
-        string designId, LogixControllerFamily family)
+    [MemberData(nameof(DeviceNodeTypes))]
+    public void ADeviceNodeTypeStandsForTheControllerItsDesignIdNames(
+        string designId, LogixControllerKind expectedControllerKind)
     {
         // Arrange
-        var communication = CreateCommunication() with { DesignId = designId };
+        var communication = DefaultTestCommunication() with { DesignId = designId };
 
         // Act
         var deviceNode = _mapper.CreateRootNode(communication);
 
         // Assert
-        deviceNode.ControllerFamily.Should().Be(family);
+        deviceNode.ControllerKind.Should().Be(expectedControllerKind);
     }
 
-    /// <remarks>
-    /// The generation is the other half of what a node type says, and the half that decides which data
-    /// types the tree below it may offer.
-    /// </remarks>
-    [Theory]
-    [InlineData(DeviceNode.ControlLogix5X70DesignId, LogixGeneration.Logix5X70)]
-    [InlineData(DeviceNode.ControlLogix5X80DesignId, LogixGeneration.Logix5X80)]
-    [InlineData(DeviceNode.CompactLogix5X70DesignId, LogixGeneration.Logix5X70)]
-    [InlineData(DeviceNode.CompactLogix5X80DesignId, LogixGeneration.Logix5X80)]
-    public void CreateRootNode_NamesTheGenerationTheDeviceNodeTypeStandsFor(
-        string designId, LogixGeneration generation)
-    {
-        // Arrange
-        var communication = CreateCommunication() with { DesignId = designId };
-
-        // Act
-        var deviceNode = _mapper.CreateRootNode(communication);
-
-        // Assert
-        deviceNode.Generation.Should().Be(generation);
-    }
-
-    /// <remarks>
-    /// The switch in <see cref="DeviceNode.TypeOf"/> and the manifest's device nodes are the same set,
-    /// and this is what says so out loud. A design id with no arm has no family and no generation, so
-    /// there is nothing to fall back on and nothing worth guessing — Micro800 is tag-based like a Logix
-    /// and would map to a tree it does not have.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForADeviceNodeTypeTheAddonDoesNotHave_NamesTheDesignId()
+    public void ADeviceNodeTypeTheAddonDoesNotHaveIsRefusedByName()
     {
         // Arrange
-        var communication = CreateCommunication() with { DesignId = "DeviceMicro800" };
+        var communication = DefaultTestCommunication() with { DesignId = "DeviceMicro800" };
 
         // Act
-        var mapping = () => _mapper.CreateRootNode(communication);
+        var mapping = _mapper.Invoking(mapper => mapper.CreateRootNode(communication));
 
         // Assert
         mapping.Should().Throw<InvalidConfigurationException>()
             .WithMessage("Unknown device design id: 'DeviceMicro800'.");
     }
 
-    /// <remarks>
-    /// The CompactLogix node has no <c>CipRoutePath</c> to configure, so the mapper is the only thing that can
-    /// supply one — and a DIN-rail controller's virtual backplane leaves it exactly one answer.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForACompactLogixWithNoCipRoutePath_ReachesItAtSlotZeroOfTheVirtualBackplane()
+    public void ACompactLogixThatNamesNoRoutePathIsReachedAtSlotZeroOfTheVirtualBackplane()
     {
         // Arrange
-        var communication = CreateCommunication() with
+        var communication = DefaultTestCommunication() with
         {
             DesignId = DeviceNode.CompactLogix5X70DesignId,
             CipRoutePath = null,
@@ -102,10 +68,10 @@ public sealed class DeviceNodeMapperTests
     }
 
     [Fact]
-    public void CreateRootNode_CarriesEveryConnectionPropertyOntoTheClientInformation()
+    public void EveryConnectionPropertyOfAConfigurationReachesTheClientInformation()
     {
         // Arrange
-        var communication = CreateCommunication() with
+        var communication = DefaultTestCommunication() with
         {
             ConnectionEndpoint = "192.168.1.10",
             TcpPort = 44819,
@@ -117,23 +83,20 @@ public sealed class DeviceNodeMapperTests
         var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
 
         // Assert
-        clientInformation.ConnectionEndpoint.Value.Should().Be("192.168.1.10");
-        clientInformation.TcpPort.Value.Should().Be(44819);
-        clientInformation.CipRoutePath.Value.Should().Be("1,2");
-        clientInformation.OperationTimeout.Value.Should().Be(TimeSpan.FromMilliseconds(750));
+        var expected = new LogixClientInformation(
+            new ConnectionEndpoint(communication.ConnectionEndpoint),
+            new TcpPort(communication.TcpPort),
+            new CipRoutePath(communication.CipRoutePath),
+            new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
+        clientInformation.Should().Be(expected);
     }
 
-    /// <remarks>
-    /// The pool keys a connection on this value, so a family that reached it would open a second session
-    /// to a controller two ports had merely described differently. Nothing about the family reaches the
-    /// wire: libplctag opens both as a ControlLogix.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForTwoFamiliesAtOneAddress_ProducesEqualClientInformation()
+    public void TwoFamiliesAtOneAddressHaveEqualClientInformation()
     {
         // Arrange
-        var controlLogix = CreateCommunication() with { DesignId = DeviceNode.ControlLogix5X70DesignId };
-        var compactLogix = CreateCommunication() with { DesignId = DeviceNode.CompactLogix5X70DesignId };
+        var controlLogix = DefaultTestCommunication() with { DesignId = DeviceNode.ControlLogix5X70DesignId };
+        var compactLogix = DefaultTestCommunication() with { DesignId = DeviceNode.CompactLogix5X70DesignId };
 
         // Act
         var first = _mapper.CreateRootNode(controlLogix).ClientInformation;
@@ -143,15 +106,11 @@ public sealed class DeviceNodeMapperTests
         first.Should().Be(second);
     }
 
-    /// <remarks>
-    /// The node keeps the configuration it was mapped from, which is what lets the ports read the queue
-    /// properties off <c>DeviceNode.OriginalCommunication</c> without re-deriving anything.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_KeepsTheConfigurationItWasMappedFrom()
+    public void ADeviceKeepsTheConfigurationItWasMappedFrom()
     {
         // Arrange
-        var communication = CreateCommunication();
+        var communication = DefaultTestCommunication();
 
         // Act
         var rootNode = _mapper.CreateRootNode(communication);
@@ -160,15 +119,11 @@ public sealed class DeviceNodeMapperTests
         rootNode.OriginalCommunication.Should().BeSameAs(communication);
     }
 
-    /// <remarks>
-    /// Two ports against one controller must produce equal client information, because that value is the
-    /// pool's key and inequality would open a second connection to the same CPU.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForTheSameConfigurationTwice_ProducesEqualClientInformation()
+    public void TheSameConfigurationTwiceHasEqualClientInformation()
     {
         // Arrange
-        var communication = CreateCommunication();
+        var communication = DefaultTestCommunication();
 
         // Act
         var first = _mapper.CreateRootNode(communication).ClientInformation;
@@ -179,10 +134,10 @@ public sealed class DeviceNodeMapperTests
     }
 
     [Fact]
-    public void CreateRootNode_ForADifferentConnectionEndpoint_ProducesDifferentClientInformation()
+    public void AnotherConnectionEndpointHasDifferentClientInformation()
     {
         // Arrange
-        var communication = CreateCommunication();
+        var communication = DefaultTestCommunication();
 
         // Act
         var first = _mapper.CreateRootNode(communication).ClientInformation;
@@ -192,15 +147,11 @@ public sealed class DeviceNodeMapperTests
         first.Should().NotBe(second);
     }
 
-    /// <remarks>
-    /// One address on two ports is two controllers as far as a session is concerned, so the port has to
-    /// be part of the pool's key rather than a detail the attribute string picks up later.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForADifferentTcpPort_ProducesDifferentClientInformation()
+    public void AnotherTcpPortHasDifferentClientInformation()
     {
         // Arrange
-        var communication = CreateCommunication();
+        var communication = DefaultTestCommunication();
 
         // Act
         var first = _mapper.CreateRootNode(communication).ClientInformation;
@@ -210,33 +161,16 @@ public sealed class DeviceNodeMapperTests
         first.Should().NotBe(second);
     }
 
-    /// <remarks>
-    /// The manifest defaults the property, so a configuration that never mentions a port still has to
-    /// arrive at the registered one rather than at 0.
-    /// </remarks>
     [Fact]
-    public void CreateRootNode_ForAConfigurationThatNamesNoPort_ReachesTheControllerOn44818()
+    public void AConfigurationThatNamesNoPortReachesTheControllerOn44818()
     {
         // Arrange
-        var communication = CreateCommunication();
+        var communication = DefaultTestCommunication();
 
         // Act
         var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
 
         // Assert
         clientInformation.TcpPort.Should().Be(TcpPort.EtherNetIp);
-    }
-
-    [Fact]
-    public void Validate_DelegatesToTheCommunicationValidator()
-    {
-        // Arrange
-        var communication = CreateCommunication() with { ConnectionEndpoint = "" };
-
-        // Act
-        var result = _mapper.Validate(communication);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
     }
 }

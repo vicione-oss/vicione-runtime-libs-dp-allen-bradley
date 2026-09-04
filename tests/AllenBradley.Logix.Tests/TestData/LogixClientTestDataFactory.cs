@@ -5,19 +5,18 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// <summary>
 /// Constructs the <see cref="LogixClientInformation"/> the client and pool suites are driven with.
 /// </summary>
-/// <remarks>
-/// The pool keys on this record, so a test that wants a second controller changes the connection endpoint and gets a
-/// second entry; one that wants the same controller calls the factory twice and gets an equal value.
-/// </remarks>
 internal static class LogixClientTestDataFactory
 {
-    /// <summary>The controller every value the factory makes points at, unless a test names another.</summary>
-    internal const string DefaultConnectionEndpoint = "10.0.0.1";
+    internal static readonly OperationTimeout DefaultOperationTimeout = new(TimeSpan.FromSeconds(5));
+    internal static readonly ConnectionEndpoint DefaultConnectionEndpoint = new("10.0.0.1");
 
-    internal static LogixClientInformation CreateClientInformation(
-        string connectionEndpoint = DefaultConnectionEndpoint, ushort tcpPort = 44818) =>
-        new(new ConnectionEndpoint(connectionEndpoint),
-            new TcpPort(tcpPort),
-            new CipRoutePath("1,0"),
-            new OperationTimeout(TimeSpan.FromSeconds(5)));
+    internal static readonly TcpPort DefaultTcpPort = new(44818);
+    internal static readonly CipRoutePath DefaultCipRoutePath = new("1,0");
+
+
+    internal static LogixClientInformation DefaultClientInformation() =>
+        new(DefaultConnectionEndpoint,
+            DefaultTcpPort,
+            DefaultCipRoutePath,
+            DefaultOperationTimeout);
 }

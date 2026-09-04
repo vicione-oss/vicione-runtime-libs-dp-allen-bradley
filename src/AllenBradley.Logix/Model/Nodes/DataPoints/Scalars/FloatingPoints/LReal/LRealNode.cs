@@ -22,12 +22,9 @@ internal sealed record LRealNode(LinkedNode OriginalNode, TagName TagName, PollF
     /// <summary>
     /// The 5X80 controllers are the ones that have an <c>LREAL</c>; a 5X70 cannot resolve a tag of this
     /// type at all.
+    /// Implemented explicitly because the YAML consistency test expects every public property of a data point
+    /// node to be one the manifest declares.
     /// </summary>
-    /// <remarks>
-    /// Implemented explicitly, because it is the one thing this node says that is not configuration: the
-    /// YAML consistency test reads a data point node's public properties and expects every one of them to
-    /// be a property the manifest declares.
-    /// </remarks>
     LogixGeneration ILogixScalarNode.MinimumGeneration => LogixGeneration.Logix5X80;
 
     /// <inheritdoc />

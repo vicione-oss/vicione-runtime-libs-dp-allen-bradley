@@ -14,11 +14,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// share one tag. Poll frequency and channels are part of that shape, so the same tag configured at two
 /// frequencies is two points and gets two tags.
 /// </summary>
-/// <remarks>
-/// One manager is scoped to one controller — that scope is the factory's connection information, the same
-/// identity the browser reads over — which makes this the per-device tag cache and the per-device
-/// schema owner: releasing the device disposes the manager, and with it every tag and the schema.
-/// </remarks>
 /// <param name="factory">Creates the tag access when a data point is first seen.</param>
 /// <param name="schemaBrowser">Browses the controller's symbol table once at connect.</param>
 /// <param name="logger">Records tags this manager could not free.</param>
@@ -143,7 +138,7 @@ internal sealed class CachingLogixTagManager(
         }
     }
 
-    /// <remarks>Caller must hold <see cref="_gate"/>.</remarks>
+    /// <summary>Caller must hold <see cref="_gate"/>.</summary>
     private void DrainCore()
     {
         // A throwing Dispose must not strand the tags queued behind it — an unfreed handle is exactly

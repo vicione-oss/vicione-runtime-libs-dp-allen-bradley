@@ -23,19 +23,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Outgoing;
 /// in place of a polling schedule — the same node mapper, the same data-point mapper, the same pool — so
 /// two ports configured against one controller share its connection rather than opening a second.
 /// </summary>
-/// <remarks>
-/// Both of the base class's gates are already answered by the model.
-/// <see cref="ConvertToDataPointValue"/> hands the engine's untyped value to
-/// <see cref="ILogixDataPoint.ConvertValue"/>, and range checking is each value's own
-/// <c>IsInValueRange</c> — a <c>STRING</c> longer than its declared capacity is what that rejects.
-/// A failure at either gate drops the whole batch, which is the framework's rule and not ours.
-/// </remarks>
 public sealed class OutgoingDataPort : OutgoingDataPortBase<
     ILogixDataPoint, ILogixDataPointValue, ILogixClient, DeviceNode, LogixCommunication, LogixClientInformation>
 {
     // Industrial writes are state, so a controller that is down should be waited for rather than written
     // off. Stateless, so one instance serves every port.
-    private static readonly InfiniteRetryPolicy s_retryPolicy = new();
+    private static readonly InfiniteRetryPolicy SRetryPolicy = new();
 
     /// <summary>
     /// Public constructor used by the vicione-engine to create an instance of the Allen-Bradley Logix
@@ -73,12 +66,12 @@ public sealed class OutgoingDataPort : OutgoingDataPortBase<
     protected override IClientLifecycleManager<ILogixClient, LogixClientInformation> ClientLifecycleManager { get; }
 
     /// <inheritdoc />
-    protected override IRetryPolicy RetryPolicy => s_retryPolicy;
+    protected override IRetryPolicy RetryPolicy => SRetryPolicy;
 
-    /// <remarks>
-    /// The same verifier the incoming port connects through, and worth running on a write-only device
-    /// too: a tag whose type contradicts the configuration is otherwise a write that retries forever.
-    /// </remarks>
+    /// <summary>
+    /// Worth running on a write-only device too: a tag whose type contradicts the configuration is
+    /// otherwise a write that retries forever.
+    /// </summary>
     protected override IDataPointConfigurationVerifier<ILogixDataPoint> CreateConfigurationVerifier(
         ILogixClient client) => new LogixConfigurationVerifier(client);
 

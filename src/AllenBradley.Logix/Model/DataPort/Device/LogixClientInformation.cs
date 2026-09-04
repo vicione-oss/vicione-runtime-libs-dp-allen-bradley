@@ -6,23 +6,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 /// Identifies a single controller and says how long one operation against it may take: the address,
 /// port and route path that pick out one device, plus the timeout stamped onto every handle built for
 /// it. It is the key <c>LogixClientPool</c> holds a connection under.
+/// The controller family is deliberately absent: libplctag opens every family the same way, and carrying it
+/// would split one connection whenever two ports on one controller used different node types.
 /// </summary>
-/// <remarks>
-/// It is a record, so equality is the "same connection" test the pool needs — and the timeout is part
-/// of it. Every value here arrives together from one device node, so two ports on one controller agree
-/// on all three or they are configured against two different devices.
-/// <para>
-/// The controller family is deliberately not here. It picks a node type and decides what that node
-/// offers, but it reaches nothing on the wire: libplctag opens a ControlLogix and a CompactLogix the
-/// same way. Carrying it would split one connection in two whenever two ports on one controller were
-/// configured under different node types.
-/// </para>
-/// </remarks>
 /// <param name="ConnectionEndpoint">Controller IP address or host name.</param>
 /// <param name="TcpPort">The TCP port that endpoint listens on, 44818 unless something moved it.</param>
 /// <param name="CipRoutePath">CIP route path from that endpoint to the CPU, e.g. <c>"1,0"</c>.</param>
 /// <param name="OperationTimeout">How long one tag read or write against this controller may take.</param>
-public sealed record LogixClientInformation(
+public record LogixClientInformation(
     ConnectionEndpoint ConnectionEndpoint,
     TcpPort TcpPort,
     CipRoutePath CipRoutePath,

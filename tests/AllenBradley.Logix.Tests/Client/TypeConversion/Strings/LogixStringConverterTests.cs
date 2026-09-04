@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -15,10 +16,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.
 /// where the wire layout is pinned; the device-tier round trip proves the same bytes survive a real
 /// controller, but it cannot run without one and this can.
 /// </summary>
-/// <remarks>
-/// Everything is driven through <see cref="IDataPointConverter"/> rather than the protected members,
-/// because that is the surface the batches hold and the boundary cast is part of what is under test.
-/// </remarks>
 public class LogixStringConverterTests
 {
     private const int StructureSize = 88;
@@ -26,7 +23,7 @@ public class LogixStringConverterTests
 
     private static readonly IDataPointConverter Converter = new LogixStringConverter();
 
-    private static readonly StringDataPoint Label = CreateString("Program:MainProgram.strValue1");
+    private static readonly StringDataPoint Label = new(new TagName("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
 
     // A STRING structure as it sits in the tag buffer, spelled out rather than produced by the encoder,
     // which would make the decode test agree with itself by construction.
@@ -51,7 +48,7 @@ public class LogixStringConverterTests
     {
         var point = dataPoint ?? Label;
         var buffer = new byte[StructureSizeFor(point.MaxLength.Value)];
-        Converter.Encode(CreateValue(point, value), buffer);
+        Converter.Encode(point.CreateLogixValue(value), buffer);
         return buffer;
     }
 
@@ -205,7 +202,7 @@ public class LogixStringConverterTests
         Array.Fill(buffer, (byte)0xEE, LengthPrefixSize + 2, 4);
 
         // Act
-        Converter.Encode(CreateValue(Label, "Hi"), buffer);
+        Converter.Encode(Label.CreateLogixValue("Hi"), buffer);
 
         // Assert
         buffer.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
@@ -253,7 +250,7 @@ public class LogixStringConverterTests
         var buffer = new byte[StructureSize];
 
         // Act
-        var encode = () => Converter.Encode(CreateValue(Label, tooLong), buffer);
+        var encode = Converter.Invoking(c => c.Encode(Label.CreateLogixValue(tooLong), buffer));
 
         // Assert
         encode.Should().Throw<InvalidOperationException>()
@@ -266,15 +263,15 @@ public class LogixStringConverterTests
         // Arrange
         // Twenty characters fit a STRING and overflow a STRING_20 by one. The converter is the same
         // object either way; the capacity is the data point's.
-        var short20 = CreateString(Label.TagName, 20);
+        var short20 = new StringDataPoint(Label.TagName, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
 
         // Act
         var buffer = Encode(new string('X', 20), short20);
-        var encodeOneTooMany = () => Encode(new string('X', 21), short20);
+        var oneTooMany = Record.Exception(() => Encode(new string('X', 21), short20));
 
         // Assert
         buffer[0].Should().Be(20);
-        encodeOneTooMany.Should().Throw<InvalidOperationException>();
+        oneTooMany.Should().BeOfType<InvalidOperationException>();
     }
 
     [Fact]
@@ -294,10 +291,10 @@ public class LogixStringConverterTests
     public void Decode_WhenTheDataPointIsNotAString_SaysTheRegistryRoutedTheWrongConverter()
     {
         // Arrange
-        var dInt = CreateDInt(Label.TagName);
+        var dInt = new DIntDataPoint(Label.TagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var decode = () => Converter.Decode(dInt, new byte[StructureSize]);
+        var decode = Converter.Invoking(c => c.Decode(dInt, new byte[StructureSize]));
 
         // Assert
         decode.Should().Throw<InvalidOperationException>().WithMessage("*DataPointConverterRegistry*");
@@ -312,7 +309,7 @@ public class LogixStringConverterTests
         var bad = new BadLogixDataPointValue(Label);
 
         // Act
-        var encode = () => Converter.Encode(bad, new byte[StructureSize]);
+        var encode = Converter.Invoking(c => c.Encode(bad, new byte[StructureSize]));
 
         // Assert
         encode.Should().Throw<InvalidOperationException>()

@@ -3,19 +3,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// <summary>
 /// An Allen-Bradley data type, as Studio 5000 spells it: the type a tag holds, with nothing of how the
 /// controller encodes it.
+/// Every member but <see cref="String"/> is fixed in size by the type alone; a string's <c>n</c> travels
+/// beside it as a <see cref="DataPort.DataPoints.TypeDeclaration.StringMaxLength"/>. Structures such as
+/// <c>TIMER</c> or a UDT have no member here.
 /// </summary>
-/// <remarks>
-/// This is what a comparison between a configured data point and the controller's symbol table is made
-/// of. The wire codes the controller actually reports are the decoder's business; see
-/// <c>CipTypeCode</c>.
-/// <para>
-/// Every member but <see cref="String"/> is an elementary type, fixed in size by the type alone.
-/// <see cref="String"/> is the one whose size is not: it names the family, and the <c>n</c> that
-/// completes it travels beside it as a
-/// <see cref="DataPort.DataPoints.TypeDeclaration.StringMaxLength"/>. Structures this addon does not
-/// model — <c>TIMER</c>, <c>COUNTER</c>, a UDT — have no member here.
-/// </para>
-/// </remarks>
 public enum AllenBradleyDataType
 {
     /// <summary>A type code the controller reported that this addon does not model.</summary>

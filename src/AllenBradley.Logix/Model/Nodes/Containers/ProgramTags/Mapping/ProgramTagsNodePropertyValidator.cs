@@ -6,12 +6,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// <summary>
 /// Checks the one thing a program container carries: a program name Studio 5000 could have declared.
 /// </summary>
-/// <remarks>
-/// It has to be decided here rather than against the controller, because a program's tag listing cannot
-/// be read until its name is known — the browse asks for <c>Program:&lt;name&gt;.@tags</c>. Whether the
-/// controller actually has a program by that name is settled afterwards, by the tags inside it coming
-/// back not found.
-/// </remarks>
 internal sealed class ProgramTagsNodePropertyValidator : AbstractValidator<LinkedNode>
 {
     public ProgramTagsNodePropertyValidator()

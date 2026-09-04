@@ -7,24 +7,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// The fixed part of an <c>@tags</c> listing entry, laid out exactly as the controller sends it, so
 /// <see cref="TagsDecoder"/> reads a header in one reinterpret rather than seven offset
 /// calculations. The tag's name follows the header and is variable-length, so it stays outside.
+/// <c>Pack = 1</c> is load-bearing: without it <see cref="NameLength"/> pads the struct to 24 bytes and every
+/// entry after the first starts two bytes late. Reinterpreting assumes little-endian, which CIP and every
+/// .NET platform are.
 /// </summary>
-/// <remarks>
-/// <para>
-/// A plain <c>readonly struct</c> of fields, not one of the repo's record structs: this is a wire
-/// layout rather than a domain concept, and marshalling reads fields, not properties.
-/// </para>
-/// <para>
-/// <c>Pack = 1</c> is load-bearing. The trailing <see cref="NameLength"/> would otherwise be padded out
-/// to the struct's four-byte alignment, making <see cref="Size"/> 24 and every entry after the first
-/// start two bytes late.
-/// </para>
-/// <para>
-/// Reinterpreting bytes takes the host's byte order instead of stating one, which holds only because
-/// CIP is little-endian and so is every platform .NET runs on. The layout is documented in
-/// <c>docs/AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md</c>, section "The
-/// <c>@tags</c> listing entry".
-/// </para>
-/// </remarks>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 internal readonly struct TagsEntryHeader
 {

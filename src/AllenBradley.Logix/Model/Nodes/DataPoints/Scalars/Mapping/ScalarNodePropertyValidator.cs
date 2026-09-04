@@ -6,17 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// <summary>
 /// Checks what a scalar node carries before it is mapped: a tag name Studio 5000 could have declared,
 /// and a poll frequency that is a positive number of milliseconds.
+/// The name is the bare one, never an address; the tree walk composes the scope prefix. Whether the
+/// controller has the tag is verified against the symbol table on connect.
 /// </summary>
-/// <remarks>
-/// The name is the bare one, never an address. A tag in a program is configured as <c>Count</c> under a
-/// program container, and <c>Program:MainProgram.Count</c> is composed by the tree walk — so scope costs
-/// this rule nothing.
-/// <para>
-/// Whether the controller actually has that tag, and whether it has the type the node claims, is
-/// verified against the symbol table on connect. This validator only rejects what is decidable from the
-/// configuration alone.
-/// </para>
-/// </remarks>
 internal sealed class ScalarNodePropertyValidator : AbstractValidator<LinkedNode>
 {
     public ScalarNodePropertyValidator()

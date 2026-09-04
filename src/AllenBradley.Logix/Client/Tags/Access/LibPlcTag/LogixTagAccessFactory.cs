@@ -9,10 +9,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag
 /// binding the connection attributes onto every tag. It creates and never owns — disposal belongs to
 /// whoever holds the access, in practice <see cref="Lifetime.CachingLogixTagManager"/>.
 /// </summary>
-/// <remarks>
-/// Access comes out wrapped in <see cref="SynchronizedLogixTagAccess"/>, because a cached access is a
-/// shared one and a shared access takes one operation at a time.
-/// </remarks>
 /// <param name="clientInformation">
 /// Connection endpoint, TCP port, CIP route path and per-operation timeout — everything the attribute
 /// string needs, carried by the same value the pool keys the connection under.

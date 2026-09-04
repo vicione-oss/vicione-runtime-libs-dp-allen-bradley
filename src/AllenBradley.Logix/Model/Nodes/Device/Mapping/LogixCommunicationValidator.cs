@@ -8,13 +8,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 /// Rejects a device configuration the client stack could not be built from, before anything opens a
 /// socket. It checks only what is decidable here — a controller that answers at the connection endpoint and CIP route
 /// path is the connect's business, not this class's.
+/// A ControlLogix has to declare a route path; a CompactLogix is never asked for one and gets <see
+/// cref="DataPort.Device.CipRoutePath.VirtualBackplane"/> from <see cref="DeviceNodeMapper"/>.
 /// </summary>
-/// <remarks>
-/// One rule depends on the device node type: a chassis controller's CPU sits in whichever slot the
-/// chassis was built with, so a ControlLogix has to declare a route path and is held to it. A
-/// CompactLogix is never asked for one, and <see cref="DeviceNodeMapper"/> supplies
-/// <see cref="DataPort.Device.CipRoutePath.VirtualBackplane"/>.
-/// </remarks>
 public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommunication>
 {
     public LogixCommunicationValidator()
@@ -26,7 +22,7 @@ public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommuni
         RuleFor(static communication => communication.CipRoutePath)
             .NotEmpty()
             .When(static communication =>
-                DeviceNode.TypeOf(communication.DesignId)?.Family is LogixControllerFamily.ControlLogix)
+                DeviceNode.KindOf(communication.DesignId)?.Family is LogixControllerFamily.ControlLogix)
             .WithMessage("CIP route path must be the sequence of hops to the CPU, e.g. \"1,0\".");
 
         RuleFor(static communication => communication.TcpPort)

@@ -15,16 +15,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Pool;
 /// the last release closing it, and a failed or abandoned acquire leaving nothing behind. The client is
 /// a substitute, so every test here is about the bookkeeping — no controller, no libplctag.
 /// </summary>
-/// <remarks>
-/// The racing cases are the reason the pool is not a plain dictionary. A second caller arriving while
-/// the first is still browsing must wait for that browse rather than start its own, and whatever happens
-/// to it next — the connect fails, or its own token is cancelled — must not leave a reference behind on
-/// an entry that outlives it. Ported from <c>S7ClientPoolTests</c>, which covers the same contract.
-/// </remarks>
 public sealed class LogixClientPoolTests : IAsyncDisposable
 {
     private readonly ILoggerFactory _loggerFactory = TestLogging.CreateLoggerFactory();
-    private readonly LogixClientInformation _clientInformation = CreateClientInformation();
+    private readonly LogixClientInformation _clientInformation = DefaultClientInformation();
     private readonly ILogixClient _client = Substitute.For<ILogixClient>();
     private readonly LogixClientPool _pool;
 
@@ -71,7 +65,7 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
     public async Task AcquireConnectedAsync_ForDifferentControllers_CreatesSeparateClients()
     {
         // Arrange
-        var otherInformation = CreateClientInformation("10.0.0.2");
+        var otherInformation = _clientInformation with { ConnectionEndpoint = new ConnectionEndpoint("somethingelse") };
         var otherClient = Substitute.For<ILogixClient>();
         var factory = Substitute.For<ILogixClientFactory>();
         factory.Create(_clientInformation).Returns(_client);
@@ -96,12 +90,13 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
             .ThrowsAsync(new ConnectionFailureException("no route to host"));
 
         // Act
-        var acquire = async () => await _pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
+        var acquire = await Record.ExceptionAsync(
+            () => _pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None).AsTask());
 
         // Assert
         // A half-created entry would poison the controller for every later acquire, and an undisposed
         // client would leak its handles.
-        await acquire.Should().ThrowAsync<ConnectionFailureException>();
+        acquire.Should().BeOfType<ConnectionFailureException>();
         _client.Received(1).Dispose();
         _pool.PooledClients.Should().BeEmpty();
     }
@@ -119,15 +114,17 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         factory.Create(_clientInformation).Returns(failing, succeeding);
         await using var pool = LogixClientPool.CreateTestInstance(_loggerFactory, factory);
 
-        var firstAcquire = async () => await pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
-        await firstAcquire.Should().ThrowAsync<ConnectionFailureException>();
 
         // Act
+        // ReSharper disable once AccessToDisposedClosure — Record invokes it before it returns
+        var firstAcquire = await Record.ExceptionAsync(
+            () => pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None).AsTask());
         var client = await pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
 
         // Assert
         // A controller that was unreachable a moment ago is not unreachable forever, and the disposed
         // client cannot be reconnected — so a retry has to get a new one.
+        firstAcquire.Should().BeOfType<ConnectionFailureException>();
         client.Should().BeSameAs(succeeding);
         failing.Received(1).Dispose();
         await succeeding.Received(1).ConnectAsync(Arg.Any<CancellationToken>());
@@ -140,7 +137,7 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         await _pool.DisposeAsync();
 
         // Act
-        var acquire = async () => await _pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
+        var acquire = _pool.Awaiting(p => p.AcquireConnectedAsync(_clientInformation, CancellationToken.None));
 
         // Assert
         await acquire.Should().ThrowAsync<ObjectDisposedException>();
@@ -184,12 +181,12 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         // Arrange — acquire once and release twice, then release a controller never acquired at all
         await _pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
         await _pool.ReleaseAsync(_clientInformation, CancellationToken.None);
-
+        var otherClientInformation = _clientInformation with { ConnectionEndpoint = new ConnectionEndpoint("other") };
         // Act
         var release = async () =>
         {
             await _pool.ReleaseAsync(_clientInformation, CancellationToken.None);
-            await _pool.ReleaseAsync(CreateClientInformation("10.0.0.9"), CancellationToken.None);
+            await _pool.ReleaseAsync(otherClientInformation, CancellationToken.None);
         };
 
         // Assert
@@ -279,11 +276,13 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
 
         // Act
         connectGate.SetException(new ConnectionFailureException("no route to host"));
+        var firstFault = await Record.ExceptionAsync(() => first);
+        var secondFault = await Record.ExceptionAsync(() => second);
 
         // Assert
         // A waiter that received a client from a connect that failed would be reading against nothing.
-        await ((Func<Task>)(() => first)).Should().ThrowAsync<ConnectionFailureException>();
-        await ((Func<Task>)(() => second)).Should().ThrowAsync<ConnectionFailureException>();
+        firstFault.Should().BeOfType<ConnectionFailureException>();
+        secondFault.Should().BeOfType<ConnectionFailureException>();
         _client.Received(1).Dispose();
         _pool.PooledClients.Should().BeEmpty();
     }
@@ -309,7 +308,7 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
 
         // Act
         await waiterCts.CancelAsync();
-        await ((Func<Task>)(() => waiter)).Should().ThrowAsync<OperationCanceledException>();
+        var waiterFault = await Record.ExceptionAsync(() => waiter);
         connectGate.SetResult();
         await creator;
 
@@ -318,6 +317,7 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         // Assert
         // The reference is taken before the wait, so a waiter that walks away has to give it back —
         // otherwise the creator's release never reaches zero and the connection is held forever.
+        waiterFault.Should().BeAssignableTo<OperationCanceledException>();
         await _client.Received(1).DisconnectAsync(Arg.Any<CancellationToken>());
         _client.Received(1).Dispose();
         _pool.PooledClients.Should().BeEmpty();
@@ -341,12 +341,13 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         // Act
         await _pool.DisposeAsync();
         connectGate.SetResult();
+        var acquireFault = await Record.ExceptionAsync(() => acquire);
 
         // Assert
         // The dispose took the entry while the browse was still running, so the client that connect
         // finally produced belongs to nobody. Handing it over would give the caller one already
         // disposed; releasing it a second time on the way out would free a native handle twice.
-        await ((Func<Task>)(() => acquire)).Should().ThrowAsync<ObjectDisposedException>();
+        acquireFault.Should().BeOfType<ObjectDisposedException>();
         _client.Received(1).Dispose();
     }
 

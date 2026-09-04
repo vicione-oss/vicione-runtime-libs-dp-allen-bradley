@@ -6,12 +6,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Sc
 /// <summary>
 /// A Logix <c>STRING</c> tag — carried as <see cref="string"/>.
 /// </summary>
-/// <remarks>
-/// A scalar in the model and a structure on the wire: one value, not an array, but stored as
-/// <c>.LEN : DINT</c> + <c>.DATA : SINT[n]</c>. Unlike the elementary types, that shape is not fixed by
-/// the type alone, so the point carries its own <paramref name="MaxLength" /> — the <c>n</c> that sizes
-/// the buffer and that verification holds the controller to.
-/// </remarks>
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>

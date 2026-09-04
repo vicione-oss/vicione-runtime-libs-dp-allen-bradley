@@ -41,7 +41,7 @@ public class TagNamespaceDumpTests
         File.WriteAllText(DumpPath, report);
 
         _output.WriteLine(report);
-        _output.WriteLine($"Dump written to {System.IO.Path.GetFullPath(DumpPath)}");
+        _output.WriteLine($"Dump written to {Path.GetFullPath(DumpPath)}");
 
         Assert.NotEmpty(listing.ControllerTags);
     }

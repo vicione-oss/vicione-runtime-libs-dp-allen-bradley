@@ -1,6 +1,6 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
@@ -11,24 +11,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 /// <c>LogixClient</c> → <c>LogixWriteBatch</c>/<c>LogixReadBatch</c> →
 /// <c>DataPointConverterRegistry</c> → <c>LogixStringConverter</c> → <c>CachingLogixTagManager</c> →
 /// <c>LogixTagAccess</c> → libplctag — against the real CompactLogix L32E.
+/// The suite writes <c>strValue1</c>; that is what the tag is for, so nothing is restored.
 /// </summary>
-/// <remarks>
-/// <para>
-/// The target is a <c>STRING</c> rather than a DINT on purpose. <c>strValue1</c> is a program tag, so it
-/// <em>is</em> in the <c>Program:MainProgram.@tags</c> listing and its metadata is non-null, which is what
-/// the comparison in <c>ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md</c> needs.
-/// <c>Counter.PRE</c>, the read suite's target, is a structure member absent from the flat listing, so
-/// nothing about its type can be checked at all.
-/// </para>
-/// <para>
-/// Each case also asserts the declaration the controller reports, spelled out whole and compared as one
-/// record so that every field is pinned — the declared capacity above all, which is what nothing in a
-/// round trip of a shorter value would show.
-/// </para>
-/// <para>
-/// The suite <b>writes</b> <c>strValue1</c>. That is what the tag is for; no save-and-restore is needed.
-/// </para>
-/// </remarks>
 public class LogixClientStringRoundtripTests : LogixIntegrationTestBase
 {
     // Exactly 82 characters — the built-in STRING's .DATA[82], filled to the last byte.
@@ -52,15 +36,16 @@ public class LogixClientStringRoundtripTests : LogixIntegrationTestBase
         string valueToWrite, string expectedValue)
     {
         // Arrange
-        var dataPoint = CreateString(LogixTagAddresses.StrValue1);
+        var dataPoint = new StringDataPoint(new TagName(LogixTagAddresses.StrValue1), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
         // Asserting through the tag manager rather than the client, because the client seam has no
         // ResolveDataPoints yet; the manager already joins the controller's declaration onto every tag.
         var metadata = TagManager.TagFor(dataPoint).Metadata;
-        await Client.WriteAsync([CreateValue(dataPoint, valueToWrite)], cancellationToken);
-        var readResult = await Client.ReadAsync(CreateGroup(dataPoint), cancellationToken);
+        await Client.WriteAsync([dataPoint.CreateLogixValue(valueToWrite)], cancellationToken);
+        ILogixDataPoint[] dataPoints = [dataPoint];
+        var readResult = await Client.ReadAsync(new(DefaultPollFrequency, dataPoints), cancellationToken);
 
         // Assert
         metadata.Should().Be(new TagDefinition(

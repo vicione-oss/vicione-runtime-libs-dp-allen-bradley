@@ -10,12 +10,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// <c>@tags</c> directory, then each program's <c>@tags</c>, decodes them, and assembles a
 /// <see cref="TagDefinitions"/>. The listing handles are transient — read once and disposed —
 /// so nothing above the adapter touches the sealed <c>Tag</c>, and no native handle outlives the browse.
+/// Program tags are keyed by their qualified name (<c>Program:Main.Count</c>). Nested programs are not
+/// walked.
 /// </summary>
-/// <remarks>
-/// libplctag has no load-all call, so the browse is one read per scope: the controller, plus one per
-/// program. Program tags are keyed by their qualified name (<c>Program:Main.Count</c>) so they match a
-/// configured tag address. Nested programs are not walked in this cut.
-/// </remarks>
 /// <param name="accessFactory">Creates the transient access for each system-tag read.</param>
 internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory) : ITagDefinitionsLoader
 {

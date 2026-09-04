@@ -5,11 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 /// <summary>
 /// Writes a batch of Logix data point values to the controller.
+/// A failing tag does not stop the rest of the batch; afterwards a <see cref="LogixTagException"/> names
+/// every tag that was dropped and why.
 /// </summary>
-/// <remarks>
-/// Where a failed read degrades its own point, a failed write throws
-/// <see cref="LogixTagException"/> naming every tag that was dropped and why: <c>WriteAsync</c> returns
-/// no per-value result, so silence would be a dropped write the caller cannot detect. The values the
-/// exception does not name were written — a failing tag does not stop the rest of the batch.
-/// </remarks>
 public interface ILogixWriteClient : IWriteClient<ILogixDataPointValue>;

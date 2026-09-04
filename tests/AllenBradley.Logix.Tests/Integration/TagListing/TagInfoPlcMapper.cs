@@ -20,7 +20,7 @@ public class TagInfoPlcMapper : IPlcMapper<TagInfo[]>
         var tagInstanceId = tag.GetUInt32(offset);
         var tagType = tag.GetUInt16(offset + 4);
         var tagLength = tag.GetUInt16(offset + 6);
-        var tagArrayDims = new uint[]
+        var tagArrayDims = new[]
         {
             tag.GetUInt32(offset + 8),
             tag.GetUInt32(offset + 12),

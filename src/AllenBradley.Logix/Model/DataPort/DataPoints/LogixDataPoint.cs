@@ -8,18 +8,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// <see cref="TypeName"/>, their value record, and whatever configuration their type needs — a
 /// <c>STRING</c>'s declared capacity, and nothing at all for the elementary types.
 /// </summary>
-/// <remarks>
-/// <see cref="Identifier"/> and <see cref="DataTypeName"/> are the framework's two diagnostic strings, and
-/// this is the only place they are derived: the identifier is the tag address, the type name is the
-/// Studio 5000 spelling. Neither is identity — a converter is still resolved from the data point's
-/// concrete type, never from either string.
-/// <para>
-/// The .NET type is <typeparamref name="TDomain"/> itself rather than a discriminator beside it, which
-/// is what makes a value and the point that produced it agree by construction: a point makes only its
-/// own <see cref="ILogixDataPointValue{TDomain}"/>, and <see cref="ConvertValue"/> is the one door an
-/// untyped engine value comes through.
-/// </para>
-/// </remarks>
 /// <typeparam name="TDomain">The .NET type this point exchanges — <c>int</c> for a <c>DINT</c>.</typeparam>
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>

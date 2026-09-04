@@ -8,10 +8,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// The scalar rules plus the one only a string has: a declared capacity that is a positive number of
 /// characters.
 /// </summary>
-/// <remarks>
-/// Whether the controller declares that capacity is verified against the symbol table on connect — a
-/// <c>STRING_20</c> configured as a <c>STRING</c> is reported there, not here.
-/// </remarks>
 internal sealed class StringNodePropertyValidator : AbstractValidator<LinkedNode>
 {
     public StringNodePropertyValidator()

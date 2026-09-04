@@ -7,21 +7,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// A program-scope tag container: one program of the controller, and the tags configured inside it. It
 /// is a peer of controller scope under the device rather than a child of it, the way Studio 5000's own
 /// tree puts them.
+/// Every tag below it addresses as <c>Program:{ProgramName}.{TagName}</c>, composed by the tree walk so the
+/// configured tag name stays bare. The generation arrives with the node type for the reason <see
+/// cref="ControllerTags.ControllerTagsNode"/> gives.
 /// </summary>
-/// <remarks>
-/// Unlike controller scope, this container carries a property that reaches an address: every tag below
-/// it addresses as <c>Program:{ProgramName}.{TagName}</c>. The prefix is composed during the tree walk
-/// from the segment this node supplies, so a configured tag name stays bare and the leaf stays ignorant
-/// of which scope it hangs under.
-/// <para>
-/// The generation split controller scope carries is mirrored here, for the same reason and by the same
-/// means: one type for the manifest's two containers, which differ only in what they may hold, and the
-/// generation arriving with the node rather than from the device above — nothing above a container is
-/// reachable while <see cref="IConfigurationNode.CanBeAdded(IDataPointNode)"/> runs. What a scope may
-/// hold is the same question in both scopes, so <see cref="ITagScopeNode"/> answers it for both: an
-/// <c>LREAL</c> is missing from a 5X70 whether it was configured under a program or under the controller.
-/// </para>
-/// </remarks>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="ProgramName">The program these tags live in, and the segment their addresses carry.</param>
 /// <param name="Generation">
@@ -42,6 +31,29 @@ public sealed record ProgramTagsNode(
     /// <summary>The manifest property carrying <see cref="ProgramName"/>.</summary>
     public const string ProgramNamePropertyName = nameof(ProgramName);
 
+    /// <summary>
+    /// The generation the container node type <paramref name="linkedNodeTypeId"/> stands for.
+    /// </summary>
+    public static LogixGeneration GenerationOf(string linkedNodeTypeId) => linkedNodeTypeId switch
+    {
+        Logix5X70LinkedNodeTypeId => LogixGeneration.Logix5X70,
+        Logix5X80LinkedNodeTypeId => LogixGeneration.Logix5X80,
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(linkedNodeTypeId), $"'{linkedNodeTypeId}' is no program-scope container."),
+    };
+
+    /// <summary>
+    /// The container node type a <paramref name="generation"/> controller holds a program's tags in —
+    /// <see cref="GenerationOf"/> read the other way round.
+    /// </summary>
+    public static string LinkedNodeTypeIdFor(LogixGeneration generation) => generation switch
+    {
+        LogixGeneration.Logix5X70 => Logix5X70LinkedNodeTypeId,
+        LogixGeneration.Logix5X80 => Logix5X80LinkedNodeTypeId,
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(generation), $"No program-scope container for a {generation} controller."),
+    };
+
     /// <inheritdoc />
     public IConfigurationNode? ParentConfigurationNode { get; set; }
 
@@ -56,6 +68,9 @@ public sealed record ProgramTagsNode(
     /// resulting tags address as <c>Program:Parent.Child.Tag</c> is unconfirmed against hardware.
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
+
+    /// <summary>Whether a tag's type is one this controller's generation has. See <see cref="ITagScopeNode.CanHold"/>.</summary>
+    public bool CanBeAdded(IDataPointNode dataPointNode) => ITagScopeNode.CanHold(dataPointNode, Generation);
 
     /// <inheritdoc />
     public TagScope Scope() => TagScope.Program(ProgramName);

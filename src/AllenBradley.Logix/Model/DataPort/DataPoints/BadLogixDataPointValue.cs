@@ -2,14 +2,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 /// <summary>
 /// What a failed read comes home with: the point it was read for, and nothing else.
+/// Quality is carried by which shape comes back, so no <c>default</c> payload is ever invented for a tag that
+/// could genuinely hold zero or the empty string.
 /// </summary>
-/// <remarks>
-/// Deliberately not an <see cref="ILogixDataPointValue{TDomain}"/>. A read that failed has no payload
-/// to type, and a typed value would have to invent a <c>default</c> and hand it over as the tag's
-/// contents — zero and the empty string are values a tag can genuinely hold. Quality is therefore
-/// carried by which of the two shapes came back, not by a flag on a value that reads the same either
-/// way.
-/// </remarks>
 /// <param name="DataPoint">The point whose read failed.</param>
 internal sealed record BadLogixDataPointValue(ILogixDataPoint DataPoint) : ILogixDataPointValue
 {

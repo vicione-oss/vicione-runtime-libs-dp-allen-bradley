@@ -6,9 +6,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
-
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
@@ -19,17 +19,18 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 /// is why access creation lives behind <see cref="ILogixTagAccessFactory"/> and the browse behind
 /// <see cref="ITagDefinitionsLoader"/> rather than inside the manager.
 /// </summary>
+// Every act here captures the manager the test disposes — as a Record delegate invoked on the spot, or
+// as an Invoking one the assertion invokes a line later. Neither outlives the test method.
+// ReSharper disable AccessToDisposedClosure
 public class CachingLogixTagManagerTests
 {
     private static TagDefinition Dint(string tagName) =>
-        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, new DimensionCount(0), new ElementCount(1));
+        new(new TagName(tagName), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null,
+            new DimensionCount(0), new ElementCount(1));
 
     private static CachingLogixTagManager NewManager(
         CountingAccessFactory factory, FakeSchemaBrowser browser) =>
         new(factory, browser, NullLogger<CachingLogixTagManager>.Instance);
-
-    private static Task LoadAsync(CachingLogixTagManager manager) =>
-        manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
     [Fact]
     public async Task LoadSchemaAsync_CalledTwice_BrowsesOnce()
@@ -39,8 +40,8 @@ public class CachingLogixTagManagerTests
         using var manager = NewManager(new CountingAccessFactory(), browser);
 
         // Act
-        await LoadAsync(manager);
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Assert
         // The browse is N device reads (controller + one per program); connect must not pay it twice.
@@ -56,9 +57,9 @@ public class CachingLogixTagManagerTests
         using var manager = NewManager(new CountingAccessFactory(), browser);
 
         // Act
-        var first = LoadAsync(manager);
+        var first = manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
         await browser.BrowseStarted.Task;
-        var second = LoadAsync(manager);
+        var second = manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
         await Task.Delay(50, TestContext.Current.CancellationToken);
         var secondCompletedEarly = second.IsCompleted;
 
@@ -83,17 +84,17 @@ public class CachingLogixTagManagerTests
         };
         using var manager = NewManager(new CountingAccessFactory(), browser);
 
-        var failed = async () => await LoadAsync(manager);
-        await failed.Should().ThrowAsync<DataRetrievalException>();
 
         // Act
-        var retry = async () => await LoadAsync(manager);
+        _ = await Record.ExceptionAsync(() => manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken));
+        var retry = await Record.ExceptionAsync(() =>
+            manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken));
 
         // Assert
         // A controller that was unreachable a moment ago is not unreachable forever. Remembering the
         // failed browse — which is what caching the task rather than gating it would do — would make the
         // first failure the answer every later connect got.
-        await retry.Should().ThrowAsync<DataRetrievalException>();
+        retry.Should().BeOfType<DataRetrievalException>();
         browser.BrowseCount.Should().Be(2);
     }
 
@@ -103,14 +104,14 @@ public class CachingLogixTagManagerTests
         // Arrange
         var browser = new FakeSchemaBrowser { ["Motor.Speed"] = Dint("Motor.Speed") };
         using var manager = NewManager(new CountingAccessFactory(), browser);
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var tag = manager.TagFor(CreateDInt("Motor.Speed"));
+        var tag = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
 
         // Assert
         tag.Metadata.Should().Be(Dint("Motor.Speed"));
-        tag.DataPoint.Should().Be(CreateDInt("Motor.Speed"));
+        tag.DataPoint.Should().Be(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
     }
 
     [Fact]
@@ -119,12 +120,12 @@ public class CachingLogixTagManagerTests
         // Arrange
         var browser = new FakeSchemaBrowser { ["Motor.Speed"] = Dint("Motor.Speed") };
         using var manager = NewManager(new CountingAccessFactory(), browser);
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Act
         // A tag absent from the schema still resolves — for diagnostics and uniform handling; null metadata
         // is the "not on the controller" signal verification reports.
-        var tag = manager.TagFor(CreateDInt("Ghost"));
+        var tag = manager.TagFor(new DIntDataPoint(new TagName("Ghost"), DefaultPollFrequency, NoChannels));
 
         // Assert
         tag.Metadata.Should().BeNull();
@@ -136,13 +137,13 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         using var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Act
         // Distinct instances, equal by record value — the same data point, so the same tag
         // (ADR/2026-07-16-reusing-and-releasing-tag-handles.md).
-        var first = manager.TagFor(CreateDInt("Motor.Speed"));
-        var second = manager.TagFor(CreateDInt("Motor.Speed"));
+        var first = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
+        var second = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
 
         // Assert
         second.Should().BeSameAs(first);
@@ -155,11 +156,11 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         using var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var speed = manager.TagFor(CreateDInt("Motor.Speed"));
-        var level = manager.TagFor(CreateDInt("Tank.Level"));
+        var speed = manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
+        var level = manager.TagFor(new DIntDataPoint(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels));
 
         // Assert
         level.Should().NotBeSameAs(speed);
@@ -172,14 +173,15 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         using var manager = NewManager(factory, new FakeSchemaBrowser());
+        var dIntDataPoint = new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
         // Act
         // The schema is a hard connect precondition — a tag with no metadata to stamp on would be a
         // half-built object, so the ordering is enforced rather than papered over with a lazy load.
-        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
+        var tagFor = Record.Exception(() => manager.TagFor(dIntDataPoint));
 
         // Assert
-        tagFor.Should().Throw<InvalidOperationException>();
+        tagFor.Should().BeOfType<InvalidOperationException>();
         factory.CreatedCount.Should().Be(0);
     }
 
@@ -189,9 +191,9 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
-        manager.TagFor(CreateDInt("Motor.Speed"));
-        manager.TagFor(CreateDInt("Tank.Level"));
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
+        manager.TagFor(new DIntDataPoint(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels));
 
         // Act
         manager.Dispose();
@@ -208,8 +210,8 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
-        manager.TagFor(CreateDInt("Motor.Speed"));
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
 
         // Act
         manager.Dispose();
@@ -225,9 +227,9 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory { ThrowOnDisposeFor = "Motor.Speed" };
         var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
-        manager.TagFor(CreateDInt("Motor.Speed"));
-        manager.TagFor(CreateDInt("Tank.Level"));
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
+        manager.TagFor(new DIntDataPoint(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels));
 
         // Act
         var dispose = () => manager.Dispose();
@@ -246,13 +248,13 @@ public class CachingLogixTagManagerTests
         var factory = new CountingAccessFactory();
         var browser = new FakeSchemaBrowser();
         using var manager = NewManager(factory, browser);
-        await LoadAsync(manager);
-        manager.TagFor(CreateDInt("Motor.Speed"));
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
 
         // Act
         manager.Drain();
-        await LoadAsync(manager);
-        manager.TagFor(CreateDInt("Motor.Speed"));
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels));
 
         // Assert
         // Drain is what a disconnect does, and a disconnect is reversible: the handles go, the schema goes
@@ -269,16 +271,17 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         using var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
 
         // Act
         manager.Drain();
-        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
+        var tagFor = Record.Exception(() =>
+            manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels)));
 
         // Assert
         // Drain drops the schema, so the connect precondition is back in force — a tag built now would
         // carry metadata from a connection that has ended.
-        tagFor.Should().Throw<InvalidOperationException>();
+        tagFor.Should().BeOfType<InvalidOperationException>();
         factory.CreatedCount.Should().Be(0);
     }
 
@@ -287,11 +290,11 @@ public class CachingLogixTagManagerTests
     {
         // Arrange
         var manager = NewManager(new CountingAccessFactory(), new FakeSchemaBrowser());
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
         manager.Dispose();
 
         // Act
-        var drain = () => manager.Drain();
+        var drain = manager.Invoking(m => m.Drain());
 
         // Assert
         // Dispose is terminal; draining a disposed manager would read as if it could be revived.
@@ -304,15 +307,16 @@ public class CachingLogixTagManagerTests
         // Arrange
         var factory = new CountingAccessFactory();
         var manager = NewManager(factory, new FakeSchemaBrowser());
-        await LoadAsync(manager);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
         manager.Dispose();
 
         // Act
         // Handing back a tag here would create one nothing disposes — the leak Dispose just closed.
-        var tagFor = () => manager.TagFor(CreateDInt("Motor.Speed"));
+        var tagFor = Record.Exception(() =>
+            manager.TagFor(new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels)));
 
         // Assert
-        tagFor.Should().Throw<ObjectDisposedException>();
+        tagFor.Should().BeOfType<ObjectDisposedException>();
         factory.CreatedCount.Should().Be(0);
     }
 
