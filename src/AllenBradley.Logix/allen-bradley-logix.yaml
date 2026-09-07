@@ -124,6 +124,7 @@ Nodes:
     TransferModes: [ None ]
     ChildNodes:
       - Id: DInt
+      - Id: Int
       - Id: String
 
   - Id: ControllerTags5X80
@@ -135,6 +136,7 @@ Nodes:
     TransferModes: [ None ]
     ChildNodes:
       - Id: DInt
+      - Id: Int
       - Id: LReal
       - Id: String
 
@@ -160,6 +162,7 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: DInt
+      - Id: Int
       - Id: String
 
   - Id: ProgramTags5X80
@@ -172,6 +175,7 @@ Nodes:
     PropertyCategories: *program-tags-properties
     ChildNodes:
       - Id: DInt
+      - Id: Int
       - Id: LReal
       - Id: String
 
@@ -193,6 +197,29 @@ Nodes:
       Range: −2 147 483 648..2 147 483 647
     Icon: datapoint
     DataTypes: [ Int32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Int
+    MappingId: Int
+    Type: DataPortTreeNode
+    Name: "Int"
+    Description: >-
+      Logix-Type: INT (16-bit signed integer, CIP type code 0xC3)
+      Size: 2 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 1 = MSB
+      Range: −32 768..32 767
+    Icon: datapoint
+    DataTypes: [ Int16 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

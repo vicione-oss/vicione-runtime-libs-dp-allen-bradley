@@ -60,6 +60,21 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredIntTagBecomesAnIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var setpoint = DefaultIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(setpoint);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new IntDataPoint(setpoint.TagName, setpoint.PollFrequency, setpoint.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AConfiguredStringTagBecomesAPointCarryingTheCapacityItWasDeclaredWith()
     {
         // Arrange
@@ -83,7 +98,7 @@ public sealed class LogixDataPointsGroupMapperTests
     public void EachTagBecomesThePointItsOwnTypeMapsTo()
     {
         // Arrange
-        var deviceNode = DeviceNodeHoldingInControllerScope(DefaultDIntNode, DefaultStringNode);
+        var deviceNode = DeviceNodeHoldingInControllerScope(DefaultDIntNode, DefaultIntNode, DefaultStringNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);
@@ -91,6 +106,7 @@ public sealed class LogixDataPointsGroupMapperTests
         // Assert
         dataPoints.Should().SatisfyRespectively(
             static dataPoint => dataPoint.Should().BeOfType<DIntDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<IntDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<StringDataPoint>());
     }
 

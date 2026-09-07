@@ -7,6 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// <param name="Value">The type name.</param>
 public readonly record struct LogixDataTypeName(string Value)
 {
+    /// <summary>A 16-bit signed integer.</summary>
+    public static LogixDataTypeName Int => new("INT");
+
     /// <summary>A 32-bit signed integer.</summary>
     public static LogixDataTypeName DInt => new("DINT");
 

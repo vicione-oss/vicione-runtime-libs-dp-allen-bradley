@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Controlle
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -43,6 +44,9 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>DINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultDIntTagName = new("Counter");
+
+    /// <summary>The address of the <c>INT</c> tag the factory makes.</summary>
+    internal static readonly TagName DefaultIntTagName = new("Setpoint");
 
     /// <summary>The address of the <c>LREAL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
@@ -93,6 +97,15 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(DIntNode.LinkedNodeTypeId, DefaultDIntTagName.Value, DefaultChannel),
             DefaultDIntTagName,
+            DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured <c>INT</c> tag, a type every generation has, so a container of any generation admits it.
+    /// </summary>
+    internal static IntNode DefaultIntNode =>
+        new(
+            CreateChanneledLinkedNode(IntNode.LinkedNodeTypeId, DefaultIntTagName.Value, DefaultChannel),
+            DefaultIntTagName,
             DefaultPollFrequency);
 
     /// <summary>A configured <c>STRING</c> tag of the built-in capacity.</summary>

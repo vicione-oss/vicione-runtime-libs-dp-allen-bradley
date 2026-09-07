@@ -2,9 +2,11 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Controlle
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
+using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
@@ -24,5 +26,20 @@ public static class TypedLogixNodeMapper
                 new ControllerTags5X70NodeMapper(), new ControllerTags5X80NodeMapper(),
                 new ProgramTags5X70NodeMapper(), new ProgramTags5X80NodeMapper(),
             ],
-            [new DIntNodeMapper(), new LRealNodeMapper(), new StringNodeMapper()]);
+            ScalarNodeMappers());
+
+    // Grouped the way the manifest's scalar nodes and the converters are: one method per type family,
+    // so adding a type touches the family it belongs to rather than a single flat list that every
+    // slice appends to.
+    private static IDataPointNodeMapper<IDataPointNode>[] ScalarNodeMappers() =>
+        [.. IntegerNodeMappers(), .. FloatingPointNodeMappers(), .. StringNodeMappers()];
+
+    private static IDataPointNodeMapper<IDataPointNode>[] IntegerNodeMappers() =>
+        [new IntNodeMapper(), new DIntNodeMapper()];
+
+    private static IDataPointNodeMapper<IDataPointNode>[] FloatingPointNodeMappers() =>
+        [new LRealNodeMapper()];
+
+    private static IDataPointNodeMapper<IDataPointNode>[] StringNodeMappers() =>
+        [new StringNodeMapper()];
 }
