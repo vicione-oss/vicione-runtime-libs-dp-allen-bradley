@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
@@ -25,6 +26,7 @@ internal static class DataPointConverterRegistry
     {
         var converters = new Dictionary<Type, IDataPointConverter>();
 
+        Register(converters, new BoolConverter());
         Register(converters, new SIntConverter());
         Register(converters, new IntConverter());
         Register(converters, new DIntConverter());

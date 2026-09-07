@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
@@ -34,7 +35,13 @@ public static class TypedLogixNodeMapper
     // so adding a type touches the family it belongs to rather than a single flat list that every
     // slice appends to.
     private static IDataPointNodeMapper<IDataPointNode>[] ScalarNodeMappers() =>
-        [.. IntegerNodeMappers(), .. FloatingPointNodeMappers(), .. StringNodeMappers()];
+        [
+            .. BooleanNodeMappers(), .. IntegerNodeMappers(), .. FloatingPointNodeMappers(),
+            .. StringNodeMappers(),
+        ];
+
+    private static IDataPointNodeMapper<IDataPointNode>[] BooleanNodeMappers() =>
+        [new BoolNodeMapper()];
 
     private static IDataPointNodeMapper<IDataPointNode>[] IntegerNodeMappers() =>
         [new SIntNodeMapper(), new IntNodeMapper(), new DIntNodeMapper(), new LIntNodeMapper()];

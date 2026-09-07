@@ -123,6 +123,7 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
+      - Id: Bool
       - Id: SInt
       - Id: DInt
       - Id: Int
@@ -137,6 +138,7 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
+      - Id: Bool
       - Id: SInt
       - Id: DInt
       - Id: Int
@@ -165,6 +167,7 @@ Nodes:
           - Id: ProgramName
             Required: true
     ChildNodes:
+      - Id: Bool
       - Id: SInt
       - Id: DInt
       - Id: Int
@@ -180,6 +183,7 @@ Nodes:
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
     ChildNodes:
+      - Id: Bool
       - Id: SInt
       - Id: DInt
       - Id: Int
@@ -192,6 +196,33 @@ Nodes:
   # Description schema: docs/Siemens.S7.Documentation/shared/datapoint-description-schema.md
   #   (S7's, adopted verbatim apart from the leading Logix-Type label)
   # Wire-format source: docs/AllenBradley.Documentation/cip-protocol/
+
+  # The atomic tag only. A BOOL[] packs eight to the byte and is an array, and a BOOL inside a UDT is a
+  # member of one — neither is configurable here, and a BOOL[] configured as this node is reported as a
+  # shape mismatch when the configuration is verified against the controller.
+
+  - Id: Bool
+    MappingId: Bool
+    Type: DataPortTreeNode
+    Name: "Bool"
+    Description: >-
+      Logix-Type: BOOL (single-byte boolean, CIP type code 0xC1)
+      Size: 1 byte
+      Encoding: nonzero is true; a written true is 0xFF
+      Layout: byte 0 = the whole value
+      Range: false, true
+    Icon: datapoint
+    DataTypes: [ Bool ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
 
   - Id: SInt
     MappingId: SInt

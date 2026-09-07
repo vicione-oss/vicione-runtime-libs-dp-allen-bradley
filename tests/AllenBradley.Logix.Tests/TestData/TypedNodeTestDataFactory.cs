@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
@@ -55,6 +56,9 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>LINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLIntTagName = new("Ticks");
+
+    /// <summary>The address of the <c>BOOL</c> tag the factory makes.</summary>
+    internal static readonly TagName DefaultBoolTagName = new("Running");
 
     /// <summary>The address of the <c>LREAL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
@@ -132,6 +136,15 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(LIntNode.LinkedNodeTypeId, DefaultLIntTagName.Value, DefaultChannel),
             DefaultLIntTagName,
+            DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured <c>BOOL</c> tag, a type every generation has, so a container of any generation admits it.
+    /// </summary>
+    internal static BoolNode DefaultBoolNode =>
+        new(
+            CreateChanneledLinkedNode(BoolNode.LinkedNodeTypeId, DefaultBoolTagName.Value, DefaultChannel),
+            DefaultBoolTagName,
             DefaultPollFrequency);
 
     /// <summary>A configured <c>STRING</c> tag of the built-in capacity.</summary>

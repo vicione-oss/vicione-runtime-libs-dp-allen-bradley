@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -105,6 +106,24 @@ public class LogixConfigurationVerifierTests
     {
         // Arrange
         var resolved = Resolved(new DIntDataPoint(new TagName("Counts"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
+            .Which.Value.Should().Contain("array");
+    }
+
+    [Fact]
+    public void GetMismatches_WhenABoolArrayIsConfiguredAsAScalar_ReportsAShapeMismatch()
+    {
+        // Arrange
+        // The BOOL node is the atomic tag only. A BOOL[] packs eight to the byte, and this is what keeps
+        // one configured as a scalar from being read a bit at a time.
+        var resolved = Resolved(
+            new BoolDataPoint(new TagName("Flags"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
+            Declaration(dataType: AllenBradleyDataType.Bool, dimensionCount: 1));
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);

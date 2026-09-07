@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -101,6 +102,21 @@ public sealed class LogixDataPointsGroupMapperTests
 
         // Assert
         var expected = new LIntDataPoint(ticks.TagName, ticks.PollFrequency, ticks.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AConfiguredBoolTagBecomesABoolPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var running = DefaultBoolNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(running);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new BoolDataPoint(running.TagName, running.PollFrequency, running.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

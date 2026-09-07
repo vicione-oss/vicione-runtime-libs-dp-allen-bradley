@@ -7,6 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// <param name="Value">The type name.</param>
 public readonly record struct LogixDataTypeName(string Value)
 {
+    /// <summary>A single-byte boolean; nonzero is true.</summary>
+    public static LogixDataTypeName Bool => new("BOOL");
+
     /// <summary>An 8-bit signed integer.</summary>
     public static LogixDataTypeName SInt => new("SINT");
 
