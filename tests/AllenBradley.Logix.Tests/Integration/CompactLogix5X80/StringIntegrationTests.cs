@@ -1,3 +1,4 @@
+using System.Globalization;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -81,7 +82,7 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
         (await write.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"*{TagAddresses.String}*")
             .And.Message.Should().Contain(TagAddresses.StringCapacity.Value.ToString(
-                System.Globalization.CultureInfo.InvariantCulture));
+                CultureInfo.InvariantCulture));
 
         // And the tag is untouched: a readable tag holding something other than the rejected value.
         ILogixDataPoint[] dataPoints = [dataPoint];

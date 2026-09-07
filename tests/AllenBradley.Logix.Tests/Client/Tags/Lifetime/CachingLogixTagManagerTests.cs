@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -15,7 +15,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
 /// <summary>
 /// The reuse rules of <see cref="CachingLogixTagManager"/> and the schema it now owns, exercised
-/// against a fake factory and a fake browser. These run with no controller and no native library — which
+/// against a counting factory of substitute accesses and a fake browser. These run with no controller and
+/// no native library — which
 /// is why access creation lives behind <see cref="ILogixTagAccessFactory"/> and the browse behind
 /// <see cref="ITagDefinitionsLoader"/> rather than inside the manager.
 /// </summary>
@@ -201,7 +202,7 @@ public class CachingLogixTagManagerTests
         // Assert
         // A libplctag handle left to its finalizer fail-fasts the process (0xC0000602), so "every" is the
         // whole assertion.
-        factory.Created.Should().OnlyContain(access => access.IsDisposed);
+        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
     [Fact]
@@ -218,7 +219,7 @@ public class CachingLogixTagManagerTests
         manager.Dispose();
 
         // Assert
-        factory.Created.Should().OnlyContain(access => access.DisposeCount == 1);
+        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
     [Fact]
@@ -238,7 +239,7 @@ public class CachingLogixTagManagerTests
         // A tag that will not free is the one case where giving up costs the most: every tag still
         // queued behind it would be left to its finalizer, and that fail-fasts the process (0xC0000602).
         dispose.Should().NotThrow();
-        factory.Created.Should().OnlyContain(access => access.DisposeCount == 1);
+        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
     [Fact]
@@ -262,7 +263,7 @@ public class CachingLogixTagManagerTests
         // changed underneath.
         browser.BrowseCount.Should().Be(2);
         factory.CreatedCount.Should().Be(2);
-        factory.Created[0].IsDisposed.Should().BeTrue();
+        factory.Created[0].Received(1).Dispose();
     }
 
     [Fact]
@@ -349,9 +350,9 @@ public class CachingLogixTagManagerTests
 
     private sealed class CountingAccessFactory : ILogixTagAccessFactory
     {
-        private readonly List<FakeTagAccess> _created = [];
+        private readonly List<ILogixTagAccess> _created = [];
 
-        public IReadOnlyList<FakeTagAccess> Created => _created;
+        public IReadOnlyList<ILogixTagAccess> Created => _created;
 
         public int CreatedCount => _created.Count;
 
@@ -360,34 +361,17 @@ public class CachingLogixTagManagerTests
 
         public ILogixTagAccess Create(ILogixDataPoint dataPoint)
         {
-            var access = new FakeTagAccess(dataPoint.TagName.Value == ThrowOnDisposeFor);
+            var access = Substitute.For<ILogixTagAccess>();
+            if (dataPoint.TagName.Value == ThrowOnDisposeFor)
+            {
+                access.When(a => a.Dispose()).Do(_ => throw new LogixTagException("Access refused to free."));
+            }
+
             _created.Add(access);
             return access;
         }
 
         public ILogixTagAccess CreateForSchemaTag(TagName tagName) =>
             throw new NotSupportedException("The manager browses through the injected ILogixSchemaBrowser.");
-    }
-
-    private sealed class FakeTagAccess(bool throwOnDispose = false) : ILogixTagAccess
-    {
-        public bool IsDisposed => DisposeCount > 0;
-
-        public int DisposeCount { get; private set; }
-
-        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
-            Task.FromResult(LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty));
-
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
-            Task.FromResult(LogixTagWriteResult.Ok());
-
-        public void Dispose()
-        {
-            DisposeCount++;
-            if (throwOnDispose)
-            {
-                throw new LogixTagException("Access refused to free.");
-            }
-        }
     }
 }

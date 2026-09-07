@@ -1,3 +1,4 @@
+using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -14,7 +15,7 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 
 /// <summary>
-/// How the client handles a controller that answers badly, driven through a fake
+/// How the client handles a controller that answers badly, driven through a substituted
 /// <see cref="ILogixTagManager"/> that hands back one <see cref="ILogixTag"/> per
 /// data point. Both directions treat their batch as one unit: a tag that will not read or write fails the
 /// whole batch with an exception naming every such tag, so a group never comes home with holes in it.
@@ -48,11 +49,9 @@ public class LogixClientTests
     {
         // Arrange
         var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = speedTag,
-            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
-        };
+        var tagManager = TagManagerFor(
+            speedTag,
+            FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Speed, Level];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
@@ -78,7 +77,7 @@ public class LogixClientTests
     {
         // Arrange
         var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
-        var tagManager = new FakeTagManager { [Speed] = speedTag };
+        var tagManager = TagManagerFor(speedTag);
         using var client = CreateClient(tagManager);
         var group = new LogixDataPointGroup(DefaultPollFrequency, [Speed]);
         using var cts = new CancellationTokenSource();
@@ -98,11 +97,9 @@ public class LogixClientTests
     public async Task ReadAsync_WhenSeveralTagsFail_ThrowsNamingEveryOne()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Failed("tag is write-only")),
-            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Failed("tag is write-only")),
+            FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Speed, Level];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
@@ -124,11 +121,9 @@ public class LogixClientTests
         // Arrange
         // Two bytes where a DINT needs four. Nothing checks that before the decode any more — the
         // controller's type was verified at connect — so the converter is what discovers it, by throwing.
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(new byte[2])),
-            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(new byte[2])),
+            FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Speed, Level];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
@@ -148,11 +143,9 @@ public class LogixClientTests
     public async Task ReadAsync_WhenEveryTagAnswers_ReturnsAValuePerPointInGroupOrder()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(new byte[] { 7, 0, 0, 0 })),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+            FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(new byte[] { 7, 0, 0, 0 })));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Speed, Level];
 
@@ -177,11 +170,9 @@ public class LogixClientTests
         // Both points have a tag, so the only thing left that can throw is the missing converter.
         var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
         var unconvertible = new UnregisteredDataPoint();
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = speedTag,
-            [unconvertible] = FakeTag.Reading(unconvertible, metadata: null, LogixTagReadResult.Ok(FortyTwoAsDint)),
-        };
+        var tagManager = TagManagerFor(
+            speedTag,
+            FakeTag.Reading(unconvertible, metadata: null, LogixTagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Speed, unconvertible];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
@@ -200,10 +191,8 @@ public class LogixClientTests
     public async Task WriteAsync_WhenTheTagFails_ThrowsCarryingTheTagAndTheReason()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")));
         using var client = CreateClient(tagManager);
 
         var value = Speed.CreateLogixValue(42);
@@ -221,11 +210,9 @@ public class LogixClientTests
     public async Task WriteAsync_WhenSeveralTagsFail_ThrowsNamingEveryOne()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
-            [Level] = FakeTag.Writing(Level, DintMetadata("Tank.Level"), LogixTagWriteResult.Failed("tag not found")),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
+            FakeTag.Writing(Level, DintMetadata("Tank.Level"), LogixTagWriteResult.Failed("tag not found")));
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values =
         [
@@ -249,7 +236,7 @@ public class LogixClientTests
     {
         // Arrange
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Speed] = tag };
+        var tagManager = TagManagerFor(tag);
         using var client = CreateClient(tagManager);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -277,7 +264,7 @@ public class LogixClientTests
             new TagName("Line.Code"), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
         var labelTag = FakeTag.Writing(shortLabel, StringMetadata("Line.Short"), LogixTagWriteResult.Ok());
         var codeTag = FakeTag.Writing(shortCode, StringMetadata("Line.Code"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [shortLabel] = labelTag, [shortCode] = codeTag };
+        var tagManager = TagManagerFor(labelTag, codeTag);
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values =
         [
@@ -311,7 +298,7 @@ public class LogixClientTests
             new TagName("Line.Short"), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
         var speedTag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
         var labelTag = FakeTag.Writing(shortLabel, StringMetadata("Line.Short"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Speed] = speedTag, [shortLabel] = labelTag };
+        var tagManager = TagManagerFor(speedTag, labelTag);
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values =
         [
@@ -339,7 +326,7 @@ public class LogixClientTests
         // ILogixDataPointValue is public, so an outside implementation can be handed down. It names a
         // real point but carries no payload the converter can encode.
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Speed] = tag };
+        var tagManager = TagManagerFor(tag);
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values = [new ForeignDataPointValue(Speed)];
 
@@ -360,7 +347,7 @@ public class LogixClientTests
     {
         // Arrange
         var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Speed] = tag };
+        var tagManager = TagManagerFor(tag);
         using var client = CreateClient(tagManager);
         ILogixDataPointValue value = Speed.CreateLogixValue(42);
 
@@ -380,7 +367,7 @@ public class LogixClientTests
         // capacity. The two bytes of alignment padding that make the tag 88 on the controller are
         // libplctag's handle's, and never pass through the client.
         var tag = FakeTag.Writing(Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok());
-        var tagManager = new FakeTagManager { [Label] = tag };
+        var tagManager = TagManagerFor(tag);
         using var client = CreateClient(tagManager);
         var value = (ILogixDataPointValue)Label.CreateLogixValue("Hi");
 
@@ -402,10 +389,8 @@ public class LogixClientTests
         structure[0] = 2;
         structure[4] = (byte)'H';
         structure[5] = (byte)'i';
-        var tagManager = new FakeTagManager
-        {
-            [Label] = FakeTag.Reading(Label, StringMetadata("Line.Label"), LogixTagReadResult.Ok(structure)),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Label, StringMetadata("Line.Label"), LogixTagReadResult.Ok(structure)));
         using var client = CreateClient(tagManager);
         ILogixDataPoint[] dataPoints = [Label];
         var logixDataPointGroup = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
@@ -424,11 +409,9 @@ public class LogixClientTests
         // Arrange
         // Line.Label is deliberately absent from the controller's symbol table, which its tag carries as
         // null metadata.
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-            [Label] = FakeTag.Reading(Label, metadata: null, LogixTagReadResult.Ok(new byte[88])),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+            FakeTag.Reading(Label, metadata: null, LogixTagReadResult.Ok(new byte[88])));
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
 
@@ -449,10 +432,8 @@ public class LogixClientTests
     public async Task ResolveDataPoints_BeforeAConnect_ThrowsAndBrowsesNothing()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -464,17 +445,15 @@ public class LogixClientTests
         // client that does not consider itself connected — which a later disconnect would then skip
         // freeing, and a handle left to its finalizer fail-fasts the process (0xC0000602).
         resolve.Should().BeOfType<InvalidOperationException>();
-        tagManager.SchemaLoads.Should().Be(0);
+        await tagManager.DidNotReceive().LoadTagDefinitionsAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task ResolveDataPoints_AfterADisconnect_Throws()
     {
         // Arrange
-        var tagManager = new FakeTagManager
-        {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
-        };
+        var tagManager = TagManagerFor(
+            FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
         await client.DisconnectAsync(CancellationToken.None);
@@ -492,7 +471,7 @@ public class LogixClientTests
     public async Task ConnectAsync_BrowsesTheSymbolTableOnce()
     {
         // Arrange
-        var tagManager = new FakeTagManager();
+        var tagManager = Substitute.For<ILogixTagManager>();
         using var client = CreateClient(tagManager);
 
         // Act
@@ -503,7 +482,7 @@ public class LogixClientTests
         // Connecting is the browse, so a second connect must not pay for a second one — the engine calls
         // connect defensively and the browse is the expensive part of it.
         client.IsConnected.Should().BeTrue();
-        tagManager.SchemaLoads.Should().Be(1);
+        await tagManager.Received(1).LoadTagDefinitionsAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -512,10 +491,9 @@ public class LogixClientTests
         // Arrange
         // A schema exception is what an unreachable connection endpoint or a dead route path comes back as. The
         // framework's acquire contract is a single exception type, so it must not reach the caller raw.
-        var tagManager = new FakeTagManager
-        {
-            OnLoadSchema = _ => Task.FromException(new DataRetrievalException("no route to host")),
-        };
+        var tagManager = Substitute.For<ILogixTagManager>();
+        tagManager.LoadTagDefinitionsAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromException(new DataRetrievalException("no route to host")));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -532,7 +510,9 @@ public class LogixClientTests
     {
         // Arrange
         // Cancellation is not a connection failure — wrapping it would hide a shutdown as a device fault.
-        var tagManager = new FakeTagManager { OnLoadSchema = Task.FromCanceled };
+        var tagManager = Substitute.For<ILogixTagManager>();
+        tagManager.LoadTagDefinitionsAsync(Arg.Any<CancellationToken>())
+            .Returns(load => Task.FromCanceled(load.Arg<CancellationToken>()));
         using var client = CreateClient(tagManager);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -549,7 +529,7 @@ public class LogixClientTests
     public async Task DisconnectAsync_DrainsTheTagManagerAndAllowsReconnecting()
     {
         // Arrange
-        var tagManager = new FakeTagManager();
+        var tagManager = Substitute.For<ILogixTagManager>();
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
 
@@ -561,9 +541,9 @@ public class LogixClientTests
         // Assert
         // Disconnect frees the handles and drops the schema, exactly once for the one connection it ends;
         // it is reversible, so the reconnect browses again rather than throwing.
-        tagManager.Drains.Should().Be(1);
-        tagManager.Disposals.Should().Be(0);
-        tagManager.SchemaLoads.Should().Be(2);
+        tagManager.Received(1).Drain();
+        tagManager.DidNotReceive().Dispose();
+        await tagManager.Received(2).LoadTagDefinitionsAsync(Arg.Any<CancellationToken>());
         client.IsConnected.Should().BeTrue();
     }
 
@@ -571,7 +551,7 @@ public class LogixClientTests
     public void Dispose_EndsTheTagManagerAndIsIdempotent()
     {
         // Arrange
-        var tagManager = new FakeTagManager();
+        var tagManager = Substitute.For<ILogixTagManager>();
         var client = CreateClient(tagManager);
 
         // Act
@@ -580,7 +560,7 @@ public class LogixClientTests
 
         // Assert
         // Disposing is what frees the native handles, and a double dispose must not double-free them.
-        tagManager.Disposals.Should().Be(1);
+        tagManager.Received(1).Dispose();
         client.IsConnected.Should().BeFalse();
     }
 
@@ -588,7 +568,7 @@ public class LogixClientTests
     public async Task ConnectAsync_AfterDispose_Throws()
     {
         // Arrange
-        var tagManager = new FakeTagManager();
+        var tagManager = Substitute.For<ILogixTagManager>();
         var client = CreateClient(tagManager);
         client.Dispose();
 
@@ -599,11 +579,23 @@ public class LogixClientTests
         // Dispose is terminal: a disposed client's tag manager is gone, so reviving it would hand out
         // tags nothing owns. The pool builds a fresh client instead.
         connect.Should().BeOfType<ObjectDisposedException>();
-        tagManager.SchemaLoads.Should().Be(0);
+        await tagManager.DidNotReceive().LoadTagDefinitionsAsync(Arg.Any<CancellationToken>());
     }
 
     private static LogixClient CreateClient(ILogixTagManager tagManager) =>
         new(tagManager, DefaultClientInformation(), TestLogging.CreateLogger<LogixClient>());
+
+    // A tag manager that hands back exactly these tags, each keyed on the data point it already carries.
+    private static ILogixTagManager TagManagerFor(params ILogixTag[] tags)
+    {
+        var tagManager = Substitute.For<ILogixTagManager>();
+        foreach (var tag in tags)
+        {
+            tagManager.TagFor(tag.DataPoint).Returns(tag);
+        }
+
+        return tagManager;
+    }
 
     // An ILogixDataPointValue that no data point made. The interface is public, so this is the one shape
     // the write path's converter guard can ever be handed: a read returns the point's own typed value or
@@ -623,37 +615,6 @@ public class LogixClientTests
         protected override LogixDataTypeName TypeName => new("MYSTERY");
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
-    }
-
-    private sealed class FakeTagManager : ILogixTagManager
-    {
-        private readonly Dictionary<ILogixDataPoint, FakeTag> _tagByDataPoint = [];
-
-        public FakeTag this[ILogixDataPoint dataPoint]
-        {
-            set => _tagByDataPoint[dataPoint] = value;
-        }
-
-        /// <summary>What the browse does, so a test can make a connect fail or hang.</summary>
-        public Func<CancellationToken, Task> OnLoadSchema { get; set; } = _ => Task.CompletedTask;
-
-        public int SchemaLoads { get; private set; }
-
-        public int Drains { get; private set; }
-
-        public int Disposals { get; private set; }
-
-        public Task LoadTagDefinitionsAsync(CancellationToken cancellationToken)
-        {
-            SchemaLoads++;
-            return OnLoadSchema(cancellationToken);
-        }
-
-        public ILogixTag TagFor(ILogixDataPoint dataPoint) => _tagByDataPoint[dataPoint];
-
-        public void Drain() => Drains++;
-
-        public void Dispose() => Disposals++;
     }
 
     private sealed class FakeTag : ILogixTag

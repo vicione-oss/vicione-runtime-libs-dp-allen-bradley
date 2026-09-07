@@ -1,3 +1,4 @@
+using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
@@ -52,7 +53,7 @@ public class TagDefinitionsLoaderTests
 
         // Assert
         // A leaked libplctag handle fail-fasts the process (0xC0000602); the browse owns its transients.
-        factory.Created.Should().OnlyContain(access => access.IsDisposed);
+        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
     [Fact]
@@ -72,9 +73,9 @@ public class TagDefinitionsLoaderTests
     private sealed class FakeSchemaTagFactory : ILogixTagAccessFactory
     {
         private readonly Dictionary<string, byte[]> _listingsByTagName = [];
-        private readonly List<FakeSchemaTagAccess> _created = [];
+        private readonly List<ILogixTagAccess> _created = [];
 
-        public IReadOnlyList<FakeSchemaTagAccess> Created => _created;
+        public IReadOnlyList<ILogixTagAccess> Created => _created;
 
         public byte[] this[string tagName]
         {
@@ -86,25 +87,13 @@ public class TagDefinitionsLoaderTests
 
         public ILogixTagAccess CreateForSchemaTag(TagName tagName)
         {
-            var access = new FakeSchemaTagAccess(
-                _listingsByTagName.TryGetValue(tagName.Value, out var bytes) ? bytes : null, tagName.Value);
+            var access = Substitute.For<ILogixTagAccess>();
+            access.ReadAsync(Arg.Any<CancellationToken>()).Returns(
+                _listingsByTagName.TryGetValue(tagName.Value, out var listing)
+                    ? LogixTagReadResult.Ok(listing)
+                    : LogixTagReadResult.Failed($"no such schema tag '{tagName.Value}'"));
             _created.Add(access);
             return access;
         }
-    }
-
-    private sealed class FakeSchemaTagAccess(byte[]? listing, string tagName) : ILogixTagAccess
-    {
-        public bool IsDisposed { get; private set; }
-
-        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
-            Task.FromResult(listing is null
-                ? LogixTagReadResult.Failed($"no such schema tag '{tagName}'")
-                : LogixTagReadResult.Ok(listing));
-
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
-
-        public void Dispose() => IsDisposed = true;
     }
 }
