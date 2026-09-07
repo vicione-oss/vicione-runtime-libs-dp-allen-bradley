@@ -123,6 +123,7 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
+      - Id: SInt
       - Id: DInt
       - Id: Int
       - Id: String
@@ -135,6 +136,7 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
+      - Id: SInt
       - Id: DInt
       - Id: Int
       - Id: LReal
@@ -161,6 +163,7 @@ Nodes:
           - Id: ProgramName
             Required: true
     ChildNodes:
+      - Id: SInt
       - Id: DInt
       - Id: Int
       - Id: String
@@ -174,6 +177,7 @@ Nodes:
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
     ChildNodes:
+      - Id: SInt
       - Id: DInt
       - Id: Int
       - Id: LReal
@@ -184,6 +188,29 @@ Nodes:
   # Description schema: docs/Siemens.S7.Documentation/shared/datapoint-description-schema.md
   #   (S7's, adopted verbatim apart from the leading Logix-Type label)
   # Wire-format source: docs/AllenBradley.Documentation/cip-protocol/
+
+  - Id: SInt
+    MappingId: SInt
+    Type: DataPortTreeNode
+    Name: "SInt"
+    Description: >-
+      Logix-Type: SINT (8-bit signed integer, CIP type code 0xC2)
+      Size: 1 byte
+      Encoding: two's complement; a single byte has no byte order
+      Layout: byte 0 = the whole value
+      Range: −128..127
+    Icon: datapoint
+    DataTypes: [ Int8 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
 
   - Id: DInt
     MappingId: DInt

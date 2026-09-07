@@ -75,6 +75,21 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredSIntTagBecomesASIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var level = DefaultSIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(level);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new SIntDataPoint(level.TagName, level.PollFrequency, level.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AConfiguredStringTagBecomesAPointCarryingTheCapacityItWasDeclaredWith()
     {
         // Arrange

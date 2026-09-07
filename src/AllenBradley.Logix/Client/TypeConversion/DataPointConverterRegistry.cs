@@ -25,6 +25,7 @@ internal static class DataPointConverterRegistry
     {
         var converters = new Dictionary<Type, IDataPointConverter>();
 
+        Register(converters, new SIntConverter());
         Register(converters, new IntConverter());
         Register(converters, new DIntConverter());
         Register(converters, new RealConverter());
