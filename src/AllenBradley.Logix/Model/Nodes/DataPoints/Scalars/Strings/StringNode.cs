@@ -16,19 +16,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// <param name="MaxLength">The character capacity the tag is declared with in Studio 5000.</param>
 internal sealed record StringNode(
     LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency, StringMaxLength MaxLength)
-    : ILogixScalarNode
+    : LogixScalarNode(OriginalNode, TagName, PollFrequency)
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "String";
 
     /// <summary>The manifest property carrying <see cref="MaxLength"/>.</summary>
     public const string MaxLengthPropertyName = nameof(MaxLength);
-
-    /// <inheritdoc />
-    public IConfigurationNode? Parent { get; set; }
-
-    /// <inheritdoc />
-    public Channels Channels { get; } = new(
-        [.. OriginalNode.AffectedChannels.Select(static channel => new AffectedChannel(channel))],
-        [.. OriginalNode.TransferredChannels.Select(static channel => new TransferredChannel(channel))]);
 }
