@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.TagListing;
 
 /// <summary>
 /// Dumps the controller's real tag namespace with symbol types decoded, and writes it to a file.

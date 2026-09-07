@@ -1,6 +1,6 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.TagListing;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
 [Trait("Category", "Integration")]
 public class PlcTagListingTests(ITestOutputHelper output)

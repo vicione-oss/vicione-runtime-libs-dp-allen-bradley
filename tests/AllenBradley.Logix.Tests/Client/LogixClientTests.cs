@@ -130,7 +130,7 @@ public class LogixClientTests
             [Speed] = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Failed("tag is read-only")),
         };
         using var client = CreateClient(tagManager);
-        
+
         var value = Speed.CreateLogixValue(42);
 
         // Act

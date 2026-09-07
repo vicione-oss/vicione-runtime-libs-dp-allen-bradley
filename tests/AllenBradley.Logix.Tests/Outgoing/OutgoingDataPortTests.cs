@@ -281,10 +281,10 @@ public sealed class OutgoingDataPortTests : IDisposable
     private static LogixCommunication SmallQueue(QueueStrategy strategy) =>
         CreateCommunicationOf([ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)])
             with
-            {
-                MaxPendingMessages = 2,
-                Strategy = (byte)strategy,
-            };
+        {
+            MaxPendingMessages = 2,
+            Strategy = (byte)strategy,
+        };
 
     private static int Payload(IReadOnlyList<ILogixDataPointValue> batch) => (int)batch[0].Value!;
 

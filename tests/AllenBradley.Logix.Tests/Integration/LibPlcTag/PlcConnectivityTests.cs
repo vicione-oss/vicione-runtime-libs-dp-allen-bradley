@@ -1,6 +1,6 @@
 using libplctag;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
 /// <summary>
 /// End-to-end integration tests that require a physical ControlLogix/CompactLogix device.

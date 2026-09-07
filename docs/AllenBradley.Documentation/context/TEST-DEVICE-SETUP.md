@@ -1,6 +1,25 @@
 # Test Device Setup
 
-This document describes how to connect to the Allen-Bradley CompactLogix L32E used for integration testing.
+This document describes how to connect to the controllers used for integration testing.
+
+Two of them, at different stages. The **CompactLogix L32E** is real, reachable through the Link Manager
+tunnel, and is what every suite has run against so far — it is a 5X70, so it has no `LREAL` and no
+unsigned integers. A **CompactLogix 5X80** is planned and not yet provisioned; the suite that targets it
+is written and every address it uses is an assumption until the device arrives.
+
+## How the integration tests are laid out
+
+`tests/AllenBradley.Logix.Tests/Integration/` is split by what a suite is actually about:
+
+| Folder                | What is under test                                                    | Device                    |
+|-----------------------|-----------------------------------------------------------------------|---------------------------|
+| `LibPlcTag/`          | libplctag on its own — no addon code in the picture                   | the L32E                  |
+| `CompactLogix5X70/`   | the addon's client stack, and the facts that are about this controller | the L32E                  |
+| `CompactLogix5X80/`   | one write/read round trip per data type in the port's vocabulary       | not provisioned yet       |
+
+`PlcCollection` sits above all three: every test that touches a controller joins it, and it never runs
+in parallel. They share one controller over one libplctag session, and concurrent operations on that
+session collide.
 
 ## Prerequisites
 
@@ -94,21 +113,90 @@ necessary.
 | `AL1x2x_IOLink:O` | 304 bytes | Output data to IO-Link master |
 | `AL1x2x_IOLink:C` | 108 bytes | IO-Link master configuration |
 
-## 4. Running the Integration Tests
+## 4. The CompactLogix 5X80 — not provisioned yet
 
-The integration tests live in `tests/AllenBradley.Logix.Tests/Integration/` and connect to the PLC
-using environment variables with the defaults below. Override them if your setup differs.
+`Integration/CompactLogix5X80/` is the data-type suite: one write/read round trip per type the port
+implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `REAL`, `LREAL`, `STRING` — each driven to both ends
+of its range, each also asserting the declaration the controller reports for its tag.
+
+It is pinned to a 5X80 because of `LREAL`. That is the one type in the vocabulary a 5X70 has not got, so
+the L32E cannot host this suite; see
+[datatype-support.md](../../AllenBradley.Logix.Documentation/reference/datatype-support.md).
+
+**Nothing here has been confirmed against a device.** Two files hold every assumption, split along the
+line between what varies by machine and what is a fact about the controller.
+
+### `TagAddresses.cs` — the tags, as constants
+
+One tag per type, all program-scoped in `MainProgram`:
+
+| Type | Tag |
+|------|-----|
+| `BOOL` | `Program:MainProgram.testBool` |
+| `SINT` | `Program:MainProgram.testSint` |
+| `INT` | `Program:MainProgram.testInt` |
+| `DINT` | `Program:MainProgram.testDint` |
+| `LINT` | `Program:MainProgram.testLint` |
+| `REAL` | `Program:MainProgram.testReal` |
+| `LREAL` | `Program:MainProgram.testLreal` |
+| `STRING` | `Program:MainProgram.testString`, declared to hold 82 characters |
+
+Constants, not environment variables. Which tags a controller holds is a fact about that controller and
+the same everywhere the suite runs, so it belongs in the source and in review; when the real device
+arrives, correcting an assumption is a one-line edit per type.
+
+They are program-scoped deliberately: a program tag is browsed under a program-qualified key, and the
+address the configuration tree composes has to agree with it — which a bare controller tag would not
+prove.
+
+> **Every one of these tags is written, not just read.** Provision them as tags nothing in the
+> controller's program depends on.
+
+### `TestController.cs` — how the controller is reached
+
+This is the part that varies by machine, so it is configurable. A direct connection is assumed: the
+endpoint is the controller itself, on the EtherNet/IP port, over the virtual backplane. If it turns out
+to sit behind a tunnel or a bridge, this is the only file that changes.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CIP_GATEWAY` | `192.168.0.100` | PLC IP address |
+| `CIP_5X80_GATEWAY` | `192.168.0.102` | Controller IP address — a placeholder, see below |
+| `CIP_5X80_PORT` | `44818` | TCP port the EtherNet/IP session is opened on |
+| `CIP_5X80_PATH` | `1,0` | CIP route path to the CPU |
+| `CIP_5X80_TIMEOUT_SECONDS` | `10` | How long one tag read or write may take |
+
+The prefix is `CIP_5X80_` rather than the plain `CIP_` below, because those point at the L32E. Pointing
+this suite at that controller would fail on the `LREAL`, for reasons that read as a decode bug.
+
+`192.168.0.102` is a placeholder. It is the second CompactLogix on the lab subnet, labelled
+`AB_CompactLogix` and unconfigured — a real address on a network the tunnel already routes, chosen over
+an invented one. Replace it, or set `CIP_5X80_GATEWAY`, the moment the real device is known.
+
+**Run `GeneralIntegrationTests` first against a newly provisioned controller.** Its
+`Verify_EveryTypeInTheVocabulary_ReportsNoMisconfiguration` resolves all eight configured tags against
+the symbol table in one go and reports each disagreement by name — missing, wrong type, wrong shape,
+wrong capacity. That turns a set of wrong assumptions into a readable list, where the round trips would
+give eight failures that all say a read came back `Bad`.
+
+## 5. Running the Integration Tests
+
+The suites connect using environment variables with the defaults below. Override them if your setup
+differs.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CIP_GATEWAY` | `192.168.0.100` | L32E IP address |
 | `CIP_PATH` | `1,0` | Backplane routing path |
 | `CIP_TAG_NAME` | `Program:MainProgram.strValue1` | Tag used by the raw-libplctag spike round trip |
+| `CIP_DINT_TAG` | `Program:MainProgram.Counter.PRE` | Tag the shared-access concurrency probe hammers |
+| `CIP_DUMP_PATH` | `tag-namespace-dump.txt` | Where the tag-namespace dump is written |
 
-Only the connection settings are environment variables. Which tags the client-stack suites target is
-a fact about this controller, so those names are constants in `Integration/LogixTagAddresses.cs`.
+Only connection settings are environment variables, for either controller. Which tags a suite targets is
+a fact about the device it runs against, so those names are constants — in
+`Integration/CompactLogix5X70/LogixTagAddresses.cs` for the L32E, and in
+`Integration/CompactLogix5X80/TagAddresses.cs` for the 5X80.
 
-Run only the integration tests (needs this device reachable):
+Run only the integration tests (needs the device reachable):
 
 ```sh
 dotnet test -p:test-suite=integration

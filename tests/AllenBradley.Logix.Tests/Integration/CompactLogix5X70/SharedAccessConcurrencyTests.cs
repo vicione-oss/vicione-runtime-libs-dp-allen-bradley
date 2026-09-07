@@ -10,7 +10,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
 
 /// <summary>
 /// Verifies — against the real CompactLogix L32E — the two claims that justify <c>SynchronizedLogixTagAccess</c>,
@@ -94,8 +94,7 @@ public class SharedAccessConcurrencyTests
         // Assert
         // The gate makes every operation a whole exchange with the access to itself, so nothing the batch
         // does to this tag can make it fail. On a healthy device that means every read and write is Ok.
-        outcomes.Where(o => !o.Ok).Should().BeEmpty(
-            "serializing operations on the shared access removes the self-inflicted races");
+        outcomes.Should().NotContain(o => !o.Ok, "serializing operations on the shared access removes the self-inflicted races");
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 using libplctag;
 using libplctag.DataTypes;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.TagListing;
 
 public class UdtInfoPlcMapper : IPlcMapper<UdtInfo>
 {

@@ -17,8 +17,11 @@ later slices. Before adding a data type or a node, read
 implemented today, and [`explanation/tag-scoping.md`](docs/AllenBradley.Logix.Documentation/explanation/tag-scoping.md)
 for how scope becomes a container node. The **Legacy** addon still has no project.
 
-`tests/AllenBradley.Logix.Tests/Integration/` talks to a real L32E over the Link Manager tunnel. It began as a
-connectivity spike and is now the addon's hardware suite; a bare `dotnet test` never runs it.
+`tests/AllenBradley.Logix.Tests/Integration/` is the hardware suite; a bare `dotnet test` never runs it. It is split
+three ways: `LibPlcTag/` probes the library on its own, `CompactLogix5X70/` drives the addon's client stack against the
+real L32E over the Link Manager tunnel, and `CompactLogix5X80/` is one write/read round trip per data type against a
+controller **that is not provisioned yet** — every address in it is an assumption, and every one is configurable. See
+[TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before pointing it at a device.
 
 ## Quick Reference
 

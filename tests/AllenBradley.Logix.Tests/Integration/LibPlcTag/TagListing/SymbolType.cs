@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.TagListing;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.TagListing;
 
 /// <summary>
 /// Decodes the 16-bit Logix symbol-type value carried by every tag returned from the
