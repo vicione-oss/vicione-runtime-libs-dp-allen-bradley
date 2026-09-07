@@ -85,8 +85,8 @@ one. It decodes a raw span into the data point's value, and encodes a value back
   point was configured for. Repeating the comparison per read would re-reach a verdict already reached, on
   metadata that cannot change while the connection lives. It would also let a misconfiguration that
   verification somehow let through look like a device fault instead of the configuration error it is. A
-  reply too short for its type is caught narrowly on the read path and degrades that one data point to a
-  bad value, rather than sinking the group it is polled in.
+  reply too short for its type is caught narrowly on the read path, and only so that the tag it happened
+  to can be named in the exception that fails the group.
 - Conversion lives in `Client/` and **never** in the domain core. The domain declares what a data point
   exchanges, with the .NET type as a type parameter on the data point itself rather than a discriminator
   beside it. The client owns how to produce that value from libplctag's bytes. The converters touch no

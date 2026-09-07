@@ -16,9 +16,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// <summary>
 /// How the client handles a controller that answers badly, driven through a fake
 /// <see cref="ILogixTagManager"/> that hands back one <see cref="ILogixTag"/> per
-/// data point. Read and write diverge here by design: a failed read degrades its own data point, a failed
-/// write throws, because <c>IWriteClient.WriteAsync</c> gives the caller no other way to learn a tag was
-/// dropped. What a tag holds is not re-checked here — <c>LogixConfigurationVerifier</c> settled that at
+/// data point. Both directions treat their batch as one unit: a tag that will not read or write fails the
+/// whole batch with an exception naming every such tag, so a group never comes home with holes in it.
+/// What a tag holds is not re-checked here — <c>LogixConfigurationVerifier</c> settled that at
 /// connect — so the metadata on these fakes only feeds <c>ResolveDataPoints</c>.
 /// </summary>
 // Every act here captures the `using var client` — as a Record delegate invoked on the spot, or as an
@@ -44,12 +44,13 @@ public class LogixClientTests
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_DegradesThatPointAndKeepsTheRest()
+    public async Task ReadAsync_WhenOneTagFails_ThrowsCarryingTheTagAndTheReason()
     {
         // Arrange
+        var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
         var tagManager = new FakeTagManager
         {
-            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+            [Speed] = speedTag,
             [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
         };
         using var client = CreateClient(tagManager);
@@ -57,19 +58,68 @@ public class LogixClientTests
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var values = await client.ReadAsync(group, CancellationToken.None);
+        var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
 
         // Assert
-        // Per-tag partial failure: the bad tag must not sink the group
+        // The group is the unit of delivery: one tag short makes the whole poll unusable, so it fails
+        // rather than publishing a group with a hole in it
         // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
-        values.Should().HaveCount(2);
-        values[0].Quality.Should().Be(LogixQuality.Good);
-        values[0].Value.Should().Be(42);
-        values[1].Quality.Should().Be(LogixQuality.Bad);
+        (await read.Should().ThrowAsync<LogixTagException>())
+            .Which.Message.Should().Contain("Tank.Level").And.Contain("tag not found");
+
+        // Reported per batch, but detected per tag: the failing tag did not stop its sibling from being
+        // read. Short-circuiting would leave the batch half-issued against the controller and cost the
+        // packing the concurrent fan-out exists for.
+        speedTag.WasRead.Should().BeTrue();
     }
 
     [Fact]
-    public async Task ReadAsync_WhenTheReplyIsTooShortForTheType_DegradesThatPointAndKeepsTheRest()
+    public async Task ReadAsync_WhenCancelled_PropagatesTheCancellationAndReadsNothing()
+    {
+        // Arrange
+        var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
+        var tagManager = new FakeTagManager { [Speed] = speedTag };
+        using var client = CreateClient(tagManager);
+        var group = new LogixDataPointGroup(DefaultPollFrequency, [Speed]);
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        // Act
+        var read = await Record.ExceptionAsync(() => client.ReadAsync(group, cts.Token).AsTask());
+
+        // Assert
+        // Cancelling is the caller's decision, not the device's answer, so it travels as itself rather
+        // than as the LogixTagException a controller that would not answer produces.
+        read.Should().BeAssignableTo<OperationCanceledException>();
+        speedTag.WasRead.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ReadAsync_WhenSeveralTagsFail_ThrowsNamingEveryOne()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager
+        {
+            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Failed("tag is write-only")),
+            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Failed("tag not found")),
+        };
+        using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Speed, Level];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
+
+        // Act
+        var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
+
+        // Assert
+        // A failing tag does not stop its siblings, so reporting only the first would leave the caller
+        // looking at the wrong tag.
+        var message = (await read.Should().ThrowAsync<LogixTagException>()).Which.Message;
+        message.Should().Contain("Motor.Speed").And.Contain("tag is write-only");
+        message.Should().Contain("Tank.Level").And.Contain("tag not found");
+    }
+
+    [Fact]
+    public async Task ReadAsync_WhenTheReplyIsTooShortForTheType_ThrowsNamingThatTag()
     {
         // Arrange
         // Two bytes where a DINT needs four. Nothing checks that before the decode any more — the
@@ -80,19 +130,44 @@ public class LogixClientTests
             [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(FortyTwoAsDint)),
         };
         using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Speed, Level];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        ILogixDataPoint[] dataPoints = [Speed, Level];
-        var values = await client.ReadAsync(new LogixDataPointGroup(DefaultPollFrequency, dataPoints), CancellationToken.None);
+        var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
 
         // Assert
-        // A decode that throws is still one tag's problem: it degrades its own point and leaves the rest
-        // of the group standing, exactly as a failed read does
-        // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
+        // A decode that throws fails the group like a failed read does, and is caught narrowly on the way
+        // out so the tag that could not be decoded is named rather than a bare ArgumentException
+        // travelling with no address in it.
+        (await read.Should().ThrowAsync<LogixTagException>())
+            .Which.Message.Should().Contain("Motor.Speed");
+    }
+
+    [Fact]
+    public async Task ReadAsync_WhenEveryTagAnswers_ReturnsAValuePerPointInGroupOrder()
+    {
+        // Arrange
+        var tagManager = new FakeTagManager
+        {
+            [Speed] = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint)),
+            [Level] = FakeTag.Reading(Level, DintMetadata("Tank.Level"), LogixTagReadResult.Ok(new byte[] { 7, 0, 0, 0 })),
+        };
+        using var client = CreateClient(tagManager);
+        ILogixDataPoint[] dataPoints = [Speed, Level];
+
+        // Act
+        var values = await client.ReadAsync(
+            new LogixDataPointGroup(DefaultPollFrequency, dataPoints), CancellationToken.None);
+
+        // Assert
+        // The reads are fanned out concurrently, so the order the group listed them in is the only thing
+        // that can put the values back in the caller's order.
         values.Should().HaveCount(2);
-        values[0].Quality.Should().Be(LogixQuality.Bad);
-        values[1].Quality.Should().Be(LogixQuality.Good);
-        values[1].Value.Should().Be(42);
+        values[0].DataPoint.Should().Be(Speed);
+        values[0].Value.Should().Be(42);
+        values[1].DataPoint.Should().Be(Level);
+        values[1].Value.Should().Be(7);
     }
 
     [Fact]
@@ -170,6 +245,117 @@ public class LogixClientTests
     }
 
     [Fact]
+    public async Task WriteAsync_WhenCancelled_PropagatesTheCancellationAndWritesNothing()
+    {
+        // Arrange
+        var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
+        var tagManager = new FakeTagManager { [Speed] = tag };
+        using var client = CreateClient(tagManager);
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        // Act
+        var write = await Record.ExceptionAsync(
+            () => client.WriteAsync([Speed.CreateLogixValue(42)], cts.Token).AsTask());
+
+        // Assert
+        // The write mirror of the read case: a cancelled batch is a shutdown, and reporting it as a
+        // failed write would send the caller looking for a controller fault that never happened.
+        write.Should().BeAssignableTo<OperationCanceledException>();
+        tag.Written.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task WriteAsync_WhenSeveralValuesWillNotEncode_ThrowsNamingEveryOneAndSendsNothing()
+    {
+        // Arrange
+        // Two tags declared to hold four characters, handed values that do not fit. Encoding happens
+        // before any tag is touched, so this is the batch's last chance to say anything at all.
+        var shortLabel = new StringDataPoint(
+            new TagName("Line.Short"), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
+        var shortCode = new StringDataPoint(
+            new TagName("Line.Code"), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
+        var labelTag = FakeTag.Writing(shortLabel, StringMetadata("Line.Short"), LogixTagWriteResult.Ok());
+        var codeTag = FakeTag.Writing(shortCode, StringMetadata("Line.Code"), LogixTagWriteResult.Ok());
+        var tagManager = new FakeTagManager { [shortLabel] = labelTag, [shortCode] = codeTag };
+        using var client = CreateClient(tagManager);
+        ILogixDataPointValue[] values =
+        [
+            shortLabel.CreateLogixValue("far too long"),
+            shortCode.CreateLogixValue("also too long"),
+        ];
+
+        // Act
+        var write = client.Awaiting(c => c.WriteAsync(values, CancellationToken.None));
+
+        // Assert
+        // The same contract a failed device write has: every tag that could not be served is named, so a
+        // caller does not fix one value and come straight back with the next.
+        var message = (await write.Should().ThrowAsync<LogixTagException>()).Which.Message;
+        message.Should().Contain("Line.Short").And.Contain("Line.Code");
+
+        // And unlike a device failure, this one reached no tag at all — which is the point of encoding
+        // up front rather than per write.
+        labelTag.Written.Should().BeNull();
+        codeTag.Written.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task WriteAsync_WhenOneValueWillNotEncode_LeavesTheTagsThatWouldHaveSucceededUntouched()
+    {
+        // Arrange
+        // One value that encodes and one that does not. Encoding the whole batch up front exists for
+        // exactly this case: the good value must not reach its tag when a sibling in the same call
+        // cannot reach its own.
+        var shortLabel = new StringDataPoint(
+            new TagName("Line.Short"), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
+        var speedTag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
+        var labelTag = FakeTag.Writing(shortLabel, StringMetadata("Line.Short"), LogixTagWriteResult.Ok());
+        var tagManager = new FakeTagManager { [Speed] = speedTag, [shortLabel] = labelTag };
+        using var client = CreateClient(tagManager);
+        ILogixDataPointValue[] values =
+        [
+            Speed.CreateLogixValue(42),
+            shortLabel.CreateLogixValue("far too long"),
+        ];
+
+        // Act
+        var write = client.Awaiting(c => c.WriteAsync(values, CancellationToken.None));
+
+        // Assert
+        (await write.Should().ThrowAsync<LogixTagException>())
+            .Which.Message.Should().Contain("Line.Short");
+
+        // A half-written batch is the failure mode encoding up front rules out: the controller would be
+        // left holding one new value and one old one, with nothing to say which.
+        speedTag.Written.Should().BeNull();
+        labelTag.Written.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task WriteAsync_WhenAValueIsNotItsDataPointsOwn_ThrowsNamingTheTag()
+    {
+        // Arrange
+        // ILogixDataPointValue is public, so an outside implementation can be handed down. It names a
+        // real point but carries no payload the converter can encode.
+        var tag = FakeTag.Writing(Speed, DintMetadata("Motor.Speed"), LogixTagWriteResult.Ok());
+        var tagManager = new FakeTagManager { [Speed] = tag };
+        using var client = CreateClient(tagManager);
+        ILogixDataPointValue[] values = [new ForeignDataPointValue(Speed)];
+
+        // Act
+        var write = client.Awaiting(c => c.WriteAsync(values, CancellationToken.None));
+
+        // Assert
+        // The converter's own refusal, but reported the way every other write failure is — as one
+        // LogixTagException carrying the tag, rather than as the raw InvalidOperationException the
+        // converter raised.
+        (await write.Should().ThrowAsync<LogixTagException>())
+            .Which.Message.Should().Contain("Motor.Speed");
+        tag.Written.Should().BeNull();
+    }
+
+    [Fact]
     public async Task WriteAsync_EncodesTheValueOntoTheTag()
     {
         // Arrange
@@ -229,7 +415,6 @@ public class LogixClientTests
 
         // Assert
         values.Should().ContainSingle();
-        values[0].Quality.Should().Be(LogixQuality.Good);
         values[0].Value.Should().Be("Hi");
     }
 
@@ -420,6 +605,16 @@ public class LogixClientTests
     private static LogixClient CreateClient(ILogixTagManager tagManager) =>
         new(tagManager, DefaultClientInformation(), TestLogging.CreateLogger<LogixClient>());
 
+    // An ILogixDataPointValue that no data point made. The interface is public, so this is the one shape
+    // the write path's converter guard can ever be handed: a read returns the point's own typed value or
+    // fails its batch.
+    private sealed record ForeignDataPointValue(ILogixDataPoint DataPoint) : ILogixDataPointValue
+    {
+        public object? Value => null;
+
+        public bool IsInValueRange() => false;
+    }
+
     // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
     // that nobody wired a converter for.
     private sealed record UnregisteredDataPoint()
@@ -488,14 +683,19 @@ public class LogixClientTests
             ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
             new(dataPoint, metadata) { _writeResult = result };
 
+        // Cancellation is honoured the way the real access honours it — by throwing rather than by
+        // coming home as a failed result. LogixTagAccess catches only LibPlcTagException for the same
+        // reason: a cancelled operation is not a device answer.
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             WasRead = true;
             return Task.FromResult(_readResult);
         }
 
         public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Written = buffer;
             return Task.FromResult(_writeResult);
         }

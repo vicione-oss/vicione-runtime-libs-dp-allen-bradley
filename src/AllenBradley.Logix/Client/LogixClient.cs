@@ -140,14 +140,55 @@ internal sealed class LogixClient(
 
     /// <inheritdoc />
     public async ValueTask<IReadOnlyList<ILogixDataPointValue>> ReadAsync(
-        LogixDataPointGroup dataPointGroup, CancellationToken cancellationToken) =>
-        await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)
-            .ReadAsync(cancellationToken).ConfigureAwait(false);
+        LogixDataPointGroup dataPointGroup, CancellationToken cancellationToken)
+    {
+        var count = dataPointGroup.DataPoints.Count;
+        logger.ReadingBatch(count, _connectionEndpoint);
+
+        try
+        {
+            var values = await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)
+                .ReadAsync(cancellationToken).ConfigureAwait(false);
+            logger.ReadBatchSucceeded(count, _connectionEndpoint);
+            return values;
+        }
+        // A cancelled batch is the caller's own shutdown, not the controller failing to answer, so it is
+        // logged as what it is and travels untouched. Everything else is the group failing as a unit.
+        catch (OperationCanceledException ex)
+        {
+            logger.BatchCancelled(ex, _connectionEndpoint);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.ReadBatchFailed(ex, count, _connectionEndpoint);
+            throw;
+        }
+    }
 
     /// <inheritdoc />
     public async ValueTask WriteAsync(
-        IReadOnlyList<ILogixDataPointValue> values, CancellationToken cancellationToken) =>
-        await new LogixWriteBatch(values, tagManager).WriteAsync(cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<ILogixDataPointValue> values, CancellationToken cancellationToken)
+    {
+        var count = values.Count;
+        logger.WritingBatch(count, _connectionEndpoint);
+
+        try
+        {
+            await new LogixWriteBatch(values, tagManager).WriteAsync(cancellationToken).ConfigureAwait(false);
+            logger.WriteBatchSucceeded(count, _connectionEndpoint);
+        }
+        catch (OperationCanceledException ex)
+        {
+            logger.BatchCancelled(ex, _connectionEndpoint);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.WriteBatchFailed(ex, count, _connectionEndpoint);
+            throw;
+        }
+    }
 
     /// <summary>
     /// Ends the client and the tag manager with it. Disposing is what frees the native handles, and a

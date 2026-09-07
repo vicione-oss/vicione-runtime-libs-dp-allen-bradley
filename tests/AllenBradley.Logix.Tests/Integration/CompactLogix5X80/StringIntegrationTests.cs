@@ -89,7 +89,6 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
             new LogixDataPointGroup(DefaultPollFrequency, dataPoints), cancellationToken);
 
         readResult.Should().ContainSingle();
-        readResult[0].Quality.Should().Be(LogixQuality.Good);
         readResult[0].Value.Should().NotBe(tooLong);
     }
 

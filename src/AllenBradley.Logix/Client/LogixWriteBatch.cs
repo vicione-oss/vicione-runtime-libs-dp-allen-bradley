@@ -9,6 +9,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 // Constructing the batch resolves each value's tag and has the converter encode the value, so holding a
 // batch means holding a fully encoded one. WriteAsync then fans the writes out.
 //
+// Where the conversion sits is the one place the two directions differ. A decode needs the reply, so it
+// happens per entry; an encode needs nothing from the device, so it happens here, and a value that will
+// not encode fails before any tag is touched instead of leaving half the batch written. How the failure
+// is reported does not differ: both loops collect their failures and raise one LogixTagException naming
+// every tag that could not be served.
+//
 // The bytes are the value's, not the tag's: the converter sizes them from the type or the configured
 // capacity and knows nothing of the handle. How wide the tag is on the controller is libplctag's fact,
 // and it is enforced where the two meet — SetBuffer refuses a payload longer than the handle before
@@ -21,13 +27,21 @@ internal sealed class LogixWriteBatch
     internal LogixWriteBatch(IReadOnlyList<ILogixDataPointValue> values, ILogixTagManager tagManager)
     {
         _entries = new WriteEntry[values.Count];
+        var failures = new List<string>();
+
         for (var i = 0; i < values.Count; i++)
         {
-            var value = values[i];
-            var tag = tagManager.TagFor(value.DataPoint);
-            var converter = DataPointConverterRegistry.GetConverter(value.DataPoint);
-            _entries[i] = new WriteEntry(value.DataPoint, tag, converter.Encode(value));
+            var outcome = EncodeEntry(values[i], tagManager);
+            if (outcome.Failure is not null)
+            {
+                failures.Add(outcome.Failure);
+                continue;
+            }
+
+            _entries[i] = outcome.Entry;
         }
+
+        ThrowIfAnythingWouldNotEncode(failures);
     }
 
     internal async Task WriteAsync(CancellationToken cancellationToken)
@@ -39,6 +53,41 @@ internal sealed class LogixWriteBatch
         }
 
         ThrowIfAnyFailed(await Task.WhenAll(writes).ConfigureAwait(false));
+    }
+
+    // One value paired with its tag and turned into the bytes that will be sent. An encode needs nothing
+    // from the device, so this is all that has to happen before WriteAsync — and a failure here rides home
+    // as an outcome rather than an exception for the same reason a failed device write does: a caller told
+    // about the first bad value out of three would fix one and be back.
+    private static EncodeOutcome EncodeEntry(ILogixDataPointValue value, ILogixTagManager tagManager)
+    {
+        var dataPoint = value.DataPoint;
+        var tag = tagManager.TagFor(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+
+        try
+        {
+            return EncodeOutcome.Ok(new WriteEntry(dataPoint, tag, converter.Encode(value)));
+        }
+        // A value the converter will not encode — too long for its tag, or not the value its data point
+        // makes. Nothing is skipped by collecting it; the batch has touched no tag yet either way.
+        catch (InvalidOperationException ex)
+        {
+            return EncodeOutcome.Failed($"{dataPoint.TagName}: {ex.Message}");
+        }
+    }
+
+    // Said separately from the device failures because it is a different situation to recover from: the
+    // controller has seen nothing, so the caller re-drives the whole group rather than the failed part.
+    private static void ThrowIfAnythingWouldNotEncode(IReadOnlyList<string> failures)
+    {
+        if (failures.Count == 0)
+        {
+            return;
+        }
+
+        throw new LogixTagException(
+            $"Write failed for {string.Join("; ", failures)}. Nothing was sent to the controller.");
     }
 
     // A device failure rides home as an outcome rather than an exception so that one tag's failure
@@ -76,6 +125,16 @@ internal sealed class LogixWriteBatch
     }
 
     private readonly record struct WriteEntry(ILogixDataPoint DataPoint, ILogixTag Tag, byte[] Buffer);
+
+    // The result of encoding one value: the entry it produced, or why it produced none. Simpler than the
+    // read side's ReadOutcome because a failed encode has nothing but its reason to carry — the tag name
+    // is already in the message, since that message is what the caller is given.
+    private readonly record struct EncodeOutcome(WriteEntry Entry, string? Failure)
+    {
+        internal static EncodeOutcome Ok(WriteEntry entry) => new(entry, null);
+
+        internal static EncodeOutcome Failed(string failure) => new(default, failure);
+    }
 
     private readonly record struct WriteOutcome(TagName TagName, LogixTagWriteResult Result);
 }

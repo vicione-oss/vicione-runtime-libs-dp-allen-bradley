@@ -13,7 +13,7 @@ they collaborate along to a scene each.
 |---|---|
 | [`client-connection-lifecycle`](../../diagrams/client-connection-lifecycle.excalidraw) | The pool, the factory and `ILogixClient`: who acquires a connection, who counts its holders, and where connect, disconnect and dispose land on the tag manager |
 | [`type-gate-and-verification`](../../diagrams/type-gate-and-verification.excalidraw) | Where the controller's own `TagDefinition` comes from, and the one comparison the verifier makes against it at connect ([verifying configuration against the symbol table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)). The filename predates that comparison becoming connect-only — there is no longer a gate on the read or write path |
-| [`read-write-paths`](../../diagrams/read-write-paths.excalidraw) | One poll and one write end to end, and why a failed read degrades a point while a failed write throws |
+| [`read-write-paths`](../../diagrams/read-write-paths.excalidraw) | One poll and one write end to end, and why a single failed tag fails the batch it sits in |
 
 All four are Excalidraw sources under [`diagrams/`](../../diagrams); re-export the SVG and run the
 font-fix after editing one.
@@ -35,8 +35,9 @@ font-fix after editing one.
   connection and the access cache underneath. It delegates each read and write to a batch.
 - **`LogixReadBatch` / `LogixWriteBatch`** resolve every data point up front — a converter and an
   access apiece — then fan the individual operations out. A read decodes each buffer; a write fills the
-  buffer its tag hands out first. A single tag failing degrades only its own value (read) or is named in
-  the thrown exception (write); it never sinks the batch.
+  buffer its tag hands out first. The batch is the unit of delivery in both directions: no tag stops its
+  siblings from being attempted, and if any of them failed, the batch throws afterwards with every failed
+  tag and its reason in the message.
 - **`DataPointConverterRegistry` → `IDataPointConverter`** map each data-point type to its codec
   (`DIntConverter`, `RealConverter`, `LogixStringConverter`) and to what it expects the controller to
   declare. Decoding does not re-check that expectation: `LogixConfigurationVerifier` compared it against
@@ -51,12 +52,13 @@ thing that makes a value of that type. Each concrete point nests its own value r
 through `CreateLogixValue`, so a payload and the point it belongs to cannot disagree about their type.
 There is no separate value class a caller could construct against the wrong point.
 
-That leaves two shapes on the wire home. A typed value carries a payload and is `Good` by
-construction. A read that produced nothing carries no payload at all: `BadLogixDataPointValue` holds
-the data point and a null value, and it is deliberately not a typed value, because a typed one would
-have to invent a `default` and pass it off as the tag's contents. Zero and the empty string are things
-a tag genuinely holds, and quality that rides on a flag beside a plausible-looking payload is quality
-somebody forgets to check.
+That leaves exactly one shape on the wire home: a typed value carrying a payload. There is no
+valueless one, and no quality flag beside the payload, because a read that produced nothing fails its
+group rather than returning something. Inventing a `default` and passing it off as the tag's contents
+was never an option — zero and the empty string are things a tag genuinely holds — and a quality flag
+that only ever reads `Good` is a flag nobody checks. The write path's converter still guards against a
+value its data point did not make, because `ILogixDataPointValue` is public and an outside
+implementation could be handed down.
 
 Going the other way, `ILogixDataPoint.ConvertValue` is the single door an untyped `object?` enters
 through. The outgoing port hands down whatever the engine gave it; the point either wraps it in its own

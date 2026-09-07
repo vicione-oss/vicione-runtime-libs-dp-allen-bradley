@@ -125,7 +125,6 @@ public abstract class CompactLogix5X80IntegrationTestBase : IAsyncLifetime
 
         readResult.Should().ContainSingle();
         readResult[0].DataPoint.Should().Be(dataPoint);
-        readResult[0].Quality.Should().Be(LogixQuality.Good);
         readResult[0].Value.Should().BeOfType<TDomain>();
         readResult[0].Value.Should().Be(expectedValue);
     }

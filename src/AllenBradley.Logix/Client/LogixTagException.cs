@@ -1,9 +1,9 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 /// <summary>
-/// Raised by <see cref="ILogixWriteClient.WriteAsync"/> when tags could not be written; the message
-/// names every failed tag and its reason. Reads never throw it — a failed read degrades its data
-/// point's quality instead.
+/// Raised when tags could not be read or written; the message names every failed tag and its reason.
+/// Both directions raise it, because both treat their batch as one unit: a group that lost a tag is a
+/// group the caller cannot use.
 /// </summary>
 public sealed class LogixTagException : Exception
 {

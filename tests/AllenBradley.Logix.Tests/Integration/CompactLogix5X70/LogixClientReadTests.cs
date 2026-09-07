@@ -39,7 +39,6 @@ public class LogixClientReadTests : LogixIntegrationTestBase
         // Assert
         values.Should().ContainSingle();
         var value = values[0];
-        value.Quality.Should().Be(LogixQuality.Good);
         value.Value.Should().Be(expected);
     }
 

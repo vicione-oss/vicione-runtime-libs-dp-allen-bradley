@@ -53,8 +53,8 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
 
         // The payload is asked for through the typed value, not through the framework's object? view:
         // only the data point makes one of these, and it makes only its own, so a value that is not
-        // this converter's typed value never held a TDomain to begin with. A Bad value is the ordinary
-        // way to arrive here holding nothing, and it is not something to write.
+        // this converter's typed value never held a TDomain to begin with. ILogixDataPointValue is
+        // public, so an outside implementation is the one way one can arrive here.
         if (dataPointValue is not ILogixDataPointValue<TDomain> typedValue)
         {
             throw new InvalidOperationException(

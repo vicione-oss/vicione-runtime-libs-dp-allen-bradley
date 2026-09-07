@@ -137,7 +137,6 @@ public sealed class OutgoingDataPortTests : IDisposable
         written.DataPoint.Should().BeOfType<DIntDataPoint>()
             .Which.TagName.Value.Should().Be(TagName);
         written.Value.Should().Be(42);
-        written.Quality.Should().Be(LogixQuality.Good);
     }
 
     [Fact]

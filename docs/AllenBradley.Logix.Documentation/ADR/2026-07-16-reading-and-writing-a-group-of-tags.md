@@ -38,23 +38,38 @@ packing engage. And libplctag offers no batch call we could mirror instead.
 On the write side, resolving goes one step further. Constructing the batch also has the converter encode
 each value into the bytes it occupies, sized from the type or the configured capacity and from nothing
 the handle knows. A value that will not encode, such as a string longer than its tag was declared to
-hold, therefore fails before any tag is touched, instead of leaving half the batch written. Whether the
-bytes fit the tag on the controller is libplctag's check: its handle is the controller's width and refuses
-a longer payload before sending, which the adapter reports as a failed outcome for that tag.
+hold, therefore fails before any tag is touched, instead of leaving half the batch written. Where the
+conversion sits is the one place the two directions differ: a decode needs the reply and so happens per
+entry, an encode needs nothing from the device and so happens up front. Whether the bytes fit the tag on
+the controller is libplctag's check: its handle is the controller's width and refuses a longer payload
+before sending, which the adapter reports as a failed outcome for that tag.
 
-Failure is handled **per tag**. The two directions surface it differently, because their contracts differ.
+Failure is **detected** per tag and **reported** per batch. Every tag is attempted — none of them stops
+its siblings — and the failures are combined afterwards into one exception that **names every failed tag
+and its reason**. We collect them as results rather than letting them throw, because `Task.WhenAll`
+rethrows only the *first* exception of a set, and a caller told about one failed tag out of five would go
+looking in the wrong place. Both directions do this, and the exception is `LogixTagException` in both.
+The encode loop follows the same rule from before any I/O: a batch holding three values that will not
+fit their tags names all three, and says that nothing was sent.
 
-A read returns a value list. A failed read marks its own data point as Bad quality, the DataPort
-framework's per-value flag for "this reading is unusable", and the group still returns a full list. One
-bad tag never fails the whole group. A reply too short for the type the point was configured as is treated
-the same way and for the same reason. On a verified tag it should not happen, and if it does it must not
-sink the tags beside it.
+The group is therefore the **unit of delivery**, the same contract the sibling Siemens S7 addon's batch
+has (`Siemens.S7.Absolute/Client/S7NetPlusClient.cs`). A read returns a typed value for every point in
+the group, or it throws and returns none. What rules out returning the group short, or full-length with
+a placeholder standing in for the tag that failed, is where those values end up:
+`IncomingDataPortBase.ToExternalValue` hard-codes `Validity = 1` and passes `IDataPointValue.Value`
+through as it is. A missing reading would reach the engine as a **valid null**, indistinguishable from a
+tag that genuinely holds nothing, and the engine would act on it. A group with an invisible hole in it is
+worse than no group at all. Marking those readings invalid instead is possible — override
+`ToExternalValue` and map onto `Validity` — but that is a decision about what the engine should see, and
+it belongs to the port rather than to the client.
 
-A write returns a bare `ValueTask`, which has no per-tag channel. A dropped write therefore surfaces as an
-exception that **names every failed tag**. All writes are started together, and none stops its siblings.
-We collect the failures as results and combine them into one exception ourselves, because `Task.WhenAll`
-rethrows only the *first* exception of a set. A caller told about only the first failed tag would re-drive
-the wrong set.
+Failing costs one poll and nothing more. The failure is logged with the batch size and the controller,
+and the polling job above catches it, counts it against the circuit breaker and tries again on the next
+tick, so a transiently unreadable tag delays a group rather than corrupting it.
+
+A reply too short for the type the point was configured as fails the group like any other tag failure. It
+is caught narrowly on the read path, only so the tag it happened to can be named rather than a bare
+`ArgumentException` travelling with no address in it. On a verified tag it should not happen at all.
 
 Cancellation flows into every operation and still throws, because cancelling is the caller's decision and
 not the device's answer.
@@ -74,9 +89,14 @@ round-trips or move to a newer libplctag batch facility, never a hand-rolled pac
 
 The client suite drives the client against a fake tag manager whose tags are in-process fakes over the
 access seam, and it holds the contract in place. A data point with no converter aborts before anything is
-read. A failed read, or a reply too short to decode, marks only its own data point Bad quality. Failed
-writes raise a single exception naming every failed tag. The device tier round-trips a value through the
-same batches against the real controller.
+read. A failed read, and a reply too short to decode, each raise one exception naming the tag; so do
+failed writes, and several failed tags in one batch are all named in it — including several values that
+will not encode, which are named without a byte being sent. A group where every tag answers returns a
+value per point in the group's own order. A cancelled batch raises the cancellation itself and touches
+no tag. The device tier round-trips a value through the same batches against the real controller.
+
+The model carries no valueless value shape and no quality flag, so there is nothing for a read to return
+in place of a value it does not have.
 
 ## Pros and Cons of the Options
 
@@ -84,9 +104,9 @@ same batches against the real controller.
 
 #### Pros
 
-Per-tag failure isolation comes for free, because each tag operates independently. That is a clear
-improvement over an all-or-nothing batch call, and it maps directly onto the value list the read
-side returns. We also inherit the core's packing instead of owning any CIP encoding ourselves.
+Every tag is attempted independently, so a failing one never hides another and the exception can name
+the whole set — better diagnostics than a single-call batch, which reports whichever failure the library
+noticed first. We also inherit the core's packing instead of owning any CIP encoding ourselves.
 
 #### Cons
 
@@ -111,6 +131,8 @@ the core already packs.
 
 In the sibling Siemens S7 addon, the client library (S7.Net) exposes a read-multiple call that takes the
 whole batch at once and updates each item's value in place. The S7 batch classes are built around it.
+What was rejected is the *call shape*, not the failure contract — we share the latter, and the group is
+the unit of delivery in both addons.
 
 #### Cons
 

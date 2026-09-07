@@ -300,15 +300,25 @@ public class LogixStringConverterTests
     public void Encode_WhenTheValueIsNotTheDataPointsOwn_SaysWhatItExpected()
     {
         // Arrange
-        // The write-side mirror of the wrong-converter case, and the one shape a Bad value arrives in:
-        // it carries no payload, and there is nothing to write.
-        var bad = new BadLogixDataPointValue(Label);
+        // The write-side mirror of the wrong-converter case. ILogixDataPointValue is public, so an
+        // outside implementation is what the guard is for: it names the right point but carries nothing
+        // the converter can encode.
+        var foreign = new ForeignDataPointValue(Label);
 
         // Act
-        var encode = Converter.Invoking(c => c.Encode(bad));
+        var encode = Converter.Invoking(c => c.Encode(foreign));
 
         // Assert
         encode.Should().Throw<InvalidOperationException>()
             .WithMessage("*strValue1*").WithMessage("*String*");
+    }
+
+    // An ILogixDataPointValue that no data point made — the only shape the encode guard can ever reject,
+    // now that a read either returns the point's own typed value or fails its batch.
+    private sealed record ForeignDataPointValue(ILogixDataPoint DataPoint) : ILogixDataPointValue
+    {
+        public object? Value => null;
+
+        public bool IsInValueRange() => false;
     }
 }

@@ -30,10 +30,10 @@ internal interface IDataPointConverter
     // converter.
     StringMaxLength? MaxLengthFor(ILogixDataPoint dataPoint);
 
-    // Decodes the raw little-endian buffer into the data point's own typed value (Good quality). The
-    // value record belongs to the data point, not to the converter: this decodes bytes to a TDomain and
-    // hands it to LogixDataPoint<TDomain>.CreateLogixValue to be wrapped. A read that produced nothing
-    // to wrap has no converter in it at all — see BadLogixDataPointValue.
+    // Decodes the raw little-endian buffer into the data point's own typed value. The value record
+    // belongs to the data point, not to the converter: this decodes bytes to a TDomain and hands it to
+    // LogixDataPoint<TDomain>.CreateLogixValue to be wrapped. A read that produced nothing never reaches
+    // a converter — it fails its batch instead, so there is no valueless shape to return here.
     ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
     // Encodes the payload carried by dataPointValue into the bytes it occupies on the wire
@@ -41,6 +41,6 @@ internal interface IDataPointConverter
     // a STRING. This is what the value is, not how wide the tag is — the controller pads a structure to
     // its own boundary, and only libplctag's handle knows that width; it takes these bytes as they are
     // and refuses any longer than itself. Rejects a value that is not the typed value its data point
-    // makes — a Bad one above all, which carries no payload.
+    // makes, which is all ILogixDataPointValue being public lets a caller hand down.
     byte[] Encode(ILogixDataPointValue dataPointValue);
 }
