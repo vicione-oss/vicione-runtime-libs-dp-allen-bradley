@@ -14,6 +14,10 @@ internal sealed class RealConverter : AtomicDataPointConverter<RealDataPoint, fl
     protected override float DecodeValue(RealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadSingleLittleEndian(buffer);
 
-    protected override void EncodeValue(RealDataPoint dataPoint, float value, Span<byte> buffer) =>
-        BinaryPrimitives.WriteSingleLittleEndian(buffer, value);
+    protected override byte[] EncodeValue(RealDataPoint dataPoint, float value)
+    {
+        var bytes = new byte[sizeof(float)];
+        BinaryPrimitives.WriteSingleLittleEndian(bytes, value);
+        return bytes;
+    }
 }

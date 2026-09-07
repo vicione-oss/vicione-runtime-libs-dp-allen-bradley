@@ -70,6 +70,7 @@ client-agnostic protocol docs and **below** the client ADRs that consume them.
 | [libPlcTag/concurrent-operations-on-a-handle.md](libPlcTag/concurrent-operations-on-a-handle.md) | Why two overlapping operations on one handle mispair and cascade, and the raw-buffer race below the native BUSY guard |
 | [libPlcTag/tag-disposal-and-shutdown.md](libPlcTag/tag-disposal-and-shutdown.md) | Why every `Tag` must be disposed deterministically — finalized native handles fail-fast the process with `0xC0000602` |
 | [libPlcTag/what-the-tag-buffer-holds.md](libPlcTag/what-the-tag-buffer-holds.md) | What `GetBuffer` returns: payload only, with protocol framing stripped and the controller's own layout — count words, padding, BOOL packing, wire byte order — left intact |
+| [libPlcTag/writing-into-the-tag-buffer.md](libPlcTag/writing-into-the-tag-buffer.md) | What `SetBuffer` does with an array that is not the handle's width: a longer one is refused with `PLCTAG_ERR_OUT_OF_BOUNDS` before anything is sent, a shorter one fills from the start and the whole handle goes out |
 | [libPlcTag/reading-a-udt-definition.md](libPlcTag/reading-a-udt-definition.md) | Why UDT metadata takes both `@tags` and `@udt/<id>`, what the `@udt/` buffer actually contains, and how nested UDTs are walked |
 
 ### Implementation context — `context/`

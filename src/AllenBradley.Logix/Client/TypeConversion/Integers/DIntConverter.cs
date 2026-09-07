@@ -15,6 +15,10 @@ internal sealed class DIntConverter : AtomicDataPointConverter<DIntDataPoint, in
     protected override int DecodeValue(DIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt32LittleEndian(buffer);
 
-    protected override void EncodeValue(DIntDataPoint dataPoint, int value, Span<byte> buffer) =>
-        BinaryPrimitives.WriteInt32LittleEndian(buffer, value);
+    protected override byte[] EncodeValue(DIntDataPoint dataPoint, int value)
+    {
+        var bytes = new byte[sizeof(int)];
+        BinaryPrimitives.WriteInt32LittleEndian(bytes, value);
+        return bytes;
+    }
 }

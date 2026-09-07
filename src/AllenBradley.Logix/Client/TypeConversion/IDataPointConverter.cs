@@ -36,9 +36,11 @@ internal interface IDataPointConverter
     // to wrap has no converter in it at all — see BadLogixDataPointValue.
     ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
-    // Encodes the payload carried by dataPointValue into buffer (little-endian). The buffer is the tag's
-    // own, sized by the controller's declaration rather than by anything a converter knows. Rejects a
-    // value that is not the typed value its data point makes — a Bad one above all, which carries no
-    // payload.
-    void Encode(ILogixDataPointValue dataPointValue, Span<byte> buffer);
+    // Encodes the payload carried by dataPointValue into the bytes it occupies on the wire
+    // (little-endian): the type's fixed width for an elementary type, .LEN plus the configured .DATA for
+    // a STRING. This is what the value is, not how wide the tag is — the controller pads a structure to
+    // its own boundary, and only libplctag's handle knows that width; it takes these bytes as they are
+    // and refuses any longer than itself. Rejects a value that is not the typed value its data point
+    // makes — a Bad one above all, which carries no payload.
+    byte[] Encode(ILogixDataPointValue dataPointValue);
 }

@@ -71,11 +71,13 @@ one. It decodes a raw span into the data point's value, and encodes a value back
   that length, because libplctag strips the CIP abbreviated-structure marker into its own type-info store
   (see Consequences). The length is the controller's claim about its own character data, so the decode
   clamps it against the configured capacity and against the bytes actually in hand. The encode throws
-  rather than truncating an over-long value, and it zeroes the tail so a shorter value does not leave the
-  previous one visible in Studio 5000.
-- A converter states no width. It fills a buffer it is handed. A `STRING` and a `STRING_20` are one
-  converter and two widths, and the controller owns which, so the write batch takes the buffer from the
-  tag, at libplctag's own size for the handle, and the converter only writes into it.
+  rather than truncating an over-long value, and it covers the whole of `.DATA` with zeros past the
+  characters so a shorter value does not leave the previous one visible in Studio 5000.
+- A converter states no tag width. It returns the bytes the value occupies, sized from its type or the
+  point's configured capacity, and the padding the controller adds after a structure is not among them.
+  A `STRING` and a `STRING_20` are one converter and two widths, and the controller owns which, so the
+  bytes go to libplctag's handle as they are: the handle is the controller's width, takes a shorter
+  payload from the start, and refuses a longer one before sending.
 - The type check runs at connect, not on every read. What a converter expects the tag to be is compared
   with the controller's declaration once, by
   [configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md), which is

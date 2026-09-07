@@ -381,9 +381,6 @@ public class CachingLogixTagManagerTests
         public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
             Task.FromResult(LogixTagWriteResult.Ok());
 
-        // The manager caches and frees accesses; nothing here writes through one.
-        public byte[] CreateNewWriteBuffer() => [];
-
         public void Dispose()
         {
             DisposeCount++;

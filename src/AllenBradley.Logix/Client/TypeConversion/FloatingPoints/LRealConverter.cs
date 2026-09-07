@@ -14,6 +14,10 @@ internal sealed class LRealConverter : AtomicDataPointConverter<LRealDataPoint, 
     protected override double DecodeValue(LRealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadDoubleLittleEndian(buffer);
 
-    protected override void EncodeValue(LRealDataPoint dataPoint, double value, Span<byte> buffer) =>
-        BinaryPrimitives.WriteDoubleLittleEndian(buffer, value);
+    protected override byte[] EncodeValue(LRealDataPoint dataPoint, double value)
+    {
+        var bytes = new byte[sizeof(double)];
+        BinaryPrimitives.WriteDoubleLittleEndian(bytes, value);
+        return bytes;
+    }
 }

@@ -51,13 +51,12 @@ public class LRealConverterTests
     public void Encode_WritesBackWhatDecodeReads()
     {
         // Arrange
-        var buffer = new byte[sizeof(double)];
         var value = Measurement.CreateLogixValue(Math.PI);
 
         // Act
-        Converter.Encode(value, buffer);
+        var bytes = Converter.Encode(value);
 
         // Assert
-        buffer.Should().Equal(0x18, 0x2D, 0x44, 0x54, 0xFB, 0x21, 0x09, 0x40);
+        bytes.Should().Equal(0x18, 0x2D, 0x44, 0x54, 0xFB, 0x21, 0x09, 0x40);
     }
 }

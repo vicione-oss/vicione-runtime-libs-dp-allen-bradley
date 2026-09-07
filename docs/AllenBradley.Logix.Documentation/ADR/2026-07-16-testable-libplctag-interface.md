@@ -54,13 +54,14 @@ complete exchange, it closes both handle problems in one place. A read carries i
 bytes home. A write takes its bytes in and answers with a status. There is no status member of its own,
 and no way to reach the handle's buffer.
 
-One member is not an exchange. It hands back a new, empty array of the width libplctag opened the handle
-at, and it is deliberately not one of the finer accessors Option 4 would have locked. It reads no tag
-state, returns nothing the handle owns, and touches nothing the read/write state machine does, so there is
-no race for a gate to close. It exists because the controller owns a tag's width rather than the
-configuration. A `STRING` and a `STRING_20` are one converter and two widths (see [Decoding tag bytes into
-typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)), so a write takes its buffer from the
-tag and the converter only fills it.
+The interface once had one member that was not an exchange, `CreateNewWriteBuffer`, handing back an empty
+array at the width libplctag opened the handle at, for the write batch to fill. It went when the batch
+started handing the handle the converter's own bytes instead: the handle is already the controller's
+width, and the core refuses a payload longer than it before sending (see
+[writing into the tag buffer](../../AllenBradley.Documentation/libPlcTag/writing-into-the-tag-buffer.md)),
+so nothing in the client needs to know that width. A `STRING` and a `STRING_20` are one converter and two
+widths (see [Decoding tag bytes into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)),
+and the controller owns which.
 
 The decorator guards each exchange with a semaphore. On a shared handle, a read and a write then run as
 separate, non-overlapping units. That closes both problems at once. No second operation is ever in flight,

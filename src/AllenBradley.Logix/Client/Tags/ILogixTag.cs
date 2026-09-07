@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
@@ -21,8 +20,6 @@ internal interface ILogixTag : IDisposable
     /// </summary>
     TagDefinition? Metadata { get; init; }
 
-    ILogixTagAccess Access { get; init; }
-
     /// <summary>
     /// The configured-against-reported pair configuration verification takes. Defaulted rather than
     /// implemented per tag because it is a projection of the two getters above and nothing else, and both
@@ -35,5 +32,4 @@ internal interface ILogixTag : IDisposable
 
     /// <summary>Writes <paramref name="buffer"/> to the tag on the controller.</summary>
     Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken);
-
 }

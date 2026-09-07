@@ -6,10 +6,14 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 // One batched write, the mirror of LogixReadBatch: resolved on construction and executed by WriteAsync.
-// Constructing the batch resolves each value's tag, takes a buffer from it, and has the converter fill
-// that buffer, so holding a batch means holding a fully encoded one. WriteAsync then fans the writes out.
-// The width is the tag's rather than the converter's because it is the controller's fact and not the
-// configuration's: libplctag knows how wide the handle it opened is.
+// Constructing the batch resolves each value's tag and has the converter encode the value, so holding a
+// batch means holding a fully encoded one. WriteAsync then fans the writes out.
+//
+// The bytes are the value's, not the tag's: the converter sizes them from the type or the configured
+// capacity and knows nothing of the handle. How wide the tag is on the controller is libplctag's fact,
+// and it is enforced where the two meet — SetBuffer refuses a payload longer than the handle before
+// anything is sent, and that comes home as a failed outcome naming the tag like any other device
+// failure (see LogixTagAccess).
 internal sealed class LogixWriteBatch
 {
     private readonly WriteEntry[] _entries;
@@ -21,10 +25,8 @@ internal sealed class LogixWriteBatch
         {
             var value = values[i];
             var tag = tagManager.TagFor(value.DataPoint);
-            var writeBuffer = tag.Access.CreateNewWriteBuffer();
             var converter = DataPointConverterRegistry.GetConverter(value.DataPoint);
-            converter.Encode(value, writeBuffer);
-            _entries[i] = new WriteEntry(value.DataPoint, tag, writeBuffer);
+            _entries[i] = new WriteEntry(value.DataPoint, tag, converter.Encode(value));
         }
     }
 

@@ -12,8 +12,10 @@ internal interface ILogixTagAccess : IDisposable
     /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
     Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken);
 
-    /// <summary>Writes <paramref name="buffer"/> to the tag on the controller.</summary>
+    /// <summary>
+    /// Writes <paramref name="buffer"/> to the tag on the controller. The buffer is the value's own
+    /// width; one longer than the handle is a failed result, one shorter fills the handle from the start
+    /// and leaves its tail as it was.
+    /// </summary>
     Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken);
-
-    public byte[] CreateNewWriteBuffer();
 }

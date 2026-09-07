@@ -15,6 +15,10 @@ internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, shor
     protected override short DecodeValue(IntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt16LittleEndian(buffer);
 
-    protected override void EncodeValue(IntDataPoint dataPoint, short value, Span<byte> buffer) =>
-        BinaryPrimitives.WriteInt16LittleEndian(buffer, value);
+    protected override byte[] EncodeValue(IntDataPoint dataPoint, short value)
+    {
+        var bytes = new byte[sizeof(short)];
+        BinaryPrimitives.WriteInt16LittleEndian(bytes, value);
+        return bytes;
+    }
 }

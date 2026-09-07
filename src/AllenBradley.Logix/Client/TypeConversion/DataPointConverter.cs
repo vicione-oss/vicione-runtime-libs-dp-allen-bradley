@@ -37,7 +37,9 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
 
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
-    protected abstract void EncodeValue(TDataPoint dataPoint, TDomain value, Span<byte> buffer);
+    // Returns the bytes the value occupies on the wire, freshly allocated: a subclass sizes them from
+    // its type or the data point's configuration, never from a tag.
+    protected abstract byte[] EncodeValue(TDataPoint dataPoint, TDomain value);
 
     ILogixDataPointValue IDataPointConverter.Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {
@@ -45,7 +47,7 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
         return typedDataPoint.CreateLogixValue(DecodeValue(typedDataPoint, buffer));
     }
 
-    void IDataPointConverter.Encode(ILogixDataPointValue dataPointValue, Span<byte> buffer)
+    byte[] IDataPointConverter.Encode(ILogixDataPointValue dataPointValue)
     {
         var typedDataPoint = Cast(dataPointValue.DataPoint);
 
@@ -60,7 +62,7 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
                 $"expected a value carrying {typeof(TDomain).Name}.");
         }
 
-        EncodeValue(typedDataPoint, typedValue.TypedValue, buffer);
+        return EncodeValue(typedDataPoint, typedValue.TypedValue);
     }
 
     private static TDataPoint Cast(ILogixDataPoint dataPoint) =>

@@ -115,9 +115,6 @@ public class LogixTagTests
             return Task.FromResult(LogixTagWriteResult.Ok());
         }
 
-        // A DINT-wide buffer, standing in for what libplctag reports for the handle.
-        public byte[] CreateNewWriteBuffer() => new byte[sizeof(int)];
-
         public void Dispose() => DisposeCount++;
     }
 }

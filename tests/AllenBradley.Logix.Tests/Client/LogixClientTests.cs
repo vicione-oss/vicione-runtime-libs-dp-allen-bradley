@@ -1,6 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -187,14 +186,14 @@ public class LogixClientTests
     }
 
     [Fact]
-    public async Task WriteAsync_AString_EncodesIntoTheBufferTheTagHandsOut()
+    public async Task WriteAsync_AString_HandsTheTagTheValuesOwnBytes()
     {
         // Arrange
-        // A STRING is the first type whose wire size is not fixed by its type. The batch takes the buffer
-        // from the tag rather than sizing one itself, so the 88 bytes that go out are the controller's
-        // own width for Line.Label — no converter is asked how wide a STRING is.
-        var tag = FakeTag.Writing(
-            Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok(), tagSize: 88);
+        // A STRING is the first type whose wire size is not fixed by its type. What reaches the tag is
+        // .LEN and .DATA, 86 bytes for the built-in STRING, sized from the data point's configured
+        // capacity. The two bytes of alignment padding that make the tag 88 on the controller are
+        // libplctag's handle's, and never pass through the client.
+        var tag = FakeTag.Writing(Label, StringMetadata("Line.Label"), LogixTagWriteResult.Ok());
         var tagManager = new FakeTagManager { [Label] = tag };
         using var client = CreateClient(tagManager);
         var value = (ILogixDataPointValue)Label.CreateLogixValue("Hi");
@@ -203,9 +202,10 @@ public class LogixClientTests
         await client.WriteAsync([value], CancellationToken.None);
 
         // Assert
-        tag.Written.Should().HaveCount(88);
+        tag.Written.Should().HaveCount(4 + StringMaxLength.Standard.Value);
         tag.Written.AsSpan(0, 4).ToArray().Should().Equal(2, 0, 0, 0);
         tag.Written.AsSpan(4, 2).ToArray().Should().Equal((byte)'H', (byte)'i');
+        tag.Written.AsSpan(6).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
     }
 
     [Fact]
@@ -466,22 +466,15 @@ public class LogixClientTests
         private LogixTagReadResult _readResult = LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
         private LogixTagWriteResult _writeResult = LogixTagWriteResult.Ok();
 
-        private FakeTag(ILogixDataPoint dataPoint, TagDefinition? metadata, int tagSize)
+        private FakeTag(ILogixDataPoint dataPoint, TagDefinition? metadata)
         {
             DataPoint = dataPoint;
             Metadata = metadata;
-            Access = new FakeTagAccess(tagSize);
         }
 
         public ILogixDataPoint DataPoint { get; init; }
 
         public TagDefinition? Metadata { get; init; }
-
-        /// <summary>
-        /// Reached for one thing only: the write buffer, which is the tag's own width and not something
-        /// the converter decides. Reads and writes are answered by this fake directly.
-        /// </summary>
-        public ILogixTagAccess Access { get; init; }
 
         public bool WasRead { get; private set; }
 
@@ -489,12 +482,11 @@ public class LogixClientTests
 
         public static FakeTag Reading(
             ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagReadResult result) =>
-            new(dataPoint, metadata, tagSize: 0) { _readResult = result };
+            new(dataPoint, metadata) { _readResult = result };
 
         public static FakeTag Writing(
-            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result,
-            int tagSize = sizeof(int)) =>
-            new(dataPoint, metadata, tagSize) { _writeResult = result };
+            ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
+            new(dataPoint, metadata) { _writeResult = result };
 
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
@@ -507,23 +499,6 @@ public class LogixClientTests
             Written = buffer;
             return Task.FromResult(_writeResult);
         }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    // What libplctag's handle contributes to a write: a buffer as wide as the controller says the tag
-    // is. Nothing else is asked of it here.
-    private sealed class FakeTagAccess(int tagSize) : ILogixTagAccess
-    {
-        public byte[] CreateNewWriteBuffer() => new byte[tagSize];
-
-        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken) =>
-            throw new NotSupportedException("FakeTag answers reads itself.");
-
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
-            throw new NotSupportedException("FakeTag answers writes itself.");
 
         public void Dispose()
         {

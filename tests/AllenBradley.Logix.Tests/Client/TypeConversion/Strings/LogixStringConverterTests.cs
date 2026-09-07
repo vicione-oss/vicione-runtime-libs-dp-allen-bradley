@@ -38,19 +38,13 @@ public class LogixStringConverterTests
     private static string Decode(byte[] buffer) =>
         Converter.Decode(Label, buffer).Value.Should().BeOfType<string>().Subject;
 
-    // The buffer the tag hands the write batch: .LEN plus .DATA[n], padded up to Logix's 32-bit
-    // structure boundary. The converter no longer sizes it — the controller's own declaration does —
-    // so the test builds it the way the layout says it is built.
-    private static int StructureSizeFor(int maxLength) =>
-        (LengthPrefixSize + maxLength + 3) / 4 * 4;
+    // What the converter hands the write batch: .LEN plus .DATA[n], and nothing after. The padding up
+    // to Logix's 32-bit structure boundary that makes a STRING 88 bytes on the wire is the tag's own
+    // buffer's, not the converter's — the batch copies these bytes into that and leaves the rest zero.
+    private const int PayloadSize = LengthPrefixSize + 82;
 
-    private static byte[] Encode(string value, StringDataPoint? dataPoint = null)
-    {
-        var point = dataPoint ?? Label;
-        var buffer = new byte[StructureSizeFor(point.MaxLength.Value)];
-        Converter.Encode(point.CreateLogixValue(value), buffer);
-        return buffer;
-    }
+    private static byte[] Encode(string value, StringDataPoint? dataPoint = null) =>
+        Converter.Encode((dataPoint ?? Label).CreateLogixValue(value));
 
     [Fact]
     public void Decode_ReadsLenAtOffsetZeroAndDataAfterIt()
@@ -173,13 +167,13 @@ public class LogixStringConverterTests
         // Arrange
 
         // Act
-        var buffer = Encode("Hi");
+        var bytes = Encode("Hi");
 
         // Assert
-        buffer.Should().HaveCount(StructureSize);
-        buffer.AsSpan(0, LengthPrefixSize).ToArray().Should().Equal(2, 0, 0, 0);
-        buffer.AsSpan(LengthPrefixSize, 2).ToArray().Should().Equal((byte)'H', (byte)'i');
-        buffer.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
+        bytes.Should().HaveCount(PayloadSize);
+        bytes.AsSpan(0, LengthPrefixSize).ToArray().Should().Equal(2, 0, 0, 0);
+        bytes.AsSpan(LengthPrefixSize, 2).ToArray().Should().Equal((byte)'H', (byte)'i');
+        bytes.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
     }
 
     [Fact]
@@ -188,24 +182,26 @@ public class LogixStringConverterTests
         // Arrange
 
         // Act
-        var buffer = Encode(string.Empty);
+        var bytes = Encode(string.Empty);
 
         // Assert
-        buffer.Should().AllSatisfy(b => b.Should().Be(0));
+        bytes.Should().HaveCount(PayloadSize);
+        bytes.Should().AllSatisfy(b => b.Should().Be(0));
     }
 
     [Fact]
-    public void Encode_ZeroesTheTailSoAShorterValueDoesNotLeaveTheOldOneBehind()
+    public void Encode_CoversTheWholeOfDataSoAShorterValueDoesNotLeaveTheOldOneBehind()
     {
         // Arrange
-        var buffer = Encode("Hi");
-        Array.Fill(buffer, (byte)0xEE, LengthPrefixSize + 2, 4);
+        // The controller keeps whatever sits past .LEN. Encoding only the characters in hand would let
+        // the batch copy two bytes over an 82-character tail and leave the other 80 standing in the tag.
 
         // Act
-        Converter.Encode(Label.CreateLogixValue("Hi"), buffer);
+        var bytes = Encode("Hi");
 
         // Assert
-        buffer.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
+        bytes.Should().HaveCount(PayloadSize);
+        bytes.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
     }
 
     [Theory]
@@ -233,11 +229,11 @@ public class LogixStringConverterTests
         var full = new string('X', StringMaxLength.Standard.Value);
 
         // Act
-        var buffer = Encode(full);
-        var roundTripped = Decode(buffer);
+        var bytes = Encode(full);
+        var roundTripped = Decode(bytes);
 
         // Assert
-        buffer[0].Should().Be(82);
+        bytes[0].Should().Be(82);
         roundTripped.Should().Be(full);
     }
 
@@ -247,10 +243,9 @@ public class LogixStringConverterTests
         // Arrange
         // Truncating would write a value the caller never asked for and report success for it.
         var tooLong = new string('X', StringMaxLength.Standard.Value + 1);
-        var buffer = new byte[StructureSize];
 
         // Act
-        var encode = Converter.Invoking(c => c.Encode(Label.CreateLogixValue(tooLong), buffer));
+        var encode = Converter.Invoking(c => c.Encode(Label.CreateLogixValue(tooLong)));
 
         // Assert
         encode.Should().Throw<InvalidOperationException>()
@@ -266,11 +261,12 @@ public class LogixStringConverterTests
         var short20 = new StringDataPoint(Label.TagName, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
 
         // Act
-        var buffer = Encode(new string('X', 20), short20);
+        var bytes = Encode(new string('X', 20), short20);
         var oneTooMany = Record.Exception(() => Encode(new string('X', 21), short20));
 
         // Assert
-        buffer[0].Should().Be(20);
+        bytes.Should().HaveCount(LengthPrefixSize + 20);
+        bytes[0].Should().Be(20);
         oneTooMany.Should().BeOfType<InvalidOperationException>();
     }
 
@@ -309,7 +305,7 @@ public class LogixStringConverterTests
         var bad = new BadLogixDataPointValue(Label);
 
         // Act
-        var encode = Converter.Invoking(c => c.Encode(bad, new byte[StructureSize]));
+        var encode = Converter.Invoking(c => c.Encode(bad));
 
         // Assert
         encode.Should().Throw<InvalidOperationException>()

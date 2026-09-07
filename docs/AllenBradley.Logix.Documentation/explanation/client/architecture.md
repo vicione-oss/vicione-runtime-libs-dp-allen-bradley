@@ -82,11 +82,15 @@ the converters split by how the controller reports their type:
   `Atomic` mismatch when the controller hands back an elementary type instead. Splitting the two lets
   each state what it expects rather than phrasing itself as an exception to the other.
 
-Two consequences follow. No converter states a wire size: a `STRING` and a `STRING_20` are one converter
-and two widths, so the write batch takes its buffer from the tag — `ILogixTagAccess.CreateNewWriteBuffer`,
-which is libplctag's own size for the handle — and the converter only fills it. And the comparison takes
-a `ResolvedDataPoint`, the configured point paired with the controller's declaration, because checking a
-declared string capacity needs both halves and not the declaration alone.
+Two consequences follow. No converter states how wide a tag is. `Encode` returns the bytes the value
+occupies, sized from the type or from the point's configuration: four for a `DINT`, `.LEN` plus `.DATA`
+for a `STRING`. The padding the controller adds after `.DATA` to reach its structure boundary is not the
+converter's to know, and nothing in the client knows it either: the bytes go to libplctag's handle as
+they are, and the handle, which is the controller's width, refuses a payload longer than itself before
+anything is sent. That refusal comes home as a failed outcome naming the tag, like any device failure,
+and a tag that has changed under a verified configuration is the only way to reach it. And the comparison
+takes a `ResolvedDataPoint`, the configured point paired with the controller's declaration, because
+checking a declared string capacity needs both halves and not the declaration alone.
 
 ## Connecting, and who owns the connection
 

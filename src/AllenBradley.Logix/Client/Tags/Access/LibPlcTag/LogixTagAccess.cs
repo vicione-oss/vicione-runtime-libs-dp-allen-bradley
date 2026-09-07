@@ -26,6 +26,11 @@ internal sealed class LogixTagAccess(Tag tag) : ILogixTagAccess
         }
     }
 
+    // SetBuffer copies the bytes into the handle's own buffer, which is the controller's width for the
+    // tag. The core bounds-checks the copy (plc_tag_set_raw_bytes, libplctag 2.6.3): a buffer longer than
+    // the handle is refused with ErrorOutOfBounds before anything is sent, and lands in the catch below
+    // like any device failure. A shorter one fills the handle from the start and leaves the rest as it
+    // was — on a verified tag that is only a STRING's alignment padding, which is not a member.
     public async Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
     {
         try
@@ -38,11 +43,6 @@ internal sealed class LogixTagAccess(Tag tag) : ILogixTagAccess
         {
             return LogixTagWriteResult.Failed($"Write failed for tag '{tag.Name}': {ex.Message}");
         }
-    }
-
-    public byte[] CreateNewWriteBuffer()
-    {
-        return new byte[tag.GetSize()];
     }
 
     public void Dispose() => tag.Dispose();

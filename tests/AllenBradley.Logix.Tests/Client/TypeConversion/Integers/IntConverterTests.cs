@@ -77,27 +77,27 @@ public class IntConverterTests
     public void Encode_WritesBackWhatDecodeReads()
     {
         // Arrange
-        var buffer = new byte[sizeof(short)];
         var value = Counter.CreateLogixValue(4711);
 
         // Act
-        Converter.Encode(value, buffer);
+        var bytes = Converter.Encode(value);
 
         // Assert
-        buffer.Should().Equal(0x67, 0x12);
+        // Exactly the two bytes an INT occupies: the batch copies these into the tag's buffer, so a
+        // longer array would be a wider tag than the type declares.
+        bytes.Should().Equal(0x67, 0x12);
     }
 
     [Fact]
     public void Encode_WritesANegativeValueInTwosComplement()
     {
         // Arrange
-        var buffer = new byte[sizeof(short)];
         var value = Counter.CreateLogixValue(-1);
 
         // Act
-        Converter.Encode(value, buffer);
+        var bytes = Converter.Encode(value);
 
         // Assert
-        buffer.Should().Equal(0xFF, 0xFF);
+        bytes.Should().Equal(0xFF, 0xFF);
     }
 }

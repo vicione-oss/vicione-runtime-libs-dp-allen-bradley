@@ -44,7 +44,7 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
         return Latin1.GetString(buffer.Slice(DataOffset, characterCount));
     }
 
-    protected override void EncodeValue(StringDataPoint dataPoint, string value, Span<byte> buffer)
+    protected override byte[] EncodeValue(StringDataPoint dataPoint, string value)
     {
         var characterCount = Latin1.GetByteCount(value);
         if (characterCount > dataPoint.MaxLength.Value)
@@ -55,13 +55,15 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
                 $"the tag is configured to hold {dataPoint.MaxLength.Value}.");
         }
 
-        new LogixStringHeader(characterCount).WriteTo(buffer);
-        Latin1.GetBytes(value, buffer[DataOffset..]);
-
-        // The rest of .DATA and the alignment padding are zeroed rather than left as they were. The
-        // controller keeps whatever is written past .LEN, so a shorter value over a longer one would
-        // otherwise leave the old tail sitting in the tag — invisible to a reader that honours .LEN, and
-        // very visible to anyone looking at the tag in Studio 5000.
-        buffer[(DataOffset + characterCount)..].Clear();
+        // .LEN and the whole of .DATA, not just the characters in hand. The controller keeps whatever
+        // is written past .LEN, so a shorter value over a longer one would otherwise leave the old tail
+        // sitting in the tag — invisible to a reader that honours .LEN, and very visible to anyone
+        // looking at the tag in Studio 5000. A fresh array is zero past the characters, and every byte
+        // of it reaches the handle. The alignment padding after .DATA is not here: the controller
+        // decides that, and libplctag's handle carries it.
+        var bytes = new byte[DataOffset + dataPoint.MaxLength.Value];
+        new LogixStringHeader(characterCount).WriteTo(bytes);
+        Latin1.GetBytes(value, bytes.AsSpan(DataOffset));
+        return bytes;
     }
 }

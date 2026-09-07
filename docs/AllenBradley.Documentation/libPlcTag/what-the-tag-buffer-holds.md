@@ -51,7 +51,7 @@ template bytes (see [reading a UDT definition](reading-a-udt-definition.md)). Ev
 | Behaviour | Detail |
 |-----------|--------|
 | Bit tags are rejected | A tag opened as a single bit returns `PLCTAG_ERR_UNSUPPORTED`; there is no byte to copy |
-| Bounds are checked, not clamped | `offset + buffer_size` must be `<= plc_tag_get_size(tag)`, else `PLCTAG_ERR_OUT_OF_BOUNDS` and **nothing is copied**. It never short-copies, so size the destination from `plc_tag_get_size` first |
+| Bounds are checked, not clamped | `offset + buffer_size` must be `<= plc_tag_get_size(tag)`, else `PLCTAG_ERR_OUT_OF_BOUNDS` and **nothing is copied**. It never short-copies, so size the destination from `plc_tag_get_size` first. The write direction has the same check; see [writing into the tag buffer](writing-into-the-tag-buffer.md) |
 | The return is a status | `PLCTAG_STATUS_OK` on success, **not** a byte count. The count you get is the count you asked for |
 
 ## What this means for the client

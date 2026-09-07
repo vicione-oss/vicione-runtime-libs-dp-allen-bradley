@@ -35,10 +35,12 @@ releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md)), then s
 at once and await them all. Starting them concurrently is what fills the core's queue and makes its
 packing engage. And libplctag offers no batch call we could mirror instead.
 
-On the write side, resolving goes one step further. Constructing the batch also takes each tag's own
-buffer, sized by the handle the controller opened rather than by anything the configuration knows, and has
-the converter fill it. A value the converter will not encode, such as a string longer than its tag was
-declared to hold, therefore fails before any tag is touched, instead of leaving half the batch written.
+On the write side, resolving goes one step further. Constructing the batch also has the converter encode
+each value into the bytes it occupies, sized from the type or the configured capacity and from nothing
+the handle knows. A value that will not encode, such as a string longer than its tag was declared to
+hold, therefore fails before any tag is touched, instead of leaving half the batch written. Whether the
+bytes fit the tag on the controller is libplctag's check: its handle is the controller's width and refuses
+a longer payload before sending, which the adapter reports as a failed outcome for that tag.
 
 Failure is handled **per tag**. The two directions surface it differently, because their contracts differ.
 

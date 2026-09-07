@@ -105,8 +105,6 @@ public class TagDefinitionsLoaderTests
         public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
-        public byte[] CreateNewWriteBuffer() => throw new NotSupportedException();
-
         public void Dispose() => IsDisposed = true;
     }
 }

@@ -64,13 +64,12 @@ public class RealConverterTests
     public void Encode_WritesBackWhatDecodeReads()
     {
         // Arrange
-        var buffer = new byte[sizeof(float)];
         var value = Measurement.CreateLogixValue(MathF.PI);
 
         // Act
-        Converter.Encode(value, buffer);
+        var bytes = Converter.Encode(value);
 
         // Assert
-        buffer.Should().Equal(0xDB, 0x0F, 0x49, 0x40);
+        bytes.Should().Equal(0xDB, 0x0F, 0x49, 0x40);
     }
 }
