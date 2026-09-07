@@ -16,6 +16,9 @@ public readonly record struct LogixDataTypeName(string Value)
     /// <summary>A 32-bit signed integer.</summary>
     public static LogixDataTypeName DInt => new("DINT");
 
+    /// <summary>A 64-bit signed integer.</summary>
+    public static LogixDataTypeName LInt => new("LINT");
+
     /// <summary>An IEEE-754 single.</summary>
     public static LogixDataTypeName Real => new("REAL");
 

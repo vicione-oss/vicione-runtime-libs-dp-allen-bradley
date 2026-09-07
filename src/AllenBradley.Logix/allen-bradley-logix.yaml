@@ -126,6 +126,7 @@ Nodes:
       - Id: SInt
       - Id: DInt
       - Id: Int
+      - Id: LInt
       - Id: String
 
   - Id: ControllerTags5X80
@@ -139,6 +140,7 @@ Nodes:
       - Id: SInt
       - Id: DInt
       - Id: Int
+      - Id: LInt
       - Id: LReal
       - Id: String
 
@@ -166,6 +168,7 @@ Nodes:
       - Id: SInt
       - Id: DInt
       - Id: Int
+      - Id: LInt
       - Id: String
 
   - Id: ProgramTags5X80
@@ -180,6 +183,7 @@ Nodes:
       - Id: SInt
       - Id: DInt
       - Id: Int
+      - Id: LInt
       - Id: LReal
       - Id: String
 
@@ -247,6 +251,29 @@ Nodes:
       Range: −32 768..32 767
     Icon: datapoint
     DataTypes: [ Int16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: LInt
+    MappingId: LInt
+    Type: DataPortTreeNode
+    Name: "LInt"
+    Description: >-
+      Logix-Type: LINT (64-bit signed integer, CIP type code 0xC5)
+      Size: 8 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 7 = MSB
+      Range: −9 223 372 036 854 775 808..9 223 372 036 854 775 807
+    Icon: datapoint
+    DataTypes: [ Int64 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

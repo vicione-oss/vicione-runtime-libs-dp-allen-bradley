@@ -15,6 +15,7 @@ the wire layout of each type is in the
 | `SINT`     | `SIntDataPoint`   | `sbyte`   | 1         | `SIntConverter`        | all         |
 | `INT`      | `IntDataPoint`    | `short`   | 2         | `IntConverter`         | all         |
 | `DINT`     | `DIntDataPoint`   | `int`     | 4         | `DIntConverter`        | all         |
+| `LINT`     | `LIntDataPoint`   | `long`    | 8         | `LIntConverter`        | all         |
 | `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
 | `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
 | `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
@@ -39,7 +40,7 @@ device's — the pairing the first guard rests on. See
 whose vocabulary has the type. `ITagScopeNode` compares it against the container's own generation and
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
-addresses, which is why `SIntNode`, `IntNode`, `DIntNode` and `StringNode` say nothing. The comparison reads `LogixGeneration`
+addresses, which is why `SIntNode`, `IntNode`, `DIntNode`, `LIntNode` and `StringNode` say nothing. The comparison reads `LogixGeneration`
 in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later generation slots in
 at its own number.
 
@@ -65,7 +66,6 @@ Verification checks the declared capacity as well as the shape, because a round 
 | Logix type                          | Notes                                                              |
 |-------------------------------------|--------------------------------------------------------------------|
 | `BOOL`                              | 1 byte as an atomic tag; `BOOL[]` packs into 32-bit words           |
-| `LINT`                              | Elementary, direct decode — the same shape as `DINT`                |
 | `USINT` / `UINT` / `UDINT` / `ULINT`| 5X80 controllers only, and gated the way `LREAL` is                 |
 | `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
 | UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |

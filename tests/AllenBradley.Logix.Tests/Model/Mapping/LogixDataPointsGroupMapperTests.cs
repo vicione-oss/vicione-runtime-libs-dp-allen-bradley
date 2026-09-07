@@ -90,6 +90,21 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredLIntTagBecomesALIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var ticks = DefaultLIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(ticks);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new LIntDataPoint(ticks.TagName, ticks.PollFrequency, ticks.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AConfiguredStringTagBecomesAPointCarryingTheCapacityItWasDeclaredWith()
     {
         // Arrange
