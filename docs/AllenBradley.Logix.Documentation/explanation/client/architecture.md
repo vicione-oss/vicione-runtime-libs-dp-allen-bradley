@@ -35,9 +35,11 @@ font-fix after editing one.
   connection and the access cache underneath. It delegates each read and write to a batch.
 - **`LogixReadBatch` / `LogixWriteBatch`** resolve every data point up front — a converter and an
   access apiece — then fan the individual operations out. A read decodes each buffer; a write fills the
-  buffer its tag hands out first. The batch is the unit of delivery in both directions: no tag stops its
-  siblings from being attempted, and if any of them failed, the batch throws afterwards with every failed
-  tag and its reason in the message.
+  buffer its tag hands out first. No tag stops its siblings from being attempted in either direction, but
+  what a failure costs differs. A read is batched purely for throughput, so a tag that would not read
+  loses its own value, the rest are returned, and the client logs the ones that failed; only a read where
+  nothing at all came back throws. A write still fails whole, throwing with every failed tag and its
+  reason in the message.
 - **`DataPointConverterRegistry` → `IDataPointConverter`** map each data-point type to its codec
   (`DIntConverter`, `RealConverter`, `LogixStringConverter`) and to what it expects the controller to
   declare. Decoding does not re-check that expectation: `LogixConfigurationVerifier` compared it against

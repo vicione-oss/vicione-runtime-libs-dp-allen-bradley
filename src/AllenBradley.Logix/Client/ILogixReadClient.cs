@@ -5,9 +5,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 /// <summary>
 /// Reads a <see cref="LogixDataPointGroup"/> in one batched operation and returns a typed value per
-/// point, in the order the group listed them.
-/// The group is the unit of delivery: every point comes back or none does. A point that could not be
-/// read or decoded fails the read with a <see cref="LogixTagException"/> naming every such point, and
-/// the poll that drove it publishes nothing rather than a group with holes in it.
+/// point that answered, in the order the group listed them.
+/// Batching is throughput and nothing else, so a point that could not be read or decoded is left out and
+/// logged while the rest come back. Only a read where no point at all produced a value throws a
+/// <see cref="LogixTagException"/>, naming every point and its reason.
 /// </summary>
 public interface ILogixReadClient : IReadClient<LogixDataPointGroup, ILogixDataPointValue>;

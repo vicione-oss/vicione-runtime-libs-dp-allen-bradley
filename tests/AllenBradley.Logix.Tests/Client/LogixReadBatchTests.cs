@@ -13,9 +13,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 
 /// <summary>
 /// The read batch on its own, without a client around it: what one entry's read and decode turns into,
-/// and what a batch does with a set of those. The contract under test is that the group is the unit of
-/// delivery — a single tag that will not read or will not decode fails the whole batch, and the values
-/// its siblings did produce are never handed out (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
+/// and what a batch does with a set of those. The contract under test is that the batch is a throughput
+/// device and not a unit of meaning — a tag that will not read or will not decode costs its own value and
+/// is named as a failure, while its siblings come home. Only a batch that read nothing at all throws
+/// (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
 /// </summary>
 // The tags and the tag manager are substituted: every assertion about them is "the batch did this to its
 // collaborator", which is what NSubstitute is for here. The converter is not — Decode takes a
@@ -41,24 +42,24 @@ public class LogixReadBatchTests
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
-        var values = await batch.ReadAsync(CancellationToken.None);
+        var result = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
         // The reads are fanned out concurrently, so the order the batch was constructed with is the only
         // thing that can put the values back in the caller's order.
-        values.Should().HaveCount(2);
-        values[0].DataPoint.Should().Be(Speed);
-        values[0].Value.Should().Be(42);
-        values[1].DataPoint.Should().Be(Level);
-        values[1].Value.Should().Be(7);
+        result.Failures.Should().BeEmpty();
+        result.Values.Should().HaveCount(2);
+        result.Values[0].DataPoint.Should().Be(Speed);
+        result.Values[0].Value.Should().Be(42);
+        result.Values[1].DataPoint.Should().Be(Level);
+        result.Values[1].Value.Should().Be(7);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_ThrowsRatherThanReturningTheValuesTheOthersProduced()
+    public async Task ReadAsync_WhenOneTagFails_ReturnsTheValuesItsSiblingsProduced()
     {
         // Arrange
-        // Two tags out of three answer perfectly well. Their values are exactly what a partial delivery
-        // would consist of, so this is the case that says whether one is possible.
+        // Two tags out of three answer perfectly well.
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
             (Level, TagReading(LogixTagReadResult.Failed("tag not found"))),
@@ -66,13 +67,54 @@ public class LogixReadBatchTests
         var batch = new LogixReadBatch([Speed, Level, Torque], tagManager);
 
         // Act
+        var result = await batch.ReadAsync(CancellationToken.None);
+
+        // Assert
+        // The batch exists to get these tags onto the wire together, not because they mean anything as a
+        // set, so one tag that would not read costs its own value and nothing else.
+        result.Values.Should().HaveCount(2);
+        result.Values[0].DataPoint.Should().Be(Speed);
+        result.Values[1].DataPoint.Should().Be(Torque);
+    }
+
+    [Fact]
+    public async Task ReadAsync_WhenOneTagFails_NamesItAndItsReasonAmongTheFailures()
+    {
+        // Arrange
+        var tagManager = TagManagerFor(
+            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
+            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
+        var batch = new LogixReadBatch([Speed, Level], tagManager);
+
+        // Act
+        var result = await batch.ReadAsync(CancellationToken.None);
+
+        // Assert
+        // Keeping the values does not mean losing the failure: the tag that produced none is carried out
+        // by name, so the client can log which point went stale and why.
+        result.Failures.Should().ContainSingle()
+            .Which.TagName.Should().Be(Level.TagName);
+        result.DescribeFailures().Should().Contain("Tank.Level").And.Contain("tag not found");
+    }
+
+    [Fact]
+    public async Task ReadAsync_WhenEveryTagFails_ThrowsNamingEveryOne()
+    {
+        // Arrange
+        var tagManager = TagManagerFor(
+            (Speed, TagReading(LogixTagReadResult.Failed("tag is write-only"))),
+            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
+        var batch = new LogixReadBatch([Speed, Level], tagManager);
+
+        // Act
         var read = await Record.ExceptionAsync(() => batch.ReadAsync(CancellationToken.None));
 
         // Assert
-        // A group that lost a tag is a group the engine cannot use, and a half-filled poll published as
-        // if it were complete is worse than no poll at all: the batch comes home whole or not at all.
-        read.Should().BeOfType<LogixTagException>()
-            .Which.Message.Should().Contain("Tank.Level").And.Contain("tag not found");
+        // A batch that read nothing has nothing to hand up, and returning an empty list would make a dead
+        // controller look like a poll that simply had nothing to fetch.
+        var message = read.Should().BeOfType<LogixTagException>().Which.Message;
+        message.Should().Contain("Motor.Speed").And.Contain("tag is write-only");
+        message.Should().Contain("Tank.Level").And.Contain("tag not found");
     }
 
     [Fact]
@@ -88,33 +130,13 @@ public class LogixReadBatchTests
         var batch = new LogixReadBatch([Speed, Level, Torque], tagManager);
 
         // Act
-        await Record.ExceptionAsync(() => batch.ReadAsync(CancellationToken.None));
+        await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // Reported per batch, but detected per tag. Short-circuiting on the first failure would leave the
-        // batch half-issued against the controller and cost the packing the concurrent fan-out exists for.
+        // Detected per tag. Short-circuiting on the first failure would leave the batch half-issued
+        // against the controller and cost the packing the concurrent fan-out exists for.
         await speedTag.Received(1).ReadAsync(Arg.Any<CancellationToken>());
         await torqueTag.Received(1).ReadAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task ReadAsync_WhenSeveralTagsFail_ThrowsNamingEveryOneAndItsReason()
-    {
-        // Arrange
-        var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Failed("tag is write-only"))),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
-        var batch = new LogixReadBatch([Speed, Level], tagManager);
-
-        // Act
-        var read = await Record.ExceptionAsync(() => batch.ReadAsync(CancellationToken.None));
-
-        // Assert
-        // Awaiting Task.WhenAll would surface only the first failure of the set. A caller told about one
-        // failed tag out of two would go looking in the wrong place, so every failure is carried home.
-        var message = read.Should().BeOfType<LogixTagException>().Which.Message;
-        message.Should().Contain("Motor.Speed").And.Contain("tag is write-only");
-        message.Should().Contain("Tank.Level").And.Contain("tag not found");
     }
 
     [Fact]
@@ -132,7 +154,7 @@ public class LogixReadBatchTests
 
         // Assert
         // The two kinds of failure are one kind by the time they reach the caller: a tag that produced no
-        // value, whatever stopped it.
+        // value, whatever stopped it. Neither tag produced one, so the batch has nothing to hand up.
         var message = read.Should().BeOfType<LogixTagException>().Which.Message;
         message.Should().Contain("Motor.Speed");
         message.Should().Contain("Tank.Level").And.Contain("tag not found");
@@ -165,12 +187,14 @@ public class LogixReadBatchTests
         var batch = new LogixReadBatch([], tagManager);
 
         // Act
-        var values = await batch.ReadAsync(CancellationToken.None);
+        var result = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // A group can be emptied by configuration; an empty fan-out is not a failure, and asking the tag
-        // manager for nothing costs no round trip.
-        values.Should().BeEmpty();
+        // A group can be emptied by configuration; an empty fan-out is not a failure — nothing failed, so
+        // reading nothing is the answer rather than the throw an all-failed batch produces — and asking
+        // the tag manager for nothing costs no round trip.
+        result.Values.Should().BeEmpty();
+        result.Failures.Should().BeEmpty();
         tagManager.DidNotReceiveWithAnyArgs().TagFor(default!);
     }
 

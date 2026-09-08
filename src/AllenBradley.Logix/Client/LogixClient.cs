@@ -147,13 +147,23 @@ internal sealed class LogixClient(
 
         try
         {
-            var values = await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)
+            var result = await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)
                 .ReadAsync(cancellationToken).ConfigureAwait(false);
-            logger.ReadBatchSucceeded(count, _connectionEndpoint);
-            return values;
+
+            // The tags that did answer are still worth publishing, so a partial batch is a warning rather
+            // than a failure. It is logged here because this is where the logger is: the batch names the
+            // tags, the client says which controller they were on.
+            if (result.Failures.Count > 0)
+            {
+                logger.ReadBatchPartiallyFailed(
+                    result.Failures.Count, count, _connectionEndpoint, result.DescribeFailures());
+            }
+
+            logger.ReadBatchSucceeded(result.Values.Count, _connectionEndpoint);
+            return result.Values;
         }
         // A cancelled batch is the caller's own shutdown, not the controller failing to answer, so it is
-        // logged as what it is and travels untouched. Everything else is the group failing as a unit.
+        // logged as what it is and travels untouched. Everything else is a batch that read nothing at all.
         catch (OperationCanceledException ex)
         {
             logger.BatchCancelled(ex, _connectionEndpoint);

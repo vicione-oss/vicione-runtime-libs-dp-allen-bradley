@@ -11,10 +11,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 // decodes each buffer. The Multiple Service Packet that makes the fan-out fast is built by the libplctag
 // core when the tags share a connection — this type only issues the concurrent reads.
 //
-// The group is the unit of delivery: it comes home whole or not at all, the same contract the sibling
-// Siemens S7 addon's batch has (Siemens.S7.Absolute/Client/S7NetPlusClient.cs). A group that lost a tag
-// is a group the engine cannot use, and a half-filled poll published as if it were complete is worse
-// than no poll at all — the polling job logs the failure and the next tick tries again.
+// The batch is ours, not the caller's: data points are grouped by poll frequency to get them onto the
+// wire in one Multiple Service Packet, and being read together carries no meaning beyond that. So one
+// tag that will not read costs its own value and nothing else — the tags that did answer come home, and
+// the failed ones are named so the client can log them. A batch where *nothing* read is a different
+// thing: there is nothing to deliver and the controller is what failed, so that still throws and the
+// polling job counts it.
 internal sealed class LogixReadBatch
 {
     private readonly ReadEntry[] _entries;
@@ -30,7 +32,7 @@ internal sealed class LogixReadBatch
         }
     }
 
-    internal async Task<IReadOnlyList<ILogixDataPointValue>> ReadAsync(CancellationToken cancellationToken)
+    internal async Task<BatchReadResult> ReadAsync(CancellationToken cancellationToken)
     {
         var reads = new Task<ReadOutcome>[_entries.Length];
         for (var i = 0; i < _entries.Length; i++)
@@ -39,23 +41,32 @@ internal sealed class LogixReadBatch
         }
 
         var outcomes = await Task.WhenAll(reads).ConfigureAwait(false);
-        ThrowIfAnyFailed(outcomes);
 
-        var values = new ILogixDataPointValue[outcomes.Length];
-        for (var i = 0; i < outcomes.Length; i++)
+        var values = new List<ILogixDataPointValue>(outcomes.Length);
+        var failures = new List<ReadOutcome>();
+        foreach (var outcome in outcomes)
         {
-            // Non-null by construction: ThrowIfAnyFailed has already left if any outcome carried a reason.
-            values[i] = outcomes[i].Value!;
+            if (outcome.Error is null)
+            {
+                // Non-null by construction: an outcome without a reason is one that carries a value.
+                values.Add(outcome.Value!);
+            }
+            else
+            {
+                failures.Add(outcome);
+            }
         }
 
-        return values;
+        var result = new BatchReadResult(values, failures);
+        ThrowIfNothingWasRead(result);
+
+        return result;
     }
 
-    // A device failure rides home as an outcome rather than an exception, for the same reason the write
-    // side does it: awaiting Task.WhenAll rethrows only the first exception of the set, and a caller told
-    // about one failed tag out of five would go looking in the wrong place. Every tag still gets read —
-    // none of them stops its siblings — and the failures are combined afterwards. Cancellation still
-    // throws, and is meant to.
+    // A device failure rides home as an outcome rather than an exception. Awaiting Task.WhenAll rethrows
+    // only the first exception of the set, so a thrown failure would lose the other tags' failures and
+    // their values with them. Every tag still gets read — none of them stops its siblings — and the
+    // outcomes are sorted into values and failures afterwards. Cancellation still throws, and is meant to.
     //
     // What the bytes are is not re-litigated per read. LogixConfigurationVerifier has already diffed every
     // configured data point against the controller's own declaration and aborted the connect on a
@@ -64,7 +75,7 @@ internal sealed class LogixReadBatch
     // for.
     // Internal rather than private so the one entry's read-and-decode can be driven on its own: what it
     // turns into an outcome and what it lets travel is the rule the whole batch is built on, and testing
-    // it through ReadAsync would only ever see it through an aggregated message.
+    // it through ReadAsync would only ever see it through the sorting that follows.
     internal static async Task<ReadOutcome> ReadEntryAsync(
         ReadEntry entry, CancellationToken cancellationToken)
     {
@@ -91,22 +102,33 @@ internal sealed class LogixReadBatch
         }
     }
 
-    // Every failed tag is named, because the reads are fanned out and none of them stops its siblings: a
-    // caller told only about the first failure would re-drive the wrong set.
-    private static void ThrowIfAnyFailed(IReadOnlyList<ReadOutcome> outcomes)
+    // A batch that produced nothing has nothing to hand up, and returning an empty list would make a dead
+    // controller look like a poll of a group that happens to be empty: no failed poll logged, and nothing
+    // for the polling job's circuit breaker to count. So this one case still throws, and it names every
+    // tag, because the reads are fanned out and none of them stops its siblings — a caller told only about
+    // the first failure would re-drive the wrong set. An empty group is not a failure and does not throw.
+    private static void ThrowIfNothingWasRead(BatchReadResult result)
     {
-        var failures = outcomes.Where(outcome => outcome.Error is not null).ToList();
-        if (failures.Count == 0)
+        if (result.Values.Count > 0 || result.Failures.Count == 0)
         {
             return;
         }
 
-        var reasons = failures.Select(failure => $"{failure.TagName}: {failure.Error}");
-        throw new LogixTagException($"Read failed for {string.Join("; ", reasons)}.");
+        throw new LogixTagException($"Read failed for {result.DescribeFailures()}.");
     }
 
     internal readonly record struct ReadEntry(
         ILogixDataPoint DataPoint, IDataPointConverter Converter, ILogixTag Tag);
+
+    // What one batch came home with: a value per tag that answered, and the tags that did not, with the
+    // reason each one gave. The two lists together always cover the group.
+    internal readonly record struct BatchReadResult(
+        IReadOnlyList<ILogixDataPointValue> Values, IReadOnlyList<ReadOutcome> Failures)
+    {
+        // Every failed tag with its own reason, in one line, for the caller that logs them.
+        internal string DescribeFailures() =>
+            string.Join("; ", Failures.Select(failure => $"{failure.TagName}: {failure.Error}"));
+    }
 
     // The outcome of one entry's read and decode: the value it produced, or the tag that could not
     // produce one and why.

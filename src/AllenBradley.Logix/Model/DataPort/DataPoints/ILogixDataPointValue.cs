@@ -6,7 +6,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// The result of reading (or the payload for writing) one data point: the originating point and the
 /// value it carries. There is one shape, the typed
 /// <see cref="ILogixDataPointValue{TDomain}"/> that a data point made from a payload — a read that
-/// produced nothing fails its whole group rather than returning a value that carries none
+/// produced nothing leaves its point out of the batch's values rather than returning one that carries none
 /// (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md), so a value in hand is a value that was read.
 /// </summary>
 public interface ILogixDataPointValue : IDataPointValue

@@ -34,6 +34,10 @@ internal static partial class LogixClientLogs
     [LoggerMessage(209, LogLevel.Debug, "The batch against the controller at {ConnectionEndpoint} was cancelled by the caller")]
     internal static partial void BatchCancelled(this ILogger<LogixClient> logger, Exception exception, string connectionEndpoint);
 
+    [LoggerMessage(210, LogLevel.Warning, "{FailedCount} of {DataPointCount} data points could not be read from the controller at {ConnectionEndpoint}; the values the rest produced were kept. Failures: {Failures}")]
+    internal static partial void ReadBatchPartiallyFailed(
+        this ILogger<LogixClient> logger, int failedCount, int dataPointCount, string connectionEndpoint, string failures);
+
     [LoggerMessage(230, LogLevel.Error, "Failed to connect to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void ConnectFailed(
         this ILogger<LogixClient> logger, Exception exception, string connectionEndpoint, string cipRoutePath);

@@ -17,8 +17,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// <summary>
 /// How the client handles a controller that answers badly, driven through a substituted
 /// <see cref="ILogixTagManager"/> that hands back one <see cref="ILogixTag"/> per
-/// data point. Both directions treat their batch as one unit: a tag that will not read or write fails the
-/// whole batch with an exception naming every such tag, so a group never comes home with holes in it.
+/// data point. The two directions differ in what a single bad tag costs. A read batch is only a way of
+/// getting tags onto the wire together, so a tag that will not read costs its own value and its siblings
+/// still come home; only a read that produced nothing at all throws. A write batch still fails whole,
+/// with an exception naming every tag that would not take its value.
 /// What a tag holds is not re-checked here — <c>LogixConfigurationVerifier</c> settled that at
 /// connect — so the metadata on these fakes only feeds <c>ResolveDataPoints</c>.
 /// </summary>
@@ -45,7 +47,7 @@ public class LogixClientTests
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_ThrowsCarryingTheTagAndTheReason()
+    public async Task ReadAsync_WhenOneTagFails_ReturnsTheValuesTheOtherTagsProduced()
     {
         // Arrange
         var speedTag = FakeTag.Reading(Speed, DintMetadata("Motor.Speed"), LogixTagReadResult.Ok(FortyTwoAsDint));
@@ -57,18 +59,19 @@ public class LogixClientTests
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
+        var values = await client.ReadAsync(group, CancellationToken.None);
 
         // Assert
-        // The group is the unit of delivery: one tag short makes the whole poll unusable, so it fails
-        // rather than publishing a group with a hole in it
-        // (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
-        (await read.Should().ThrowAsync<LogixTagException>())
-            .Which.Message.Should().Contain("Tank.Level").And.Contain("tag not found");
+        // The batch is ours, made to get the group onto the wire in one packet, and being read together
+        // carries no meaning past that. So the tag that answered is published and the one that did not is
+        // logged (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
+        values.Should().ContainSingle();
+        values[0].DataPoint.Should().Be(Speed);
+        values[0].Value.Should().Be(42);
 
-        // Reported per batch, but detected per tag: the failing tag did not stop its sibling from being
-        // read. Short-circuiting would leave the batch half-issued against the controller and cost the
-        // packing the concurrent fan-out exists for.
+        // Detected per tag: the failing tag did not stop its sibling from being read. Short-circuiting
+        // would leave the batch half-issued against the controller and cost the packing the concurrent
+        // fan-out exists for.
         speedTag.WasRead.Should().BeTrue();
     }
 
@@ -94,7 +97,7 @@ public class LogixClientTests
     }
 
     [Fact]
-    public async Task ReadAsync_WhenSeveralTagsFail_ThrowsNamingEveryOne()
+    public async Task ReadAsync_WhenEveryTagFails_ThrowsNamingEveryOne()
     {
         // Arrange
         var tagManager = TagManagerFor(
@@ -108,15 +111,16 @@ public class LogixClientTests
         var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
 
         // Assert
-        // A failing tag does not stop its siblings, so reporting only the first would leave the caller
-        // looking at the wrong tag.
+        // Nothing was read, so there is nothing to publish and the controller is what failed. A failing
+        // tag does not stop its siblings, so reporting only the first would leave the caller looking at
+        // the wrong tag.
         var message = (await read.Should().ThrowAsync<LogixTagException>()).Which.Message;
         message.Should().Contain("Motor.Speed").And.Contain("tag is write-only");
         message.Should().Contain("Tank.Level").And.Contain("tag not found");
     }
 
     [Fact]
-    public async Task ReadAsync_WhenTheReplyIsTooShortForTheType_ThrowsNamingThatTag()
+    public async Task ReadAsync_WhenTheReplyIsTooShortForTheType_DropsThatTagAndKeepsTheRest()
     {
         // Arrange
         // Two bytes where a DINT needs four. Nothing checks that before the decode any more — the
@@ -129,14 +133,14 @@ public class LogixClientTests
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        var read = client.Awaiting(c => c.ReadAsync(group, CancellationToken.None));
+        var values = await client.ReadAsync(group, CancellationToken.None);
 
         // Assert
-        // A decode that throws fails the group like a failed read does, and is caught narrowly on the way
-        // out so the tag that could not be decoded is named rather than a bare ArgumentException
-        // travelling with no address in it.
-        (await read.Should().ThrowAsync<LogixTagException>())
-            .Which.Message.Should().Contain("Motor.Speed");
+        // A decode that throws costs that tag its value like a failed read does, and is caught narrowly
+        // so it can be named rather than travelling as a bare ArgumentException with no address in it.
+        // The tag that decoded cleanly is unaffected.
+        values.Should().ContainSingle();
+        values[0].DataPoint.Should().Be(Level);
     }
 
     [Fact]
