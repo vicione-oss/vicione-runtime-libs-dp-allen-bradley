@@ -109,8 +109,8 @@ internal static class TypedNodeTestDataFactory
         new(DummyOriginalNode, DefaultProgramName, DefaultGeneration);
 
     /// <summary>
-    /// A configured <c>LREAL</c> tag, the one type a 5X70 controller has not got. Its linked node carries
-    /// the node type, which is what a container names when it refuses the tag.
+    /// A configured <c>LREAL</c> tag, the first type a 5X70 controller has not got. Its linked node
+    /// carries the node type, which is what a container names when it refuses the tag.
     /// </summary>
     internal static LRealNode DefaultLRealNode =>
         new(
