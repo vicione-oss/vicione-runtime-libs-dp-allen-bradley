@@ -9,11 +9,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// suites.
 /// </summary>
 /// <remarks>
-/// The controller is not provisioned yet, so every name here is an <b>assumption</b>: one program-scoped
-/// tag per type, named after the type, in a program called <c>MainProgram</c>. They are constants and not
-/// environment variables on purpose — which tags a controller holds is a fact about that controller,
-/// the same everywhere the suite runs, so it belongs in the source and in review. Only <em>reaching</em>
-/// the controller varies by machine, and that is <see cref="TestController"/>'s business.
+/// The controller is ours and not commissioned yet, so this list is a <b>provisioning specification</b>
+/// rather than a survey: one program-scoped tag per type, named after the type, in a program called
+/// <c>MainProgram</c>, to be created as written here. They are constants and not environment variables
+/// on purpose — which tags a controller holds is the same everywhere the suite runs, so it belongs in
+/// the source and in review. Only <em>reaching</em> the controller varies by machine, and that is
+/// <see cref="TestController"/>'s business.
 /// <para>
 /// They are program-scoped because that is the harder of the two cases and the one that exercises more
 /// of the addon: a program tag is browsed under a program-qualified key, and the address the
@@ -63,8 +64,8 @@ internal static class TagAddresses
     internal const string Real = $"{Program}.testReal";
 
     /// <summary>
-    /// The <c>LREAL</c> test tag. The one type in the vocabulary a 5X70 controller has not got, and so
-    /// the reason this folder is pinned to a 5X80 — see
+    /// The <c>LREAL</c> test tag. The first type in the vocabulary a 5X70 controller has not got, and so
+    /// a reason this folder needs a 5X80 — see
     /// <c>docs/AllenBradley.Logix.Documentation/reference/datatype-support.md</c>.
     /// </summary>
     internal const string LReal = $"{Program}.testLreal";

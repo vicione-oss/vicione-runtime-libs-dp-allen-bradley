@@ -36,8 +36,8 @@ These pages cover only what the Logix port adds on top.
   bitfield used when enumerating tags; the
   [CIP data types reference](../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
   has the wire encoding of each type.
-- **Test device** — a real CompactLogix L32E is available for integration testing; see
-  [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
+- **Test devices** — a borrowed CompactLogix L32E, and our own CompactLogix 5069-L306ER once it is
+  commissioned; see [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
 
 ## Components
 

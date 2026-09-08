@@ -4,12 +4,13 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
 
 /// <summary>
-/// The CompactLogix 5380/5480 this folder's suites run against, and the <b>only</b> place that says how
-/// it is reached. Nothing else here names an address, a port or a route path.
+/// The CompactLogix 5069-L306ER this folder's suites run against — our own controller, a CompactLogix
+/// 5380 and so a 5X80 — and the <b>only</b> place that says how it is reached. Nothing else here names
+/// an address, a port or a route path.
 /// </summary>
 /// <remarks>
-/// The device is not provisioned yet, so every default below is an assumption rather than a fact, and
-/// each one is overridable from the environment — see the table in
+/// The device is on hand but not commissioned, so every default below is an assumption rather than a
+/// fact, and each one is overridable from the environment — see the table in
 /// <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>. A direct connection is assumed:
 /// the endpoint is the controller itself, on the EtherNet/IP port, over the virtual backplane a
 /// DIN-rail controller always presents.
@@ -40,9 +41,10 @@ internal static class TestController
     private const string RoutePathVariable = "CIP_5X80_PATH";
     private const string TimeoutVariable = "CIP_5X80_TIMEOUT_SECONDS";
 
-    // 192.168.0.102 is the second CompactLogix on the lab subnet — labelled AB_CompactLogix and not
-    // configured at the time of writing (TEST-DEVICE-SETUP.md). It is a placeholder, chosen because it
-    // is at least a real address on the network the tunnel routes, rather than an invented one.
+    // Where the L306ER will sit is not decided yet, so this is a placeholder: 192.168.0.102 is the
+    // second CompactLogix on the lab subnet — labelled AB_CompactLogix and not configured at the time
+    // of writing (TEST-DEVICE-SETUP.md) — chosen because it is at least a real address on the network
+    // the tunnel routes, rather than an invented one.
     private const string DefaultEndpoint = "192.168.0.102";
 
     private const int DefaultTimeoutSeconds = 10;

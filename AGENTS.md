@@ -18,10 +18,13 @@ implemented today, and [`explanation/tag-scoping.md`](docs/AllenBradley.Logix.Do
 for how scope becomes a container node. The **Legacy** addon still has no project.
 
 `tests/AllenBradley.Logix.Tests/Integration/` is the hardware suite; a bare `dotnet test` never runs it. It is split
-three ways: `LibPlcTag/` probes the library on its own, `CompactLogix5X70/` drives the addon's client stack against the
-real L32E over the Link Manager tunnel, and `CompactLogix5X80/` is one write/read round trip per data type against a
-controller **that is not provisioned yet** — every address in it is an assumption, and every one is configurable. See
-[TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before pointing it at a device.
+three ways: `LibPlcTag/` probes the library on its own and `CompactLogix5X70/` drives the addon's client stack, both
+against the **L32E — a borrowed controller in the ifm demo cell, over the Link Manager tunnel, whose tags we cannot
+change**; and `CompactLogix5X80/` is one write/read round trip per data type against **our own CompactLogix
+5069-L306ER, which is on hand but not commissioned yet**. New integration coverage goes in `CompactLogix5X80/`, where a
+test that needs a tag can have one provisioned; every address there is a specification for that provisioning, not an
+observation. See [TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before pointing
+anything at a device.
 
 ## Quick Reference
 
@@ -29,7 +32,7 @@ controller **that is not provisioned yet** — every address in it is an assumpt
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Build              | `dotnet build allen-bradley.slnx -c Debug`                                                                                          |
 | Test (unit)        | `dotnet test` — the unit suite is the default, and never touches the PLC                                                            |
-| Test (integration) | `dotnet test -p:test-suite=integration` — **requires the L32E**                                                                     |
+| Test (integration) | `dotnet test -p:test-suite=integration` — **requires a controller** (see TEST-DEVICE-SETUP.md)                                      |
 | Test (all)         | `dotnet test -p:test-suite=all`                                                                                                     |
 | Test (class)       | `dotnet test --project tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj --filter-class "<fully.qualified.ClassName>"` |
 | Format             | `dotnet format allen-bradley.slnx`                                                                                                  |
@@ -50,7 +53,7 @@ controller **that is not provisioned yet** — every address in it is an assumpt
 
 This was not a free choice. `ViciOne.Suite.DataPort.Extensions.Testing` depends on
 `xunit.v3.extensibility.core`, so xUnit v2 was never available — and MTP was picked over the xUnit v3 VSTest adapter to
-stay aligned with the S7 repo. Integration tests need the L32E reachable;
+stay aligned with the S7 repo. Integration tests need their controller reachable;
 see [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
 
 **Under MTP the test assembly *is* the process**, so its exit code is the suite's exit code. Anything that corrupts
