@@ -1,0 +1,104 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
+using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
+
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.UInt.Mapping;
+
+/// <summary>The mapper on its own: a configured <c>UInt</c> node in, a <see cref="UIntNode"/> out.</summary>
+public sealed class UIntNodeMapperTests
+{
+    private const int DefaultPollFrequency = 100;
+    private const string TagName = "MyUIntTag";
+
+    private readonly IDataPointNodeMapper<UIntNode> _mapper = new UIntNodeMapper();
+
+    [Fact]
+    public void TheTagNameAndPollFrequencyAreReadOffTheConfiguredNode()
+    {
+        // Arrange
+        var node = UIntNodeWith(
+            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+
+        // Act
+        var uIntNode = _mapper.Map(node);
+
+        // Assert
+        uIntNode.TagName.Value.Should().Be(TagName);
+        uIntNode.PollFrequency.Value.Should().Be(TimeSpan.FromMilliseconds(DefaultPollFrequency));
+    }
+
+    [Fact]
+    public void AUIntTagIsOfferedOnA5X80Only()
+    {
+        // Arrange
+        var node = UIntNodeWith(
+            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+
+        // Act
+        ILogixScalarNode uIntNode = _mapper.Map(node);
+
+        // Assert
+        // UINT arrived with the 5X80 controllers, so the node states the generation and a container of
+        // an older one turns it away — one line, and no edit to either tag-scope container.
+        uIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X80);
+    }
+
+    [Theory]
+    [InlineData(UIntNode.LinkedNodeTypeId, true)]
+    [InlineData(IntNode.LinkedNodeTypeId, false)]
+    public void ItClaimsAUIntNodeAndNoOther(string linkedNodeTypeId, bool expected)
+    {
+        // Arrange
+        // The signed twin is the node it must not claim: the two are two bytes each and differ only in
+        // the type the controller declares, so claiming both would read every INT as unsigned.
+        var node = CreateLinkedNode(
+            linkedNodeTypeId,
+            TagName,
+            NodePropertyFactory.CreateTagName(TagName),
+            NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+
+        // Act
+        var isTargetMapper = _mapper.IsTargetMapperFor(node);
+
+        // Assert
+        isTargetMapper.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AUIntNodeCarryingBothPropertiesIsValid()
+    {
+        // Arrange
+        var node = UIntNodeWith(
+            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+
+        // Act
+        var result = _mapper.Validate(node);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AUIntNodeWithoutATagNameIsRejected()
+    {
+        // Arrange
+        // The scalar validator is what says so; this pins that the mapper hands its node to it.
+        var node = UIntNodeWith(NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+
+        // Act
+        var result = _mapper.Validate(node);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+    }
+
+    private static LinkedNode UIntNodeWith(params KeyValuePair<string, Property>[] properties) =>
+        CreateLinkedNode(UIntNode.LinkedNodeTypeId, TagName, properties);
+}

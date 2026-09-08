@@ -106,8 +106,8 @@ Nodes:
 
   # ==================== TAG CONTAINERS ===============================
   # One per scope and generation, differing only in the child list. Withholding the 5X80 group is
-  # the whole of what keeps the editor from offering USINT and LREAL on a controller that has
-  # neither; the MappingIds differ so the generation reaches the mapped node, which gates the same
+  # the whole of what keeps the editor from offering a 5X80-only type on a controller that has not
+  # got it; the MappingIds differ so the generation reaches the mapped node, which gates the same
   # types again for a configuration the editor did not build.
 
   - Id: ControllerTags5X70
@@ -129,7 +129,7 @@ Nodes:
     MappingId: ControllerTags5X80
     Type: DataPortTreeNode
     Name: "Controller"
-    Description: "Controller-scope tags of a 5X80 controller, which adds USINT and LREAL. Adds no segment to the tag address."
+    Description: "Controller-scope tags of a 5X80 controller, which adds USINT, UINT and LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
     ChildNodes: &logix5x80-tag-nodes
@@ -141,6 +141,7 @@ Nodes:
       - Id: LInt
       - Id: String
       - Id: USInt
+      - Id: UInt
       - Id: LReal
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
@@ -164,7 +165,7 @@ Nodes:
     MappingId: ProgramTags5X80
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags of a 5X80 controller, which adds USINT and LREAL. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5X80 controller, which adds USINT, UINT and LREAL. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
@@ -298,6 +299,29 @@ Nodes:
       Range: 0..255
     Icon: datapoint
     DataTypes: [ UInt8 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: UInt
+    MappingId: UInt
+    Type: DataPortTreeNode
+    Name: "UInt"
+    Description: >-
+      Logix-Type: UINT (16-bit unsigned integer, CIP type code 0xC7)
+      Size: 2 bytes
+      Encoding: little-endian unsigned binary
+      Layout: byte 0 = LSB, byte 1 = MSB
+      Range: 0..65 535
+    Icon: datapoint
+    DataTypes: [ UInt16 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

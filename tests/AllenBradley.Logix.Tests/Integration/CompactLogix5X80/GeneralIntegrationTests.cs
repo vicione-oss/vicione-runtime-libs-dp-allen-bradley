@@ -109,6 +109,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new DIntDataPoint(new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
         new LIntDataPoint(new TagName(TagAddresses.LInt), DefaultPollFrequency, NoChannels),
         new USIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
+        new UIntDataPoint(new TagName(TagAddresses.UInt), DefaultPollFrequency, NoChannels),
         new RealDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels),
         new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(

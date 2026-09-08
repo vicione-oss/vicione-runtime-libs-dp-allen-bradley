@@ -18,6 +18,7 @@ the wire layout of each type is in the
 | `DINT`     | `DIntDataPoint`   | `int`     | 4         | `DIntConverter`        | all         |
 | `LINT`     | `LIntDataPoint`   | `long`    | 8         | `LIntConverter`        | all         |
 | `USINT`    | `USIntDataPoint`  | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
+| `UINT`     | `UIntDataPoint`   | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
 | `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
 | `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
 | `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
@@ -27,12 +28,12 @@ atomic types need no byte swap.
 
 ### Types the 5X70 controllers have not got
 
-Two entries in the table say `5X80 only`, and they say it for the same reason. `LREAL` was the first,
-and `USINT` is the second — the 5X70 controllers have no `LREAL` and no unsigned integer at all, so
-configuring either one there addresses a type the controller cannot resolve.
+Every entry in the table marked `5X80 only` is there for the same reason: the 5X70 controllers have no
+`LREAL` and no unsigned integer at all, so configuring one of those there addresses a type the
+controller cannot resolve.
 
 The device node type is what decides. A 5X80 device node's controller-scope container is
-`ControllerTags5X80`, which lists `LReal` and `USInt` among its children; the 5X70 container does not,
+`ControllerTags5X80`, which lists those types among its children; the 5X70 container does not,
 so the editor never offers them. `ITagScopeNode.CanBeAdded` is the guard behind that for a configuration
 the editor did not build, and `DeviceNode.CanBeAdded` refuses a container whose generation is not its
 device's — the pairing the first guard rests on. See
@@ -47,19 +48,24 @@ nothing. The comparison reads `LogixGeneration`
 in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later generation slots in
 at its own number.
 
-`USIntNode` is what says that was built as a rule rather than as an `LREAL` special case: it declares
-the same one line, and both tag-scope containers turn it away on a 5X70 with nothing added to either.
+`LREAL` was the only type carrying that line for a while, so the mechanism had a single witness and
+could as well have been a special case. The unsigned integers are the check that it is not: each
+declares the same one line, and both tag-scope containers turn it away on a 5X70 with nothing added to
+either.
 
-### `USINT`
+### The unsigned integers
 
-An 8-bit unsigned integer, carried as `byte`. One byte, so there is no byte order to get wrong, and
-the decode is the byte as it stands.
+`USINT` and `UINT` so far, carried as `byte` and `ushort`; `UDINT` and `ULINT` follow. A `USINT` is one
+byte with no byte order to get wrong, and the wider ones are little-endian reads like their signed
+counterparts.
 
-What is worth knowing is what it shares with `SINT` rather than what it does not: **the two are the
-same width and the same bytes on the wire**, and differ only in the type the controller declares. A
-`SINT` read through the `USINT` codec hands back `200` where the controller holds `-56`, and no round
-trip notices. `USIntConverter.ExpectedDataType` is what stops it — verification holds the symbol table
-to `Usint` at connect, so the mismatch is reported by name instead of decoded into a plausible value.
+What is worth knowing is what each shares with its signed twin rather than what it does not: **the two
+are the same width and the same bytes on the wire**, and differ only in the type the controller
+declares. A `SINT` read through the `USINT` codec hands back `200` where the controller holds `-56`;
+an `INT` read as a `UINT` hands back `65535` where it holds `-1`. No round trip notices either, because
+the value that comes back is the value that went in. `ExpectedDataType` on the converter is what stops
+it — verification holds the symbol table to `Usint` or `Uint` at connect, so the mismatch is reported
+by name instead of decoded into a plausible value.
 
 ### `STRING`
 
@@ -83,7 +89,7 @@ Verification checks the declared capacity as well as the shape, because a round 
 | Logix type                          | Notes                                                              |
 |-------------------------------------|--------------------------------------------------------------------|
 | `BOOL[]`                            | Packs into 32-bit words; the atomic `BOOL` is supported             |
-| `UINT` / `UDINT` / `ULINT`          | 5X80 controllers only, gated the way `USINT` is; one slice each     |
+| `UDINT` / `ULINT`                   | 5X80 controllers only, gated the way `USINT` is; one slice each     |
 | `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
 | UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |
 | Arrays of any type                  | The model carries scalars only; an array tag is a shape mismatch    |

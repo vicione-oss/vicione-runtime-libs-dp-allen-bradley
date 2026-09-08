@@ -116,11 +116,11 @@ necessary.
 ## 4. The CompactLogix 5X80 — not provisioned yet
 
 `Integration/CompactLogix5X80/` is the data-type suite: one write/read round trip per type the port
-implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `REAL`, `LREAL`, `STRING` — each driven to
-both ends of its range, each also asserting the declaration the controller reports for its tag.
+implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `REAL`, `LREAL`, `STRING` — each
+driven to both ends of its range, each also asserting the declaration the controller reports for its tag.
 
-It is pinned to a 5X80 because of `LREAL` and `USINT`. Those are the types in the vocabulary a 5X70 has
-not got, so the L32E cannot host this suite; see
+It is pinned to a 5X80 because of `LREAL` and the unsigned integers. Those are the types in the
+vocabulary a 5X70 has not got, so the L32E cannot host this suite; see
 [datatype-support.md](../../AllenBradley.Logix.Documentation/reference/datatype-support.md).
 
 **Nothing here has been confirmed against a device.** Two files hold every assumption, split along the
@@ -138,6 +138,7 @@ One tag per type, all program-scoped in `MainProgram`:
 | `DINT` | `Program:MainProgram.testDint` |
 | `LINT` | `Program:MainProgram.testLint` |
 | `USINT` | `Program:MainProgram.testUsint` |
+| `UINT` | `Program:MainProgram.testUint` |
 | `REAL` | `Program:MainProgram.testReal` |
 | `LREAL` | `Program:MainProgram.testLreal` |
 | `STRING` | `Program:MainProgram.testString`, declared to hold 82 characters |
@@ -167,8 +168,8 @@ to sit behind a tunnel or a bridge, this is the only file that changes.
 | `CIP_5X80_TIMEOUT_SECONDS` | `10` | How long one tag read or write may take |
 
 The prefix is `CIP_5X80_` rather than the plain `CIP_` below, because those point at the L32E. Pointing
-this suite at that controller would fail on the `LREAL` and the `USINT`, for reasons that read as a
-decode bug.
+this suite at that controller would fail on the `LREAL` and the unsigned integers, for reasons that
+read as a decode bug.
 
 `192.168.0.102` is a placeholder. It is the second CompactLogix on the lab subnet, labelled
 `AB_CompactLogix` and unconfigured — a real address on a network the tunnel already routes, chosen over
@@ -180,10 +181,10 @@ the symbol table in one go and reports each disagreement by name — missing, wr
 wrong capacity. That turns a set of wrong assumptions into a readable list, where the round trips would
 give a failure per type that all say a read came back `Bad`.
 
-It also carries the one check the round trips cannot make for `USINT`: a `USINT` and a `SINT` are the
-same byte on the wire, so a tag declared as the wrong one of the two round-trips cleanly and hands back
-the wrong half of the range. `Verify_TagsConfiguredAsTheWrongType_AreEachReported` pins that the symbol
-table catches it at connect.
+It also carries the one check the round trips cannot make for the unsigned integers: each is identical
+on the wire to its signed twin, so a tag declared as the wrong one of the two round-trips cleanly and
+hands back the wrong half of the range. `Verify_TagsConfiguredAsTheWrongType_AreEachReported` pins that
+the symbol table catches it at connect.
 
 ## 5. Running the Integration Tests
 

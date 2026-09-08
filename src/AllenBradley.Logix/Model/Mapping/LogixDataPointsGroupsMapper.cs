@@ -10,6 +10,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.LInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -68,6 +69,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         SIntNode sInt => new SIntDataPoint(scope.Qualify(sInt.TagName), sInt.PollFrequency, sInt.Channels),
         LIntNode lInt => new LIntDataPoint(scope.Qualify(lInt.TagName), lInt.PollFrequency, lInt.Channels),
         USIntNode usInt => new USIntDataPoint(scope.Qualify(usInt.TagName), usInt.PollFrequency, usInt.Channels),
+        UIntNode uInt => new UIntDataPoint(scope.Qualify(uInt.TagName), uInt.PollFrequency, uInt.Channels),
         BoolNode flag => new BoolDataPoint(scope.Qualify(flag.TagName), flag.PollFrequency, flag.Channels),
         IntNode integer => new IntDataPoint(
             scope.Qualify(integer.TagName), integer.PollFrequency, integer.Channels),

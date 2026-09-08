@@ -50,6 +50,9 @@ internal static class TagAddresses
     /// </summary>
     internal const string USInt = $"{Program}.testUsint";
 
+    /// <summary>The <c>UINT</c> test tag. A 5X80 type, for the reason <see cref="USInt"/> gives.</summary>
+    internal const string UInt = $"{Program}.testUint";
+
     /// <summary>The <c>REAL</c> test tag.</summary>
     internal const string Real = $"{Program}.testReal";
 
