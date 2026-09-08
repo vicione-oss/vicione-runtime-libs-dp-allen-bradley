@@ -116,8 +116,9 @@ necessary.
 ## 4. The CompactLogix 5X80 — not provisioned yet
 
 `Integration/CompactLogix5X80/` is the data-type suite: one write/read round trip per type the port
-implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `REAL`, `LREAL`, `STRING` — each
-driven to both ends of its range, each also asserting the declaration the controller reports for its tag.
+implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`, `REAL`, `LREAL`,
+`STRING` — each driven to both ends of its range, each also asserting the declaration the controller
+reports for its tag.
 
 It is pinned to a 5X80 because of `LREAL` and the unsigned integers. Those are the types in the
 vocabulary a 5X70 has not got, so the L32E cannot host this suite; see
@@ -139,6 +140,7 @@ One tag per type, all program-scoped in `MainProgram`:
 | `LINT` | `Program:MainProgram.testLint` |
 | `USINT` | `Program:MainProgram.testUsint` |
 | `UINT` | `Program:MainProgram.testUint` |
+| `UDINT` | `Program:MainProgram.testUdint` |
 | `REAL` | `Program:MainProgram.testReal` |
 | `LREAL` | `Program:MainProgram.testLreal` |
 | `STRING` | `Program:MainProgram.testString`, declared to hold 82 characters |

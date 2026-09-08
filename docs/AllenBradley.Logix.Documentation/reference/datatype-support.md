@@ -19,6 +19,7 @@ the wire layout of each type is in the
 | `LINT`     | `LIntDataPoint`   | `long`    | 8         | `LIntConverter`        | all         |
 | `USINT`    | `USIntDataPoint`  | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
 | `UINT`     | `UIntDataPoint`   | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
+| `UDINT`    | `UDIntDataPoint`  | `uint`    | 4         | `UDIntConverter`       | 5X80 only   |
 | `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
 | `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
 | `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
@@ -55,14 +56,15 @@ either.
 
 ### The unsigned integers
 
-`USINT` and `UINT` so far, carried as `byte` and `ushort`; `UDINT` and `ULINT` follow. A `USINT` is one
-byte with no byte order to get wrong, and the wider ones are little-endian reads like their signed
-counterparts.
+`USINT`, `UINT` and `UDINT` so far, carried as `byte`, `ushort` and `uint`; `ULINT` follows. A `USINT`
+is one byte with no byte order to get wrong, and the wider ones are little-endian reads like their
+signed counterparts.
 
 What is worth knowing is what each shares with its signed twin: **the two are the same width and the
 same bytes on the wire**, and differ only in the type the controller declares. A `SINT` read through
 the `USINT` codec hands back `200` where the controller holds `-56`; an `INT` read as a `UINT` hands
-back `65535` where it holds `-1`.
+back `65535` where it holds `-1`; a `DINT` read as a `UDINT` hands back `4294967295` where it holds
+`-1`.
 
 Verification catches that the way it catches every other type mismatch — `LogixTypeComparison` compares
 the converter's `ExpectedDataType` against the controller's declaration, and `Sint != Usint` is the
@@ -97,7 +99,7 @@ Verification checks the declared capacity as well as the shape, because a round 
 | Logix type                          | Notes                                                              |
 |-------------------------------------|--------------------------------------------------------------------|
 | `BOOL[]`                            | Packs into 32-bit words; the atomic `BOOL` is supported             |
-| `UDINT` / `ULINT`                   | 5X80 controllers only, gated the way `USINT` is; one slice each     |
+| `ULINT`                             | 5X80 controllers only, gated the way `USINT` is                     |
 | `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
 | UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |
 | Arrays of any type                  | The model carries scalars only; an array tag is a shape mismatch    |

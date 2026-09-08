@@ -129,7 +129,7 @@ Nodes:
     MappingId: ControllerTags5X80
     Type: DataPortTreeNode
     Name: "Controller"
-    Description: "Controller-scope tags of a 5X80 controller, which adds USINT, UINT and LREAL. Adds no segment to the tag address."
+    Description: "Controller-scope tags of a 5X80 controller, which adds USINT, UINT, UDINT and LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
     ChildNodes: &logix5x80-tag-nodes
@@ -142,6 +142,7 @@ Nodes:
       - Id: String
       - Id: USInt
       - Id: UInt
+      - Id: UDInt
       - Id: LReal
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
@@ -165,7 +166,7 @@ Nodes:
     MappingId: ProgramTags5X80
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags of a 5X80 controller, which adds USINT, UINT and LREAL. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5X80 controller, which adds USINT, UINT, UDINT and LREAL. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
@@ -322,6 +323,29 @@ Nodes:
       Range: 0..65 535
     Icon: datapoint
     DataTypes: [ UInt16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: UDInt
+    MappingId: UDInt
+    Type: DataPortTreeNode
+    Name: "UDInt"
+    Description: >-
+      Logix-Type: UDINT (32-bit unsigned integer, CIP type code 0xC8)
+      Size: 4 bytes
+      Encoding: little-endian unsigned binary
+      Layout: byte 0 = LSB, byte 3 = MSB
+      Range: 0..4 294 967 295
+    Icon: datapoint
+    DataTypes: [ UInt32 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

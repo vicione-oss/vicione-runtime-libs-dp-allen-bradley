@@ -139,6 +139,21 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredUDIntTagBecomesAUDIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var runtime = DefaultUDIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(runtime);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new UDIntDataPoint(runtime.TagName, runtime.PollFrequency, runtime.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AConfiguredBoolTagBecomesABoolPointCarryingItsTagNamePollFrequencyAndChannels()
     {
         // Arrange
