@@ -30,8 +30,8 @@ Root:
 Nodes:
 
   # ==================== DEVICE ===================================
-  # One node id per controller family and generation. The family decides how a request is routed to the CPU, the
-  # generation which data types the tree offers.
+  # One node id per family and generation: the family decides how a request reaches the CPU, the
+  # generation which types the tree offers.
 
   - Id: DeviceControlLogix5X70
     Type: DataPortNode
@@ -69,9 +69,8 @@ Nodes:
       - Id: ControllerTags5X80
       - Id: ProgramTags5X80
 
-  # No CipRoutePath: a CompactLogix clips onto a DIN rail whose virtual backplane puts the controller
-  # at slot 0, so "1,0" is the only answer there is and DeviceNodeMapper supplies it. Asking
-  # would be asking a question with one legal answer.
+  # No CipRoutePath: a CompactLogix's virtual backplane puts the controller at slot 0, so "1,0" is
+  # the only legal answer and DeviceNodeMapper supplies it rather than asking for it.
 
   - Id: DeviceCompactLogix5X70
     Type: DataPortNode
@@ -106,14 +105,10 @@ Nodes:
       - Id: ProgramTags5X80
 
   # ==================== TAG CONTAINERS ===============================
-  # Controller scope contributes no segment to a tag address: a controller-scope tag's
-  # name is its full symbolic address, so these nodes declare no properties at all. Program
-  # scope is the one that prefixes (Program:MainProgram.Tag), and ProgramName is its property.
-  #
-  # One per generation. Only the child list differs: USINT and LREAL are 5X80 types, and this
-  # is what keeps the editor from offering them on a controller that has none. Their MappingIds
-  # differ too, so the generation reaches the mapped node and the container can gate its own
-  # children by it — one thin ControllerTagsNodeMapper subclass each, over a shared base.
+  # One per scope and generation, differing only in the child list. Withholding the 5X80 group is
+  # the whole of what keeps the editor from offering USINT and LREAL on a controller that has
+  # neither; the MappingIds differ so the generation reaches the mapped node, which gates the same
+  # types again for a configuration the editor did not build.
 
   - Id: ControllerTags5X70
     MappingId: ControllerTags5X70
@@ -122,7 +117,7 @@ Nodes:
     Description: "Controller-scope tags of a 5X70 controller. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
-    ChildNodes:
+    ChildNodes: &basic-tag-nodes
       - Id: Bool
       - Id: SInt
       - Id: DInt
@@ -137,23 +132,19 @@ Nodes:
     Description: "Controller-scope tags of a 5X80 controller, which adds USINT and LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
-    ChildNodes:
+    ChildNodes: &logix5x80-tag-nodes
+      # *basic-tag-nodes spelled out again: YAML merges mappings, not sequences.
       - Id: Bool
       - Id: SInt
       - Id: DInt
       - Id: Int
       - Id: LInt
+      - Id: String
       - Id: USInt
       - Id: LReal
-      - Id: String
 
-  # Program scope is the one that prefixes: every tag below these nodes addresses as
-  # Program:<ProgramName>.<TagName>, composed during the tree walk. A peer of controller scope
-  # under the device rather than a child of it, the way Studio 5000's own tree puts them, and
-  # uncapped — a controller has as many programs as it has.
-  #
-  # Split by generation for the reason controller scope is: USINT and LREAL are 5X80 types, and
-  # the node type is what keeps the editor from offering them on a controller that has none.
+  # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
+  # tree puts them, and uncapped — a controller has as many programs as it has.
 
   - Id: ProgramTags5X70
     MappingId: ProgramTags5X70
@@ -167,13 +158,7 @@ Nodes:
         Properties:
           - Id: ProgramName
             Required: true
-    ChildNodes:
-      - Id: Bool
-      - Id: SInt
-      - Id: DInt
-      - Id: Int
-      - Id: LInt
-      - Id: String
+    ChildNodes: *basic-tag-nodes
 
   - Id: ProgramTags5X80
     MappingId: ProgramTags5X80
@@ -183,26 +168,9 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
-    ChildNodes:
-      - Id: Bool
-      - Id: SInt
-      - Id: DInt
-      - Id: Int
-      - Id: LInt
-      - Id: USInt
-      - Id: LReal
-      - Id: String
+    ChildNodes: *logix5x80-tag-nodes
 
   # ==================== SCALAR NODES ===================================
-  #
-  # Description schema: docs/Siemens.S7.Documentation/shared/datapoint-description-schema.md
-  #   (S7's, adopted verbatim apart from the leading Logix-Type label)
-  # Wire-format source: docs/AllenBradley.Documentation/cip-protocol/
-
-  # The atomic tag only. A BOOL[] packs eight to the byte and is an array, and a BOOL inside a UDT is a
-  # member of one — neither is configurable here, and a BOOL[] configured as this node is reported as a
-  # shape mismatch when the configuration is verified against the controller.
-
   - Id: Bool
     MappingId: Bool
     Type: DataPortTreeNode
@@ -318,12 +286,6 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
-  # The unsigned integers are 5X80 types. A 5X70 has no unsigned type at all, and the container
-  # node type its tags are configured under is what keeps them off its tree. Each is the same
-  # width as its signed twin and identical to it on the wire, so nothing but the declared type
-  # tells them apart — which is why the converter states the type it expects the controller to
-  # report and verification holds the symbol table to it.
-
   - Id: USInt
     MappingId: USInt
     Type: DataPortTreeNode
@@ -346,9 +308,6 @@ Nodes:
         Properties:
           - Id: PollFrequency
             Required: true
-
-  # A 5X80 type. The 5X70 controllers have no LREAL, and the node type they are configured under
-  # is what keeps it off their tree.
 
   - Id: LReal
     MappingId: LReal
@@ -373,10 +332,6 @@ Nodes:
         Properties:
           - Id: PollFrequency
             Required: true
-
-  # A scalar in the model and a structure on the wire, so it is the one scalar whose size is not fixed
-  # by its type: the declared capacity comes with the tag, and MaxLength is what verification holds the
-  # controller to.
 
   - Id: String
     MappingId: String
@@ -438,16 +393,10 @@ PropertyCategories:
 Properties:
 
   # ---- TagScope Properties ----
-  # The only one there is, and it reaches an address: every tag under the container carrying it
-  # is read and written as Program:<this>.<TagName>. Controller scope declares nothing here,
-  # because a controller-scope tag's own name is its full address.
-  #
-  # The two rules below are the editor's half of LogixIdentifier.IsWellFormed, which decides the
-  # same names again at mapping time — a program name and a tag name are one rule, so they share
-  # one anchor here as they share one class there. It takes two rules because the C# pattern
-  # carries its length bound in a lookahead, and a manifest pattern is compiled
-  # RegexOptions.NonBacktracking, where there are none. \A and \z rather than ^ and $: in .NET
-  # $ also matches before a trailing newline, which would let "Count\n" through.
+  # The editor's half of LogixIdentifier.IsWellFormed, shared with TagName because a program name and
+  # a tag name are one rule. Two patterns rather than one: a manifest pattern is compiled
+  # NonBacktracking, which has no lookaheads to carry the length bound in. \A and \z rather than ^ and
+  # $, because in .NET $ also matches before a trailing newline and would let "Count\n" through.
   - Id: ProgramName
     Name: "Program name"
     Description: "Name of the program as it appears in Studio 5000. Tags below it address as \"Program:MainProgram.Count\"."
@@ -463,9 +412,8 @@ Properties:
         Message: "Must be 1 to 40 characters long."
 
   # ---- Connection Properties ----
-  # Both carry the non-empty rule LogixCommunicationValidator holds them to, and no more: neither
-  # a host name nor a CIP route has a shape this file could decide. A route is not always digits
-  # and commas — a hop into another chassis carries the IP of the interface it goes through.
+  # Non-empty and no more: neither a host name nor a CIP route has a shape this file could decide —
+  # a hop into another chassis carries the IP of the interface it goes through, not just digits.
   - Id: ConnectionEndpoint
     Name: "Connection endpoint"
     Description: "IP address or host name of the controller's EtherNet/IP interface"
@@ -477,10 +425,6 @@ Properties:
         Pattern: '\A\S+\z'
         Message: "Connection endpoint must be the IP address or host name of the controller."
 
-  # Two fields here and one string on the wire: libplctag has no port attribute and splits "host:port"
-  # apart in its native core, so the client layer's GatewayAttribute joins them back up. Asking for
-  # an address with a colon in it would push that parsing onto the integrator
-  # (docs/AllenBradley.Documentation/libPlcTag/the-port-in-the-gateway-attribute.md).
   - Id: TcpPort
     Name: "TCP port"
     Description: "TCP port the controller's EtherNet/IP interface listens on. 44818 is the registered one; change it only for a NAT rule or a tunnel that moved it"
@@ -489,8 +433,6 @@ Properties:
     DefaultValue: 44818
     MinValue: 1
 
-  # The C# rule is conditional and this one is not, and they still say the same thing: a
-  # CompactLogix never reaches this property, because its device nodes do not reference it.
   - Id: CipRoutePath
     Name: "CIP route path"
     Description: "CIP route path from the EtherNet/IP interface to the CPU, one hop per port and address, e.g. \"1,0\" for backplane slot 0"
@@ -511,8 +453,7 @@ Properties:
     MinValue: 100
 
   # ---- QueueConfiguration Properties ----
-  # Read by the outgoing port only. An inbound-only device carries the defaults and never
-  # builds a queue.
+  # Read by the outgoing port only; an inbound-only device carries the defaults and builds no queue.
   - Id: MaxPendingMessages
     Name: "Max pending messages"
     Description: "How many write batches may wait for the controller before the strategy below applies"
@@ -528,14 +469,13 @@ Properties:
     UiControl: NumericListBox
     DefaultValue: 0
     Elements: { 0: 'Drop Oldest', 1: 'Drop Newest' }
-    # The bounds are the Enum.IsDefined check LogixCommunicationValidator makes, written the way a
-    # manifest can write it: QueueStrategy has these two members and no others.
+    # QueueStrategy has these two members and no others — the Enum.IsDefined check, as a manifest
+    # can write it.
     MinValue: 0
     MaxValue: 1
 
   # ---- TagAddress Properties ----
-  # The bare name, never an address: scope is composed by the tree walk, so the name rule here is
-  # the program container's rule unchanged.
+  # The bare name, never an address: the tree walk composes the scope, so the rule is ProgramName's.
   - Id: TagName
     Name: "Tag name"
     Description: "Studio 5000 tag name (e.g. \"MotorSpeed\")"
@@ -563,8 +503,8 @@ Properties:
     MinValue: 100
 
 # ==================== ICONS ========================================
-# 'folder' and 'datapoint' are the engine's own icons and are referenced without being
-# declared here. The controller glyph is a placeholder until there is real artwork.
+# 'folder' and 'datapoint' are the engine's own and need no declaration. The controller glyph below
+# is a placeholder until there is real artwork.
 
 Icons:
   - Id: allen-bradley-logix
