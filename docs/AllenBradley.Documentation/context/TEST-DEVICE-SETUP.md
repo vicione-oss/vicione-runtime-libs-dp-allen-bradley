@@ -181,10 +181,11 @@ the symbol table in one go and reports each disagreement by name — missing, wr
 wrong capacity. That turns a set of wrong assumptions into a readable list, where the round trips would
 give a failure per type that all say a read came back `Bad`.
 
-It also carries the one check the round trips cannot make for the unsigned integers: each is identical
-on the wire to its signed twin, so a tag declared as the wrong one of the two round-trips cleanly and
-hands back the wrong half of the range. `Verify_TagsConfiguredAsTheWrongType_AreEachReported` pins that
-the symbol table catches it at connect.
+`Verify_TagsConfiguredAsTheWrongType_AreEachReported` covers the other half: a tag that exists but is
+declared as something other than what was configured. No round trip catches that for any type, since
+the read decodes the bytes as whatever was configured. The unsigned integers are there as the case with
+the least to go on — each is the same width as its signed twin, so neither direction gets even the
+buffer-length backstop a width mismatch would.
 
 ## 5. Running the Integration Tests
 

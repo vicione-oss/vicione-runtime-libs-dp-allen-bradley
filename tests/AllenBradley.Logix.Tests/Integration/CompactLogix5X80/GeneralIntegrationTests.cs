@@ -64,10 +64,10 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         // plausible value. The last two cross the atomic/structure line, the mismatch that is not merely
         // a different width.
         //
-        // The SINT-on-a-USINT pairing is the sharpest of them, and the reason the unsigned types need
-        // this test rather than only a round trip: the two are one byte each and identical on the wire,
-        // so nothing but the declared type separates them. Writing 200 and reading -56 back is what the
-        // symbol table is there to prevent.
+        // SINT-on-a-USINT is the same mismatch with the width taken away. Configuring a type wider than
+        // the tag has a backstop even without verification — the decode runs out of buffer and the write
+        // is refused as out of bounds — but two types of equal width have none in either direction, and
+        // every byte pattern is legal for both. Writing 200 and reading -56 back is all that is left.
         ILogixDataPoint[] misconfigured =
         [
             new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),

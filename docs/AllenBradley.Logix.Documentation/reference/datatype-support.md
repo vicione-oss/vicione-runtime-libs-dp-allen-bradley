@@ -59,13 +59,21 @@ either.
 byte with no byte order to get wrong, and the wider ones are little-endian reads like their signed
 counterparts.
 
-What is worth knowing is what each shares with its signed twin rather than what it does not: **the two
-are the same width and the same bytes on the wire**, and differ only in the type the controller
-declares. A `SINT` read through the `USINT` codec hands back `200` where the controller holds `-56`;
-an `INT` read as a `UINT` hands back `65535` where it holds `-1`. No round trip notices either, because
-the value that comes back is the value that went in. `ExpectedDataType` on the converter is what stops
-it — verification holds the symbol table to `Usint` or `Uint` at connect, so the mismatch is reported
-by name instead of decoded into a plausible value.
+What is worth knowing is what each shares with its signed twin: **the two are the same width and the
+same bytes on the wire**, and differ only in the type the controller declares. A `SINT` read through
+the `USINT` codec hands back `200` where the controller holds `-56`; an `INT` read as a `UINT` hands
+back `65535` where it holds `-1`.
+
+Verification catches that the way it catches every other type mismatch — `LogixTypeComparison` compares
+the converter's `ExpectedDataType` against the controller's declaration, and `Sint != Usint` is the
+same comparison as `Int != Dint`. There is nothing special about the unsigned types there.
+
+What is different is how little else there is. A type configured *wider* than its tag has a second tell
+even if verification never ran: the decode runs out of buffer and `LogixReadBatch` reports it as that
+tag's failure, and a write is refused by `SetBuffer` as out of bounds. A type configured *narrower*
+loses that tell but still misreads as soon as the tag holds a value outside the narrow range. Two types
+of equal width have neither — every byte pattern is legal for both, in both directions, and the value
+that comes back is always the value that went in. Verification is the only thing standing there.
 
 ### `STRING`
 
