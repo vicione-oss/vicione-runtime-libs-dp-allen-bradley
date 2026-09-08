@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -165,6 +166,21 @@ public sealed class LogixDataPointsGroupMapperTests
 
         // Assert
         var expected = new ULIntDataPoint(cycles.TagName, cycles.PollFrequency, cycles.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AConfiguredRealTagBecomesARealPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var flowRate = DefaultRealNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(flowRate);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new RealDataPoint(flowRate.TagName, flowRate.PollFrequency, flowRate.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

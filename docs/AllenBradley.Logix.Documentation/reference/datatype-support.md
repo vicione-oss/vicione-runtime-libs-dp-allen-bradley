@@ -10,23 +10,33 @@ the wire layout of each type is in the
 
 ## Supported
 
-| Logix type | Data point        | .NET type | Wire size | Converter              | Controllers |
-|------------|-------------------|-----------|-----------|------------------------|-------------|
-| `BOOL`     | `BoolDataPoint`   | `bool`    | 1         | `BoolConverter`        | all         |
-| `SINT`     | `SIntDataPoint`   | `sbyte`   | 1         | `SIntConverter`        | all         |
-| `INT`      | `IntDataPoint`    | `short`   | 2         | `IntConverter`         | all         |
-| `DINT`     | `DIntDataPoint`   | `int`     | 4         | `DIntConverter`        | all         |
-| `LINT`     | `LIntDataPoint`   | `long`    | 8         | `LIntConverter`        | all         |
-| `USINT`    | `USIntDataPoint`  | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
-| `UINT`     | `UIntDataPoint`   | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
-| `UDINT`    | `UDIntDataPoint`  | `uint`    | 4         | `UDIntConverter`       | 5X80 only   |
-| `ULINT`    | `ULIntDataPoint`  | `ulong`   | 8         | `ULIntConverter`       | 5X80 only   |
-| `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
-| `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
-| `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
+| Logix type            | Node         | Data point        | .NET type | Wire size | Converter              | Controllers |
+|-----------------------|--------------|-------------------|-----------|-----------|------------------------|-------------|
+| **Bool**              |              |                   |           |           |                        |             |
+| `BOOL`                | `BoolNode`   | `BoolDataPoint`   | `bool`    | 1         | `BoolConverter`        | all         |
+| **Signed integers**   |              |                   |           |           |                        |             |
+| `SINT`                | `SIntNode`   | `SIntDataPoint`   | `sbyte`   | 1         | `SIntConverter`        | all         |
+| `INT`                 | `IntNode`    | `IntDataPoint`    | `short`   | 2         | `IntConverter`         | all         |
+| `DINT`                | `DIntNode`   | `DIntDataPoint`   | `int`     | 4         | `DIntConverter`        | all         |
+| `LINT`                | `LIntNode`   | `LIntDataPoint`   | `long`    | 8         | `LIntConverter`        | all         |
+| **Unsigned integers** |              |                   |           |           |                        |             |
+| `USINT`               | `USIntNode`  | `USIntDataPoint`  | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
+| `UINT`                | `UIntNode`   | `UIntDataPoint`   | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
+| `UDINT`               | `UDIntNode`  | `UDIntDataPoint`  | `uint`    | 4         | `UDIntConverter`       | 5X80 only   |
+| `ULINT`               | `ULIntNode`  | `ULIntDataPoint`  | `ulong`   | 8         | `ULIntConverter`       | 5X80 only   |
+| **Floating point**    |              |                   |           |           |                        |             |
+| `REAL`                | `RealNode`   | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
+| `LREAL`               | `LRealNode`  | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
+| **String**            |              |                   |           |           |                        |             |
+| `STRING`              | `StringNode` | `StringDataPoint` | `string`  | 4 + n     | `LogixStringConverter` | all         |
+
+A supported type is supported end to end: the manifest declares the node, a node mapper claims it,
+`LogixDataPointsGroupsMapper` turns it into the data point, and `DataPointConverterRegistry` holds a
+converter keyed by that data point.
 
 Every converter decodes a raw little-endian span. CIP and .NET are both little-endian, so the
-atomic types need no byte swap.
+atomic types need no byte swap. A `STRING`'s `n` is its declared capacity: 82 for the built-in type,
+88 bytes on the wire once `.LEN` and the alignment pad are counted.
 
 ### Types the 5X70 controllers have not got
 
@@ -45,7 +55,7 @@ The node states the rule itself, as `ILogixScalarNode.MinimumGeneration`: the ol
 vocabulary has the type. `ITagScopeNode` compares it against the container's own generation and
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
-addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode` and `StringNode` say
+addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode`, `RealNode` and `StringNode` say
 nothing. The comparison reads `LogixGeneration`
 in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later generation slots in
 at its own number.
@@ -96,12 +106,12 @@ Verification checks the declared capacity as well as the shape, because a round 
 
 ## Not supported yet
 
-| Logix type                          | Notes                                                              |
-|-------------------------------------|--------------------------------------------------------------------|
-| `BOOL[]`                            | Packs into 32-bit words; the atomic `BOOL` is supported             |
-| `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
-| UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |
-| Arrays of any type                  | The model carries scalars only; an array tag is a shape mismatch    |
+| Logix type                      | Notes                                                            |
+|---------------------------------|------------------------------------------------------------------|
+| `BOOL[]`                        | Packs into 32-bit words; the atomic `BOOL` is supported          |
+| Arrays of any type              | The model carries scalars only; an array tag is a shape mismatch |
+| `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                    |
+| UDTs                            | Need the `@udt/<id>` template read to learn the member layout    |
 
 An array or a structure configured as a scalar is reported at connect by
 `LogixConfigurationVerifier`, not misread at poll time.

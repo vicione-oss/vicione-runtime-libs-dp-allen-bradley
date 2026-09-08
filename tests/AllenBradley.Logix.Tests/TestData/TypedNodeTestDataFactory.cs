@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Controlle
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.LInt;
@@ -75,6 +76,9 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>BOOL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultBoolTagName = new("Running");
+
+    /// <summary>The address of the <c>REAL</c> tag the factory makes.</summary>
+    internal static readonly TagName DefaultRealTagName = new("FlowRate");
 
     /// <summary>The address of the <c>LREAL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
@@ -198,6 +202,15 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(BoolNode.LinkedNodeTypeId, DefaultBoolTagName.Value, DefaultChannel),
             DefaultBoolTagName,
+            DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured <c>REAL</c> tag, a type every generation has, so a container of any generation admits it.
+    /// </summary>
+    internal static RealNode DefaultRealNode =>
+        new(
+            CreateChanneledLinkedNode(RealNode.LinkedNodeTypeId, DefaultRealTagName.Value, DefaultChannel),
+            DefaultRealTagName,
             DefaultPollFrequency);
 
     /// <summary>A configured <c>STRING</c> tag of the built-in capacity.</summary>

@@ -118,11 +118,17 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes: &basic-tag-nodes
+      # Grouped by type family, widest last within a family, and in the order the scalar node
+      # definitions below are written.
       - Id: Bool
+      # Signed integers
       - Id: SInt
-      - Id: DInt
       - Id: Int
+      - Id: DInt
       - Id: LInt
+      # Floating point
+      - Id: Real
+      # String
       - Id: String
 
   - Id: ControllerTags5X80
@@ -133,18 +139,24 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes: &logix5x80-tag-nodes
-      # *basic-tag-nodes spelled out again: YAML merges mappings, not sequences.
+      # *basic-tag-nodes spelled out again: YAML merges mappings, not sequences. Same grouping,
+      # with each 5X80-only type in the family it belongs to rather than in a block of its own.
       - Id: Bool
+      # Signed integers
       - Id: SInt
-      - Id: DInt
       - Id: Int
+      - Id: DInt
       - Id: LInt
-      - Id: String
+      # Unsigned integers — 5X80 only
       - Id: USInt
       - Id: UInt
       - Id: UDInt
       - Id: ULInt
+      # Floating point — LREAL is 5X80 only
+      - Id: Real
       - Id: LReal
+      # String
+      - Id: String
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -174,6 +186,11 @@ Nodes:
     ChildNodes: *logix5x80-tag-nodes
 
   # ==================== SCALAR NODES ===================================
+  # Grouped by type family and widening within a family, in the order the child lists above name
+  # them. A 5X80-only type sits in its family rather than in a block of its own; what withholds it
+  # from a 5X70 is the child list, not the position here.
+
+  # ---- Bool ----
   - Id: Bool
     MappingId: Bool
     Type: DataPortTreeNode
@@ -197,6 +214,7 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- Signed integers ----
   - Id: SInt
     MappingId: SInt
     Type: DataPortTreeNode
@@ -209,29 +227,6 @@ Nodes:
       Range: −128..127
     Icon: datapoint
     DataTypes: [ Int8 ]
-    TransferModes: [ OnChange, Periodic ]
-    PropertyCategories:
-      - Id: TagAddress
-        Properties:
-          - Id: TagName
-            Required: true
-      - Id: ReadConfiguration
-        Properties:
-          - Id: PollFrequency
-            Required: true
-
-  - Id: DInt
-    MappingId: DInt
-    Type: DataPortTreeNode
-    Name: "DInt"
-    Description: >-
-      Logix-Type: DINT (32-bit signed integer, CIP type code 0xC4)
-      Size: 4 bytes
-      Encoding: little-endian two's complement
-      Layout: byte 0 = LSB, byte 3 = MSB
-      Range: −2 147 483 648..2 147 483 647
-    Icon: datapoint
-    DataTypes: [ Int32 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress
@@ -266,6 +261,29 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  - Id: DInt
+    MappingId: DInt
+    Type: DataPortTreeNode
+    Name: "DInt"
+    Description: >-
+      Logix-Type: DINT (32-bit signed integer, CIP type code 0xC4)
+      Size: 4 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 3 = MSB
+      Range: −2 147 483 648..2 147 483 647
+    Icon: datapoint
+    DataTypes: [ Int32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
   - Id: LInt
     MappingId: LInt
     Type: DataPortTreeNode
@@ -289,6 +307,7 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- Unsigned integers (5X80 only) ----
   - Id: USInt
     MappingId: USInt
     Type: DataPortTreeNode
@@ -381,6 +400,31 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- Floating point ----
+  - Id: Real
+    MappingId: Real
+    Type: DataPortTreeNode
+    Name: "Real"
+    Description: >-
+      Logix-Type: REAL (32-bit IEEE 754 single-precision float, CIP type code 0xCA)
+      Size: 4 bytes
+      Encoding: IEEE 754 single-precision float, little-endian
+      Layout: byte 0 = LSB (low mantissa), byte 3 = MSB (sign + high exponent)
+      Bits: 1 sign + 8 exponent + 23 mantissa
+      Range: ±1.18e−38..±3.40e+38
+    Icon: datapoint
+    DataTypes: [ Float32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
   - Id: LReal
     MappingId: LReal
     Type: DataPortTreeNode
@@ -405,6 +449,7 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- String ----
   - Id: String
     MappingId: String
     Type: DataPortTreeNode

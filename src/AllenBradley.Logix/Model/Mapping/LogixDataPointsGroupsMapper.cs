@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.LInt;
@@ -79,6 +80,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         BoolNode flag => new BoolDataPoint(scope.Qualify(flag.TagName), flag.PollFrequency, flag.Channels),
         IntNode integer => new IntDataPoint(
             scope.Qualify(integer.TagName), integer.PollFrequency, integer.Channels),
+        RealNode real => new RealDataPoint(scope.Qualify(real.TagName), real.PollFrequency, real.Channels),
         LRealNode lReal => new LRealDataPoint(scope.Qualify(lReal.TagName), lReal.PollFrequency, lReal.Channels),
         StringNode text => new StringDataPoint(
             scope.Qualify(text.TagName), text.PollFrequency, text.Channels, text.MaxLength),
