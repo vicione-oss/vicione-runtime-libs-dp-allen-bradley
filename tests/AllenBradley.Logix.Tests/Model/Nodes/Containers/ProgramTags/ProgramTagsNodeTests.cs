@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TypedNodeTestDataFactory;
 
@@ -49,6 +50,40 @@ public sealed class ProgramTagsNodeTests
 
         // Assert
         adding.Should().Throw<InvalidConfigurationException>();
+    }
+
+    // Program scope gates by the same rule and the same interface as controller scope, so USINT — the
+    // second type to carry a minimum generation — reaches it with nothing added here either.
+
+    [Fact]
+    public void AUSIntCanBeAddedUnderAProgramOfA5X80Controller()
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var usInt = DefaultUSIntNode;
+
+        // Act
+        var canBeAdded = program.CanBeAdded(usInt);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AUSIntUnderAProgramOfA5X70ControllerIsRefusedByName()
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode with { Generation = LogixGeneration.Logix5X70 };
+        var usInt = DefaultUSIntNode;
+
+        // Act
+        var adding = program.Invoking(node => node.CanBeAdded(usInt));
+
+        // Assert
+        // The refusal is all an integrator gets to go on, so it names the type it turned away and the
+        // generation that has not got it.
+        adding.Should().Throw<InvalidConfigurationException>()
+            .WithMessage($"*{USIntNode.LinkedNodeTypeId}*{LogixGeneration.Logix5X70}*");
     }
 
     [Fact]

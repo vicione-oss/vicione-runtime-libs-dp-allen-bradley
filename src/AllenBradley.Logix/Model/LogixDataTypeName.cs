@@ -22,6 +22,9 @@ public readonly record struct LogixDataTypeName(string Value)
     /// <summary>A 64-bit signed integer.</summary>
     public static LogixDataTypeName LInt => new("LINT");
 
+    /// <summary>An 8-bit unsigned integer. A 5X80 controller's type; a 5X70 has no such thing.</summary>
+    public static LogixDataTypeName USInt => new("USINT");
+
     /// <summary>An IEEE-754 single.</summary>
     public static LogixDataTypeName Real => new("REAL");
 

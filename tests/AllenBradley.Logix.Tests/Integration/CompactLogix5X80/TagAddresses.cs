@@ -44,6 +44,12 @@ internal static class TagAddresses
     /// <summary>The <c>LINT</c> test tag.</summary>
     internal const string LInt = $"{Program}.testLint";
 
+    /// <summary>
+    /// The <c>USINT</c> test tag. One of the unsigned integers a 5X70 controller has not got, so — like
+    /// <see cref="LReal"/> — it is a reason this folder is pinned to a 5X80.
+    /// </summary>
+    internal const string USInt = $"{Program}.testUsint";
+
     /// <summary>The <c>REAL</c> test tag.</summary>
     internal const string Real = $"{Program}.testReal";
 

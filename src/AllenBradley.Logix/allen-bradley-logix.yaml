@@ -110,10 +110,10 @@ Nodes:
   # name is its full symbolic address, so these nodes declare no properties at all. Program
   # scope is the one that prefixes (Program:MainProgram.Tag), and ProgramName is its property.
   #
-  # One per generation. Only the child list differs: LREAL is a 5X80 type, and this is what
-  # keeps the editor from offering it on a controller that has none. Their MappingIds differ
-  # too, so the generation reaches the mapped node and the container can gate its own children
-  # by it — one thin ControllerTagsNodeMapper subclass each, over a shared base.
+  # One per generation. Only the child list differs: USINT and LREAL are 5X80 types, and this
+  # is what keeps the editor from offering them on a controller that has none. Their MappingIds
+  # differ too, so the generation reaches the mapped node and the container can gate its own
+  # children by it — one thin ControllerTagsNodeMapper subclass each, over a shared base.
 
   - Id: ControllerTags5X70
     MappingId: ControllerTags5X70
@@ -134,7 +134,7 @@ Nodes:
     MappingId: ControllerTags5X80
     Type: DataPortTreeNode
     Name: "Controller"
-    Description: "Controller-scope tags of a 5X80 controller, which adds LREAL. Adds no segment to the tag address."
+    Description: "Controller-scope tags of a 5X80 controller, which adds USINT and LREAL. Adds no segment to the tag address."
     Icon: folder
     TransferModes: [ None ]
     ChildNodes:
@@ -143,6 +143,7 @@ Nodes:
       - Id: DInt
       - Id: Int
       - Id: LInt
+      - Id: USInt
       - Id: LReal
       - Id: String
 
@@ -151,8 +152,8 @@ Nodes:
   # under the device rather than a child of it, the way Studio 5000's own tree puts them, and
   # uncapped — a controller has as many programs as it has.
   #
-  # Split by generation for the reason controller scope is: LREAL is a 5X80 type, and the node
-  # type is what keeps the editor from offering it on a controller that has none.
+  # Split by generation for the reason controller scope is: USINT and LREAL are 5X80 types, and
+  # the node type is what keeps the editor from offering them on a controller that has none.
 
   - Id: ProgramTags5X70
     MappingId: ProgramTags5X70
@@ -178,7 +179,7 @@ Nodes:
     MappingId: ProgramTags5X80
     Type: DataPortTreeNode
     Name: "Program"
-    Description: "Program-scope tags of a 5X80 controller, which adds LREAL. Adds the Program:<name> segment to every tag address below it."
+    Description: "Program-scope tags of a 5X80 controller, which adds USINT and LREAL. Adds the Program:<name> segment to every tag address below it."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
@@ -188,6 +189,7 @@ Nodes:
       - Id: DInt
       - Id: Int
       - Id: LInt
+      - Id: USInt
       - Id: LReal
       - Id: String
 
@@ -305,6 +307,35 @@ Nodes:
       Range: −9 223 372 036 854 775 808..9 223 372 036 854 775 807
     Icon: datapoint
     DataTypes: [ Int64 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  # The unsigned integers are 5X80 types. A 5X70 has no unsigned type at all, and the container
+  # node type its tags are configured under is what keeps them off its tree. Each is the same
+  # width as its signed twin and identical to it on the wire, so nothing but the declared type
+  # tells them apart — which is why the converter states the type it expects the controller to
+  # report and verification holds the symbol table to it.
+
+  - Id: USInt
+    MappingId: USInt
+    Type: DataPortTreeNode
+    Name: "USInt"
+    Description: >-
+      Logix-Type: USINT (8-bit unsigned integer, CIP type code 0xC6)
+      Size: 1 byte
+      Encoding: unsigned binary; a single byte has no byte order
+      Layout: byte 0 = the whole value
+      Range: 0..255
+    Icon: datapoint
+    DataTypes: [ UInt8 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

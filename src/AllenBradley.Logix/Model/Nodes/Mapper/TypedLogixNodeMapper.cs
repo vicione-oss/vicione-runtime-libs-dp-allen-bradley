@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.LInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
@@ -44,7 +45,10 @@ public static class TypedLogixNodeMapper
         [new BoolNodeMapper()];
 
     private static IDataPointNodeMapper<IDataPointNode>[] IntegerNodeMappers() =>
-        [new SIntNodeMapper(), new IntNodeMapper(), new DIntNodeMapper(), new LIntNodeMapper()];
+        [
+            new SIntNodeMapper(), new IntNodeMapper(), new DIntNodeMapper(), new LIntNodeMapper(),
+            new USIntNodeMapper(),
+        ];
 
     private static IDataPointNodeMapper<IDataPointNode>[] FloatingPointNodeMappers() =>
         [new LRealNodeMapper()];

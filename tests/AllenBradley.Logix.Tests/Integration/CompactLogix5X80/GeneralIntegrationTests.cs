@@ -18,7 +18,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// against a newly provisioned controller. The tag names in <see cref="TagAddresses"/> are assumptions
 /// until a real device confirms them, and this is what turns a wrong one into a named, readable
 /// disagreement — <em>which</em> tag, and whether it is missing, the wrong type or the wrong shape —
-/// rather than into eight round-trip failures that all say a read came back Bad.
+/// rather than into a round-trip failure per type that all say a read came back Bad.
 /// </remarks>
 public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
@@ -63,8 +63,14 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         // trip cannot reach: the read would decode the bytes as whatever was configured and hand back a
         // plausible value. The last two cross the atomic/structure line, the mismatch that is not merely
         // a different width.
+        //
+        // The SINT-on-a-USINT pairing is the sharpest of them, and the reason the unsigned types need
+        // this test rather than only a round trip: the two are one byte each and identical on the wire,
+        // so nothing but the declared type separates them. Writing 200 and reading -56 back is what the
+        // symbol table is there to prevent.
         ILogixDataPoint[] misconfigured =
         [
+            new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
             new DIntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels),
             new IntDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels),
             new RealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
@@ -102,6 +108,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new IntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels),
         new DIntDataPoint(new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
         new LIntDataPoint(new TagName(TagAddresses.LInt), DefaultPollFrequency, NoChannels),
+        new USIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
         new RealDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels),
         new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(

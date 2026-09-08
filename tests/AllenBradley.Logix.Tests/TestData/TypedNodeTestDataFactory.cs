@@ -9,6 +9,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.LInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -56,6 +57,9 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>LINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLIntTagName = new("Ticks");
+
+    /// <summary>The address of the <c>USINT</c> tag the factory makes.</summary>
+    internal static readonly TagName DefaultUSIntTagName = new("Pressure");
 
     /// <summary>The address of the <c>BOOL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultBoolTagName = new("Running");
@@ -136,6 +140,16 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(LIntNode.LinkedNodeTypeId, DefaultLIntTagName.Value, DefaultChannel),
             DefaultLIntTagName,
+            DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured <c>USINT</c> tag, one of the unsigned integers a 5X70 controller has not got. Its
+    /// linked node carries the node type, which is what a container names when it refuses the tag.
+    /// </summary>
+    internal static USIntNode DefaultUSIntNode =>
+        new(
+            CreateChanneledLinkedNode(USIntNode.LinkedNodeTypeId, DefaultUSIntTagName.Value, DefaultChannel),
+            DefaultUSIntTagName,
             DefaultPollFrequency);
 
     /// <summary>

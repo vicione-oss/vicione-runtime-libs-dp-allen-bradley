@@ -106,6 +106,23 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredUSIntTagBecomesAUSIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    {
+        // Arrange
+        var pressure = DefaultUSIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInControllerScope(pressure);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        // The pairing is what the walk gets wrong silently: a USINT node paired with the SINT point is
+        // the same byte on the wire and reads back the wrong half of the range.
+        var expected = new USIntDataPoint(pressure.TagName, pressure.PollFrequency, pressure.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AConfiguredBoolTagBecomesABoolPointCarryingItsTagNamePollFrequencyAndChannels()
     {
         // Arrange

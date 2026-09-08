@@ -244,7 +244,8 @@ What a tag stores — either an atomic type or a structure. Declared per tag and
 controller.
 
 **Atomic data type**:
-A data type holding a single value: `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `REAL`, `LREAL`.
+A data type holding a single value: `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`,
+`ULINT`, `REAL`, `LREAL`.
 _Avoid_: elementary (ODVA's word for the same set — permitted only when quoting the CIP
 specification), primitive, scalar (see below — a different axis)
 
