@@ -11,6 +11,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UDInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.ULInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -68,6 +69,9 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>UDINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultUDIntTagName = new("Runtime");
+
+    /// <summary>The address of the <c>ULINT</c> tag the factory makes.</summary>
+    internal static readonly TagName DefaultULIntTagName = new("Cycles");
 
     /// <summary>The address of the <c>BOOL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultBoolTagName = new("Running");
@@ -176,6 +180,15 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(UDIntNode.LinkedNodeTypeId, DefaultUDIntTagName.Value, DefaultChannel),
             DefaultUDIntTagName,
+            DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured <c>ULINT</c> tag, one of the unsigned integers a 5X70 controller has not got.
+    /// </summary>
+    internal static ULIntNode DefaultULIntNode =>
+        new(
+            CreateChanneledLinkedNode(ULIntNode.LinkedNodeTypeId, DefaultULIntTagName.Value, DefaultChannel),
+            DefaultULIntTagName,
             DefaultPollFrequency);
 
     /// <summary>

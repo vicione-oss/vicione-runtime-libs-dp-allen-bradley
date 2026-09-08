@@ -20,6 +20,7 @@ the wire layout of each type is in the
 | `USINT`    | `USIntDataPoint`  | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
 | `UINT`     | `UIntDataPoint`   | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
 | `UDINT`    | `UDIntDataPoint`  | `uint`    | 4         | `UDIntConverter`       | 5X80 only   |
+| `ULINT`    | `ULIntDataPoint`  | `ulong`   | 8         | `ULIntConverter`       | 5X80 only   |
 | `REAL`     | `RealDataPoint`   | `float`   | 4         | `RealConverter`        | all         |
 | `LREAL`    | `LRealDataPoint`  | `double`  | 8         | `LRealConverter`       | 5X80 only   |
 | `STRING`   | `StringDataPoint` | `string`  | 88        | `LogixStringConverter` | all         |
@@ -50,21 +51,20 @@ in declaration order, and the members are numbered — `Logix5X70 = 70` — so a
 at its own number.
 
 `LREAL` was the only type carrying that line for a while, so the mechanism had a single witness and
-could as well have been a special case. The unsigned integers are the check that it is not: each
+could as well have been a special case. The four unsigned integers are the check that it is not: each
 declares the same one line, and both tag-scope containers turn it away on a 5X70 with nothing added to
-either.
+either — no container gained a rule for any of them.
 
 ### The unsigned integers
 
-`USINT`, `UINT` and `UDINT` so far, carried as `byte`, `ushort` and `uint`; `ULINT` follows. A `USINT`
-is one byte with no byte order to get wrong, and the wider ones are little-endian reads like their
-signed counterparts.
+All four: `USINT`, `UINT`, `UDINT` and `ULINT`, carried as `byte`, `ushort`, `uint` and `ulong`. A
+`USINT` is one byte with no byte order to get wrong, and the wider three are little-endian reads like
+their signed counterparts.
 
 What is worth knowing is what each shares with its signed twin: **the two are the same width and the
 same bytes on the wire**, and differ only in the type the controller declares. A `SINT` read through
 the `USINT` codec hands back `200` where the controller holds `-56`; an `INT` read as a `UINT` hands
-back `65535` where it holds `-1`; a `DINT` read as a `UDINT` hands back `4294967295` where it holds
-`-1`.
+back `65535` where it holds `-1`; and so on up to a `LINT` read as a `ULINT`.
 
 Verification catches that the way it catches every other type mismatch — `LogixTypeComparison` compares
 the converter's `ExpectedDataType` against the controller's declaration, and `Sint != Usint` is the
@@ -99,7 +99,6 @@ Verification checks the declared capacity as well as the shape, because a round 
 | Logix type                          | Notes                                                              |
 |-------------------------------------|--------------------------------------------------------------------|
 | `BOOL[]`                            | Packs into 32-bit words; the atomic `BOOL` is supported             |
-| `ULINT`                             | 5X80 controllers only, gated the way `USINT` is                     |
 | `TIMER` / `COUNTER` / `CONTROL`     | 12-byte predefined structures                                       |
 | UDTs                                | Need the `@udt/<id>` template read to learn the member layout       |
 | Arrays of any type                  | The model carries scalars only; an array tag is a shape mismatch    |

@@ -7,8 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// Write and read back each unsigned integer type on the CompactLogix 5X80, through the production
-/// client stack. <c>USINT</c>, <c>UINT</c> and <c>UDINT</c> so far; <c>ULINT</c> follows with its own
-/// slice.
+/// client stack: <c>USINT</c>, <c>UINT</c>, <c>UDINT</c> and <c>ULINT</c>.
 /// </summary>
 /// <remarks>
 /// A sibling of <see cref="IntegerIntegrationTests"/> rather than a section of it, because these types
@@ -60,4 +59,16 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
             new UDIntDataPoint(new TagName(TagAddresses.UDInt), DefaultPollFrequency, NoChannels),
             valueToWrite,
             ExpectedTagDefinitions.AtomicScalar(TagAddresses.UDInt, AllenBradleyDataType.Udint));
+
+    [Theory]
+    [InlineData(0ul)]
+    [InlineData(1234567890123ul)]
+    [InlineData(9223372036854775808ul)]
+    [InlineData(18446744073709551614ul)]
+    [InlineData(ulong.MaxValue)]
+    public async Task WriteAndReadBack_ULIntValue_RoundTripsAndTheTagIsDeclaredULInt(ulong valueToWrite) =>
+        await AssertRoundTripAsync(
+            new ULIntDataPoint(new TagName(TagAddresses.ULInt), DefaultPollFrequency, NoChannels),
+            valueToWrite,
+            ExpectedTagDefinitions.AtomicScalar(TagAddresses.ULInt, AllenBradleyDataType.Ulint));
 }
