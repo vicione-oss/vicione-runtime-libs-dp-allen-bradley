@@ -22,6 +22,21 @@ internal static class ExpectedTagDefinitions
             new ElementCount(1));
 
     /// <summary>
+    /// What the controller must report for a one-dimensional array of <paramref name="elementCount"/>
+    /// elementary <paramref name="dataType"/> values. The rank and the count are the two a read cannot
+    /// show: ten INTs off an <c>INT[20]</c> decode exactly as well as ten off an <c>INT[10]</c>.
+    /// </summary>
+    internal static TagDefinition AtomicArray(
+        string tagName, AllenBradleyDataType dataType, ElementCount elementCount) =>
+        new(
+            new TagName(tagName),
+            LogixTypeKind.Atomic,
+            dataType,
+            MaxLength: null,
+            DimensionCount.OneDimensional,
+            elementCount);
+
+    /// <summary>
     /// What the controller must report for a <c>STRING</c> tag holding <paramref name="maxLength"/>
     /// characters. A structure on the wire and a scalar in this model: one value, not an array.
     /// </summary>

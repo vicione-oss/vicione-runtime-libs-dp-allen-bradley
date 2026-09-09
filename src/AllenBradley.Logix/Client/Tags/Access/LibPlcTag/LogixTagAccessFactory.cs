@@ -1,5 +1,6 @@
 using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
@@ -28,16 +29,29 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
-    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => CreateAccess(dataPoint.TagName);
+    public ILogixTagAccess Create(ILogixDataPoint dataPoint)
+    {
+        var tag = CreateTag(dataPoint.TagName);
+
+        // libplctag treats every tag as an array and reads one element unless told otherwise, which is
+        // why the scalar handles say nothing here. ElementSize is not set beside it: the library ignores
+        // it for Allen-Bradley and takes the width from the controller's own declaration.
+        if (dataPoint is ILogixArrayDataPoint arrayDataPoint)
+        {
+            tag.ElementCount = arrayDataPoint.ElementCount.Value;
+        }
+
+        return Wrap(tag);
+    }
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateForSchemaTag(TagName tagName) => CreateAccess(tagName);
+    public ILogixTagAccess CreateForSchemaTag(TagName tagName) => Wrap(CreateTag(tagName));
 
     // A schema name is bound exactly like a tag name: libplctag resolves @tags and @udt/<id> itself,
-    // so the attribute string is the same either way.
-    private SynchronizedLogixTagAccess CreateAccess(TagName tagName)
-    {
-        var tag = new Tag
+    // so the attribute string is the same either way. The element count is not, which is why it is set
+    // on the data point path alone — a @tags directory read is not an array of ten INTs.
+    private Tag CreateTag(TagName tagName) =>
+        new()
         {
             Gateway = _gateway,
             Path = _cipRoutePath,
@@ -48,6 +62,6 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
             AllowPacking = true,
         };
 
-        return new SynchronizedLogixTagAccess(new LogixTagAccess(tag));
-    }
+    private static SynchronizedLogixTagAccess Wrap(Tag tag) =>
+        new(new LogixTagAccess(tag));
 }

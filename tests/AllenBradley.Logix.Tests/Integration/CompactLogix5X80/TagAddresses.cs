@@ -6,8 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// One tag per data type the port implements, and the <b>only</b> place this folder names a tag. The
 /// controller is ours and not commissioned yet, so this list is a <b>provisioning specification</b>
 /// rather than a survey: one program-scoped tag per type, named after the type, under
-/// <c>MainProgram</c>, to be created as written here — and every one of them is written by the suites,
-/// so they must be tags nothing in the controller's program depends on. Program scope is the harder of
+/// <c>MainProgram</c>, to be created as written here — and every one of them but <see cref="IntArray"/>
+/// is written by the suites, so they must be tags nothing in the controller's program depends on.
+/// Program scope is the harder of
 /// the two cases and exercises more of the addon: a program tag is browsed under a program-qualified key
 /// the configuration tree has to agree with. How the controller is reached is
 /// <see cref="TestController"/>'s business; which tags it holds is the same everywhere, so it lives here
@@ -67,4 +68,18 @@ internal static class TagAddresses
     /// the controller aborts a connect. Edit this if the tag is declared as anything else.
     /// </summary>
     internal static StringMaxLength StringCapacity => StringMaxLength.Standard;
+
+    /// <summary>
+    /// The one-dimensional <c>INT</c> array test tag, to be declared <c>INT[10]</c>. The one address here
+    /// the suites only read: writing an array is a later slice, so this tag's contents are the
+    /// controller's and nothing resets them.
+    /// </summary>
+    internal const string IntArray = $"{Program}.testIntArray";
+
+    /// <summary>
+    /// How many elements <see cref="IntArray"/> is declared to hold. Configuration for the reason
+    /// <see cref="StringCapacity"/> is: a count that disagrees with the controller aborts a connect,
+    /// because a read of the first ten elements would never show a tag that was resized.
+    /// </summary>
+    internal static ElementCount IntArrayElementCount => new(10);
 }

@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -86,8 +87,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     // Every pairing is a tag that exists, configured as a type it is not — the case a round trip cannot
     // reach, because the read would decode the bytes as whatever was configured and hand back a plausible
     // value. SINT-on-a-USINT is the mismatch with the width taken away: two types of equal width have no
-    // backstop in either direction, and every byte pattern is legal for both. The last two cross the
-    // atomic/structure line.
+    // backstop in either direction, and every byte pattern is legal for both. Two of them cross the
+    // atomic/structure line, and the last two cross the scalar/array line in both directions.
     private static IReadOnlyList<ILogixDataPoint> TagsConfiguredAsTheWrongType() =>
     [
         new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
@@ -97,10 +98,14 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new DIntDataPoint(new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
             new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new IntDataPoint(new TagName(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
+        new IntArrayDataPoint(
+            new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.IntArrayElementCount),
     ];
 
     // The whole configured vocabulary, exactly as the round-trip suites configure it — one point per
-    // type, at the address configured for that type, with the STRING at its configured capacity.
+    // type and shape, at the address configured for it, with the STRING at its configured capacity and
+    // the array at its configured element count.
     private static IReadOnlyList<ILogixDataPoint> TheWholeVocabulary() =>
     [
         new BoolDataPoint(new TagName(TagAddresses.Bool), DefaultPollFrequency, NoChannels),
@@ -116,6 +121,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
             new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new IntArrayDataPoint(
+            new TagName(TagAddresses.IntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.IntArrayElementCount),
     ];
 
     private void Report(
