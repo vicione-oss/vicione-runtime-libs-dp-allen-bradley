@@ -41,7 +41,7 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
 
     private IReadOnlyDictionary<string, TagInfo[]> ReadProgramTags(TagInfo[] controllerTags)
     {
-        var result = new Dictionary<string, TagInfo[]>();
+        var tagsByProgram = new Dictionary<string, TagInfo[]>();
 
         foreach (var tag in controllerTags.Where(t => t.Name.StartsWith("Program:")))
         {
@@ -54,10 +54,10 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
             programTag.Timeout = timeout;
 
             programTag.Read();
-            result[tag.Name] = programTag.Value;
+            tagsByProgram[tag.Name] = programTag.Value;
         }
 
-        return result;
+        return tagsByProgram;
     }
 
     private UdtInfo[] ReadUdts(TagInfo[] controllerTags)
@@ -67,7 +67,7 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
             .Select(t => t.Type & TypeUdtIdMask)
             .Distinct();
 
-        var result = new List<UdtInfo>();
+        var udts = new List<UdtInfo>();
 
         foreach (var udtId in udtIds)
         {
@@ -80,9 +80,9 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
             udtTag.Timeout = timeout;
 
             udtTag.Read();
-            result.Add(udtTag.Value);
+            udts.Add(udtTag.Value);
         }
 
-        return result.ToArray();
+        return udts.ToArray();
     }
 }

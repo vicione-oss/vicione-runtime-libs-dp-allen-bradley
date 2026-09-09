@@ -161,8 +161,8 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     {
         try
         {
-            var result = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
-            return new OperationOutcome("read", result.Succeeded, result.Error);
+            var read = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
+            return new OperationOutcome("read", read.Succeeded, read.Error);
         }
         catch (Exception exception)
         {
@@ -175,8 +175,8 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     {
         try
         {
-            var result = await access.WriteAsync(payload, cancellationToken).ConfigureAwait(false);
-            return new OperationOutcome("write", result.Succeeded, result.Error);
+            var write = await access.WriteAsync(payload, cancellationToken).ConfigureAwait(false);
+            return new OperationOutcome("write", write.Succeeded, write.Error);
         }
         catch (Exception exception)
         {
