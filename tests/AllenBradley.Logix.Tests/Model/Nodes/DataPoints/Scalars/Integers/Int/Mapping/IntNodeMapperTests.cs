@@ -3,9 +3,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
 
@@ -21,7 +21,7 @@ public sealed class IntNodeMapperTests
     public void TheTagNameAndPollFrequencyAreReadOffTheConfiguredNode()
     {
         // Arrange
-        var node = IntNodeWith(NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+        var node = IntNodeWith(CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         var intNode = _mapper.Map(node);
@@ -35,7 +35,7 @@ public sealed class IntNodeMapperTests
     public void AnIntTagIsOfferedOnEveryGeneration()
     {
         // Arrange
-        var node = IntNodeWith(NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+        var node = IntNodeWith(CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         ILogixScalarNode intNode = _mapper.Map(node);
@@ -49,31 +49,31 @@ public sealed class IntNodeMapperTests
     [Theory]
     [InlineData(IntNode.LinkedNodeTypeId, true)]
     [InlineData(DIntNode.LinkedNodeTypeId, false)]
-    public void ItClaimsAnIntNodeAndNoOther(string linkedNodeTypeId, bool expected)
+    public void ItClaimsAnIntNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         var node = CreateLinkedNode(
             linkedNodeTypeId,
-            TagName, NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+            TagName, CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         var isTargetMapper = _mapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Fact]
     public void AnIntNodeCarryingBothPropertiesIsValid()
     {
         // Arrange
-        var node = IntNodeWith(NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+        var node = IntNodeWith(CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        var result = _mapper.Validate(node);
+        var validation = _mapper.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        validation.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -81,14 +81,14 @@ public sealed class IntNodeMapperTests
     {
         // Arrange
         // The scalar validator is what says so; this pins that the mapper hands its node to it.
-        var node = IntNodeWith(NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+        var node = IntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        var result = _mapper.Validate(node);
+        var validation = _mapper.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle()
+        validation.IsValid.Should().BeFalse();
+        validation.Errors.Should().ContainSingle()
             .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
     }
 

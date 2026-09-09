@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class BoolDataPointTests
 {
+    private static readonly BoolDataPoint Flag =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Flag.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("BOOL"));
@@ -25,10 +27,9 @@ public sealed class BoolDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Flag);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("BOOL");
@@ -38,10 +39,9 @@ public sealed class BoolDataPointTests
     public void ABoolEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(true);
+        var conversion = Flag.ConvertValue(true);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class BoolDataPointTests
     public void ABoolValueIsInRange()
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(true);
+        var value = Flag.CreateTypedValue(true);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class BoolDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Flag.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Flag);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("BOOL");
     }
@@ -83,10 +81,9 @@ public sealed class BoolDataPointTests
     {
         // Arrange
         // Nonzero is true on the wire, and nothing here extends that to the engine value: a 1 is an int.
-        var dataPoint = new BoolDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(1);
+        var conversion = Flag.ConvertValue(1);
 
         // Assert
         var failure = conversion.Should()

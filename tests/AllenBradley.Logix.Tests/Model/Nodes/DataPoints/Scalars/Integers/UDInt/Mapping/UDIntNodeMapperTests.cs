@@ -3,9 +3,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UDInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UDInt.Mapping;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.UDInt.Mapping;
 
@@ -22,7 +22,7 @@ public sealed class UDIntNodeMapperTests
     {
         // Arrange
         var node = UDIntNodeWith(
-            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+            CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         var uDIntNode = _mapper.Map(node);
@@ -37,7 +37,7 @@ public sealed class UDIntNodeMapperTests
     {
         // Arrange
         var node = UDIntNodeWith(
-            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+            CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         ILogixScalarNode uDIntNode = _mapper.Map(node);
@@ -51,7 +51,7 @@ public sealed class UDIntNodeMapperTests
     [Theory]
     [InlineData(UDIntNode.LinkedNodeTypeId, true)]
     [InlineData(DIntNode.LinkedNodeTypeId, false)]
-    public void ItClaimsAUDIntNodeAndNoOther(string linkedNodeTypeId, bool expected)
+    public void ItClaimsAUDIntNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         // The signed twin is the node it must not claim: the two are four bytes each and differ only in
@@ -59,14 +59,14 @@ public sealed class UDIntNodeMapperTests
         var node = CreateLinkedNode(
             linkedNodeTypeId,
             TagName,
-            NodePropertyFactory.CreateTagName(TagName),
-            NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+            CreateTagName(TagName),
+            CreatePollFrequency(DefaultPollFrequency));
 
         // Act
         var isTargetMapper = _mapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Fact]
@@ -74,13 +74,13 @@ public sealed class UDIntNodeMapperTests
     {
         // Arrange
         var node = UDIntNodeWith(
-            NodePropertyFactory.CreateTagName(TagName), NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+            CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        var result = _mapper.Validate(node);
+        var validation = _mapper.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        validation.IsValid.Should().BeTrue();
     }
 
     [Fact]
@@ -88,14 +88,14 @@ public sealed class UDIntNodeMapperTests
     {
         // Arrange
         // The scalar validator is what says so; this pins that the mapper hands its node to it.
-        var node = UDIntNodeWith(NodePropertyFactory.CreatePollFrequency(DefaultPollFrequency));
+        var node = UDIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        var result = _mapper.Validate(node);
+        var validation = _mapper.Validate(node);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle()
+        validation.IsValid.Should().BeFalse();
+        validation.Errors.Should().ContainSingle()
             .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
     }
 

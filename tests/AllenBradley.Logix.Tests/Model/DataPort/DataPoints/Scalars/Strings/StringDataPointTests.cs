@@ -11,15 +11,16 @@ public sealed class StringDataPointTests
 {
     private const int DeclaredCapacity = 82;
 
+    private static readonly StringDataPoint Label =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Label.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("STRING"));
@@ -29,11 +30,9 @@ public sealed class StringDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Label);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("STRING");
@@ -43,11 +42,9 @@ public sealed class StringDataPointTests
     public void AStringEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var conversion = dataPoint.ConvertValue("Hi");
+        var conversion = Label.ConvertValue("Hi");
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -58,16 +55,14 @@ public sealed class StringDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Label.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Label);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("STRING");
     }
@@ -76,11 +71,9 @@ public sealed class StringDataPointTests
     public void AnIntegerIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var conversion = dataPoint.ConvertValue(42);
+        var conversion = Label.ConvertValue(42);
 
         // Assert
         var failure = conversion.Should()
@@ -91,16 +84,14 @@ public sealed class StringDataPointTests
     [Theory]
     [InlineData(DeclaredCapacity, true)]
     [InlineData(DeclaredCapacity + 1, false)]
-    public void AValueIsInRangeWhileItFitsTheDeclaredCapacity(int length, bool expected)
+    public void AValueIsInRangeWhileItFitsTheDeclaredCapacity(int length, bool expectedInRange)
     {
         // Arrange
-        var dataPoint = new StringDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
         // Act
-        var value = dataPoint.CreateTypedValue(new string('X', length));
+        var value = Label.CreateTypedValue(new string('X', length));
 
         // Assert
-        value.IsInValueRange().Should().Be(expected);
+        value.IsInValueRange().Should().Be(expectedInRange);
     }
 }

@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class UIntDataPointTests
 {
+    private static readonly UIntDataPoint Setpoint =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Setpoint.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("UINT"));
@@ -25,10 +27,9 @@ public sealed class UIntDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Setpoint);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("UINT");
@@ -38,10 +39,9 @@ public sealed class UIntDataPointTests
     public void AUShortEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue((ushort)50000);
+        var conversion = Setpoint.ConvertValue((ushort)50000);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class UIntDataPointTests
     public void AUShortValueIsInRange()
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(ushort.MaxValue);
+        var value = Setpoint.CreateTypedValue(ushort.MaxValue);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class UIntDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Setpoint.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Setpoint);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("UINT");
     }
@@ -84,10 +82,9 @@ public sealed class UIntDataPointTests
         // Arrange
         // The signed twin of this point's own type, and the one substitution that would otherwise pass
         // unnoticed: both occupy two bytes, so nothing downstream would object.
-        var dataPoint = new UIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue((short)4242);
+        var conversion = Setpoint.ConvertValue((short)4242);
 
         // Assert
         var failure = conversion.Should()

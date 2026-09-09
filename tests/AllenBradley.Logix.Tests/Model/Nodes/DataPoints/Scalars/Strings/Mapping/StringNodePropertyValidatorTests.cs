@@ -51,7 +51,7 @@ public sealed class StringNodePropertyValidatorTests
             CreateTagName("Label"), CreatePollFrequency(DefaultPollFrequency), CreateMaxLength("82"));
 
         // Act
-        var validating = () => _validator.Validate(node);
+        var validating = _validator.Invoking(validator => validator.Validate(node));
 
         // Assert
         validating.Should().NotThrow().Which.Errors.Should().ContainSingle()

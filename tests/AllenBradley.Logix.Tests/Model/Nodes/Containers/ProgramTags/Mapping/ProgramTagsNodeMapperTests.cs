@@ -24,10 +24,9 @@ public sealed class ProgramTagsNodeMapperTests
     public void AProgramMappedByThe5X70MapperHasGenerationLogix5X70()
     {
         // Arrange
-        var node = X70ProgramNode;
 
         // Act
-        var programTagsNode = _x70NodeMapper.Map(node);
+        var programTagsNode = _x70NodeMapper.Map(X70ProgramNode);
 
         // Assert
         programTagsNode.Generation.Should().Be(LogixGeneration.Logix5X70);
@@ -37,10 +36,9 @@ public sealed class ProgramTagsNodeMapperTests
     public void AProgramMappedByThe5X80MapperHasGenerationLogix5X80()
     {
         // Arrange
-        var node = X80ProgramNode;
 
         // Act
-        var programTagsNode = _x80NodeMapper.Map(node);
+        var programTagsNode = _x80NodeMapper.Map(X80ProgramNode);
 
         // Assert
         programTagsNode.Generation.Should().Be(LogixGeneration.Logix5X80);
@@ -49,7 +47,7 @@ public sealed class ProgramTagsNodeMapperTests
     [Theory]
     [InlineData(ProgramTagsNode.Logix5X70LinkedNodeTypeId, true)]
     [InlineData(ProgramTagsNode.Logix5X80LinkedNodeTypeId, false)]
-    public void The5X70MapperClaimsA5X70ProgramAndNoOther(string linkedNodeTypeId, bool expected)
+    public void The5X70MapperClaimsA5X70ProgramAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         var node = CreateLinkedNode(linkedNodeTypeId, MainProgramName, CreateProgramName(MainProgramName));
@@ -58,13 +56,13 @@ public sealed class ProgramTagsNodeMapperTests
         var isTargetMapper = _x70NodeMapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Theory]
     [InlineData(ProgramTagsNode.Logix5X80LinkedNodeTypeId, true)]
     [InlineData(ProgramTagsNode.Logix5X70LinkedNodeTypeId, false)]
-    public void The5X80MapperClaimsA5X80ProgramAndNoOther(string linkedNodeTypeId, bool expected)
+    public void The5X80MapperClaimsA5X80ProgramAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         var node = CreateLinkedNode(linkedNodeTypeId, MainProgramName, CreateProgramName(MainProgramName));
@@ -73,32 +71,30 @@ public sealed class ProgramTagsNodeMapperTests
         var isTargetMapper = _x80NodeMapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Fact]
-    public void MapReadsTheProgramNameFromTheNode()
+    public void AMappedProgramCarriesTheProgramNameItsNodeDeclares()
     {
         // Arrange
-        var node = X70ProgramNode;
 
         // Act
-        var programTagsNode = _x70NodeMapper.Map(node);
+        var programTagsNode = _x70NodeMapper.Map(X70ProgramNode);
 
         // Assert
         programTagsNode.ProgramName.Should().Be(new ProgramName(MainProgramName));
     }
 
     [Fact]
-    public void MapKeepsTheNodeItWasMappedFrom()
+    public void AMappedProgramKeepsTheNodeItWasMadeFrom()
     {
         // Arrange
-        var node = X70ProgramNode;
 
         // Act
-        var programTagsNode = _x70NodeMapper.Map(node);
+        var programTagsNode = _x70NodeMapper.Map(X70ProgramNode);
 
         // Assert
-        programTagsNode.OriginalNode.Should().BeSameAs(node);
+        programTagsNode.OriginalNode.Should().BeSameAs(X70ProgramNode);
     }
 }

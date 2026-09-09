@@ -96,7 +96,7 @@ public sealed class ScalarNodePropertyValidatorTests
         var node = DIntNodeWith(CreateTagName(42), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        var validating = () => _validator.Validate(node);
+        var validating = _validator.Invoking(validator => validator.Validate(node));
 
         // Assert
         validating.Should().NotThrow().Which.Errors.Should().ContainSingle()

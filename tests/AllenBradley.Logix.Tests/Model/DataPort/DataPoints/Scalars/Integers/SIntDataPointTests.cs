@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class SIntDataPointTests
 {
+    private static readonly SIntDataPoint Level =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Level.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("SINT"));
@@ -25,10 +27,9 @@ public sealed class SIntDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Level);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("SINT");
@@ -38,10 +39,9 @@ public sealed class SIntDataPointTests
     public void AnSByteEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue((sbyte)42);
+        var conversion = Level.ConvertValue((sbyte)42);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class SIntDataPointTests
     public void AnSByteValueIsInRange()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(42);
+        var value = Level.CreateTypedValue(42);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class SIntDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Level.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Level);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("SINT");
     }
@@ -82,10 +80,9 @@ public sealed class SIntDataPointTests
     public void AByteIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue((byte)42);
+        var conversion = Level.ConvertValue((byte)42);
 
         // Assert
         var failure = conversion.Should()

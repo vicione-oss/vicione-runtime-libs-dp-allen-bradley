@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class LIntDataPointTests
 {
+    private static readonly LIntDataPoint Ticks =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Ticks.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("LINT"));
@@ -25,10 +27,9 @@ public sealed class LIntDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Ticks);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("LINT");
@@ -38,10 +39,9 @@ public sealed class LIntDataPointTests
     public void ALongEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(9223372036854775806L);
+        var conversion = Ticks.ConvertValue(9223372036854775806L);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class LIntDataPointTests
     public void ALongValueIsInRange()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(long.MaxValue);
+        var value = Ticks.CreateTypedValue(long.MaxValue);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class LIntDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Ticks.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Ticks);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("LINT");
     }
@@ -82,10 +80,9 @@ public sealed class LIntDataPointTests
     public void AnIntIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(4711);
+        var conversion = Ticks.ConvertValue(4711);
 
         // Assert
         var failure = conversion.Should()

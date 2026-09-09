@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class IntDataPointTests
 {
+    private static readonly IntDataPoint Counter =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Counter.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("INT"));
@@ -25,10 +27,9 @@ public sealed class IntDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Counter);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("INT");
@@ -38,10 +39,9 @@ public sealed class IntDataPointTests
     public void AShortEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue((short)4711);
+        var conversion = Counter.ConvertValue((short)4711);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class IntDataPointTests
     public void AShortValueIsInRange()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(4711);
+        var value = Counter.CreateTypedValue(4711);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class IntDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Counter.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Counter);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("INT");
     }
@@ -82,10 +80,9 @@ public sealed class IntDataPointTests
     public void AnIntIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(4711);
+        var conversion = Counter.ConvertValue(4711);
 
         // Assert
         var failure = conversion.Should()

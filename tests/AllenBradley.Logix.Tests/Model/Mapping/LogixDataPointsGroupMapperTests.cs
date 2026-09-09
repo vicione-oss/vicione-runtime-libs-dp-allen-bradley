@@ -270,7 +270,11 @@ public sealed class LogixDataPointsGroupMapperTests
     {
         // Arrange
         var pollFrequency = PollFrequency.FromMilliseconds(250);
-        IReadOnlyList<ILogixDataPoint> dataPoints = [new DIntDataPoint(DefaultDIntTagName, LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels)];
+        IReadOnlyList<ILogixDataPoint> dataPoints =
+        [
+            new DIntDataPoint(
+                DefaultDIntTagName, LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
+        ];
 
         // Act
         var group = _mapper.CreateGroup(pollFrequency, dataPoints);

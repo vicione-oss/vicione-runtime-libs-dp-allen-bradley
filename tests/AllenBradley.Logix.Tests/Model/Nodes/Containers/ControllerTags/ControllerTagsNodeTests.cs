@@ -52,10 +52,6 @@ public sealed class ControllerTagsNodeTests
         adding.Should().Throw<InvalidConfigurationException>();
     }
 
-    // LREAL above was the only type carrying a minimum generation, so the rule had a single witness and
-    // could as well have been an LREAL special case. USINT is the second, and it reaches the same
-    // container through the same interface with nothing added here but the pair below.
-
     [Fact]
     public void AUSIntCanBeAddedUnderA5X80Controller()
     {

@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class DIntDataPointTests
 {
+    private static readonly DIntDataPoint Counter =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Counter.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("DINT"));
@@ -25,10 +27,9 @@ public sealed class DIntDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Counter);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("DINT");
@@ -38,10 +39,9 @@ public sealed class DIntDataPointTests
     public void AnIntegerEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(42);
+        var conversion = Counter.ConvertValue(42);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class DIntDataPointTests
     public void AnIntegerValueIsInRange()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(42);
+        var value = Counter.CreateTypedValue(42);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class DIntDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Counter.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Counter);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("DINT");
     }
@@ -82,10 +80,9 @@ public sealed class DIntDataPointTests
     public void AStringIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue("42");
+        var conversion = Counter.ConvertValue("42");
 
         // Assert
         var failure = conversion.Should()

@@ -8,14 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class RealDataPointTests
 {
+    private static readonly RealDataPoint Measurement =
+        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var dataTypeName = dataPoint.DataTypeName;
+        var dataTypeName = Measurement.DataTypeName;
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("REAL"));
@@ -25,10 +27,9 @@ public sealed class RealDataPointTests
     public void ItAndItsConverterNameTheSameType()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
+        var converter = DataPointConverterRegistry.GetConverter(Measurement);
 
         // Assert
         converter.ExpectedTypeName.Value.Should().Be("REAL");
@@ -38,10 +39,9 @@ public sealed class RealDataPointTests
     public void AFloatEngineValueIsCarriedThrough()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(1.5f);
+        var conversion = Measurement.ConvertValue(1.5f);
 
         // Assert
         conversion.Should().BeOfType<ConvertedDataPointValue<ILogixDataPointValue>>()
@@ -52,10 +52,9 @@ public sealed class RealDataPointTests
     public void AFloatValueIsInRange()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var value = dataPoint.CreateTypedValue(1.5f);
+        var value = Measurement.CreateTypedValue(1.5f);
 
         // Assert
         value.IsInValueRange().Should().BeTrue();
@@ -65,15 +64,14 @@ public sealed class RealDataPointTests
     public void ANullEngineValueIsRefusedNamingThePointAndItsType()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(null);
+        var conversion = Measurement.ConvertValue(null);
 
         // Assert
         var failure = conversion.Should()
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
-        failure.DataPoint.Should().BeSameAs(dataPoint);
+        failure.DataPoint.Should().BeSameAs(Measurement);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
         failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("REAL");
     }
@@ -82,10 +80,9 @@ public sealed class RealDataPointTests
     public void ADoubleIsRefusedNamingBothTypes()
     {
         // Arrange
-        var dataPoint = new RealDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var conversion = dataPoint.ConvertValue(1.5d);
+        var conversion = Measurement.ConvertValue(1.5d);
 
         // Assert
         var failure = conversion.Should()

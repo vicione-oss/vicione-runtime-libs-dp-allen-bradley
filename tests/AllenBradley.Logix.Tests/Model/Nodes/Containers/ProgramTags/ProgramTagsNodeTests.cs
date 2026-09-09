@@ -52,9 +52,6 @@ public sealed class ProgramTagsNodeTests
         adding.Should().Throw<InvalidConfigurationException>();
     }
 
-    // Program scope gates by the same rule and the same interface as controller scope, so USINT — the
-    // second type to carry a minimum generation — reaches it with nothing added here either.
-
     [Fact]
     public void AUSIntCanBeAddedUnderAProgramOfA5X80Controller()
     {

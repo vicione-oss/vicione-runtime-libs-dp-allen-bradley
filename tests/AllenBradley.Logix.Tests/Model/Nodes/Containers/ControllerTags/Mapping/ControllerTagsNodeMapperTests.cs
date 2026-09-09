@@ -25,10 +25,9 @@ public sealed class ControllerTagsNodeMapperTests
     public void AContainerMappedByThe5X70MapperIsStampedWithLogix5X70()
     {
         // Arrange
-        var node = X70ControllerNode;
 
         // Act
-        var controllerTagsNode = _x70NodeMapper.Map(node);
+        var controllerTagsNode = _x70NodeMapper.Map(X70ControllerNode);
 
         // Assert
         controllerTagsNode.Generation.Should().Be(LogixGeneration.Logix5X70);
@@ -38,10 +37,9 @@ public sealed class ControllerTagsNodeMapperTests
     public void AContainerMappedByThe5X80MapperIsStampedWithLogix5X80()
     {
         // Arrange
-        var node = X80ControllerNode;
 
         // Act
-        var controllerTagsNode = _x80NodeMapper.Map(node);
+        var controllerTagsNode = _x80NodeMapper.Map(X80ControllerNode);
 
         // Assert
         controllerTagsNode.Generation.Should().Be(LogixGeneration.Logix5X80);
@@ -50,7 +48,7 @@ public sealed class ControllerTagsNodeMapperTests
     [Theory]
     [InlineData(ControllerTagsNode.Logix5X70LinkedNodeTypeId, true)]
     [InlineData(ControllerTagsNode.Logix5X80LinkedNodeTypeId, false)]
-    public void The5X70MapperClaimsA5X70ContainerAndNoOther(string linkedNodeTypeId, bool expected)
+    public void The5X70MapperClaimsA5X70ContainerAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         var node = CreateLinkedNode(linkedNodeTypeId, "Controller");
@@ -59,13 +57,13 @@ public sealed class ControllerTagsNodeMapperTests
         var isTargetMapper = _x70NodeMapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Theory]
     [InlineData(ControllerTagsNode.Logix5X80LinkedNodeTypeId, true)]
     [InlineData(ControllerTagsNode.Logix5X70LinkedNodeTypeId, false)]
-    public void The5X80MapperClaimsA5X80ContainerAndNoOther(string linkedNodeTypeId, bool expected)
+    public void The5X80MapperClaimsA5X80ContainerAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
         var node = CreateLinkedNode(linkedNodeTypeId, "Controller");
@@ -74,30 +72,28 @@ public sealed class ControllerTagsNodeMapperTests
         var isTargetMapper = _x80NodeMapper.IsTargetMapperFor(node);
 
         // Assert
-        isTargetMapper.Should().Be(expected);
+        isTargetMapper.Should().Be(expectedIsTargetMapper);
     }
 
     [Fact]
-    public void MapKeepsTheNodeItWasMappedFrom()
+    public void AMappedContainerKeepsTheNodeItWasMadeFrom()
     {
         // Arrange
-        var node = X70ControllerNode;
 
         // Act
-        var controllerTagsNode = _x70NodeMapper.Map(node);
+        var controllerTagsNode = _x70NodeMapper.Map(X70ControllerNode);
 
         // Assert
-        controllerTagsNode.OriginalNode.Should().BeSameAs(node);
+        controllerTagsNode.OriginalNode.Should().BeSameAs(X70ControllerNode);
     }
 
     [Fact]
     public void AControllerTagsNodeIsValidSinceItDeclaresNoProperties()
     {
         // Arrange
-        var node = X70ControllerNode;
 
         // Act
-        var validation = _x70NodeMapper.Validate(node);
+        var validation = _x70NodeMapper.Validate(X70ControllerNode);
 
         // Assert
         validation.IsValid.Should().BeTrue();
