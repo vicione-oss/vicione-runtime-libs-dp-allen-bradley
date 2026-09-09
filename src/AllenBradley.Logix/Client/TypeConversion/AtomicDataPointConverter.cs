@@ -3,10 +3,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
-// Base for the elementary CIP types — the ones the controller reports by a one-byte type code and that
-// occupy a fixed number of bytes whatever they are configured as. It supplies the one thing that is the
-// same for every one of them: nothing about their size is configurable, so nothing about their size is
-// theirs to state.
+// Base for the elementary CIP types — the ones the controller reports by a one-byte type code, whether
+// the tag holds one of them or an array of them. It supplies the one thing that is the same for every one
+// of them: a capacity is a STRING's, so none of these has one to agree on.
 //
 // A subclass names its data type and nothing else about matching is its concern — the tag it will
 // accept follows from that and the kind below, and LogixTypeComparison reads them.
@@ -15,7 +14,7 @@ internal abstract class AtomicDataPointConverter<TDataPoint, TDomain> : DataPoin
 {
     public sealed override LogixTypeKind ExpectedKind => LogixTypeKind.Atomic;
 
-    // Nothing to agree on: the size an elementary type occupies follows from the type, so a capacity is
-    // not part of what these converters expect.
+    // Nothing to agree on: a capacity is the n of a STRING's .DATA, which no elementary type has — an
+    // array of one is sized by its element count instead, and that is stated beside this.
     protected sealed override StringMaxLength? MaxLengthOf(TDataPoint dataPoint) => null;
 }

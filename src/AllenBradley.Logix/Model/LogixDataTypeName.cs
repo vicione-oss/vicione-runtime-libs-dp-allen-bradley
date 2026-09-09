@@ -43,6 +43,12 @@ public readonly record struct LogixDataTypeName(string Value)
     /// <summary>The predefined string structure — <c>.LEN</c> + <c>.DATA</c>.</summary>
     public static LogixDataTypeName String => new("STRING");
 
+    /// <summary>
+    /// A one-dimensional array of 16-bit signed integers. The length is not in the name: Studio 5000
+    /// would say <c>INT[10]</c>, and a display name is one per type rather than one per declaration.
+    /// </summary>
+    public static LogixDataTypeName IntArray => new("INT[]");
+
     /// <summary>The type name, so it interpolates and logs as itself.</summary>
     public override string ToString() => Value;
 }

@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -19,6 +20,9 @@ public sealed class LogixReadBatchTests
     private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
     private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
     private static readonly DIntDataPoint Torque = new(new TagName("Motor.Torque"), DefaultPollFrequency, NoChannels);
+
+    private static readonly IntArrayDataPoint Readings = new(
+        new TagName("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
 
     // 42 and 7 as DINTs on the wire, spelled out rather than taken from BitConverter, which would
     // re-derive them through the same host-endianness assumption the converter makes.
@@ -77,6 +81,24 @@ public sealed class LogixReadBatchTests
         // Assert
         var expected = LogixReadBatch.ReadOutcome.Failed(Level.TagName, TagNotFound);
         batchRead.Failures.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task AnArrayReplyTooShortForItsDeclaredCountCostsOnlyItsOwnValue()
+    {
+        // Arrange
+        // Twelve bytes where ten INTs need twenty, which nothing checks before the decode.
+        var tagManager = TagManagerFor(
+            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
+            (Readings, TagReading(LogixTagReadResult.Ok(new byte[12]))));
+        var batch = new LogixReadBatch([Speed, Readings], tagManager);
+
+        // Act
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
+
+        // Assert
+        batchRead.Values.Should().Equal(Speed.CreateLogixValue(42));
+        batchRead.Failures.Should().ContainSingle().Which.TagName.Should().Be(Readings.TagName);
     }
 
     [Fact]

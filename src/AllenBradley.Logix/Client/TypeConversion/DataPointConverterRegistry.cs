@@ -38,6 +38,7 @@ internal static class DataPointConverterRegistry
         Register(converters, new RealConverter());
         Register(converters, new LRealConverter());
         Register(converters, new LogixStringConverter());
+        Register(converters, new IntArrayConverter());
 
         return converters.ToFrozenDictionary();
     }
