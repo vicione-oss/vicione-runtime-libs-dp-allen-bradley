@@ -237,6 +237,20 @@ A tag that is a second name for another tag, or for one of its members or elemen
 A tag one controller publishes for others to read, and the tag in another controller that receives
 it. Both must be controller-scoped.
 
+**Tag handle**:
+libplctag's `Tag` object, one per PLC tag. _Handle_ is the general programming word for a token that
+stands in for a resource somebody else owns: we never look inside it and cannot reach the tag
+without it, we hand it back to the library whenever we want a read or a write, and we must dispose
+it when we are done. It holds the tag's connection state and its byte buffer, so two operations on
+the same handle are two operations on the same buffer — which is why access to one is serialized
+(see [Operations, not
+accessors](docs/AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md)).
+One `LogixTagAccess` wraps exactly one handle, so "a shared handle" and "a shared access" name the
+same thing from the library's side and ours.
+_Avoid_: Session Handle — that is the EtherNet/IP header field above, and unrelated
+_Avoid_: saying "tag" for the handle — the tag is the controller's memory, the handle is the
+library's object standing in for it
+
 ### Data types
 
 **Data type**:
