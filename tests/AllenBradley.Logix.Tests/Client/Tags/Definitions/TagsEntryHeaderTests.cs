@@ -1,27 +1,32 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagsListingTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
 /// <summary>
-/// The marshalling contract of the <c>@tags</c> entry header on its own: the struct reinterprets the
-/// controller's bytes, so nothing checks its layout at compile time and a reordered or repacked field
-/// would fail silently. <see cref="TagsDataBuilder"/> writes the same layout the long way round — explicit
-/// little-endian primitives at explicit offsets — which makes it an independent statement of what the
-/// struct is supposed to be.
+/// The struct reinterprets the controller's bytes, so nothing checks its layout at compile time and a
+/// reordered or repacked field would fail silently.
 /// </summary>
-public class TagsEntryHeaderTests
+public sealed class TagsEntryHeaderTests
 {
-    private static readonly TagsDataBuilder.TagEntry Distinct = new("Tank.Level", SymbolType: 0x8123)
+    private const string EntryName = "Tank.Level";
+    private const uint EntryInstanceId = 0x0A0B0C0D;
+    private const ushort EntrySymbolType = 0x8123;
+    private const ushort EntryElementLength = 68;
+
+    // Every field holds a different value, so a swapped pair shows up as a wrong value rather than
+    // passing by coincidence.
+    private static readonly TagEntry Distinct = new(EntryName, EntrySymbolType)
     {
-        InstanceId = 0x0A0B0C0D,
-        ElementLength = 68,
+        InstanceId = EntryInstanceId,
+        ElementLength = EntryElementLength,
         Dimension0 = 7,
         Dimension1 = 11,
         Dimension2 = 13,
     };
 
     [Fact]
-    public void Size_IsThePackedHeader_NotThePaddedOne()
+    public void TheHeaderIsTheSizeThePackedLayoutGivesIt()
     {
         // Arrange
 
@@ -35,61 +40,53 @@ public class TagsEntryHeaderTests
     }
 
     [Fact]
-    public void ReadFrom_AnEntry_MapsEveryFieldToItsOwnOffset()
+    public void EveryFieldOfAnEntryIsReadFromItsOwnOffset()
     {
         // Arrange
-        // Every field holds a different value, so a swapped pair shows up as a wrong value rather than
-        // passing by coincidence.
-        var listing = TagsDataBuilder.Build(Distinct);
+        var listing = Listing(Distinct);
 
         // Act
         var header = TagsEntryHeader.ReadFrom(listing);
 
         // Assert
-        header.InstanceId.Should().Be(0x0A0B0C0D);
-        header.SymbolType.Should().Be(0x8123);
-        header.ElementLength.Should().Be(68);
-        header.FirstDimension.Should().Be(7);
-        header.SecondDimension.Should().Be(11);
-        header.ThirdDimension.Should().Be(13);
-        header.NameLength.Should().Be((ushort)"Tank.Level".Length);
+        // Asserted field by field because the struct offers no constructor to build an expectation from,
+        // and each field's offset is what the test is about.
+        header.InstanceId.Should().Be(EntryInstanceId);
+        header.SymbolType.Should().Be(EntrySymbolType);
+        header.ElementLength.Should().Be(EntryElementLength);
+        header.FirstDimension.Should().Be(Distinct.Dimension0);
+        header.SecondDimension.Should().Be(Distinct.Dimension1);
+        header.ThirdDimension.Should().Be(Distinct.Dimension2);
+        header.NameLength.Should().Be((ushort)EntryName.Length);
     }
 
     [Fact]
-    public void ReadFrom_AnEntryAtAnUnalignedOffset_MapsEveryFieldTheSameWay()
+    public void AnEntryAtAnUnalignedOffsetIsReadTheSameWay()
     {
         // Arrange
-        // Entries start wherever the previous name ended, so a header's four-byte fields land on
-        // arbitrary addresses. A one-character name puts this second header on an odd offset.
-        var listing = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("A", 0x00C4), Distinct);
+        // Entries start wherever the previous name ended, so a one-character name puts this second header
+        // on an odd address.
+        var listing = Listing(new TagEntry("A", DintSymbolType), Distinct);
         var secondEntry = listing.AsSpan(TagsEntryHeader.Size + 1);
 
         // Act
         var header = TagsEntryHeader.ReadFrom(secondEntry);
 
         // Assert
-        header.InstanceId.Should().Be(0x0A0B0C0D);
-        header.SymbolType.Should().Be(0x8123);
-        header.ElementLength.Should().Be(68);
-        header.FirstDimension.Should().Be(7);
-        header.SecondDimension.Should().Be(11);
-        header.ThirdDimension.Should().Be(13);
-        header.NameLength.Should().Be((ushort)"Tank.Level".Length);
+        header.Should().BeEquivalentTo(TagsEntryHeader.ReadFrom(Listing(Distinct)));
     }
 
     [Fact]
-    public void ReadFrom_AnEntryLongerThanItsHeader_IgnoresTheNameThatFollows()
+    public void TheNameFollowingAnEntryNeverBleedsIntoItsHeader()
     {
         // Arrange
-        var headerOnly = TagsDataBuilder.Build(Distinct).AsSpan(0, TagsEntryHeader.Size);
-        var withName = TagsDataBuilder.Build(Distinct);
+        var headerOnly = Listing(Distinct).AsSpan(0, TagsEntryHeader.Size);
 
         // Act
         var truncated = TagsEntryHeader.ReadFrom(headerOnly);
-        var full = TagsEntryHeader.ReadFrom(withName);
 
         // Assert
-        // The read is bounded by the struct, not by the span, so the name never bleeds into a field.
-        truncated.Should().BeEquivalentTo(full);
+        // The read is bounded by the struct, not by the span it was handed.
+        truncated.Should().BeEquivalentTo(TagsEntryHeader.ReadFrom(Listing(Distinct)));
     }
 }

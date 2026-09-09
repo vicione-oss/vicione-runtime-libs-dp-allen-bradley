@@ -8,39 +8,39 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
 /// <summary>
-/// The <c>INT</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. Two bytes, signed, least significant
-/// first.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class IntConverterTests
+public sealed class IntConverterTests
 {
     private static readonly IDataPointConverter Converter = new IntConverter();
 
     private static readonly IntDataPoint Counter = new(new TagName("intValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagAnInt()
+    public void TheConverterExpectsTheControllerToDeclareTheTagAnInt()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the one thing about this
-        // converter a round trip cannot catch: decoding two bytes off a DINT succeeds and is wrong.
+        // The one thing a round trip cannot catch: decoding two bytes off a DINT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Int);
     }
 
     [Fact]
-    public void Decode_ReadsASignedShortLittleEndian()
+    public void TwoStoredBytesDecodeToTheSignedShortTheyHoldLeastSignificantFirst()
     {
         // Arrange
         byte[] buffer = [0x67, 0x12];
 
         // Act
-        var value = Converter.Decode(Counter, buffer);
+        var decoded = Converter.Decode(Counter, buffer);
 
         // Assert
-        value.Value.Should().Be((short)4711);
+        decoded.Should().Be(Counter.CreateLogixValue(4711));
     }
 
     [Theory]
@@ -48,33 +48,33 @@ public class IntConverterTests
     [InlineData(0xFFFF, (short)-1)]
     [InlineData(0x7FFF, short.MaxValue)]
     [InlineData(0x8000, short.MinValue)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(ushort bits, short expected)
+    public void AStoredBitPatternDecodesToTheIntTheControllerMeansByIt(ushort storedBits, short expectedValue)
     {
         // Arrange
-        var buffer = BitConverter.GetBytes(bits);
+        var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
-        var value = Converter.Decode(Counter, buffer);
+        var decoded = Converter.Decode(Counter, buffer);
 
         // Assert
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Counter.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Decode_ReadsOnlyTheTwoBytesTheTypeOccupies()
+    public void ADecodeReadsOnlyTheTwoBytesTheTypeOccupies()
     {
         // Arrange
         byte[] buffer = [0x67, 0x12, 0xFF, 0xFF];
 
         // Act
-        var value = Converter.Decode(Counter, buffer);
+        var decoded = Converter.Decode(Counter, buffer);
 
         // Assert
-        value.Value.Should().Be((short)4711);
+        decoded.Should().Be(Counter.CreateLogixValue(4711));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void AnIntEncodesToExactlyTheTwoBytesTheTypeOccupies()
     {
         // Arrange
         var value = Counter.CreateLogixValue(4711);
@@ -83,13 +83,13 @@ public class IntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // Exactly the two bytes an INT occupies: the batch copies these into the tag's buffer, so a
-        // longer array would be a wider tag than the type declares.
+        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
+        // type declares.
         bytes.Should().Equal(0x67, 0x12);
     }
 
     [Fact]
-    public void Encode_WritesANegativeValueInTwosComplement()
+    public void ANegativeIntEncodesInTwosComplement()
     {
         // Arrange
         var value = Counter.CreateLogixValue(-1);

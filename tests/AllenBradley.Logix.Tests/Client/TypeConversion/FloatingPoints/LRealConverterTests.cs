@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -7,27 +8,40 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.FloatingPoints;
 
 /// <summary>
-/// The <c>LREAL</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. Eight bytes, IEEE-754 double, least
-/// significant first.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class LRealConverterTests
+public sealed class LRealConverterTests
 {
     private static readonly IDataPointConverter Converter = new LRealConverter();
 
-    private static readonly LRealDataPoint Measurement = new(new TagName("PrecisionValue"), DefaultPollFrequency, NoChannels);
+    private static readonly LRealDataPoint Measurement =
+        new(new TagName("PrecisionValue"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void Decode_ReadsAnIeee754DoubleLittleEndian()
+    public void TheConverterExpectsTheControllerToDeclareTheTagALReal()
+    {
+        // Arrange
+
+        // Act
+        var expectedDataType = Converter.ExpectedDataType;
+
+        // Assert
+        // The one thing a round trip cannot catch: decoding eight bytes off a REAL reads past the tag.
+        expectedDataType.Should().Be(AllenBradleyDataType.Lreal);
+    }
+
+    [Fact]
+    public void EightStoredBytesDecodeToTheIeee754DoubleTheyHoldLeastSignificantFirst()
     {
         // Arrange
         byte[] buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F];
 
         // Act
-        var value = Converter.Decode(Measurement, buffer);
+        var decoded = Converter.Decode(Measurement, buffer);
 
         // Assert
-        value.Value.Should().Be(1.0d);
+        decoded.Should().Be(Measurement.CreateLogixValue(1.0d));
     }
 
     [Theory]
@@ -35,20 +49,20 @@ public class LRealConverterTests
     [InlineData(0xBFF0000000000000, -1.0d)]
     [InlineData(0x0000000000000000, 0.0d)]
     [InlineData(0x400921FB54442D18, Math.PI)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(ulong bits, double expected)
+    public void AStoredBitPatternDecodesToTheLRealTheControllerMeansByIt(ulong storedBits, double expectedValue)
     {
         // Arrange
-        var buffer = BitConverter.GetBytes(bits);
+        var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
-        var value = Converter.Decode(Measurement, buffer);
+        var decoded = Converter.Decode(Measurement, buffer);
 
         // Assert
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Measurement.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void ALRealEncodesToExactlyTheEightBytesTheTypeOccupies()
     {
         // Arrange
         var value = Measurement.CreateLogixValue(Math.PI);

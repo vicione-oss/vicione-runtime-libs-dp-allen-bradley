@@ -7,167 +7,168 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion;
 
 /// <summary>
-/// The type rule itself, read against real converters rather than a stand-in: an elementary type and a
-/// structure are the two sets of constants it has to serve, and they are opposites of each other.
+/// The rule is read against real converters rather than a stand-in, because an elementary type and a
+/// structure are the two sets of constants it has to serve and they are opposites of each other.
 /// </summary>
-public class LogixTypeComparisonTests
+public sealed class LogixTypeComparisonTests
 {
     private static readonly IDataPointConverter DIntCodec = new DIntConverter();
 
     private static readonly IDataPointConverter StringCodec = new LogixStringConverter();
 
-    private static TagDefinition Atomic(AllenBradleyDataType type, int dimensionCount = 0) =>
-        new(
-            new TagName("Tag"),
-            LogixTypeKind.Atomic,
-            type,
-            MaxLength: null,
-            new DimensionCount(dimensionCount),
-            new ElementCount(1));
+    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
-    private static TagDefinition Structure(int maxLength = 82, int dimensionCount = 0) =>
-        new(
-            new TagName("Tag"),
-            LogixTypeKind.Structure,
-            AllenBradleyDataType.String,
-            new StringMaxLength(maxLength),
-            new DimensionCount(dimensionCount),
-            new ElementCount(1));
-
-    private static LogixTypeMismatch Compare(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition? declaration) =>
-        LogixTypeComparison.Compare(converter, new ResolvedDataPoint(dataPoint, declaration));
+    private static readonly StringDataPoint Label =
+        new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     [Fact]
-    public void Compare_WhenTheTagIsAbsentFromTheSymbolTable_ReportsNoMismatch()
+    public void ATagAbsentFromTheSymbolTableIsNoMismatch()
     {
         // Arrange
-        // Nothing to compare is not a contradiction. The verifier reports an absent tag as absent before
-        // it asks, so this only pins that the rule itself does not invent a mismatch out of a null.
+        // The verifier reports an absent tag as absent before it asks, so this only pins that the rule
+        // does not invent a mismatch out of a null.
+        var resolved = new ResolvedDataPoint(Speed, TagDefinition: null);
 
         // Act
-        var mismatch = Compare(DIntCodec, new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels), declaration: null);
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
     }
 
     [Fact]
-    public void Compare_AnElementaryTagOfTheExpectedType_ReportsNoMismatch()
+    public void AnElementaryTagOfTheExpectedTypeIsNoMismatch()
     {
         // Arrange
+        var resolved = new ResolvedDataPoint(Speed, DefaultAtomicTagDefinition());
 
         // Act
-        var mismatch = Compare(DIntCodec, new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels), Atomic(AllenBradleyDataType.Dint));
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
     }
 
     [Fact]
-    public void Compare_WhenTheControllerReportsAnotherElementaryType_ReportsAtomicType()
+    public void AnElementaryTagOfAnotherTypeIsAnAtomicTypeMismatch()
     {
         // Arrange
+        var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
+        var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
-        var mismatch = Compare(DIntCodec, new DIntDataPoint(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels), Atomic(AllenBradleyDataType.Real));
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.AtomicType);
     }
 
     [Fact]
-    public void Compare_WhenTheControllerReportsAStructureForAnElementaryType_ReportsStructure()
+    public void AStructureWhereAnElementaryTypeWasConfiguredIsAStructureMismatch()
     {
         // Arrange
+        var resolved = new ResolvedDataPoint(Speed, DefaultStringTagDefinition());
 
         // Act
-        var mismatch = Compare(DIntCodec, new DIntDataPoint(new TagName("Motor"), DefaultPollFrequency, NoChannels), Structure());
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Structure);
     }
 
     [Fact]
-    public void Compare_WhenTheControllerReportsAnElementaryTypeForAStructure_ReportsAtomic()
+    public void AnElementaryTypeWhereAStructureWasConfiguredIsAnAtomicMismatch()
     {
         // Arrange
         // The inverse of the case above, and what a STRING configured onto a DINT tag looks like.
+        var resolved = new ResolvedDataPoint(Label, DefaultAtomicTagDefinition());
 
         // Act
-        var mismatch = Compare(StringCodec, new StringDataPoint(new TagName("Label"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), Atomic(AllenBradleyDataType.Dint));
+        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Atomic);
     }
 
     [Fact]
-    public void Compare_AScalarStructureOfTheConfiguredCapacity_ReportsNoMismatch()
+    public void AScalarStructureOfTheConfiguredCapacityIsNoMismatch()
     {
         // Arrange
+        var resolved = new ResolvedDataPoint(Label, DefaultStringTagDefinition());
 
         // Act
-        var mismatch = Compare(StringCodec, new StringDataPoint(new TagName("Label"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), Structure());
+        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
     }
 
     [Fact]
-    public void Compare_WhenTheDeclaredCapacityIsSmaller_ReportsStringCapacity()
+    public void ASmallerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        // A STRING configured onto a STRING_20: the shape agrees, the capacity does not, and nothing in
-        // a round trip of a short value would show it.
+        // A STRING configured onto a STRING_20: the shape agrees, the capacity does not, and nothing in a
+        // round trip of a short value would show it.
+        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
+        var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = Compare(StringCodec, new StringDataPoint(new TagName("Label"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), Structure(maxLength: 20));
+        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.StringCapacity);
     }
 
     [Fact]
-    public void Compare_WhenTheDeclaredCapacityIsLarger_ReportsStringCapacity()
+    public void ALargerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        // A capacity is an equality, not a bound: a STRING configured onto a STRING_100 sizes every
-        // write buffer 18 bytes short of the tag, which is a misconfiguration in the same way.
+        // A capacity is an equality, not a bound: a STRING configured onto a STRING_100 sizes every write
+        // buffer 18 bytes short of the tag.
+        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(100) };
+        var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = Compare(StringCodec, new StringDataPoint(new TagName("Label"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), Structure(maxLength: 100));
+        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.StringCapacity);
     }
 
     [Fact]
-    public void Compare_WhenTheControllerReportsAnArrayOfTheExpectedType_ReportsArrayBeforeAnythingElse()
+    public void AnArrayOfTheExpectedTypeIsReportedAsAnArrayBeforeAnythingElse()
     {
         // Arrange
-        // An array is the wrong shape whatever its elements hold, so the element's own type is not the
-        // interesting fact — and this is the one ordering the verifier's messages cannot show.
+        // An array is the wrong shape whatever its elements hold, and this ordering is the one the
+        // verifier's messages cannot show.
+        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = new DimensionCount(1) };
+        var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
-        var mismatch = Compare(
-            DIntCodec, new DIntDataPoint(new TagName("Counts"), DefaultPollFrequency, NoChannels), Atomic(AllenBradleyDataType.Dint, dimensionCount: 1));
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Array);
     }
 
     [Fact]
-    public void Compare_WhenTheControllerReportsAnArrayOfStructures_ReportsArrayBeforeCapacity()
+    public void AnArrayOfStructuresIsReportedAsAnArrayBeforeItsCapacity()
     {
         // Arrange
+        var declaration = DefaultStringTagDefinition() with
+        {
+            MaxLength = new StringMaxLength(20),
+            DimensionCount = new DimensionCount(1),
+        };
+        var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = Compare(
-            StringCodec, new StringDataPoint(new TagName("Labels"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), Structure(maxLength: 20, dimensionCount: 1));
+        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Array);

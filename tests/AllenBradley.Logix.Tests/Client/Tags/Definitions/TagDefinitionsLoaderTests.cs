@@ -4,71 +4,91 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagsListingTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
-/// <summary>
-/// The browse orchestration over a fake factory that returns canned listing bytes: it reads the
-/// controller directory then each program's, qualifies program tags, and disposes every transient
-/// handle. No device, no native library.
-/// </summary>
-public class TagDefinitionsLoaderTests
+public sealed class TagDefinitionsLoaderTests
 {
+    // The symbol type a program container carries; the loader recurses into its own @tags listing.
+    private const ushort ProgramSymbolType = 0x1000;
+
     [Fact]
-    public async Task BrowseAsync_ReadsControllerAndProgramTags_QualifyingProgramNames()
+    public async Task AControllerTagIsFoundUnderItsOwnName()
     {
         // Arrange
-        var factory = new FakeSchemaTagFactory
-        {
-            ["@tags"] = TagsDataBuilder.Build(
-                new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4),
-                new TagsDataBuilder.TagEntry("Program:Main", 0x1000)),
-            ["Program:Main.@tags"] = TagsDataBuilder.Build(
-                new TagsDataBuilder.TagEntry("Count", 0x00C4)),
-        };
-        var browser = new TagDefinitionsLoader(factory);
+        var loader = new TagDefinitionsLoader(ControllerAndProgramListings());
 
         // Act
-        var schema = await browser.LoadAsync(TestContext.Current.CancellationToken);
+        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        schema.Lookup(new TagName("Motor.Speed")).Should().NotBeNull();
-        // The program tag is reachable only by its qualified name.
-        schema.Lookup(new TagName("Program:Main.Count")).Should().NotBeNull();
-        schema.Lookup(new TagName("Count")).Should().BeNull();
+        definitions.Lookup(new TagName("Motor.Speed")).Should().NotBeNull();
     }
 
     [Fact]
-    public async Task BrowseAsync_DisposesEveryTransientAccess()
+    public async Task AProgramTagIsFoundUnderItsProgramQualifiedName()
     {
         // Arrange
-        var factory = new FakeSchemaTagFactory
-        {
-            ["@tags"] = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4)),
-        };
-        var browser = new TagDefinitionsLoader(factory);
+        var loader = new TagDefinitionsLoader(ControllerAndProgramListings());
 
         // Act
-        await browser.LoadAsync(TestContext.Current.CancellationToken);
+        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        // A leaked libplctag handle fail-fasts the process (0xC0000602); the browse owns its transients.
+        definitions.Lookup(new TagName("Program:Main.Count")).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task AProgramTagIsNotFoundUnderItsBareName()
+    {
+        // Arrange
+        var loader = new TagDefinitionsLoader(ControllerAndProgramListings());
+
+        // Act
+        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
+
+        // Assert
+        definitions.Lookup(new TagName("Count")).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task EveryTransientHandleTheBrowseOpenedIsFreed()
+    {
+        // Arrange
+        var factory = ControllerAndProgramListings();
+        var loader = new TagDefinitionsLoader(factory);
+
+        // Act
+        await loader.LoadAsync(TestContext.Current.CancellationToken);
+
+        // Assert
+        // A leaked libplctag handle fail-fasts the process (0xC0000602).
         factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
     [Fact]
-    public async Task BrowseAsync_WhenTheDirectoryReadFails_ThrowsSchemaException()
+    public async Task ABrowseWhoseDirectoryReadFailsReportsARetrievalFailure()
     {
         // Arrange
-        var factory = new FakeSchemaTagFactory(); // no canned "@tags" ⇒ the read fails
-        var browser = new TagDefinitionsLoader(factory);
+        // Nothing canned for "@tags", so the controller directory read is what fails.
+        var loader = new TagDefinitionsLoader(new FakeSchemaTagFactory());
 
         // Act
-        var browse = browser.Awaiting(b => b.LoadAsync(TestContext.Current.CancellationToken));
+        var loading = loader.Awaiting(l => l.LoadAsync(TestContext.Current.CancellationToken));
 
         // Assert
-        await browse.Should().ThrowAsync<DataRetrievalException>();
+        await loading.Should().ThrowAsync<DataRetrievalException>();
     }
+
+    private static FakeSchemaTagFactory ControllerAndProgramListings() =>
+        new()
+        {
+            ["@tags"] = Listing(
+                new TagEntry("Motor.Speed", DintSymbolType),
+                new TagEntry("Program:Main", ProgramSymbolType)),
+            ["Program:Main.@tags"] = Listing(new TagEntry("Count", DintSymbolType)),
+        };
 
     private sealed class FakeSchemaTagFactory : ILogixTagAccessFactory
     {
@@ -83,7 +103,7 @@ public class TagDefinitionsLoaderTests
         }
 
         public ILogixTagAccess Create(ILogixDataPoint dataPoint) =>
-            throw new NotSupportedException("The browser only reads schema tags.");
+            throw new NotSupportedException("The loader only reads schema tags.");
 
         public ILogixTagAccess CreateForSchemaTag(TagName tagName)
         {

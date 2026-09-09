@@ -3,85 +3,82 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Access;
 
-/// <summary>
-/// That a shared access runs one operation at a time. A cached access is reachable from the read and the
-/// write path at once, and libplctag's single per-handle buffer cannot serve both.
-/// </summary>
-public class SynchronizedLogixTagAccessTests
+public sealed class SynchronizedLogixTagAccessTests : IDisposable
 {
+    private readonly BlockingTagAccess _handle = new();
+    private readonly SynchronizedLogixTagAccess _access;
+
+    public SynchronizedLogixTagAccessTests() => _access = new SynchronizedLogixTagAccess(_handle);
+
     [Fact]
-    public async Task WriteAsync_WhileAReadIsInFlight_WaitsForIt()
+    public async Task AWriteStaysOutOfTheHandleWhileAReadIsInsideIt()
     {
         // Arrange
-        var inner = new BlockingTagAccess();
-        using var access = new SynchronizedLogixTagAccess(inner);
-        var read = access.ReadAsync(CancellationToken.None);
-        await inner.Entered;
+        var read = _access.ReadAsync(CancellationToken.None);
+        await _handle.Entered;
 
         // Act
-        var write = access.WriteAsync([1, 2, 3, 4], CancellationToken.None);
-
-        // Assert
-        // Checked before releasing, and so decided rather than raced: the inner access runs synchronously
-        // up to its own block, so an ungated write is already inside by now and the mark reads 2. Without
-        // the gate that write would be calling SetBuffer on the handle this read is still using.
-        inner.MaxConcurrent.Should().Be(1);
-
-        inner.Release();
+        // The mark is taken before the gate is released, so the answer is decided rather than raced: the
+        // handle runs synchronously up to its own block, and an ungated write would already be inside.
+        var write = _access.WriteAsync([1, 2, 3, 4], CancellationToken.None);
+        var callersInsideTheHandle = _handle.MaxConcurrent;
+        _handle.Release();
         await Task.WhenAll(read, write);
+
+        // Assert
+        callersInsideTheHandle.Should().Be(1);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenManyCallersShareTheAccess_NeverOverlap()
+    public async Task ManyCallersSharingOneAccessEnterTheHandleOneAtATime()
     {
         // Arrange
-        var inner = new BlockingTagAccess();
-        using var access = new SynchronizedLogixTagAccess(inner);
-
-        // Act
-        // A group naming one tag several times draws the same access for each entry, then reads them all
-        // concurrently. Materialised, so all eight are started before anything is asserted.
+        // A group naming one tag several times draws the same access for each entry.
         var reads = Enumerable.Range(0, 8)
-            .Select(_ => access.ReadAsync(CancellationToken.None))
+            .Select(_ => _access.ReadAsync(CancellationToken.None))
             .ToArray();
-        await inner.Entered;
+        await _handle.Entered;
 
-        // Assert
-        inner.MaxConcurrent.Should().Be(1);
-
-        inner.Release();
+        // Act
+        var callersInsideTheHandle = _handle.MaxConcurrent;
+        _handle.Release();
         await Task.WhenAll(reads);
+
+        // Assert
+        callersInsideTheHandle.Should().Be(1);
     }
 
     [Fact]
-    public async Task ReadAsync_ReleasesTheGate_SoLaterOperationsProceed()
+    public async Task AGateTakenByOneReadIsReleasedForTheNextOne()
     {
         // Arrange
-        var inner = new BlockingTagAccess();
-        using var access = new SynchronizedLogixTagAccess(inner);
-        inner.Release();
+        // A gate taken and never released would deadlock the second read rather than fail it.
+        _handle.Release();
+        await _access.ReadAsync(CancellationToken.None);
 
         // Act
-        // A gate that is taken and never released would deadlock the second read, not fail it.
-        await access.ReadAsync(CancellationToken.None);
-        var result = await access.ReadAsync(CancellationToken.None);
+        var secondRead = await _access.ReadAsync(CancellationToken.None);
 
         // Assert
-        result.Succeeded.Should().BeTrue();
+        secondRead.Succeeded.Should().BeTrue();
     }
 
     [Fact]
-    public void Dispose_DisposesTheInnerAccess()
+    public void DisposingTheGateDisposesTheHandleItWraps()
     {
         // Arrange
-        var inner = new BlockingTagAccess();
-        var access = new SynchronizedLogixTagAccess(inner);
 
         // Act
-        access.Dispose();
+        _access.Dispose();
 
         // Assert
-        inner.IsDisposed.Should().BeTrue();
+        _handle.IsDisposed.Should().BeTrue();
+    }
+
+    public void Dispose()
+    {
+        _handle.Release();
+        _access.Dispose();
     }
 
     // Blocks inside every operation until Release, so overlap is observable rather than a matter of

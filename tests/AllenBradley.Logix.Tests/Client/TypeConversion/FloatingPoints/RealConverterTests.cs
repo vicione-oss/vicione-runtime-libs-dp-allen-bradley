@@ -8,39 +8,40 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.FloatingPoints;
 
 /// <summary>
-/// The <c>REAL</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. Four bytes, IEEE-754 single, least
-/// significant first.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class RealConverterTests
+public sealed class RealConverterTests
 {
     private static readonly IDataPointConverter Converter = new RealConverter();
 
-    private static readonly RealDataPoint Measurement = new(new TagName("realValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly RealDataPoint Measurement =
+        new(new TagName("realValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagAReal()
+    public void TheConverterExpectsTheControllerToDeclareTheTagAReal()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the one thing about this
-        // converter a round trip cannot catch: decoding four bytes off a DINT succeeds and is wrong.
+        // The one thing a round trip cannot catch: decoding four bytes off a DINT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Real);
     }
 
     [Fact]
-    public void Decode_ReadsAnIeee754SingleLittleEndian()
+    public void FourStoredBytesDecodeToTheIeee754SingleTheyHoldLeastSignificantFirst()
     {
         // Arrange
         byte[] buffer = [0x00, 0x00, 0x80, 0x3F];
 
         // Act
-        var value = Converter.Decode(Measurement, buffer);
+        var decoded = Converter.Decode(Measurement, buffer);
 
         // Assert
-        value.Value.Should().Be(1.0f);
+        decoded.Should().Be(Measurement.CreateLogixValue(1.0f));
     }
 
     [Theory]
@@ -48,20 +49,20 @@ public class RealConverterTests
     [InlineData(0xBF800000u, -1.0f)]
     [InlineData(0x00000000u, 0.0f)]
     [InlineData(0x40490FDBu, MathF.PI)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(uint bits, float expected)
+    public void AStoredBitPatternDecodesToTheRealTheControllerMeansByIt(uint storedBits, float expectedValue)
     {
         // Arrange
-        var buffer = BitConverter.GetBytes(bits);
+        var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
-        var value = Converter.Decode(Measurement, buffer);
+        var decoded = Converter.Decode(Measurement, buffer);
 
         // Assert
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Measurement.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void ARealEncodesToExactlyTheFourBytesTheTypeOccupies()
     {
         // Arrange
         var value = Measurement.CreateLogixValue(MathF.PI);

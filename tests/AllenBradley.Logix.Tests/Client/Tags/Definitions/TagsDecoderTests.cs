@@ -2,139 +2,153 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagsListingTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
-/// <summary>
-/// The <c>@tags</c> byte layout, decoded off synthetic buffers — no device, no native library. The
-/// buffers stand in for the real controller listing a device-tier test confirms.
-/// </summary>
-public class TagsDecoderTests
+public sealed class TagsDecoderTests
 {
+    // Outside the elementary range 0xC1-0xCB the addon knows how to decode.
+    private const ushort UnmodelledSymbolType = 0x00DE;
+
+    // The member bytes the listing reports for a built-in STRING: .LEN (4) + .DATA[82].
+    private const ushort StringElementLength = 86;
+
     [Fact]
-    public void Decode_AScalarAtomicTag_ReadsNameTypeAndScalarShape()
+    public void AScalarAtomicEntryDecodesToItsNameTypeAndScalarShape()
     {
         // Arrange
-        // 0x00C4 = DINT, no struct bit, no dimensions.
-        var listing = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4));
+        var listing = Listing(new TagEntry("Motor.Speed", DintSymbolType));
 
         // Act
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        decoded.Should().ContainSingle();
-        var tag = decoded[0];
-        tag.TagName.Should().Be(new TagName("Motor.Speed"));
-        tag.Kind.Should().Be(LogixTypeKind.Atomic);
-        tag.DataType.Should().Be(AllenBradleyDataType.Dint);
-        tag.DimensionCount.Should().Be(new DimensionCount(0));
-        tag.ElementCount.Should().Be(new ElementCount(1));
+        var expected = DefaultAtomicTagDefinition() with { TagName = new TagName("Motor.Speed") };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_MultipleVariableLengthEntries_WalksEveryEntry()
+    public void ListingEntriesOfDifferentNameLengthsAreAllWalked()
     {
         // Arrange
-        var listing = TagsDataBuilder.Build(
-            new TagsDataBuilder.TagEntry("A", 0x00C4),
-            new TagsDataBuilder.TagEntry("Tank.Level", 0x00CA),
-            new TagsDataBuilder.TagEntry("Program:Main", 0x1000));
+        // Each name is a different length, so an entry walked by a fixed stride lands mid-header.
+        var listing = Listing(
+            new TagEntry("A", DintSymbolType),
+            new TagEntry("Tank.Level", RealSymbolType),
+            new TagEntry("Program:Main", UnmodelledSymbolType));
 
         // Act
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        decoded.Select(t => t.TagName.Value).Should().Equal("A", "Tank.Level", "Program:Main");
-        decoded[1].DataType.Should().Be(AllenBradleyDataType.Real);
+        TagDefinition[] expected =
+        [
+            DefaultAtomicTagDefinition() with { TagName = new TagName("A") },
+            DefaultAtomicTagDefinition() with
+            {
+                TagName = new TagName("Tank.Level"), DataType = AllenBradleyDataType.Real,
+            },
+            DefaultAtomicTagDefinition() with
+            {
+                TagName = new TagName("Program:Main"), DataType = AllenBradleyDataType.Unknown,
+            },
+        ];
+        decoded.Should().Equal(expected);
     }
 
     [Fact]
-    public void Decode_AStringTag_ReadsItsCapacityFromTheElementLength()
+    public void ABuiltInStringEntryDecodesToAStructureOfTheStandardCapacity()
     {
         // Arrange
-        // Struct bit set (0x8000) with a template id in the low bits, and the 86 member bytes the
-        // listing reports for a built-in STRING: .LEN (4) + .DATA[82].
-        var listing = TagsDataBuilder.Build(
-            new TagsDataBuilder.TagEntry("Line.Label", 0x8123) { ElementLength = 86 });
+        var listing = Listing(
+            new TagEntry("Line.Label", StructureSymbolType) { ElementLength = StringElementLength });
 
         // Act
-        var tag = TagsDecoder.Decode(listing).Single();
+        var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        // The element length is spent here and leaves as a capacity: nothing above the decoder is told
-        // a byte count.
-        tag.Kind.Should().Be(LogixTypeKind.Structure);
-        tag.DataType.Should().Be(AllenBradleyDataType.String);
-        tag.MaxLength.Should().Be(StringMaxLength.Standard);
+        // The element length is spent here and leaves as a capacity: nothing above the decoder is told a
+        // byte count.
+        var expected = DefaultStringTagDefinition() with { TagName = new TagName("Line.Label") };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_ACustomStringType_ReportsItsOwnCapacity()
+    public void ACustomStringEntryDecodesToItsOwnCapacity()
     {
         // Arrange
-        // A STRING_20 is the same .LEN + .DATA[n] shape with a different n, and the listing describes
-        // it the same way — which is what makes the capacity worth verifying at all.
-        var listing = TagsDataBuilder.Build(
-            new TagsDataBuilder.TagEntry("Line.Code", 0x8124) { ElementLength = 24 });
+        // A STRING_20 is the same .LEN + .DATA[n] shape with a different n, described the same way.
+        var listing = Listing(new TagEntry("Line.Code", StructureSymbolType) { ElementLength = 24 });
 
         // Act
-        var tag = TagsDecoder.Decode(listing).Single();
+        var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        tag.DataType.Should().Be(AllenBradleyDataType.String);
-        tag.MaxLength.Should().Be(new StringMaxLength(20));
+        var expected = DefaultStringTagDefinition() with
+        {
+            TagName = new TagName("Line.Code"),
+            MaxLength = new StringMaxLength(20),
+        };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_AnAtomicTag_HasNoCapacity()
+    public void AnAtomicEntryDecodesWithNoCapacity()
     {
         // Arrange
         // Capacity belongs to the one type whose size the type does not fix; a DINT has none to report.
-        var listing = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("Motor.Speed", 0x00C4));
+        var listing = Listing(new TagEntry("Motor.Speed", DintSymbolType));
 
         // Act
-        var tag = TagsDecoder.Decode(listing).Single();
+        var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        tag.MaxLength.Should().BeNull();
+        decoded.Should().ContainSingle().Which.MaxLength.Should().BeNull();
     }
 
     [Fact]
-    public void Decode_AOneDimensionalArray_ReportsRankAndElementCount()
+    public void AOneDimensionalArrayEntryDecodesToItsRankAndElementCount()
     {
         // Arrange
-        // Dimension count 1 lives in bits 14-13: 1 << 13 = 0x2000, atomic DINT.
-        var listing = TagsDataBuilder.Build(
-            new TagsDataBuilder.TagEntry("Counts", 0x2000 | 0x00C4) { Dimension0 = 10 });
+        var listing = Listing(
+            new TagEntry("Counts", OneDimensionSymbolType | DintSymbolType) { Dimension0 = 10 });
 
         // Act
-        var tag = TagsDecoder.Decode(listing).Single();
+        var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        tag.DimensionCount.Should().Be(new DimensionCount(1));
-        tag.ElementCount.Should().Be(new ElementCount(10));
-        tag.DataType.Should().Be(AllenBradleyDataType.Dint);
+        var expected = DefaultAtomicTagDefinition() with
+        {
+            TagName = new TagName("Counts"),
+            DimensionCount = new DimensionCount(1),
+            ElementCount = new ElementCount(10),
+        };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_AnUnmodelledTypeCode_ReportsUnknownRatherThanTheRawCode()
+    public void AnUnmodelledTypeCodeDecodesToUnknownRatherThanTravellingAsANumber()
     {
         // Arrange
-        // 0x00DE is outside the elementary range (0xC1-0xCB) the addon knows how to decode.
-        var listing = TagsDataBuilder.Build(new TagsDataBuilder.TagEntry("Exotic", 0x00DE));
+        var listing = Listing(new TagEntry("Exotic", UnmodelledSymbolType));
 
         // Act
-        var tag = TagsDecoder.Decode(listing).Single();
+        var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        // Still atomic — the structure bit is clear — but nothing above the decoder can act on it, and
-        // the wire code stops here rather than travelling into the model as a number.
-        tag.Kind.Should().Be(LogixTypeKind.Atomic);
-        tag.DataType.Should().Be(AllenBradleyDataType.Unknown);
+        // Still atomic, because the structure bit is clear, but the wire code stops at the decoder.
+        var expected = DefaultAtomicTagDefinition() with
+        {
+            TagName = new TagName("Exotic"),
+            DataType = AllenBradleyDataType.Unknown,
+        };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public void Decode_AnEmptyListing_ReturnsNothing()
+    public void AnEmptyListingDecodesToNothing()
     {
         // Arrange
 

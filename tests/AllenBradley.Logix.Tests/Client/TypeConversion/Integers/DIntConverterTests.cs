@@ -8,39 +8,40 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
 /// <summary>
-/// The <c>DINT</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. Four bytes, signed, least significant
-/// first.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class DIntConverterTests
+public sealed class DIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new DIntConverter();
 
     private static readonly DIntDataPoint Counter = new(new TagName("dintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagADint()
+    public void TheConverterExpectsTheControllerToDeclareTheTagADint()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the one thing about this
-        // converter a round trip cannot catch: decoding four bytes off another type succeeds and is wrong.
+        // The one thing a round trip cannot catch: decoding four bytes off another type succeeds and is
+        // wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Dint);
     }
 
     [Fact]
-    public void Decode_ReadsASignedIntegerLittleEndian()
+    public void FourStoredBytesDecodeToTheSignedIntegerTheyHoldLeastSignificantFirst()
     {
         // Arrange
         byte[] buffer = [0x67, 0x12, 0x00, 0x00];
 
         // Act
-        var value = Converter.Decode(Counter, buffer);
+        var decoded = Converter.Decode(Counter, buffer);
 
         // Assert
-        value.Value.Should().Be(4711);
+        decoded.Should().Be(Counter.CreateLogixValue(4711));
     }
 
     [Theory]
@@ -48,20 +49,20 @@ public class DIntConverterTests
     [InlineData(0xFFFFFFFFu, -1)]
     [InlineData(0x7FFFFFFFu, int.MaxValue)]
     [InlineData(0x80000000u, int.MinValue)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(uint bits, int expected)
+    public void AStoredBitPatternDecodesToTheDintTheControllerMeansByIt(uint storedBits, int expectedValue)
     {
         // Arrange
-        var buffer = BitConverter.GetBytes(bits);
+        var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
-        var value = Converter.Decode(Counter, buffer);
+        var decoded = Converter.Decode(Counter, buffer);
 
         // Assert
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Counter.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void ADintEncodesToExactlyTheFourBytesTheTypeOccupies()
     {
         // Arrange
         var value = Counter.CreateLogixValue(4711);
@@ -70,13 +71,13 @@ public class DIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // Exactly the four bytes a DINT occupies: the batch copies these into the tag's buffer, so a
-        // longer array would be a wider tag than the type declares.
+        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
+        // type declares.
         bytes.Should().Equal(0x67, 0x12, 0x00, 0x00);
     }
 
     [Fact]
-    public void Encode_WritesANegativeValueInTwosComplement()
+    public void ANegativeDintEncodesInTwosComplement()
     {
         // Arrange
         var value = Counter.CreateLogixValue(-1);

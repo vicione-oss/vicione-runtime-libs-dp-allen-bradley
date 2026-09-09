@@ -8,25 +8,25 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
 /// <summary>
-/// The <c>SINT</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. One byte, signed, and no byte order to
-/// get wrong.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class SIntConverterTests
+public sealed class SIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new SIntConverter();
 
     private static readonly SIntDataPoint Level = new(new TagName("sintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagASInt()
+    public void TheConverterExpectsTheControllerToDeclareTheTagASInt()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the one thing about this
-        // converter a round trip cannot catch: decoding one byte off an INT succeeds and is wrong.
+        // The one thing a round trip cannot catch: decoding one byte off an INT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Sint);
     }
 
@@ -36,33 +36,33 @@ public class SIntConverterTests
     [InlineData(0xFF, (sbyte)-1)]
     [InlineData(0x7F, sbyte.MaxValue)]
     [InlineData(0x80, sbyte.MinValue)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(byte bits, sbyte expected)
+    public void AStoredBitPatternDecodesToTheSIntTheControllerMeansByIt(byte storedBits, sbyte expectedValue)
     {
         // Arrange
-        byte[] buffer = [bits];
+        byte[] buffer = [storedBits];
 
         // Act
-        var value = Converter.Decode(Level, buffer);
+        var decoded = Converter.Decode(Level, buffer);
 
         // Assert
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Level.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Decode_ReadsOnlyTheOneByteTheTypeOccupies()
+    public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
     {
         // Arrange
         byte[] buffer = [0x2A, 0xFF, 0xFF, 0xFF];
 
         // Act
-        var value = Converter.Decode(Level, buffer);
+        var decoded = Converter.Decode(Level, buffer);
 
         // Assert
-        value.Value.Should().Be((sbyte)42);
+        decoded.Should().Be(Level.CreateLogixValue(42));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void ASIntEncodesToExactlyTheOneByteTheTypeOccupies()
     {
         // Arrange
         var value = Level.CreateLogixValue(42);
@@ -71,13 +71,13 @@ public class SIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // Exactly the one byte a SINT occupies: the batch copies these into the tag's buffer, so a
-        // longer array would be a wider tag than the type declares.
+        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
+        // type declares.
         bytes.Should().Equal(0x2A);
     }
 
     [Fact]
-    public void Encode_WritesANegativeValueInTwosComplement()
+    public void ANegativeSIntEncodesInTwosComplement()
     {
         // Arrange
         var value = Level.CreateLogixValue(-1);

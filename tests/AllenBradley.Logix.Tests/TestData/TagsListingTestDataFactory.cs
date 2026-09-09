@@ -1,16 +1,29 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 /// <summary>
-/// Builds synthetic <c>@tags</c> listing bytes the way a controller lays them out, so the decoder can
-/// be exercised without a device. One <see cref="TagEntry"/> per tag; <see cref="Build"/> concatenates
-/// them into the 22-byte-header-plus-ASCII-name format <c>LogixTagListingDecoder</c> reads.
+/// Builds synthetic <c>@tags</c> listing bytes the way a controller lays them out, so the decoder can be
+/// exercised without a device. One <see cref="TagEntry"/> per tag; <see cref="Listing"/> concatenates them
+/// into the 22-byte-header-plus-ASCII-name format the decoder reads, written the long way round — explicit
+/// little-endian primitives at explicit offsets.
 /// </summary>
-internal static class TagsDataBuilder
+internal static class TagsListingTestDataFactory
 {
-    public static byte[] Build(params TagEntry[] tags)
+    /// <summary>The elementary CIP code for a <c>DINT</c>.</summary>
+    internal const ushort DintSymbolType = 0x00C4;
+
+    /// <summary>The elementary CIP code for a <c>REAL</c>.</summary>
+    internal const ushort RealSymbolType = 0x00CA;
+
+    /// <summary>The structure bit set, with a template id in the low bits.</summary>
+    internal const ushort StructureSymbolType = 0x8123;
+
+    /// <summary>The bits an array of rank one sets in the symbol type.</summary>
+    internal const ushort OneDimensionSymbolType = 0x2000;
+
+    internal static byte[] Listing(params TagEntry[] tags)
     {
         var buffer = new List<byte>();
         foreach (var tag in tags)
@@ -32,12 +45,17 @@ internal static class TagsDataBuilder
         return [.. buffer];
     }
 
+    /// <summary>One tag as the controller's listing describes it, before the decoder reads it.</summary>
     internal sealed record TagEntry(string Name, ushort SymbolType)
     {
         public uint InstanceId { get; init; } = 1;
+
         public ushort ElementLength { get; init; } = 4;
+
         public uint Dimension0 { get; init; }
+
         public uint Dimension1 { get; init; }
+
         public uint Dimension2 { get; init; }
     }
 }

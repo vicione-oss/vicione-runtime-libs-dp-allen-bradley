@@ -11,193 +11,179 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Strings;
 
 /// <summary>
-/// The Logix <c>STRING</c> codec, against buffers built by hand from the documented structure —
-/// <c>.LEN : DINT</c> at offset 0, then <c>.DATA : SINT[82]</c>, the whole padded to 88 bytes. This is
-/// where the wire layout is pinned; the device-tier round trip proves the same bytes survive a real
-/// controller, but it cannot run without one and this can.
+/// The buffers are built by hand from the documented structure — <c>.LEN : DINT</c> at offset 0, then
+/// <c>.DATA : SINT[82]</c>, the whole padded to 88 bytes — rather than produced by the encoder, which
+/// would make a decode test agree with itself by construction.
 /// </summary>
-public class LogixStringConverterTests
+public sealed class LogixStringConverterTests
 {
     private const int StructureSize = 88;
     private const int LengthPrefixSize = 4;
 
-    private static readonly IDataPointConverter Converter = new LogixStringConverter();
-
-    private static readonly StringDataPoint Label = new(new TagName("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
-
-    // A STRING structure as it sits in the tag buffer, spelled out rather than produced by the encoder,
-    // which would make the decode test agree with itself by construction.
-    private static byte[] StructureHolding(string value, int structureSize = StructureSize)
-    {
-        var buffer = new byte[structureSize];
-        buffer[0] = (byte)value.Length;
-        Encoding.Latin1.GetBytes(value).CopyTo(buffer, LengthPrefixSize);
-        return buffer;
-    }
-
-    private static string Decode(byte[] buffer) =>
-        Converter.Decode(Label, buffer).Value.Should().BeOfType<string>().Subject;
-
-    // What the converter hands the write batch: .LEN plus .DATA[n], and nothing after. The padding up
-    // to Logix's 32-bit structure boundary that makes a STRING 88 bytes on the wire is the tag's own
-    // buffer's, not the converter's — the batch copies these bytes into that and leaves the rest zero.
+    // What the converter hands the write batch: .LEN plus .DATA[n], and nothing after. The padding up to
+    // Logix's 32-bit structure boundary is the tag buffer's, not the converter's.
     private const int PayloadSize = LengthPrefixSize + 82;
 
-    private static byte[] Encode(string value, StringDataPoint? dataPoint = null) =>
-        Converter.Encode((dataPoint ?? Label).CreateLogixValue(value));
+    private static readonly IDataPointConverter Converter = new LogixStringConverter();
+
+    private static readonly StringDataPoint Label = new(
+        new TagName("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+
+    private static readonly StringDataPoint ShortLabel =
+        new(Label.TagName, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
 
     [Fact]
-    public void Decode_ReadsLenAtOffsetZeroAndDataAfterIt()
+    public void LenIsReadFromOffsetZeroAndTheCharactersFromBehindIt()
     {
         // Arrange
-        // The offsets that hang off libplctag stripping the A0 02 abbreviated-structure prefix. If it
-        // ever stopped doing that, this is the test that would say so.
+        // The offsets hang off libplctag stripping the A0 02 abbreviated-structure prefix. If it ever
+        // stopped doing that, this is the test that would say so.
         var buffer = StructureHolding("Hi");
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().Be("Hi");
+        decoded.Should().Be(Label.CreateLogixValue("Hi"));
     }
 
     [Fact]
-    public void Decode_AnEmptyString_ReadsBackEmpty()
+    public void AnAllZeroStructureDecodesToAnEmptyString()
     {
         // Arrange
         var buffer = new byte[StructureSize];
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().BeEmpty();
+        decoded.Should().Be(Label.CreateLogixValue(string.Empty));
     }
 
     [Fact]
-    public void Decode_StopsAtLenAndIgnoresWhateverFollowsIt()
+    public void WhateverFollowsLenIsIgnored()
     {
         // Arrange
-        // A shorter value written over a longer one leaves the old tail in .DATA on the controller. Only
-        // .LEN says where the value ends.
+        // A shorter value written over a longer one leaves the old tail in .DATA on the controller.
         var buffer = StructureHolding("Hi");
         "stale"u8.CopyTo(buffer.AsSpan(LengthPrefixSize + 2));
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().Be("Hi");
+        decoded.Should().Be(Label.CreateLogixValue("Hi"));
     }
 
     [Fact]
-    public void Decode_KeepsLatin1CharactersAboveAscii()
+    public void CharactersAboveAsciiSurviveTheDecodeAsLatin1()
     {
         // Arrange
         var buffer = StructureHolding("ÀÉÑÖß");
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().Be("ÀÉÑÖß");
+        decoded.Should().Be(Label.CreateLogixValue("ÀÉÑÖß"));
     }
 
     [Fact]
-    public void Decode_AFullLengthValue_ReadsEveryCharacter()
+    public void AFullLengthValueDecodesToEveryOneOfItsCharacters()
     {
         // Arrange
         var full = new string('X', StringMaxLength.Standard.Value);
         var buffer = StructureHolding(full);
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().Be(full);
+        decoded.Should().Be(Label.CreateLogixValue(full));
     }
 
     [Fact]
-    public void Decode_WhenLenExceedsTheCapacity_ClampsToTheCapacity()
+    public void ALenBeyondTheCapacityIsClampedToTheCapacity()
     {
         // Arrange
         // The controller claiming more characters than .DATA can hold is either corruption or a tag that
-        // is not the type we think it is. Honouring the claim would read the padding as text.
+        // is not the type we think it is, and honouring the claim would read the padding as text.
         var buffer = StructureHolding("Hi");
         buffer[0] = 200;
 
         // Act
-        var value = Decode(buffer);
+        var decodedText = DecodedTextOf(buffer);
 
         // Assert
-        value.Should().HaveLength(StringMaxLength.Standard.Value);
+        decodedText.Should().HaveLength(StringMaxLength.Standard.Value);
     }
 
     [Fact]
-    public void Decode_WhenLenExceedsTheBuffer_ClampsToWhatArrived()
+    public void ALenBeyondTheBufferIsClampedToWhatArrived()
     {
         // Arrange
         var buffer = StructureHolding("Hi", structureSize: LengthPrefixSize + 8);
         buffer[0] = 82;
 
         // Act
-        var value = Decode(buffer);
+        var decodedText = DecodedTextOf(buffer);
 
         // Assert
-        value.Should().HaveLength(8);
+        decodedText.Should().HaveLength(8);
     }
 
     [Fact]
-    public void Decode_WhenLenIsNegative_ReadsNothing()
+    public void ANegativeLenDecodesToAnEmptyString()
     {
         // Arrange
+        // .LEN is a signed DINT, and the sign bit is reachable.
         var buffer = StructureHolding("Hi");
-        buffer[3] = 0x80; // .LEN is a signed DINT, and the sign bit is reachable.
+        buffer[3] = 0x80;
 
         // Act
-        var value = Decode(buffer);
+        var decoded = Converter.Decode(Label, buffer);
 
         // Assert
-        value.Should().BeEmpty();
+        decoded.Should().Be(Label.CreateLogixValue(string.Empty));
     }
 
     [Fact]
-    public void Encode_WritesLenThenTheLatin1Characters()
+    public void AValueEncodesToLenFollowedByItsLatin1Characters()
     {
         // Arrange
 
         // Act
-        var bytes = Encode("Hi");
+        var bytes = Converter.Encode(Label.CreateLogixValue("Hi"));
 
         // Assert
-        bytes.Should().HaveCount(PayloadSize);
-        bytes.AsSpan(0, LengthPrefixSize).ToArray().Should().Equal(2, 0, 0, 0);
-        bytes.AsSpan(LengthPrefixSize, 2).ToArray().Should().Equal((byte)'H', (byte)'i');
-        bytes.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
+        var expected = new byte[PayloadSize];
+        expected[0] = 2;
+        expected[LengthPrefixSize] = (byte)'H';
+        expected[LengthPrefixSize + 1] = (byte)'i';
+        bytes.Should().Equal(expected);
     }
 
     [Fact]
-    public void Encode_AnEmptyString_WritesAZeroLengthAndNothingElse()
+    public void AnEmptyStringEncodesToAZeroLengthAndNothingElse()
     {
         // Arrange
 
         // Act
-        var bytes = Encode(string.Empty);
+        var bytes = Converter.Encode(Label.CreateLogixValue(string.Empty));
 
         // Assert
-        bytes.Should().HaveCount(PayloadSize);
-        bytes.Should().AllSatisfy(b => b.Should().Be(0));
+        bytes.Should().Equal(new byte[PayloadSize]);
     }
 
     [Fact]
-    public void Encode_CoversTheWholeOfDataSoAShorterValueDoesNotLeaveTheOldOneBehind()
+    public void AnEncodeCoversTheWholeOfDataSoAShorterValueLeavesNoOldTailBehind()
     {
         // Arrange
-        // The controller keeps whatever sits past .LEN. Encoding only the characters in hand would let
-        // the batch copy two bytes over an 82-character tail and leave the other 80 standing in the tag.
+        // Encoding only the characters in hand would let the batch copy two bytes over an 82-character
+        // tail and leave the other 80 standing in the tag.
 
         // Act
-        var bytes = Encode("Hi");
+        var bytes = Converter.Encode(Label.CreateLogixValue("Hi"));
 
         // Assert
         bytes.Should().HaveCount(PayloadSize);
@@ -211,67 +197,78 @@ public class LogixStringConverterTests
     [InlineData("Hello\r\nWorld", "Hello\r\nWorld")] // CR+LF
     [InlineData("Hello\tWorld", "Hello\tWorld")] // tab
     [InlineData("", "")]
-    public void EncodeThenDecode_RoundTripsTheValueThroughLatin1(string valueToWrite, string expected)
+    public void AValueRoundTripsThroughTheStructureAsLatin1(string valueToWrite, string expectedText)
     {
         // Arrange
+        var bytes = Converter.Encode(Label.CreateLogixValue(valueToWrite));
 
         // Act
-        var roundTripped = Decode(Encode(valueToWrite));
+        var decodedText = DecodedTextOf(bytes);
 
         // Assert
-        roundTripped.Should().Be(expected);
+        decodedText.Should().Be(expectedText);
     }
 
     [Fact]
-    public void EncodeThenDecode_AFullLengthValue_FillsDataExactly()
+    public void AFullLengthValueRoundTripsWithDataFilledExactly()
     {
         // Arrange
         var full = new string('X', StringMaxLength.Standard.Value);
+        var bytes = Converter.Encode(Label.CreateLogixValue(full));
 
         // Act
-        var bytes = Encode(full);
-        var roundTripped = Decode(bytes);
+        var decodedText = DecodedTextOf(bytes);
 
         // Assert
         bytes[0].Should().Be(82);
-        roundTripped.Should().Be(full);
+        decodedText.Should().Be(full);
     }
 
     [Fact]
-    public void Encode_WhenTheValueExceedsTheCapacity_ThrowsRatherThanTruncating()
+    public void AValueBeyondTheCapacitySaysWhichTagAndWhatCapacityRefusedIt()
     {
         // Arrange
         // Truncating would write a value the caller never asked for and report success for it.
         var tooLong = new string('X', StringMaxLength.Standard.Value + 1);
 
         // Act
-        var encode = Converter.Invoking(c => c.Encode(Label.CreateLogixValue(tooLong)));
+        var encoding = Converter.Invoking(c => c.Encode(Label.CreateLogixValue(tooLong)));
 
         // Assert
-        encode.Should().Throw<InvalidOperationException>()
+        encoding.Should().Throw<InvalidOperationException>()
             .WithMessage("*strValue1*").WithMessage("*82*");
     }
 
     [Fact]
-    public void Encode_SizesTheValueAgainstTheDataPointsOwnCapacity()
+    public void AValueIsSizedAgainstItsOwnDataPointsCapacity()
     {
         // Arrange
-        // Twenty characters fit a STRING and overflow a STRING_20 by one. The converter is the same
-        // object either way; the capacity is the data point's.
-        var short20 = new StringDataPoint(Label.TagName, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
+        // Twenty characters fit a STRING_20 exactly; the converter is the same object either way.
+        var full = new string('X', ShortLabel.MaxLength.Value);
 
         // Act
-        var bytes = Encode(new string('X', 20), short20);
-        var oneTooMany = Record.Exception(() => Encode(new string('X', 21), short20));
+        var bytes = Converter.Encode(ShortLabel.CreateLogixValue(full));
 
         // Assert
-        bytes.Should().HaveCount(LengthPrefixSize + 20);
-        bytes[0].Should().Be(20);
-        oneTooMany.Should().BeOfType<InvalidOperationException>();
+        bytes.Should().HaveCount(LengthPrefixSize + ShortLabel.MaxLength.Value);
+        bytes[0].Should().Be((byte)ShortLabel.MaxLength.Value);
     }
 
     [Fact]
-    public void ExpectedTypeName_IsTheStudio5000Spelling()
+    public void AValueOneCharacterBeyondItsOwnDataPointsCapacityIsRefused()
+    {
+        // Arrange
+        var oneTooMany = new string('X', ShortLabel.MaxLength.Value + 1);
+
+        // Act
+        var encoding = Converter.Invoking(c => c.Encode(ShortLabel.CreateLogixValue(oneTooMany)));
+
+        // Assert
+        encoding.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void TheConverterExpectsTheStudio5000SpellingOfTheTypeName()
     {
         // Arrange
 
@@ -282,36 +279,46 @@ public class LogixStringConverterTests
         typeName.Should().Be(new LogixDataTypeName("STRING"));
     }
 
-
     [Fact]
-    public void Decode_WhenTheDataPointIsNotAString_SaysTheRegistryRoutedTheWrongConverter()
+    public void DecodingForANonStringDataPointSaysTheRegistryRoutedTheWrongConverter()
     {
         // Arrange
         var dInt = new DIntDataPoint(Label.TagName, DefaultPollFrequency, NoChannels);
 
         // Act
-        var decode = Converter.Invoking(c => c.Decode(dInt, new byte[StructureSize]));
+        var decoding = Converter.Invoking(c => c.Decode(dInt, new byte[StructureSize]));
 
         // Assert
-        decode.Should().Throw<InvalidOperationException>().WithMessage("*DataPointConverterRegistry*");
+        decoding.Should().Throw<InvalidOperationException>().WithMessage("*DataPointConverterRegistry*");
     }
 
     [Fact]
-    public void Encode_WhenTheValueIsNotTheDataPointsOwn_SaysWhatItExpected()
+    public void EncodingAValueNoDataPointMadeSaysWhatItExpected()
     {
         // Arrange
-        // The write-side mirror of the wrong-converter case. ILogixDataPointValue is public, so an
-        // outside implementation is what the guard is for: it names the right point but carries nothing
-        // the converter can encode.
+        // ILogixDataPointValue is public, so an outside implementation is what the guard is for: it names
+        // the right point but carries nothing the converter can encode.
         var foreign = new ForeignDataPointValue(Label);
 
         // Act
-        var encode = Converter.Invoking(c => c.Encode(foreign));
+        var encoding = Converter.Invoking(c => c.Encode(foreign));
 
         // Assert
-        encode.Should().Throw<InvalidOperationException>()
+        encoding.Should().Throw<InvalidOperationException>()
             .WithMessage("*strValue1*").WithMessage("*String*");
     }
+
+    // A STRING structure as it sits in the tag buffer.
+    private static byte[] StructureHolding(string value, int structureSize = StructureSize)
+    {
+        var buffer = new byte[structureSize];
+        buffer[0] = (byte)value.Length;
+        Encoding.Latin1.GetBytes(value).CopyTo(buffer, LengthPrefixSize);
+
+        return buffer;
+    }
+
+    private static string DecodedTextOf(byte[] buffer) => (string)Converter.Decode(Label, buffer).Value!;
 
     // An ILogixDataPointValue that no data point made — the only shape the encode guard can ever reject,
     // now that a read either returns the point's own typed value or fails its batch.

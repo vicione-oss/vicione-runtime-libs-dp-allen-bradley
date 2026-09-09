@@ -8,41 +8,41 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
 /// <summary>
-/// The <c>UDINT</c> codec, against byte patterns spelled out rather than produced by the encoder — which
-/// would make a decode test agree with itself by construction. Four bytes, unsigned, least significant
-/// first.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class UDIntConverterTests
+public sealed class UDIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new UDIntConverter();
 
     private static readonly UDIntDataPoint Runtime = new(new TagName("udintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagAUDInt()
+    public void TheConverterExpectsTheControllerToDeclareTheTagAUDInt()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the whole of what tells this
-        // converter from the DINT one: the two occupy the same four bytes and disagree only about what
-        // the top bit means, so a DINT tag read through here hands back 4294967295 where it holds -1.
+        // The whole of what tells this converter from the DINT one: the two occupy the same four bytes and
+        // disagree only about what the top bit means.
         expectedDataType.Should().Be(AllenBradleyDataType.Udint);
     }
 
     [Fact]
-    public void Decode_ReadsTheFourBytesLeastSignificantFirst()
+    public void FourStoredBytesDecodeToTheUnsignedIntegerTheyHoldLeastSignificantFirst()
     {
         // Arrange
         // Every byte differs, so a swapped or rotated read cannot land on the same value.
         byte[] buffer = [0x78, 0x56, 0x34, 0x12];
 
         // Act
-        var value = Converter.Decode(Runtime, buffer);
+        var decoded = Converter.Decode(Runtime, buffer);
 
         // Assert
-        value.Value.Should().Be(0x12345678u);
+        decoded.Should().Be(Runtime.CreateLogixValue(0x12345678u));
     }
 
     [Theory]
@@ -51,35 +51,35 @@ public class UDIntConverterTests
     [InlineData(0x7FFFFFFFu, 2147483647u)]
     [InlineData(0x80000000u, 2147483648u)]
     [InlineData(0xFFFFFFFFu, uint.MaxValue)]
-    public void Decode_ReadsTheBitPatternTheControllerStored(uint bits, uint expected)
+    public void AStoredBitPatternDecodesToTheUDIntTheControllerMeansByIt(uint storedBits, uint expectedValue)
     {
         // Arrange
-        var buffer = BitConverter.GetBytes(bits);
+        // The top half of the range is the point: a signed decode reads 0x80000000 and 0xFFFFFFFF as
+        // int.MinValue and -1.
+        var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
-        var value = Converter.Decode(Runtime, buffer);
+        var decoded = Converter.Decode(Runtime, buffer);
 
         // Assert
-        // The top half of the range is the point: 0x80000000 and 0xFFFFFFFF are where an unsigned decode
-        // parts company with the signed one, which reads them as int.MinValue and -1.
-        value.Value.Should().Be(expected);
+        decoded.Should().Be(Runtime.CreateLogixValue(expectedValue));
     }
 
     [Fact]
-    public void Decode_ReadsOnlyTheFourBytesTheTypeOccupies()
+    public void ADecodeReadsOnlyTheFourBytesTheTypeOccupies()
     {
         // Arrange
         byte[] buffer = [0x40, 0xE2, 0x01, 0x00, 0xFF, 0xFF, 0xFF, 0xFF];
 
         // Act
-        var value = Converter.Decode(Runtime, buffer);
+        var decoded = Converter.Decode(Runtime, buffer);
 
         // Assert
-        value.Value.Should().Be(123456u);
+        decoded.Should().Be(Runtime.CreateLogixValue(123456u));
     }
 
     [Fact]
-    public void Encode_WritesBackWhatDecodeReads()
+    public void AUDIntEncodesToExactlyTheFourBytesTheTypeOccupies()
     {
         // Arrange
         var value = Runtime.CreateLogixValue(0x12345678u);
@@ -88,13 +88,13 @@ public class UDIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // Exactly the four bytes a UDINT occupies: the batch copies these into the tag's buffer, so a
-        // longer array would be a wider tag than the type declares.
+        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
+        // type declares.
         bytes.Should().Equal(0x78, 0x56, 0x34, 0x12);
     }
 
     [Fact]
-    public void Encode_WritesAValueAboveTheSignedRangeAsItStands()
+    public void AUDIntAboveTheSignedRangeEncodesAsItStands()
     {
         // Arrange
         var value = Runtime.CreateLogixValue(uint.MaxValue);

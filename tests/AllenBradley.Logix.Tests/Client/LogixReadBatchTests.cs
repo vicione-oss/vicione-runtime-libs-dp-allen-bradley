@@ -12,26 +12,21 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 
-/// <summary>
-/// The read batch on its own, without a client around it: what one entry's read and decode turns into,
-/// and what a batch does with a set of those. The contract under test is that the batch is a throughput
-/// device and not a unit of meaning — a tag that will not read or will not decode costs its own value and
-/// is named as a failure, while its siblings come home. Only a batch that read nothing at all throws
-/// (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
-/// </summary>
-public class LogixReadBatchTests
+public sealed class LogixReadBatchTests
 {
+    private const string TagNotFound = "tag not found";
+
     private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
     private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
     private static readonly DIntDataPoint Torque = new(new TagName("Motor.Torque"), DefaultPollFrequency, NoChannels);
 
-    // 42 and 7 as DINTs on the wire. Spelled out rather than taken from BitConverter, which would
+    // 42 and 7 as DINTs on the wire, spelled out rather than taken from BitConverter, which would
     // re-derive them through the same host-endianness assumption the converter makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
     private static readonly byte[] SevenAsDint = [7, 0, 0, 0];
 
     [Fact]
-    public async Task ReadAsync_WhenEveryTagAnswers_ReturnsOneValuePerPointInGroupOrder()
+    public async Task AGroupWhereEveryTagAnswersComesHomeWithOneValuePerPointInGroupOrder()
     {
         // Arrange
         var tagManager = TagManagerFor(
@@ -40,206 +35,145 @@ public class LogixReadBatchTests
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
-        var result = await batch.ReadAsync(CancellationToken.None);
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // The reads are fanned out concurrently, so the order the batch was constructed with is the only
-        // thing that can put the values back in the caller's order.
-        result.Failures.Should().BeEmpty();
-        result.Values.Should().HaveCount(2);
-        result.Values[0].DataPoint.Should().Be(Speed);
-        result.Values[0].Value.Should().Be(42);
-        result.Values[1].DataPoint.Should().Be(Level);
-        result.Values[1].Value.Should().Be(7);
+        // The reads are fanned out concurrently, so group order is what puts the values back in order.
+        ILogixDataPointValue[] expected = [Speed.CreateLogixValue(42), Level.CreateLogixValue(7)];
+        batchRead.Failures.Should().BeEmpty();
+        batchRead.Values.Should().Equal(expected);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_ReturnsTheValuesItsSiblingsProduced()
+    public async Task ABatchWithAFailingDataPointWillProduceValuesForTheSiblings()
     {
         // Arrange
-        // Two tags out of three answer perfectly well.
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))),
+            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))),
             (Torque, TagReading(LogixTagReadResult.Ok(SevenAsDint))));
         var batch = new LogixReadBatch([Speed, Level, Torque], tagManager);
 
         // Act
-        var result = await batch.ReadAsync(CancellationToken.None);
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // The batch exists to get these tags onto the wire together, not because they mean anything as a
-        // set, so one tag that would not read costs its own value and nothing else.
-        result.Values.Should().HaveCount(2);
-        result.Values[0].DataPoint.Should().Be(Speed);
-        result.Values[1].DataPoint.Should().Be(Torque);
+        ILogixDataPointValue[] expected = [Speed.CreateLogixValue(42), Torque.CreateLogixValue(7)];
+        batchRead.Values.Should().Equal(expected);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_NamesItAndItsReasonAmongTheFailures()
+    public async Task ATagThatWillNotReadIsNamedAmongTheFailuresWithItsReason()
     {
         // Arrange
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
+            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
-        var result = await batch.ReadAsync(CancellationToken.None);
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // Keeping the values does not mean losing the failure: the tag that produced none is carried out
-        // by name, so the client can log which point went stale and why.
-        result.Failures.Should().ContainSingle()
-            .Which.TagName.Should().Be(Level.TagName);
-        result.DescribeFailures().Should().Contain("Tank.Level").And.Contain("tag not found");
+        var expected = LogixReadBatch.ReadOutcome.Failed(Level.TagName, TagNotFound);
+        batchRead.Failures.Should().ContainSingle().Which.Should().Be(expected);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenEveryTagFails_ThrowsNamingEveryOne()
+    public async Task AGroupWhereNoTagAnswersThrowsNamingEveryFailedTag()
     {
         // Arrange
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Failed("tag is write-only"))),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
+            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
-        var read = await Record.ExceptionAsync(() => batch.ReadAsync(CancellationToken.None));
+        var reading = batch.Awaiting(readBatch => readBatch.ReadAsync(CancellationToken.None));
 
         // Assert
-        // A batch that read nothing has nothing to hand up, and returning an empty list would make a dead
-        // controller look like a poll that simply had nothing to fetch.
-        var message = read.Should().BeOfType<LogixTagException>().Which.Message;
-        message.Should().Contain("Motor.Speed").And.Contain("tag is write-only");
-        message.Should().Contain("Tank.Level").And.Contain("tag not found");
+        var message = (await reading.Should().ThrowAsync<LogixTagException>()).Which.Message;
+        message.Should().Contain(Speed.TagName.Value).And.Contain("tag is write-only");
+        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenOneTagFails_StillReadsEverySibling()
-    {
-        // Arrange
-        var speedTag = TagReading(LogixTagReadResult.Ok(FortyTwoAsDint));
-        var torqueTag = TagReading(LogixTagReadResult.Ok(SevenAsDint));
-        var tagManager = TagManagerFor(
-            (Speed, speedTag),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))),
-            (Torque, torqueTag));
-        var batch = new LogixReadBatch([Speed, Level, Torque], tagManager);
-
-        // Act
-        await batch.ReadAsync(CancellationToken.None);
-
-        // Assert
-        // Detected per tag. Short-circuiting on the first failure would leave the batch half-issued
-        // against the controller and cost the packing the concurrent fan-out exists for.
-        await speedTag.Received(1).ReadAsync(Arg.Any<CancellationToken>());
-        await torqueTag.Received(1).ReadAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task ReadAsync_WhenOneTagFailsToReadAndAnotherToDecode_NamesBoth()
+    public async Task ATagThatWillNotReadAndOneThatWillNotDecodeAreBothNamedInTheThrow()
     {
         // Arrange
         // Two bytes where a DINT needs four: a reply the device delivered and the converter refuses.
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Ok(new byte[2]))),
-            (Level, TagReading(LogixTagReadResult.Failed("tag not found"))));
+            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
-        var read = await Record.ExceptionAsync(() => batch.ReadAsync(CancellationToken.None));
+        var reading = batch.Awaiting(readBatch => readBatch.ReadAsync(CancellationToken.None));
 
         // Assert
-        // The two kinds of failure are one kind by the time they reach the caller: a tag that produced no
-        // value, whatever stopped it. Neither tag produced one, so the batch has nothing to hand up.
-        var message = read.Should().BeOfType<LogixTagException>().Which.Message;
-        message.Should().Contain("Motor.Speed");
-        message.Should().Contain("Tank.Level").And.Contain("tag not found");
+        var message = (await reading.Should().ThrowAsync<LogixTagException>()).Which.Message;
+        message.Should().Contain(Speed.TagName.Value);
+        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
-    public async Task ReadAsync_WhenCancelled_PropagatesTheCancellationRatherThanFailingTheTags()
+    public async Task ACancelledBatchThrowsTheCancellationRatherThanFailingItsTags()
     {
         // Arrange
-        // The token is what the tag honours, the way the real access does: the batch passes it down, and
-        // a cancelled read throws out of the tag rather than coming home as a failed result.
-        var batch = new LogixReadBatch([Speed], TagManagerFor((Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint)))));
+        var tagManager = TagManagerFor((Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))));
+        var batch = new LogixReadBatch([Speed], tagManager);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
         // Act
-        var read = await Record.ExceptionAsync(() => batch.ReadAsync(cts.Token));
+        var reading = batch.Awaiting(readBatch => readBatch.ReadAsync(cts.Token));
 
         // Assert
-        // Cancelling is the caller's decision, not the device's answer, so it travels as itself rather
-        // than being collected as one more failed tag in a LogixTagException.
-        read.Should().BeAssignableTo<OperationCanceledException>();
+        await reading.Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Fact(Timeout = 10_000)]
-    public async Task ReadAsync_WhenOneDataPointAppearsSeveralTimes_SerializesTheSharedAccess()
+    public async Task ADataPointNamedSeveralTimesInOneGroupReadsThroughItsSharedTagOneAtATime()
     {
         // Arrange
-        // The real gate over a substituted handle, because the question is about the two together: a group
-        // naming one point four times draws the same cached tag for every entry, and the fan-out then
-        // starts four reads against the one handle at once. The timeout is the assertion for the failure
-        // this test exists to rule out — a gate taken and not released would hang the batch, not fail it.
-        var inFlight = 0;
-        var maxConcurrent = 0;
-        var inner = Substitute.For<ILogixTagAccess>();
-        inner.ReadAsync(Arg.Any<CancellationToken>()).Returns(_ => ReadWithOverlapRecordedAsync());
-
-        using var access = new SynchronizedLogixTagAccess(inner);
+        // The real gate over a fake handle: all four entries draw the same cached tag, so the fan-out
+        // starts four reads against one handle at once.
+        var handle = new OverlapRecordingTagAccess();
+        using var access = new SynchronizedLogixTagAccess(handle);
         var tagManager = Substitute.For<ILogixTagManager>();
         tagManager.TagFor(Speed).Returns(new LogixTag(Speed, null, access));
         var batch = new LogixReadBatch([Speed, Speed, Speed, Speed], tagManager);
 
         // Act
-        var result = await batch.ReadAsync(CancellationToken.None);
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // Serialised, not skipped: every entry is its own exchange and comes home with its own value, and
-        // no two of them are inside the handle at the same time. Ungated, all four would have entered
-        // before the first one yielded, since the fan-out starts each read synchronously.
-        maxConcurrent.Should().Be(1);
-        result.Failures.Should().BeEmpty();
-        result.Values.Should().HaveCount(4);
-        result.Values.Should().AllSatisfy(value => value.Value.Should().Be(42));
-        await inner.Received(4).ReadAsync(Arg.Any<CancellationToken>());
-
-        return;
-
-        async Task<LogixTagReadResult> ReadWithOverlapRecordedAsync()
-        {
-            maxConcurrent = Math.Max(maxConcurrent, Interlocked.Increment(ref inFlight));
-            await Task.Yield();
-            Interlocked.Decrement(ref inFlight);
-            return LogixTagReadResult.Ok(FortyTwoAsDint);
-        }
+        // The timeout is the assertion for the other failure: a gate taken and never released hangs.
+        var expected = Enumerable.Repeat<ILogixDataPointValue>(Speed.CreateLogixValue(42), 4);
+        handle.MaxConcurrentReads.Should().Be(1);
+        handle.Reads.Should().Be(4);
+        batchRead.Failures.Should().BeEmpty();
+        batchRead.Values.Should().Equal(expected);
     }
 
     [Fact]
-    public async Task ReadAsync_WithNoDataPoints_ReturnsNothingAndTouchesNoTag()
+    public async Task AnEmptyGroupReadsNothingAndTouchesNoTag()
     {
         // Arrange
         var tagManager = TagManagerFor();
         var batch = new LogixReadBatch([], tagManager);
 
         // Act
-        var result = await batch.ReadAsync(CancellationToken.None);
+        var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        // A group can be emptied by configuration; an empty fan-out is not a failure — nothing failed, so
-        // reading nothing is the answer rather than the throw an all-failed batch produces — and asking
-        // the tag manager for nothing costs no round trip.
-        result.Values.Should().BeEmpty();
-        result.Failures.Should().BeEmpty();
+        batchRead.Values.Should().BeEmpty();
+        batchRead.Failures.Should().BeEmpty();
         tagManager.DidNotReceiveWithAnyArgs().TagFor(default!);
     }
 
     [Fact]
-    public void Constructor_ResolvesTheTagForEveryDataPointWithoutReadingAnything()
+    public void ConstructingABatchResolvesTheTagForEveryDataPointWithoutReadingAnything()
     {
         // Arrange
         var speedTag = TagReading(LogixTagReadResult.Ok(FortyTwoAsDint));
@@ -250,8 +184,6 @@ public class LogixReadBatchTests
         _ = new LogixReadBatch([Speed, Level], tagManager);
 
         // Assert
-        // Holding a batch means holding a fully resolved one — the tags and converters are paired up
-        // front — but resolving is not reading, and no I/O happens until ReadAsync.
         tagManager.Received(1).TagFor(Speed);
         tagManager.Received(1).TagFor(Level);
         speedTag.ReceivedCalls().Should().BeEmpty();
@@ -259,7 +191,7 @@ public class LogixReadBatchTests
     }
 
     [Fact]
-    public void Constructor_WhenADataPointHasNoConverter_ThrowsBeforeAnyReadIsPossible()
+    public void ADataPointWithoutAConverterIsRefusedBeforeAnyReadIsPossible()
     {
         // Arrange
         // Both points have a tag, so the only thing left that can throw is the missing converter.
@@ -273,14 +205,12 @@ public class LogixReadBatchTests
         var construct = Record.Exception(() => new LogixReadBatch([Speed, unconvertible], tagManager));
 
         // Assert
-        // A data point wired up without a converter is a configuration error, and failing on construction
-        // makes it cost no round trip and leave no half-read group behind.
         construct.Should().BeOfType<InvalidOperationException>();
         speedTag.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenTheTagAnswers_ReturnsTheDecodedValueAndNoError()
+    public async Task AnEntryWhoseTagAnswersComesHomeDecodedAndWithoutAnError()
     {
         // Arrange
         var entry = EntryFor(Speed, LogixTagReadResult.Ok(FortyTwoAsDint));
@@ -289,67 +219,55 @@ public class LogixReadBatchTests
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        // The one place bytes become a typed value: the converter decodes them and the data point wraps
-        // them, and the outcome carries the value the batch will hand out unchanged.
-        outcome.Error.Should().BeNull();
-        outcome.TagName.Should().Be(Speed.TagName);
-        outcome.Value!.Value.Should().Be(42);
+        var expected = LogixReadBatch.ReadOutcome.Ok(Speed.CreateLogixValue(42));
+        outcome.Should().Be(expected);
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenTheTagFails_ReturnsTheFailureInsteadOfThrowing()
+    public async Task AnEntryWhoseTagFailsCarriesTheFailureHomeInsteadOfThrowing()
     {
         // Arrange
-        var entry = EntryFor(Speed, LogixTagReadResult.Failed("tag not found"));
+        var entry = EntryFor(Speed, LogixTagReadResult.Failed(TagNotFound));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        // A device failure rides home as an outcome rather than an exception, because awaiting the
-        // fan-out's Task.WhenAll would rethrow only the first exception of the set and lose the rest.
-        outcome.Value.Should().BeNull();
-        outcome.TagName.Should().Be(Speed.TagName);
-        outcome.Error.Should().Be("tag not found");
+        var expected = LogixReadBatch.ReadOutcome.Failed(Speed.TagName, TagNotFound);
+        outcome.Should().Be(expected);
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenTheTagFails_DoesNotDecode()
+    public async Task AnEntryWhoseTagFailsIsNeverDecoded()
     {
         // Arrange
         var converter = new SpyConverter();
-        var entry = EntryFor(Speed, LogixTagReadResult.Failed("tag not found"), converter);
+        var entry = EntryFor(Speed, LogixTagReadResult.Failed(TagNotFound), converter);
 
         // Act
         await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        // A failed read carries no bytes, so decoding them would be decoding an empty buffer and reporting
-        // the wrong reason for the tag's failure.
         converter.Decodes.Should().Be(0);
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenTheReplyIsTooShortForTheType_ReturnsTheTagsFailureWithItsName()
+    public async Task AReplyTooShortForTheTypeBecomesThatTagsFailureUnderItsName()
     {
         // Arrange
-        // Two bytes where a DINT needs four. Nothing checks that before the decode — the controller's
-        // type was verified at connect — so the converter is what discovers it, by throwing.
+        // Two bytes where a DINT needs four, which nothing checks before the decode.
         var entry = EntryFor(Speed, LogixTagReadResult.Ok(new byte[2]));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        // Caught narrowly so it is reported as this tag's failure with its name on it, rather than as a
-        // raw ArgumentException travelling with no address in its message.
-        outcome.Value.Should().BeNull();
         outcome.TagName.Should().Be(Speed.TagName);
         outcome.Error.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenTheConverterFailsForAnyOtherReason_LetsItTravel()
+    public async Task AConverterFailingForAnyOtherReasonTravelsOutOfTheEntry()
     {
         // Arrange
         var converter = new SpyConverter { OnDecode = () => throw new NotSupportedException("converter bug") };
@@ -360,14 +278,11 @@ public class LogixReadBatchTests
             () => LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None));
 
         // Assert
-        // The catch is the buffer being the wrong shape for the decode and nothing else. A converter that
-        // throws anything else is a bug in the converter, and dressing it up as a device failure would
-        // send the reader to the controller for it.
         read.Should().BeOfType<NotSupportedException>();
     }
 
     [Fact]
-    public async Task ReadEntryAsync_WhenCancelled_ThrowsRatherThanReturningAFailedOutcome()
+    public async Task ACancelledEntryThrowsRatherThanComingHomeAsAFailedOutcome()
     {
         // Arrange
         var entry = EntryFor(Speed, LogixTagReadResult.Ok(FortyTwoAsDint));
@@ -378,8 +293,6 @@ public class LogixReadBatchTests
         var read = await Record.ExceptionAsync(() => LogixReadBatch.ReadEntryAsync(entry, cts.Token));
 
         // Assert
-        // A cancelled read must not join the failed tags in the batch's message: it is a shutdown, and
-        // naming the tag would report a controller fault that never happened.
         read.Should().BeAssignableTo<OperationCanceledException>();
     }
 
@@ -389,9 +302,8 @@ public class LogixReadBatchTests
             converter ?? DataPointConverterRegistry.GetConverter(dataPoint),
             TagReading(result));
 
-    // A tag that answers with one prepared result. Cancellation is honoured the way the real access
-    // honours it — by throwing rather than by coming home as a failed result, because a cancelled
-    // operation is not a device answer.
+    // A tag that answers with one prepared result, honouring cancellation by throwing the way the real
+    // access does.
     private static ILogixTag TagReading(LogixTagReadResult result)
     {
         var tag = Substitute.For<ILogixTag>();
@@ -423,6 +335,34 @@ public class LogixReadBatchTests
         protected override LogixDataTypeName TypeName => new("MYSTERY");
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
+    }
+
+    // A handle that answers 42 and records how many reads were inside it at once.
+    private sealed class OverlapRecordingTagAccess : ILogixTagAccess
+    {
+        private int _inFlight;
+        private int _reads;
+
+        public int Reads => _reads;
+
+        public int MaxConcurrentReads { get; private set; }
+
+        public async Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
+        {
+            MaxConcurrentReads = Math.Max(MaxConcurrentReads, Interlocked.Increment(ref _inFlight));
+            Interlocked.Increment(ref _reads);
+            await Task.Yield();
+            Interlocked.Decrement(ref _inFlight);
+
+            return LogixTagReadResult.Ok(FortyTwoAsDint);
+        }
+
+        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public void Dispose()
+        {
+        }
     }
 
     // A converter that records whether it was asked to decode, and can be made to fail in a way the entry

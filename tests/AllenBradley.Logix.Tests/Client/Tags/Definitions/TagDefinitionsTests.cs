@@ -1,47 +1,43 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions;
 
-/// <summary>
-/// Lookup and resolution against a decoded symbol table. Logix tag names are case-insensitive, so the
-/// schema must match them that way.
-/// </summary>
-public class TagDefinitionsTests
+public sealed class TagDefinitionsTests
 {
-    private static TagDefinition Dint(string name) =>
-        new(new TagName(name), LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null,
-            new DimensionCount(0), new ElementCount(1));
+    private static readonly TagName SpeedTagName = new("Motor.Speed");
+
+    private static readonly TagDefinition SpeedDefinition =
+        DefaultAtomicTagDefinition() with { TagName = SpeedTagName };
 
     [Fact]
-    public void Lookup_IsCaseInsensitive()
+    public void ATagNameIsLookedUpWithoutRegardToCase()
     {
         // Arrange
-        var schema = new TagDefinitions(
-            new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer)
-            {
-                [new TagName("Motor.Speed")] = Dint("Motor.Speed"),
-            });
+        var definitions = DefinitionsHolding(SpeedDefinition);
 
         // Act
-        var declaration = schema.Lookup(new TagName("motor.speed"));
+        var found = definitions.Lookup(new TagName("motor.speed"));
 
         // Assert
-        declaration.Should().NotBeNull();
+        found.Should().Be(SpeedDefinition);
     }
 
     [Fact]
-    public void Lookup_AnAbsentTag_ReturnsNull()
+    public void ATagAbsentFromTheDefinitionsIsNotFound()
     {
         // Arrange
-        var schema = new TagDefinitions(new Dictionary<TagName, TagDefinition>());
+        var definitions = DefinitionsHolding();
 
         // Act
-        var declaration = schema.Lookup(new TagName("Nope"));
+        var found = definitions.Lookup(new TagName("Nope"));
 
         // Assert
-        declaration.Should().BeNull();
+        found.Should().BeNull();
     }
+
+    private static TagDefinitions DefinitionsHolding(params TagDefinition[] definitions) =>
+        new(definitions.ToDictionary(definition => definition.TagName, TagName.CaseInsensitiveComparer));
 }

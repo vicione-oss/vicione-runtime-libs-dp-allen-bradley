@@ -8,25 +8,25 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Booleans;
 
 /// <summary>
-/// The <c>BOOL</c> codec — the one atomic whose decode is not a <c>BinaryPrimitives</c> read. The rule
-/// is nonzero rather than equality with a pattern, so the byte the controller happens to store cannot
-/// change the answer.
+/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
+/// agree with itself by construction.
 /// </summary>
-public class BoolConverterTests
+public sealed class BoolConverterTests
 {
     private static readonly IDataPointConverter Converter = new BoolConverter();
 
     private static readonly BoolDataPoint Flag = new(new TagName("boolValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void ItExpectsTheControllerToDeclareTheTagABool()
+    public void TheConverterExpectsTheControllerToDeclareTheTagABool()
     {
+        // Arrange
+
         // Act
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // What LogixTypeComparison holds the symbol table against, and the one thing about this
-        // converter a round trip cannot catch: reading a byte off a SINT succeeds and is wrong.
+        // The one thing a round trip cannot catch: reading a byte off a SINT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Bool);
     }
 
@@ -34,48 +34,48 @@ public class BoolConverterTests
     [InlineData(0xFF)]
     [InlineData(0x01)]
     [InlineData(0x80)]
-    public void Decode_ReadsAnyNonzeroByteAsTrue(byte bits)
+    public void AnyNonzeroStoredByteDecodesToTrue(byte storedBits)
     {
         // Arrange
-        // 0xFF is what the controller stores for a set BOOL, but a member set through a mask can leave
-        // any nonzero pattern behind.
-        byte[] buffer = [bits];
+        // 0xFF is what the controller stores for a set BOOL, but a member set through a mask can leave any
+        // nonzero pattern behind.
+        byte[] buffer = [storedBits];
 
         // Act
-        var value = Converter.Decode(Flag, buffer);
+        var decoded = Converter.Decode(Flag, buffer);
 
         // Assert
-        value.Value.Should().Be(true);
+        decoded.Should().Be(Flag.CreateLogixValue(true));
     }
 
     [Fact]
-    public void Decode_ReadsAZeroByteAsFalse()
+    public void AZeroStoredByteDecodesToFalse()
     {
         // Arrange
         byte[] buffer = [0x00];
 
         // Act
-        var value = Converter.Decode(Flag, buffer);
+        var decoded = Converter.Decode(Flag, buffer);
 
         // Assert
-        value.Value.Should().Be(false);
+        decoded.Should().Be(Flag.CreateLogixValue(false));
     }
 
     [Fact]
-    public void Decode_ReadsOnlyTheOneByteTheTypeOccupies()
+    public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
     {
         // Arrange
         byte[] buffer = [0x00, 0xFF, 0xFF, 0xFF];
 
         // Act
-        var value = Converter.Decode(Flag, buffer);
+        var decoded = Converter.Decode(Flag, buffer);
 
         // Assert
-        value.Value.Should().Be(false);
+        decoded.Should().Be(Flag.CreateLogixValue(false));
     }
 
     [Fact]
-    public void Encode_WritesTrueAsTheByteStudio5000Shows()
+    public void TrueEncodesToTheByteStudio5000Shows()
     {
         // Arrange
         var value = Flag.CreateLogixValue(true);
@@ -84,13 +84,13 @@ public class BoolConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // Exactly the one byte a BOOL occupies: the batch copies these into the tag's buffer, so a
-        // longer array would be a wider tag than the type declares.
+        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
+        // type declares.
         bytes.Should().Equal(0xFF);
     }
 
     [Fact]
-    public void Encode_WritesFalseAsZero()
+    public void FalseEncodesToZero()
     {
         // Arrange
         var value = Flag.CreateLogixValue(false);
