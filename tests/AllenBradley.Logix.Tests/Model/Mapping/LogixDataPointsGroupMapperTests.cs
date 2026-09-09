@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -220,10 +221,31 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AConfiguredIntArrayTagBecomesAPointCarryingTheCountItWasDeclaredWith()
+    {
+        // Arrange
+        var readings = DefaultIntArrayNode with
+        {
+            PollFrequency = PollFrequency.FromMilliseconds(500),
+            ElementCount = new ElementCount(20),
+        };
+        var deviceNode = DeviceNodeHoldingInControllerScope(readings);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new IntArrayDataPoint(
+            readings.TagName, readings.PollFrequency, readings.Channels, readings.ElementCount);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void EachTagBecomesThePointItsOwnTypeMapsTo()
     {
         // Arrange
-        var deviceNode = DeviceNodeHoldingInControllerScope(DefaultDIntNode, DefaultIntNode, DefaultStringNode);
+        var deviceNode = DeviceNodeHoldingInControllerScope(
+            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);
@@ -232,7 +254,8 @@ public sealed class LogixDataPointsGroupMapperTests
         dataPoints.Should().SatisfyRespectively(
             static dataPoint => dataPoint.Should().BeOfType<DIntDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<IntDataPoint>(),
-            static dataPoint => dataPoint.Should().BeOfType<StringDataPoint>());
+            static dataPoint => dataPoint.Should().BeOfType<StringDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<IntArrayDataPoint>());
     }
 
     [Fact]

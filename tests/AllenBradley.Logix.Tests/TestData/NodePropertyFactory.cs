@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
@@ -24,6 +25,10 @@ internal static class NodePropertyFactory
     /// <summary>The character capacity a configured string tag is declared with.</summary>
     internal static KeyValuePair<string, Property> CreateMaxLength(object maxLength) =>
         KeyValuePair.Create(StringNode.MaxLengthPropertyName, new Property { Value = maxLength });
+
+    /// <summary>The number of elements a configured array tag is declared with.</summary>
+    internal static KeyValuePair<string, Property> CreateElementCount(object elementCount) =>
+        KeyValuePair.Create(LogixArrayNode.ElementCountPropertyName, new Property { Value = elementCount });
 
     /// <summary>The program a configured program-scope container holds the tags of.</summary>
     internal static KeyValuePair<string, Property> CreateProgramName(object programName) =>

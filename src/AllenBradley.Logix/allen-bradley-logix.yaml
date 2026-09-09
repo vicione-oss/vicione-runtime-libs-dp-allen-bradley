@@ -118,7 +118,7 @@ Nodes:
     Icon: folder
     TransferModes: [ None ]
     ChildNodes: &basic-tag-nodes
-      # Grouped by type family, widest last within a family, and in the order the scalar node
+      # Grouped by type family, widest last within a family, and in the order the tag node
       # definitions below are written.
       - Id: Bool
       # Signed integers
@@ -130,6 +130,8 @@ Nodes:
       - Id: Real
       # String
       - Id: String
+      # Arrays — grouped by shape rather than by element type, because that is what they have in common
+      - Id: IntArray
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -157,6 +159,8 @@ Nodes:
       - Id: LReal
       # String
       - Id: String
+      # Arrays
+      - Id: IntArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -185,7 +189,7 @@ Nodes:
     PropertyCategories: *program-tags-properties
     ChildNodes: *logix5x80-tag-nodes
 
-  # ==================== SCALAR NODES ===================================
+  # ==================== TAG NODES ======================================
   # Grouped by type family and widening within a family, in the order the child lists above name
   # them. A 5X80-only type sits in its family rather than in a block of its own; what withholds it
   # from a 5X70 is the child list, not the position here.
@@ -477,6 +481,37 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- Arrays ----
+  # One dimension, read whole, one element type so far. Rank 2 and 3 exist on Logix and are rejected
+  # at connect; per-element access is a container node with indexed children, which is not this.
+  - Id: IntArray
+    MappingId: IntArray
+    Type: DataPortTreeNode
+    Name: "Int Array"
+    Description: >-
+      Logix-Type: INT[n] (one-dimensional array of 16-bit signed integers, CIP type code 0xC3)
+      Size: 2 x n bytes
+      Encoding: little-endian two's complement per element; no padding between elements
+      Layout: element i occupies bytes 2i and 2i + 1
+      Range: -32 768..32 767 per element
+      Direction: read only; the whole array arrives as one value, and a write is refused
+    Icon: datapoint
+    DataTypes: [ 'Int16[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
 # ==================== PROPERTY CATEGORIES ===========================
 
 PropertyCategories:
@@ -608,6 +643,16 @@ Properties:
     DataType: Int32
     UiControl: NumericUpDown
     DefaultValue: 82
+    MinValue: 1
+
+  # Held against the controller's own declaration on connect, not treated as a bound: a tag resized in
+  # Studio 5000 is invisible to a read that only takes the first elements.
+  - Id: ElementCount
+    Name: "Element count"
+    Description: "How many elements the array is declared with in Studio 5000: 10 for an ARRAY[0..9]"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 10
     MinValue: 1
 
   # ---- ReadConfiguration Properties ----

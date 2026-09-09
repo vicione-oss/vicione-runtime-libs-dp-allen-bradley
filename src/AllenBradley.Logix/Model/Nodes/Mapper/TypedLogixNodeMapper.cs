@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real.Mapping;
@@ -34,15 +35,15 @@ public static class TypedLogixNodeMapper
                 new ControllerTags5X70NodeMapper(), new ControllerTags5X80NodeMapper(),
                 new ProgramTags5X70NodeMapper(), new ProgramTags5X80NodeMapper(),
             ],
-            ScalarNodeMappers());
+            DataPointNodeMappers());
 
-    // Grouped the way the manifest's scalar nodes and the converters are: one method per type family,
+    // Grouped the way the manifest's tag nodes and the converters are: one method per type family,
     // so adding a type touches the family it belongs to rather than a single flat list that every
     // slice appends to.
-    private static IDataPointNodeMapper<IDataPointNode>[] ScalarNodeMappers() =>
+    private static IDataPointNodeMapper<IDataPointNode>[] DataPointNodeMappers() =>
         [
             .. BooleanNodeMappers(), .. IntegerNodeMappers(), .. FloatingPointNodeMappers(),
-            .. StringNodeMappers(),
+            .. StringNodeMappers(), .. ArrayNodeMappers(),
         ];
 
     private static IDataPointNodeMapper<IDataPointNode>[] BooleanNodeMappers() =>
@@ -59,4 +60,9 @@ public static class TypedLogixNodeMapper
 
     private static IDataPointNodeMapper<IDataPointNode>[] StringNodeMappers() =>
         [new StringNodeMapper()];
+
+    // A family by shape rather than by element type: every array node maps the same three properties
+    // whatever it holds, so the other element types join this list rather than start their own.
+    private static IDataPointNodeMapper<IDataPointNode>[] ArrayNodeMappers() =>
+        [new IntArrayNodeMapper()];
 }

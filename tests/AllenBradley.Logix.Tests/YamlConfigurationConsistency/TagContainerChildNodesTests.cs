@@ -20,6 +20,8 @@ public sealed class TagContainerChildNodesTests
 {
     private const string AnyTagName = "AnyTag";
 
+    private const int AnyElementCount = 10;
+
     // The manifest as the engine reads it, rather than as YAML text: the child lists arrive resolved,
     // so the anchors the file shares between the two scopes are already expanded here.
     private static readonly TreeBuilder.Rules.Ruleset Ruleset =
@@ -78,12 +80,14 @@ public sealed class TagContainerChildNodesTests
                 .MinimumGeneration);
 
     // One linked node serves every mapper: a mapper reads the properties its own type needs and ignores
-    // the rest, so carrying all three satisfies the widest of them (a STRING's MaxLength).
+    // the rest, so carrying every one of them satisfies the widest (a STRING's MaxLength, an array's
+    // ElementCount).
     private static LinkedNode AnyTagNodeOfType(string linkedNodeTypeId) =>
         CreateLinkedNode(
             linkedNodeTypeId,
             AnyTagName,
             CreateTagName(AnyTagName),
             CreatePollFrequency(DefaultPollFrequencyInMilliseconds),
-            CreateMaxLength(StringMaxLength.Standard.Value));
+            CreateMaxLength(StringMaxLength.Standard.Value),
+            CreateElementCount(AnyElementCount));
 }

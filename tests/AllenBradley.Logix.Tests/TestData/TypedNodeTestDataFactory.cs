@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real;
@@ -83,6 +84,12 @@ internal static class TypedNodeTestDataFactory
 
     /// <summary>The address of the <c>STRING</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultStringTagName = new("Label");
+
+    /// <summary>The address of the <c>INT</c> array tag the factory makes.</summary>
+    internal static readonly TagName DefaultIntArrayTagName = new("Readings");
+
+    /// <summary>The number of elements the array tag the factory makes is declared with.</summary>
+    internal static readonly ElementCount DefaultElementCount = new(10);
 
     /// <summary>
     /// A stand-in for the linked node a mapped node came from. A suite about what a node admits never
@@ -210,6 +217,18 @@ internal static class TypedNodeTestDataFactory
             CreateChanneledLinkedNode(RealNode.LinkedNodeTypeId, DefaultRealTagName.Value, DefaultChannel),
             DefaultRealTagName,
             DefaultPollFrequency);
+
+    /// <summary>
+    /// A configured one-dimensional <c>INT</c> array tag. Its element type is one every generation has,
+    /// so a container of any generation admits it.
+    /// </summary>
+    internal static IntArrayNode DefaultIntArrayNode =>
+        new(
+            CreateChanneledLinkedNode(
+                IntArrayNode.LinkedNodeTypeId, DefaultIntArrayTagName.Value, DefaultChannel),
+            DefaultIntArrayTagName,
+            DefaultPollFrequency,
+            DefaultElementCount);
 
     /// <summary>A configured <c>STRING</c> tag of the built-in capacity.</summary>
     internal static StringNode DefaultStringNode =>
