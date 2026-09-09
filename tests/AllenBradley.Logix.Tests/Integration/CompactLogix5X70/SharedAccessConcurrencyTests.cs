@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// Verifies — against the real CompactLogix L32E — the two claims that justify <c>SynchronizedLogixTagAccess</c>,
-/// rather than taking the word of <c>ADR/2026-07-16-testable-libplctag-interface.md</c> for them:
+/// rather than taking the word of <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> for them:
 /// <list type="number">
 /// <item>a group can name the same tag twice, so <c>CachingLogixTagManager</c> hands one shared tag to
 /// several concurrent readers (<see cref="Group_NamingTheSameTagTwice_SharesOneTag_AndReadsConsistently"/>);</item>
@@ -92,7 +92,7 @@ public class SharedAccessConcurrencyTests
         var outcomes = await HammerAsync(access, CancellationToken.None);
 
         // Assert
-        // The gate makes every operation a whole exchange with the access to itself, so nothing the batch
+        // The gate makes every operation one whole operation on the access to itself, so nothing the batch
         // does to this tag can make it fail. On a healthy device that means every read and write is Ok.
         outcomes.Should().NotContain(o => !o.Ok, "serializing operations on the shared access removes the self-inflicted races");
     }

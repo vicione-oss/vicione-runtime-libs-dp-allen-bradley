@@ -9,7 +9,7 @@ the quirks that have cost us debugging time.
 
 These are **library facts, not our decisions.** They are the inputs the client ADRs consume, and the
 design that responds to them lives in the Logix client ADRs
-([a testable interface over libplctag](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-testable-libplctag-interface.md)
+([Operations, not accessors](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md)
 onward).
 Each document says where the behaviour comes from (a source line in the C core or the wrapper, or a
 test that pins it against the real device), so a claim here can be re-verified rather than trusted.

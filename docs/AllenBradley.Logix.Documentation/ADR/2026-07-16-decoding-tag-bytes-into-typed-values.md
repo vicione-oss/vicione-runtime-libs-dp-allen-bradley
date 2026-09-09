@@ -151,9 +151,9 @@ is worth adding and does not exist yet.
 The hard part needs no hardware to test. Every converter decodes a raw byte span, so each one runs against
 a byte array laid out the way the controller sends it. That byte-layout knowledge does not depend on
 libplctag either. If the client library were ever swapped, the codecs would survive and only the
-tag-access adapter would be rewritten (see [A testable interface over
-libplctag](2026-07-16-testable-libplctag-interface.md)). It also avoids the upstream removal of the mapper
-API completely, because we never touch that API. And the S7 addon's registry pattern ports over directly,
+tag-access adapter would be rewritten (see [Operations, not
+accessors](2026-07-16-operations-not-accessors-over-libplctag.md)). It also avoids the upstream removal of
+the mapper API completely, because we never touch that API. And the S7 addon's registry pattern ports over directly,
 bringing the exhaustive dictionary and the single boundary cast with it.
 
 #### Cons
@@ -202,7 +202,7 @@ the source and its comments. A rename should not oblige anyone to revisit a deci
   (little-endian scalars) ·
   [Symbolic tag data types](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
   (the Logix `STRING` structure, BOOL packing, the symbol-type bitfield)
-- Related: [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) ·
+- Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)
 - Upstream: [libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)
   (removal of the typed-mapper API)

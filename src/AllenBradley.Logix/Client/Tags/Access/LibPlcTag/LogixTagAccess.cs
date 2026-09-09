@@ -3,7 +3,7 @@ using libplctag;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
 // ILogixTagAccess over a libplctag Tag — the adapter that binds the client stack to the native
-// library (ADR/2026-07-16-testable-libplctag-interface.md). Each member runs one whole exchange
+// library (ADR/2026-07-16-operations-not-accessors-over-libplctag.md). Each member runs one whole operation
 // (read + size + buffer out, buffer in + write) so the native handle's buffer is never exposed
 // between calls, and maps LibPlcTagException onto a failed result, so the layers above see neither
 // the library's exception type nor its buffer protocol. No batching happens here: the native core

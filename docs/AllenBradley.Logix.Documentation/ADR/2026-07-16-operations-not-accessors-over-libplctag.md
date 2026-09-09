@@ -1,4 +1,4 @@
-# A Testable Interface over libplctag
+# Operations, Not Accessors: Our Interface over libplctag
 
 ## Context and Problem Statement
 
@@ -7,10 +7,26 @@ folder holds our own access interface, the decorator that serializes calls to it
 adapter beneath both. It was made under
 [issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
 
+The real question is **granularity**: is a member of our interface one operation, or one of the library's
+accessors? Two separate forces answer it the same way.
+
+- **Testability.** The wrapper's `Tag` is sealed and loads native code, so nothing above it can be tested
+  without a device unless we put our own interface in between.
+- **Safety on a shared handle.** Handles are shared between data points, and concurrent operations on one
+  handle break in two distinct ways.
+
+They stay in one decision because one member per operation satisfies both: that member is the mockable
+boundary *and* the unit that cannot interleave. The rejected options each fail on one force — Option 3
+has no interface, Option 4 keeps the accessors.
+
+### The library
+
 The client talks to the controller through libplctag, which is two layers. A C library (the "core") does
 the protocol work, and a thin .NET wrapper exposes the `Tag` class our code calls. A `Tag` is a
-**handle**, one object per PLC tag, holding that tag's connection state. libplctag has no call that reads
-several tags at once, so *N* tags means *N* handles. A handle exposes raw byte buffers (`GetBuffer` and
+**handle**: a token standing in for a tag the library owns, which we cannot look inside, must hand back to
+the library for every read and write, and must dispose when done (see
+[CONTEXT.md](../../../CONTEXT.md)). There is one per PLC tag, and it holds that tag's connection state and
+its byte buffer. libplctag has no call that reads several tags at once, so *N* tags means *N* handles. A handle exposes raw byte buffers (`GetBuffer` and
 `SetBuffer`), its own width (`GetSize`) and typed getters, plus async read and write methods that honour a
 `CancellationToken` and connect on first use.
 
@@ -20,10 +36,12 @@ your own application", putting your own interface over the library
 ([libplctag.NET#450](https://github.com/libplctag/libplctag.NET/issues/450)). The question is what that
 interface looks like.
 
-Two facts sharpen the question. Handles are **shared**, because the cache hands the same connected handle
-to every data point that names the same tag (see
-[Reusing and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md)). A read and a write
-can therefore run on one handle at the same time, and that is unsafe in two distinct ways.
+### Why a shared handle is unsafe
+
+Handles are **shared**, because the cache hands the same connected handle to every data point that names
+the same tag (see [Reusing and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md)). A
+read and a write can therefore run on one handle at the same time, and that is unsafe in two distinct
+ways.
 
 The core rejects the second of two overlapping operations with `PLCTAG_ERR_BUSY`, and the wrapper hides
 that error. It also matches completions off a stack without recording which operation a completion belongs
@@ -50,11 +68,13 @@ Both problems were reproduced against the real controller and are described in
 
 The chosen option is **Option 1**, our own small access interface, with a trivial adapter that forwards to
 `Tag`. It gives us the mockable boundary the maintainer's guidance asks for. Because every member is one
-complete exchange, it closes both handle problems in one place. A read carries its status and its raw
+complete operation, it closes both handle problems in one place. A read carries its status and its raw
 bytes home. A write takes its bytes in and answers with a status. There is no status member of its own,
 and no way to reach the handle's buffer.
 
-The interface once had one member that was not an exchange, `CreateNewWriteBuffer`, handing back an empty
+### One member per operation, nothing finer
+
+The interface once had one member that was not an operation, `CreateNewWriteBuffer`, handing back an empty
 array at the width libplctag opened the handle at, for the write batch to fill. It went when the batch
 started handing the handle the converter's own bytes instead: the handle is already the controller's
 width, and the core refuses a payload longer than it before sending (see
@@ -63,21 +83,33 @@ so nothing in the client needs to know that width. A `STRING` and a `STRING_20` 
 widths (see [Decoding tag bytes into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)),
 and the controller owns which.
 
-The decorator guards each exchange with a semaphore. On a shared handle, a read and a write then run as
+### Atomicity and isolation on a shared handle
+
+The decorator guards each operation with a semaphore. On a shared handle, a read and a write then run as
 separate, non-overlapping units. That closes both problems at once. No second operation is ever in flight,
 so the timeout-and-abort cascade cannot start, and every buffer access happens inside its own guarded
 unit.
 
-A device failure comes back as a **failed result** carrying its reason, not as an exception. A tag that
-will not read is a normal event in a polled group rather than an exceptional one. Cancellation still
-throws, because cancelling is the caller's decision and not the device's answer.
+Two of the ACID properties name what that buys, and both are needed. **Isolation** is the semaphore: one
+operation at a time on a handle, so nothing observes another mid-flight. **Atomicity** is the shape of the
+interface: `SetBuffer` and the device sync are two library calls, and a whole-write member makes them one
+indivisible unit, as does issue-wait-`GetBuffer` for a read. Isolation alone would still let the two calls
+of a unit interleave, which is why Option 4 fails. Consistency follows from the two rather than being
+enforced here, and durability belongs to the controller.
 
 Disposal is **not** guarded. Freeing the handle is the owner's job, and taking the lock there could
 deadlock if an operation never finishes.
 
+### The mockable boundary
+
 Because `Tag` is sealed and loads native code, the place we can substitute a fake in tests is our own
 interface. It sits below the batch and lifecycle logic and above the wrapper, so everything above it can
 be tested in-process against a fake. That is our concrete form of the maintainer's advice.
+
+A device failure comes back as a **failed result** carrying its reason, not as an exception. A tag that
+will not read is a normal event in a polled group rather than an exceptional one, and a result is also
+what a fake can return without throwing the library's own exception type. Cancellation still throws,
+because cancelling is the caller's decision and not the device's answer.
 
 ### Enforcement
 

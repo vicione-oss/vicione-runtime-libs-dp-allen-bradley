@@ -9,7 +9,7 @@ adapter. It was made under
 [issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
 
 libplctag gives us one **handle** per PLC tag, the wrapper's `Tag` object, holding that tag's connection
-state (see [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) for the
+state (see [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) for the
 interface we put over it). There is no separate session object we could cache. The expensive, reusable
 thing is the connected handle itself. The first read on a handle does three slow steps. It registers a
 session with the controller, performs a Forward Open (the CIP handshake that opens a connection and claims
@@ -61,9 +61,9 @@ handle cache.
 What the manager hands out is a tag, not the bare handle. The tag joins the configured data point, the
 controller's metadata for that tag, and the read/write access into one object. It has the shape of the
 sibling S7 addon's symbolic data-point access, and it is what the batches and configuration verification
-both project off. The minimal access interface survives underneath as the exchange and mock seam (see [A
-testable interface over libplctag](2026-07-16-testable-libplctag-interface.md)). The tag composes it, adds
-the two immutable getters, and disposes it. The concurrency contract is untouched, because metadata and
+both project off. The minimal access interface survives underneath as the operation and mock seam (see
+[Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md)). The tag composes it,
+adds the two immutable getters, and disposes it. The concurrency contract is untouched, because metadata and
 the data point are data rather than exchange state and need no gating.
 
 The manager also owns the controller's symbol table, which is what it has to join that metadata from. This
@@ -114,9 +114,9 @@ the manager's one lock, none can leak to a finalizer and trigger the `0xC0000602
 
 #### Cons
 
-The cost falls on release. Disposal is deliberately left unguarded against in-flight operations (see [A
-testable interface over libplctag](2026-07-16-testable-libplctag-interface.md)), so a release under load
-can free a handle mid-operation. Closing that race is an obligation this decision hands to the lifecycle
+The cost falls on release. Disposal is deliberately left unguarded against in-flight operations (see
+[Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md)), so a release under
+load can free a handle mid-operation. Closing that race is an obligation this decision hands to the lifecycle
 work (see Consequences above).
 
 Keying on the whole record has a smaller cost, and that one is no longer hypothetical. A data point
@@ -148,7 +148,7 @@ handful of extra handles costs less than a hand-written identity that can silent
   (the connected handle as the reusable unit, and the sharing identity the cache scope mirrors)
 - [tag-disposal-and-shutdown.md](../../AllenBradley.Documentation/libPlcTag/tag-disposal-and-shutdown.md)
   (why disposal must be explicit)
-- Related: [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) ·
+- Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md) ·
   [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)
 - [Issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5)

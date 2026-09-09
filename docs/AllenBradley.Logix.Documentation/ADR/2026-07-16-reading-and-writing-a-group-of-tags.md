@@ -8,9 +8,9 @@ was made under
 
 The DataPort read hands the client a **group** of data points and expects a list of typed values back. The
 write hands it a list of typed values and returns a bare `ValueTask`. libplctag has no call that reads
-several tags at once (see [A testable interface over
-libplctag](2026-07-16-testable-libplctag-interface.md)), so a group cannot be one wire call. It is *N*
-separate handle operations.
+several tags at once (see [Operations, not
+accessors](2026-07-16-operations-not-accessors-over-libplctag.md)), so a group cannot be one wire call. It
+is *N* separate handle operations.
 
 What makes *N* operations acceptable is packing. libplctag's C core (the native library under the .NET
 wrapper) services all handles to one controller from a single queue, and bundles whatever is waiting in
@@ -140,9 +140,9 @@ ourselves.
 
 #### Cons
 
-It is only worth doing if we owned the whole wrapper layer, an option already rejected in [A testable
-interface over libplctag](2026-07-16-testable-libplctag-interface.md). And it buys nothing, because
-the core already packs.
+It is only worth doing if we owned the whole wrapper layer, an option already rejected in [Operations, not
+accessors](2026-07-16-operations-not-accessors-over-libplctag.md). And it buys nothing, because the core
+already packs.
 
 ### Option 3: Mirror the S7 addon's one-call batch (rejected)
 
@@ -160,7 +160,7 @@ stands in for it.
 
 - [the-shared-session.md](../../AllenBradley.Documentation/libPlcTag/the-shared-session.md)
   (why starting reads concurrently is what makes packing engage)
-- Related: [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) ·
+- Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md) ·
   [Reusing and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md) ·
   [Decoding tag bytes into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)

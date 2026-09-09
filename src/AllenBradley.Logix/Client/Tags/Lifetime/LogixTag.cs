@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// The production <see cref="ILogixTag"/>: it joins the data point and the controller's
 /// metadata onto the access the factory built, and delegates every read and write to that inner
 /// <see cref="ILogixTagAccess"/> (still a <see cref="SynchronizedLogixTagAccess"/>, so the
-/// whole-exchange gating of <c>ADR/2026-07-16-testable-libplctag-interface.md</c> is preserved).
+/// one-operation-at-a-time gating of <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> is preserved).
 /// Disposing this disposes the inner handle exactly once.
 /// </summary>
 internal sealed record LogixTag(ILogixDataPoint DataPoint, TagDefinition? Metadata, ILogixTagAccess Access)

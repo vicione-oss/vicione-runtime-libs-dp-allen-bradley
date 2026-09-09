@@ -5,9 +5,9 @@
 This decision covers `src/AllenBradley.Logix/Client/`. It covers how the concurrent group read (see
 [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)) maps onto
 libplctag connections, and what the access factory does, and deliberately does not, set on each handle. It
-settles the *connection layout*. The interface it sits on is [A testable interface over
-libplctag](2026-07-16-testable-libplctag-interface.md), and the handle cache it would reshape is [Reusing
-and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md). It was made under
+settles the *connection layout*. The interface it sits on is [Operations, not
+accessors](2026-07-16-operations-not-accessors-over-libplctag.md), and the handle cache it would reshape
+is [Reusing and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md). It was made under
 [issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
 
 Our read groups are **poll-frequency classes**. Data points are grouped by how often they are polled, into

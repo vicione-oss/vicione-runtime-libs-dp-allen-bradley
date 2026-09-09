@@ -135,8 +135,8 @@ having a `Drain` next to its `Dispose`.
   `DataPoint`, the controller's `Metadata`, and the read/write access — into the single object every
   consumer projects off.
 - **`SynchronizedLogixTagAccess` → `LogixTagAccess` → `libplctag Tag`** is the access chain. The
-  synchronized wrapper gates one whole operation at a time on a shared handle ([a testable interface
-  over libplctag](../../ADR/2026-07-16-testable-libplctag-interface.md)); the inner adapter runs the
+  synchronized wrapper gates one whole operation at a time on a shared handle ([Operations, not
+  accessors](../../ADR/2026-07-16-operations-not-accessors-over-libplctag.md)); the inner adapter runs the
   read/write against the native `Tag` and maps its exceptions onto results.
 - **`LogixTagAccessFactory`** (`ILogixTagAccessFactory`) builds those accesses — for data-point
   tags on behalf of the manager (`Create`), and for the `@tags` listing names on behalf of the

@@ -39,9 +39,9 @@ nothing beyond that, and it cannot be tested without a device.
 ## Decision Outcome
 
 Chosen: **Option 1**, which browses the symbol table once through the existing tag-access seam, decodes
-the raw bytes with a pure decoder, and diffs in memory. It reuses the whole-exchange boundary the
-[testable-interface ADR](2026-07-16-testable-libplctag-interface.md) established. It keeps the two hard
-parts, the byte layout and the diff, unit-testable without a device. And it does not depend on the mapper
+the raw bytes with a pure decoder, and diffs in memory. It reuses the one-member-per-operation boundary
+[Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) established. It keeps
+the two hard parts, the byte layout and the diff, unit-testable without a device. And it does not depend on the mapper
 API being removed upstream.
 
 The browse rides the tag-access seam. A symbol listing is a read of a specially named tag and nothing
@@ -162,7 +162,7 @@ no programs nested inside programs.
 
 It binds verification to the sealed wrapper type through the mapper API upstream is removing. That sealed
 type cannot be mocked from our assembly, which is the exact trap the
-[testable-interface ADR](2026-07-16-testable-libplctag-interface.md) exists to avoid
+[Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) exists to avoid
 ([libplctag.NET#450](https://github.com/libplctag/libplctag.NET/issues/450)). The spike listing stays in
 the test project as a protocol proof, not as production input.
 
@@ -192,7 +192,7 @@ References:
 - libplctag behaviour:
   [the shared session](../../AllenBradley.Documentation/libPlcTag/the-shared-session.md) ·
   [tag disposal and shutdown](../../AllenBradley.Documentation/libPlcTag/tag-disposal-and-shutdown.md)
-- Related: [A testable interface over libplctag](2026-07-16-testable-libplctag-interface.md) ·
+- Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Decoding tag bytes into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)
   (whose type-code metadata source this closes)
 - Upstream: [libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)

@@ -79,7 +79,7 @@ Both of those rely on the tag on the controller being the type the configuration
 [configuration verification](../../AllenBradley.Logix.Documentation/ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)
 settles at connect, and the reason the write path does not check widths of its own. The interface
 decision that removed the client's own write buffer is recorded in
-[a testable interface over libplctag](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-testable-libplctag-interface.md).
+[Operations, not accessors](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md).
 
 ## How it was checked
 
