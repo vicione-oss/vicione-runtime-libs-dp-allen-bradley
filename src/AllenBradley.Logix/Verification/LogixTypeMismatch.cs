@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 /// <summary>
 /// How the controller's type declaration disagrees with what a converter decodes, or

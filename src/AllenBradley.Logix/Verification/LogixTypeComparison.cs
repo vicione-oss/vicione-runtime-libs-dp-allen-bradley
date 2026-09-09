@@ -1,7 +1,8 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 // The whole type rule, in one function: the controller's TagDefinition read against what a converter
 // expects the tag to be. Configuration verification is the only caller, and it runs once per connect
