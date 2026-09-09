@@ -272,8 +272,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var pollFrequency = PollFrequency.FromMilliseconds(250);
         IReadOnlyList<ILogixDataPoint> dataPoints =
         [
-            new DIntDataPoint(
-                DefaultDIntTagName, LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
+            new DIntDataPoint(DefaultDIntTagName, DefaultPollFrequency, NoChannels),
         ];
 
         // Act

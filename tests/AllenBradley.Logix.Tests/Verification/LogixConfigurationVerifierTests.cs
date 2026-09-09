@@ -14,42 +14,22 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ProgramTagsNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
-/// The configuration diff. <see cref="LogixConfigurationVerifier.GetMismatches"/> is the whole of the
-/// verification rule, so it is exercised directly per mismatch class, and <c>Verify</c> — the seam the
-/// dataport base class calls — is checked once end to end against a fake client: the verifier resolves
-/// through <see cref="ILogixClient.ResolveDataPoints"/>, it neither browses nor holds a tag manager.
+/// <see cref="LogixConfigurationVerifier.GetMismatches"/> is the whole of the rule and is exercised
+/// directly per mismatch class; <c>Verify</c> — the seam the dataport base class calls — is checked end to
+/// end against a fake client.
 /// </summary>
-public class LogixConfigurationVerifierTests
+public sealed class LogixConfigurationVerifierTests
 {
-    private static TagDefinition Declaration(
-        bool isStruct = false,
-        AllenBradleyDataType? dataType = AllenBradleyDataType.Dint,
-        int dimensionCount = 0,
-        int? maxLength = null) =>
-        new(
-            new TagName("Tag"),
-            isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
-            dataType,
-            maxLength is { } length ? new StringMaxLength(length) : null,
-            new DimensionCount(dimensionCount),
-            new ElementCount(1));
-
-    // What the controller reports for a built-in STRING: a structure of .DATA[82] behind its .LEN.
-    private static TagDefinition StringDeclaration(int maxLength = 82) =>
-        Declaration(isStruct: true, dataType: AllenBradleyDataType.String, maxLength: maxLength);
-
-    private static ResolvedDataPoint Resolved(ILogixDataPoint dataPoint, TagDefinition? device) =>
-        new(dataPoint, device);
-
     [Fact]
-    public void GetMismatches_WhenTypeAndShapeMatch_ReportsNothing()
+    public void ATagWhoseTypeAndShapeAgreeWithTheControllerReportsNothing()
     {
         // Arrange
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Dint));
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), DefaultAtomicTagDefinition());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -59,85 +39,85 @@ public class LogixConfigurationVerifierTests
     }
 
     [Fact]
-    public void GetMismatches_WhenTheTagIsAbsent_ReportsNotFound()
+    public void ATagAbsentFromTheControllerIsReportedAsNotFound()
     {
         // Arrange
-        var resolved = Resolved(new DIntDataPoint(new TagName("Ghost"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), device: null);
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Ghost"), TagDefinition: null);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("Ghost").And.Contain("not found");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("Ghost").And.Contain("not found");
     }
 
     [Fact]
-    public void GetMismatches_WhenTheAtomicTypeDiffers_ReportsTheMismatch()
+    public void ATagOfAnotherAtomicTypeIsReportedWithBothTypesNamed()
     {
         // Arrange
         // DINT configured, REAL on the controller.
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Real));
+        var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("DINT").And.Contain("Real");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("DINT").And.Contain("Real");
     }
 
     [Fact]
-    public void GetMismatches_WhenTheControllerTagIsAStructure_ReportsAShapeMismatch()
+    public void AStructureWhereAnElementaryTypeWasConfiguredIsReportedAsAStructure()
     {
         // Arrange
-        var resolved = Resolved(new DIntDataPoint(new TagName("Motor"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), StringDeclaration());
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor"), DefaultStringTagDefinition());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("structure");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("structure");
     }
 
     [Fact]
-    public void GetMismatches_WhenTheControllerTagIsAnArray_ReportsAShapeMismatch()
+    public void AnArrayWhereAScalarWasConfiguredIsReportedAsAnArray()
     {
         // Arrange
-        var resolved = Resolved(new DIntDataPoint(new TagName("Counts"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels), Declaration(dataType: AllenBradleyDataType.Dint, dimensionCount: 1));
+        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = new DimensionCount(1) };
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Counts"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("array");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("array");
     }
 
     [Fact]
-    public void GetMismatches_WhenABoolArrayIsConfiguredAsAScalar_ReportsAShapeMismatch()
+    public void ABoolArrayConfiguredAsAScalarIsReportedAsAnArray()
     {
         // Arrange
-        // The BOOL node is the atomic tag only. A BOOL[] packs eight to the byte, and this is what keeps
-        // one configured as a scalar from being read a bit at a time.
-        var resolved = Resolved(
-            new BoolDataPoint(new TagName("Flags"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
-            Declaration(dataType: AllenBradleyDataType.Bool, dimensionCount: 1));
+        // The BOOL node is the atomic tag only, and a BOOL[] packs eight to the byte.
+        var declaration = DefaultAtomicTagDefinition() with
+        {
+            DataType = AllenBradleyDataType.Bool,
+            DimensionCount = new DimensionCount(1),
+        };
+        var resolved = new ResolvedDataPoint(
+            new BoolDataPoint(new TagName("Flags"), DefaultPollFrequency, NoChannels), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("array");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("array");
     }
 
     [Fact]
-    public void GetMismatches_WhenAStringMatchesTheDeclaredCapacity_ReportsNothing()
+    public void AStringOfTheDeclaredCapacityReportsNothing()
     {
         // Arrange
-        var resolved = Resolved(new StringDataPoint(new TagName("Label"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)), StringDeclaration());
+        var resolved = new ResolvedDataPoint(StringPointNamed("Label"), DefaultStringTagDefinition());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -147,32 +127,26 @@ public class LogixConfigurationVerifierTests
     }
 
     [Fact]
-    public void GetMismatches_WhenTheControllerTagIsElementaryButAStringIsConfigured_ReportsAShapeMismatch()
+    public void AnElementaryTagWhereAStringWasConfiguredIsReportedWithBothTypesNamed()
     {
         // Arrange
         // The inverse of the structure case: a STRING configured onto a DINT tag.
-        var resolved = Resolved(
-            new StringDataPoint(new TagName("Motor.Speed"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)),
-            Declaration(dataType: AllenBradleyDataType.Dint));
+        var resolved = new ResolvedDataPoint(StringPointNamed("Motor.Speed"), DefaultAtomicTagDefinition());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle()
-            .Which.Value.Should().Contain("STRING").And.Contain("Dint");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("STRING").And.Contain("Dint");
     }
 
     [Fact]
-    public void GetMismatches_WhenTheDeclaredStringCapacityDiffers_ReportsTheCapacity()
+    public void AStringCapacityThatDiffersIsReportedInCharacters()
     {
         // Arrange
-        // A STRING (82) configured onto a STRING_20. A round trip of a short value would never show
-        // this — hence its own mismatch kind. Both numbers are characters, the unit the configuration
-        // is written in.
-        var resolved = Resolved(
-            new StringDataPoint(new TagName("Label"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value)),
-            StringDeclaration(maxLength: 20));
+        // A STRING (82) configured onto a STRING_20, which a round trip of a short value would never show.
+        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
+        var resolved = new ResolvedDataPoint(StringPointNamed("Label"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -183,92 +157,100 @@ public class LogixConfigurationVerifierTests
     }
 
     [Fact]
-    public async Task Verify_ReturnsOnlyTheMisconfiguredDataPoints_WithTheirReasons()
+    public async Task OnlyTheMisconfiguredDataPointsComeBackFromAVerify()
     {
         // Arrange
-        var client = new FakeClient
+        // "Missing" is deliberately absent, so the client resolves it with no definition.
+        var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Good"] = Declaration(dataType: AllenBradleyDataType.Dint),
-            ["WrongType"] = Declaration(dataType: AllenBradleyDataType.Real),
-            // "Missing" is deliberately absent — the client resolves it with null metadata.
-        };
-        var verifier = new LogixConfigurationVerifier(client);
+            ["Good"] = DefaultAtomicTagDefinition(),
+            ["WrongType"] = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real },
+        });
 
         // Act
-        var result = await verifier.Verify(
-            [
-                new DIntDataPoint(new TagName("Good"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
-                new DIntDataPoint(new TagName("WrongType"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
-                new DIntDataPoint(new TagName("Missing"), LogixDataPointTestDataFactory.DefaultPollFrequency, NoChannels),
-            ],
+        var mismatches = await verifier.Verify(
+            [DIntPointNamed("Good"), DIntPointNamed("WrongType"), DIntPointNamed("Missing")],
             TestContext.Current.CancellationToken);
 
         // Assert
-        result.Select(m => m.DataPoint.TagName.Value).Should().BeEquivalentTo("WrongType", "Missing");
-        // The reason travels with the point: a base class that logs the result names the tag, not a count.
-        result.Should().AllSatisfy(m => m.MismatchingConfigurations.Should().ContainSingle()
-            .Which.Value.Should().Contain(m.DataPoint.TagName.Value));
+        mismatches.Select(mismatch => mismatch.DataPoint.TagName.Value).Should()
+            .BeEquivalentTo("WrongType", "Missing");
     }
 
     [Fact]
-    public async Task Verify_ATagUnderAProgramTheControllerHasNot_ReportsTheQualifiedAddressAsNotFound()
+    public async Task EveryReportedMismatchNamesTheTagItIsAbout()
     {
         // Arrange
-        var client = new FakeClient
+        // A base class that logs the result names the tag, not a count.
+        var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
-        };
-        var noSuchProgram = CreateProgramTagsNode("NoSuchProgram");
-        var dataPoints = DataPointsOf(CreateCommunicationOf(
-        [
-            noSuchProgram,
-            CreateDIntNode("Speed", "Count", noSuchProgram.Id),
-        ]));
-        var verifier = new LogixConfigurationVerifier(client);
+            ["WrongType"] = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real },
+        });
 
         // Act
-        var result = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
+        var mismatches = await verifier.Verify(
+            [DIntPointNamed("WrongType"), DIntPointNamed("Missing")], TestContext.Current.CancellationToken);
 
         // Assert
-        result.Should().ContainSingle()
+        mismatches.Should().AllSatisfy(mismatch => mismatch.MismatchingConfigurations.Should().ContainSingle()
+            .Which.Value.Should().Contain(mismatch.DataPoint.TagName.Value));
+    }
+
+    [Fact]
+    public async Task ATagUnderAProgramTheControllerHasNotIsReportedByItsQualifiedAddress()
+    {
+        // Arrange
+        var verifier = new LogixConfigurationVerifier(new FakeClient
+        {
+            ["Program:MainProgram.Count"] = DefaultAtomicTagDefinition(),
+        });
+        var noSuchProgram = CreateProgramTagsNode("NoSuchProgram");
+        var dataPoints = DataPointsOf(CreateCommunicationOf(
+            [noSuchProgram, CreateDIntNode("Speed", "Count", noSuchProgram.Id)]));
+
+        // Act
+        var mismatches = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
+
+        // Assert
+        mismatches.Should().ContainSingle()
             .Which.MismatchingConfigurations.Should().ContainSingle()
             .Which.Value.Should().Be("Tag 'Program:NoSuchProgram.Count' was not found on the controller.");
     }
 
     [Fact]
-    public async Task Verify_ATagUnderTheProgramThatOwnsIt_ReportsNothing()
+    public async Task ATagUnderTheProgramThatOwnsItReportsNothing()
     {
         // Arrange
-        var client = new FakeClient
+        var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Program:MainProgram.Count"] = Declaration(dataType: AllenBradleyDataType.Dint),
-        };
+            ["Program:MainProgram.Count"] = DefaultAtomicTagDefinition(),
+        });
         var mainProgram = CreateProgramTagsNode("MainProgram");
         var dataPoints = DataPointsOf(CreateCommunicationOf(
-        [
-            mainProgram,
-            CreateDIntNode("Speed", "Count", mainProgram.Id),
-        ]));
-        var verifier = new LogixConfigurationVerifier(client);
+            [mainProgram, CreateDIntNode("Speed", "Count", mainProgram.Id)]));
 
         // Act
-        var result = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
+        var mismatches = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
 
         // Assert
-        result.Should().BeEmpty();
+        mismatches.Should().BeEmpty();
     }
+
+    private static DIntDataPoint DIntPointNamed(string tagName) =>
+        new(new TagName(tagName), DefaultPollFrequency, NoChannels);
+
+    private static StringDataPoint StringPointNamed(string tagName) =>
+        new(new TagName(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     // The tree the engine's configuration produces, walked into the points the verifier is handed. A
     // hand-built point could not disagree with the walk about a program prefix, which is the whole
-    // question these two cases ask.
+    // question the two program cases ask.
     private static IReadOnlyList<ILogixDataPoint> DataPointsOf(LogixCommunication communication) =>
         new LogixDataPointsGroupsMapper().ToDataPoints(
             TypedLogixNodeMapper.Instance().MapToTypedNodes(communication));
 
-    // Stands in for LogixClient: it maps a tag name to the metadata the controller would report and
-    // resolves each data point against it, with null for a tag the controller does not have. Only
-    // ResolveDataPoints matters here — the verifier neither reads nor writes, and it does not drive the
-    // client's lifecycle.
+    // Stands in for LogixClient: it maps a tag name to the definition the controller would report and
+    // resolves each data point against it, with null for a tag the controller does not have.
     private sealed class FakeClient : ILogixClient
     {
         private readonly Dictionary<TagName, TagDefinition> _declarations =

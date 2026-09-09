@@ -13,11 +13,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 internal static class ScalarNodeTestDataFactory
 {
     /// <summary>The poll frequency, in milliseconds, every tag the factory makes is configured with.</summary>
-    internal const int DefaultPollFrequency = 100;
+    internal const int DefaultPollFrequencyInMilliseconds = 100;
 
     /// <summary>A configured <c>DINT</c> tag under <paramref name="parentId"/>, routed to <paramref name="channel"/>.</summary>
     internal static Node CreateDIntNode(
-        string channel, string tagName, Guid parentId, int pollFrequency = DefaultPollFrequency) =>
+        string channel, string tagName, Guid parentId, int pollFrequency = DefaultPollFrequencyInMilliseconds) =>
         CreateScalarDataPointNode(DIntNode.LinkedNodeTypeId, channel, tagName, parentId, pollFrequency);
 
     /// <summary>
@@ -29,7 +29,7 @@ internal static class ScalarNodeTestDataFactory
         string tagName,
         Guid parentId,
         int? maxLength = null,
-        int pollFrequency = DefaultPollFrequency) =>
+        int pollFrequency = DefaultPollFrequencyInMilliseconds) =>
         CreateScalarDataPointNode(
             StringNode.LinkedNodeTypeId,
             channel,

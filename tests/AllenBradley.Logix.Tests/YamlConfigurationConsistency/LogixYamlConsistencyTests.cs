@@ -15,7 +15,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.YamlConfigurationConsi
 /// the only branch-node property feeding two of them; if it is ever gone, the fix is
 /// <c>Theory.SkipTestWithoutData</c> in the base test.
 /// </summary>
-public class LogixYamlConsistencyTests :
+public sealed class LogixYamlConsistencyTests :
     YamlConsistencyBaseTest<LogixCommunication, LogixYamlConsistencyTests, DeviceNode>,
     IYamlTestingConfig<LogixCommunication, DeviceNode>
 {

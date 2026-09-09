@@ -20,6 +20,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.LogixControllerKind;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
@@ -32,9 +33,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// </summary>
 internal static class TypedNodeTestDataFactory
 {
-    /// <summary>The frequency every tag the factory makes is polled at.</summary>
-    internal static readonly PollFrequency DefaultPollFrequency = new(TimeSpan.FromSeconds(100));
-
     /// <summary>The controller every device the factory makes stands for.</summary>
     internal static readonly LogixControllerKind DefaultControllerKind = ControlLogix5X70;
 
