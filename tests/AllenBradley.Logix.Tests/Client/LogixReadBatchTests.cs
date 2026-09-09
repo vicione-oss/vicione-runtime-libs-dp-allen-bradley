@@ -402,7 +402,11 @@ public sealed class LogixReadBatchTests
 
         public AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Dint;
 
+        public DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
+
         public StringMaxLength? MaxLengthFor(ILogixDataPoint dataPoint) => null;
+
+        public ElementCount? ElementCountFor(ILogixDataPoint dataPoint) => null;
 
         public ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
         {

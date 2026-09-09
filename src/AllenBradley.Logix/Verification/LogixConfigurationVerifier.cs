@@ -56,11 +56,12 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
         return mismatch switch
         {
             LogixTypeMismatch.None => [],
-            LogixTypeMismatch.Array =>
+            LogixTypeMismatch.Rank =>
             [
                 new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagName}' is a {device.DimensionCount.Value}-dimensional array on the controller, " +
-                    "but a scalar is configured."),
+                    $"Shape mismatch for tag '{dataPoint.TagName}': " +
+                    $"configured {Describe(converter.ExpectedDimensionCount)}, " +
+                    $"controller reports {Describe(device.DimensionCount)}."),
             ],
             LogixTypeMismatch.Structure =>
             [
@@ -90,6 +91,15 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"holds {Describe(converter.MaxLengthFor(dataPoint))} characters, " +
                     $"but the controller declares {Describe(device.MaxLength)}."),
             ],
+            // Rendered in elements, for the reason the capacity above is rendered in characters: that is
+            // what both sides of the comparison are, and what the configuration is written in.
+            LogixTypeMismatch.ElementCount =>
+            [
+                new MismatchingConfiguration(
+                    $"Element count mismatch for tag '{dataPoint.TagName}': the configured " +
+                    $"{converter.ExpectedTypeName} holds {Describe(converter.ElementCountFor(dataPoint))} elements, " +
+                    $"but the controller declares {Describe(device.ElementCount)}."),
+            ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(resolved), mismatch, "Unhandled type mismatch kind."),
         };
@@ -107,4 +117,14 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     // nothing to size.
     private static string Describe(StringMaxLength? maxLength) =>
         maxLength?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
+
+    // An element count is absent only for a shape with no extent to configure, which the element-count
+    // mismatch itself rules out on the configured side.
+    private static string Describe(ElementCount? elementCount) =>
+        elementCount?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
+
+    // Said from the rank alone, so the one message serves both directions: an array configured onto a
+    // scalar tag is this same disagreement read the other way round.
+    private static string Describe(DimensionCount dimensionCount) =>
+        dimensionCount.IsScalar ? "a scalar" : $"a {dimensionCount.Value}-dimensional array";
 }

@@ -16,6 +16,9 @@ internal static class TagDefinitionTestDataFactory
     /// <summary>The element count a scalar tag reports.</summary>
     internal static readonly ElementCount OneElement = new(1);
 
+    /// <summary>The number of elements the array declaration the factory makes reports.</summary>
+    internal static readonly ElementCount TenElements = new(10);
+
     /// <summary>What the controller reports for a DINT tag.</summary>
     internal static TagDefinition DefaultAtomicTagDefinition() =>
         new(DefaultTagName, LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, Scalar, OneElement);
@@ -24,4 +27,9 @@ internal static class TagDefinitionTestDataFactory
     internal static TagDefinition DefaultStringTagDefinition() =>
         new(DefaultTagName, LogixTypeKind.Structure, AllenBradleyDataType.String, StringMaxLength.Standard, Scalar,
             OneElement);
+
+    /// <summary>What the controller reports for a ten-element one-dimensional INT array tag.</summary>
+    internal static TagDefinition DefaultIntArrayTagDefinition() =>
+        new(DefaultTagName, LogixTypeKind.Atomic, AllenBradleyDataType.Int, MaxLength: null,
+            DimensionCount.OneDimensional, TenElements);
 }

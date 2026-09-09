@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -80,28 +81,44 @@ public sealed class LogixConfigurationVerifierTests
     }
 
     [Fact]
-    public void AnArrayWhereAScalarWasConfiguredIsReportedAsAnArray()
+    public void AnArrayWhereAScalarWasConfiguredIsReportedWithBothShapesNamed()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = new DimensionCount(1) };
+        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = DimensionCount.OneDimensional };
         var resolved = new ResolvedDataPoint(DIntPointNamed("Counts"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Contain("array");
+        mismatches.Should().ContainSingle()
+            .Which.Value.Should().Contain("configured a scalar").And.Contain("1-dimensional array");
     }
 
     [Fact]
-    public void ABoolArrayConfiguredAsAScalarIsReportedAsAnArray()
+    public void AScalarWhereAnArrayWasConfiguredIsReportedWithBothShapesNamed()
+    {
+        // Arrange
+        // The direction the message could not say before an array could be the configured side.
+        var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), DefaultAtomicTagDefinition());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle()
+            .Which.Value.Should().Contain("configured a 1-dimensional array").And.Contain("a scalar");
+    }
+
+    [Fact]
+    public void ABoolArrayConfiguredAsAScalarIsReportedAsAShapeMismatch()
     {
         // Arrange
         // The BOOL node is the atomic tag only, and a BOOL[] packs eight to the byte.
         var declaration = DefaultAtomicTagDefinition() with
         {
             DataType = AllenBradleyDataType.Bool,
-            DimensionCount = new DimensionCount(1),
+            DimensionCount = DimensionCount.OneDimensional,
         };
         var resolved = new ResolvedDataPoint(
             new BoolDataPoint(new TagName("Flags"), DefaultPollFrequency, NoChannels), declaration);
@@ -111,6 +128,36 @@ public sealed class LogixConfigurationVerifierTests
 
         // Assert
         mismatches.Should().ContainSingle().Which.Value.Should().Contain("array");
+    }
+
+    [Fact]
+    public void AnIntArrayOfTheDeclaredCountReportsNothing()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(
+            IntArrayPointNamed("Readings"), DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AnElementCountThatDiffersIsReportedInElements()
+    {
+        // Arrange
+        // An INT[10] configured onto an INT[20], which a read of the first ten elements would never show.
+        var declaration = DefaultIntArrayTagDefinition() with { ElementCount = new ElementCount(20) };
+        var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), declaration);
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle().Which.Value.Should()
+            .Contain("Readings").And.Contain("10").And.Contain("20").And.Contain("elements");
     }
 
     [Fact]
@@ -241,6 +288,9 @@ public sealed class LogixConfigurationVerifierTests
 
     private static StringDataPoint StringPointNamed(string tagName) =>
         new(new TagName(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+
+    private static IntArrayDataPoint IntArrayPointNamed(string tagName) =>
+        new(new TagName(tagName), DefaultPollFrequency, NoChannels, TenElements);
 
     // The tree the engine's configuration produces, walked into the points the verifier is handed. A
     // hand-built point could not disagree with the walk about a program prefix, which is the whole

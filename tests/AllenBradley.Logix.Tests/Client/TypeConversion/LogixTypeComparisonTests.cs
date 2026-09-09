@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -21,10 +22,15 @@ public sealed class LogixTypeComparisonTests
 
     private static readonly IDataPointConverter StringCodec = new LogixStringConverter();
 
+    private static readonly IDataPointConverter IntArrayCodec = new IntArrayConverter();
+
     private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
         new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+
+    private static readonly IntArrayDataPoint Readings =
+        new(new TagName("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
 
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
@@ -141,29 +147,29 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Fact]
-    public void AnArrayOfTheExpectedTypeIsReportedAsAnArrayBeforeAnythingElse()
+    public void AnArrayWhereAScalarWasConfiguredIsARankMismatchBeforeAnythingElse()
     {
         // Arrange
         // An array is the wrong shape whatever its elements hold, and this ordering is the one the
         // verifier's messages cannot show.
-        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = new DimensionCount(1) };
+        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = DimensionCount.OneDimensional };
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
         var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.Array);
+        mismatch.Should().Be(LogixTypeMismatch.Rank);
     }
 
     [Fact]
-    public void AnArrayOfStructuresIsReportedAsAnArrayBeforeItsCapacity()
+    public void AnArrayOfStructuresIsARankMismatchBeforeItsCapacity()
     {
         // Arrange
         var declaration = DefaultStringTagDefinition() with
         {
             MaxLength = new StringMaxLength(20),
-            DimensionCount = new DimensionCount(1),
+            DimensionCount = DimensionCount.OneDimensional,
         };
         var resolved = new ResolvedDataPoint(Label, declaration);
 
@@ -171,6 +177,78 @@ public sealed class LogixTypeComparisonTests
         var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.Array);
+        mismatch.Should().Be(LogixTypeMismatch.Rank);
+    }
+
+    [Fact]
+    public void AnArrayOfTheConfiguredTypeAndCountIsNoMismatch()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(Readings, DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.None);
+    }
+
+    [Fact]
+    public void AScalarWhereAnArrayWasConfiguredIsARankMismatch()
+    {
+        // Arrange
+        // The inverse of the case the port has always caught, and what an array node put on a scalar
+        // tag looks like.
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            DimensionCount = DimensionCount.Scalar,
+            ElementCount = OneElement,
+        };
+        var resolved = new ResolvedDataPoint(Readings, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.Rank);
+    }
+
+    [Fact]
+    public void AnArrayOfAnotherElementTypeIsAnAtomicTypeMismatchBeforeItsCount()
+    {
+        // Arrange
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            DataType = AllenBradleyDataType.Dint,
+            ElementCount = new ElementCount(20),
+        };
+        var resolved = new ResolvedDataPoint(Readings, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.AtomicType);
+    }
+
+    [Theory]
+    [InlineData(20)]
+    [InlineData(5)]
+    public void AnArrayOfAnotherLengthIsAnElementCountMismatch(int declaredElementCount)
+    {
+        // Arrange
+        // A count is an equality, not a bound: an INT[5] read as ten elements runs off the end of the
+        // tag, and an INT[20] read as ten never sees the other half.
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            ElementCount = new ElementCount(declaredElementCount),
+        };
+        var resolved = new ResolvedDataPoint(Readings, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.ElementCount);
     }
 }

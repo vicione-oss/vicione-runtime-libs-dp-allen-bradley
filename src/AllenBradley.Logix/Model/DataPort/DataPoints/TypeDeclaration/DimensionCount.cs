@@ -10,6 +10,9 @@ public readonly record struct DimensionCount(int Value)
     /// <summary>A scalar — no array dimensions.</summary>
     public static DimensionCount Scalar => new(0);
 
+    /// <summary>A one-dimensional array. Rank 2 and 3 exist on Logix; this port does not read them.</summary>
+    public static DimensionCount OneDimensional => new(1);
+
     /// <summary>Whether the tag is a scalar (rank <c>0</c>) rather than an array.</summary>
     public bool IsScalar => Value == 0;
 }

@@ -16,7 +16,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 // range rules that record carries.
 //
 // What a match *is* is not decided here or in any subclass. A converter states what it expects the tag
-// to be — ExpectedKind, ExpectedDataType and MaxLengthOf — and LogixTypeComparison holds the one rule
+// to be — ExpectedKind, ExpectedDataType, ExpectedDimensionCount, MaxLengthOf and ElementCountOf — and
+// LogixTypeComparison holds the one rule
 // that reads a TagDefinition against it. An elementary type and a STRING are then two sets of constants
 // rather than two comparisons that must agree.
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
@@ -28,12 +29,22 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
 
     public abstract AllenBradleyDataType? ExpectedDataType { get; }
 
+    // A converter decodes one value unless it says otherwise, so only an array shape states a rank.
+    public virtual DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
+
     StringMaxLength? IDataPointConverter.MaxLengthFor(ILogixDataPoint dataPoint) =>
         MaxLengthOf(Cast(dataPoint));
+
+    ElementCount? IDataPointConverter.ElementCountFor(ILogixDataPoint dataPoint) =>
+        ElementCountOf(Cast(dataPoint));
 
     // The capacity the controller must declare for this data point, or null when the type fixes its own
     // size and there is nothing left to agree on.
     protected abstract StringMaxLength? MaxLengthOf(TDataPoint dataPoint);
+
+    // How many elements the controller must declare for this data point, or null when the shape holds one
+    // value and its extent is not something a configuration states.
+    protected virtual ElementCount? ElementCountOf(TDataPoint dataPoint) => null;
 
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 

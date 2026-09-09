@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
@@ -13,6 +14,12 @@ internal sealed class IntArrayConverter : AtomicDataPointConverter<IntArrayDataP
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.IntArray;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Int;
+
+    public override DimensionCount ExpectedDimensionCount => DimensionCount.OneDimensional;
+
+    // The configured count is held against the controller's rather than treated as a bound: a tag resized
+    // in Studio 5000 is invisible to a read that only takes the first elements.
+    protected override ElementCount? ElementCountOf(IntArrayDataPoint dataPoint) => dataPoint.ElementCount;
 
     protected override short[] DecodeValue(IntArrayDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {

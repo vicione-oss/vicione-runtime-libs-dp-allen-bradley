@@ -13,8 +13,11 @@ internal enum LogixTypeMismatch
     /// <summary>The declaration matches the converter's expected type — or is absent, which is unverifiable.</summary>
     None,
 
-    /// <summary>The controller reports an array where a scalar is configured.</summary>
-    Array,
+    /// <summary>
+    /// The rank the controller declares is not the one configured, in either direction — an array where a
+    /// scalar is configured, and a scalar where an array is.
+    /// </summary>
+    Rank,
 
     /// <summary>The controller reports a structure where an elementary type is configured.</summary>
     Structure,
@@ -35,4 +38,12 @@ internal enum LogixTypeMismatch
     /// nothing about the capacity.
     /// </summary>
     StringCapacity,
+
+    /// <summary>
+    /// The number of elements the controller declares is not the one configured — an <c>INT[20]</c> where
+    /// an <c>INT[10]</c> is configured. Worth its own kind for the reason
+    /// <see cref="StringCapacity"/> is: a tag resized in Studio 5000 is invisible to a read that only
+    /// takes the first elements.
+    /// </summary>
+    ElementCount,
 }
