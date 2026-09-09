@@ -16,14 +16,12 @@ scattered through the code.
 
 The second is run time. A Logix tag is addressed by name, and the controller owns its data type, not our
 configuration. A configured data point can simply disagree with the controller. It might be configured as
-a 32-bit integer and actually be a float. The sibling Siemens S7 addon does not have this problem, because
-its absolute addresses fix the type in the address itself. So the controller's own declaration has to be
-read and compared with the configuration before any tag is polled.
+a 32-bit integer and actually be a float. 
 
 The open design choice is what the converters consume. They could read the wrapper's typed getters
 (`GetInt32`, `GetString`, …), or they could decode the raw bytes themselves. One fact weighs on that
-choice. The wrapper's typed-mapper API (`Tag<M,T>`), which the connectivity spike used, is being removed
-upstream ([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)). The library's
+choice. The wrapper's typed-mapper API (`Tag<M,T>`), is being removed
+upstream ([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)), currently only deprecated. The library's
 direction is the base `Tag` plus raw buffers, with all marshalling owned by the caller.
 
 ## Considered Options
