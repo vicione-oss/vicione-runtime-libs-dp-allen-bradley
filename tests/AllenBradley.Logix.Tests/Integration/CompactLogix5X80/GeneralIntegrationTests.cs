@@ -4,34 +4,35 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
+using ViciOne.Suite.DataPort.Extensions.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
 
 /// <summary>
-/// What holds for the CompactLogix 5X80 as a whole rather than for one type: that it can be connected
-/// to, that every tag this folder assumes exists and is declared as assumed, and that a tag configured
-/// as the wrong type is caught at connect instead of misread at poll time.
+/// What holds for the controller as a whole rather than for one type. Run
+/// <see cref="EveryTypeInTheVocabularyIsDeclaredAsItIsConfigured"/> first against a newly provisioned
+/// controller: the addresses in <see cref="TagAddresses"/> are assumptions until a real device confirms
+/// them, and this turns a wrong one into a named disagreement rather than a round-trip failure per type.
 /// </summary>
-/// <remarks>
-/// <see cref="Verify_EveryTypeInTheVocabulary_ReportsNoMisconfiguration"/> is the test to run first
-/// against a newly provisioned controller. The tag names in <see cref="TagAddresses"/> are assumptions
-/// until a real device confirms them, and this is what turns a wrong one into a named, readable
-/// disagreement — <em>which</em> tag, and whether it is missing, the wrong type or the wrong shape —
-/// rather than into a round-trip failure per type that all say a read came back Bad.
-/// </remarks>
 public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
 {
     [Fact]
-    public void Connect_ToTheControllerUnderTest_Succeeds() =>
-        // Arrange — the base class connected in InitializeAsync
+    public void TheControllerUnderTestIsConnected()
+    {
+        // Arrange
+        // The base class connected in InitializeAsync.
+
         // Act
+        var isConnected = Client.IsConnected;
+
         // Assert
-        Client.IsConnected.Should().BeTrue();
+        isConnected.Should().BeTrue();
+    }
 
     [Fact]
-    public async Task Verify_EveryTypeInTheVocabulary_ReportsNoMisconfiguration()
+    public async Task EveryTypeInTheVocabularyIsDeclaredAsItIsConfigured()
     {
         // Arrange
         var dataPoints = TheWholeVocabulary();
@@ -41,63 +42,62 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         var misconfigured = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
 
         // Assert
-        // Written out before the assertion, because the message a collection assertion renders truncates
-        // and the reasons are the whole point: each one names its tag and says what disagreed.
-        Output.WriteLine($"Verified {dataPoints.Count} configured tags against the controller.");
-        foreach (var reason in misconfigured.SelectMany(
-                     dataPoint => dataPoint.MismatchingConfigurations.Select(mismatch => mismatch.Value)))
-        {
-            Output.WriteLine($"  {reason}");
-        }
-
+        // Written out before the assertion, because a collection assertion truncates and the reasons are
+        // the whole point: each one names its tag and says what disagreed.
+        Report(dataPoints.Count, misconfigured);
         misconfigured.Should().BeEmpty(
             "every tag this folder assumes should exist on the controller, declared as the type and shape "
             + "it is configured as");
     }
 
     [Fact]
-    public async Task Verify_TagsConfiguredAsTheWrongType_AreEachReported()
+    public async Task EveryTagConfiguredAsTheWrongTypeIsReported()
     {
         // Arrange
-        // Every pairing is a tag that exists, configured as a type it is not — which is the case a round
-        // trip cannot reach: the read would decode the bytes as whatever was configured and hand back a
-        // plausible value. The last two cross the atomic/structure line, the mismatch that is not merely
-        // a different width.
-        //
-        // SINT-on-a-USINT is the same mismatch with the width taken away. Configuring a type wider than
-        // the tag has a backstop even without verification — the decode runs out of buffer and the write
-        // is refused as out of bounds — but two types of equal width have none in either direction, and
-        // every byte pattern is legal for both. Writing 200 and reading -56 back is all that is left.
-        ILogixDataPoint[] misconfigured =
-        [
-            new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
-            new DIntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels),
-            new IntDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels),
-            new RealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
-            new DIntDataPoint(new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels),
-            new StringDataPoint(
-                new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
-        ];
+        var misconfigured = TagsConfiguredAsTheWrongType();
         var verifier = new LogixConfigurationVerifier(Client);
 
         // Act
         var reported = await verifier.Verify(misconfigured, TestContext.Current.CancellationToken);
 
         // Assert
-        foreach (var reason in reported.SelectMany(
-                     dataPoint => dataPoint.MismatchingConfigurations.Select(mismatch => mismatch.Value)))
-        {
-            Output.WriteLine(reason);
-        }
-
+        Report(misconfigured.Count, reported);
         reported.Select(dataPoint => dataPoint.DataPoint).Should().BeEquivalentTo(misconfigured,
             "a scalar configured as the wrong type is caught at connect, not misread at poll time");
+    }
 
-        // The reason travels with the point: a connect that aborts names the tag, not a count.
+    [Fact]
+    public async Task EveryReportedMismatchNamesTheTagItIsAbout()
+    {
+        // Arrange
+        // A connect that aborts names the tag, not a count.
+        var verifier = new LogixConfigurationVerifier(Client);
+
+        // Act
+        var reported = await verifier.Verify(
+            TagsConfiguredAsTheWrongType(), TestContext.Current.CancellationToken);
+
+        // Assert
         reported.Should().AllSatisfy(dataPoint =>
             dataPoint.MismatchingConfigurations.Should().ContainSingle()
                 .Which.Value.Should().Contain(dataPoint.DataPoint.TagName.Value));
     }
+
+    // Every pairing is a tag that exists, configured as a type it is not — the case a round trip cannot
+    // reach, because the read would decode the bytes as whatever was configured and hand back a plausible
+    // value. SINT-on-a-USINT is the mismatch with the width taken away: two types of equal width have no
+    // backstop in either direction, and every byte pattern is legal for both. The last two cross the
+    // atomic/structure line.
+    private static IReadOnlyList<ILogixDataPoint> TagsConfiguredAsTheWrongType() =>
+    [
+        new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels),
+        new IntDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels),
+        new RealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels),
+        new StringDataPoint(
+            new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+    ];
 
     // The whole configured vocabulary, exactly as the round-trip suites configure it — one point per
     // type, at the address configured for that type, with the STRING at its configured capacity.
@@ -117,4 +117,15 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new StringDataPoint(
             new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
     ];
+
+    private void Report(
+        int verifiedCount, IReadOnlyList<MisconfiguredDataPoint<ILogixDataPoint>> misconfigured)
+    {
+        Output.WriteLine($"Verified {verifiedCount} configured tags against the controller.");
+        foreach (var reason in misconfigured.SelectMany(
+                     dataPoint => dataPoint.MismatchingConfigurations.Select(mismatch => mismatch.Value)))
+        {
+            Output.WriteLine($"  {reason}");
+        }
+    }
 }

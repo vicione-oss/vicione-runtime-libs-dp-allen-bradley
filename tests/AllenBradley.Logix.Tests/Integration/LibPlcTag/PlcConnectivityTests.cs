@@ -3,77 +3,44 @@ using libplctag;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
 /// <summary>
-/// End-to-end integration tests that require a physical ControlLogix/CompactLogix device.
-/// Marked with Category=Integration so they can be excluded from CI runs without device access:
-///
-///   dotnet test                                   (unit suite — the default, never touches the PLC)
-///   dotnet test -p:test-suite=integration         (run only these)
-///   dotnet test -p:test-suite=all                 (run everything)
-///
-/// Configure the device below or via environment variables:
-///   CIP_GATEWAY   – IP address of the PLC/gateway  (default: 192.168.0.100)
-///   CIP_PATH      – CIP route path                 (default: 1,0)
-///   CIP_TAG_NAME  – Tag to write/read              (default: Program:MainProgram.strValue1)
+/// libplctag's own round trip against the device, with none of this addon in the way — the baseline a
+/// failure elsewhere is read against. The suite writes <c>strValue1</c>; that is what the tag is for, so
+/// nothing is restored.
 /// </summary>
-[Trait("Category", "Integration")]
-[Collection(PlcCollection.Name)]
-public class PlcConnectivityTests
+public sealed class PlcConnectivityTests : LibPlcTagIntegrationTestBase
 {
-    // ── Connection configuration ──────────────────────────────────────────────
-    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
-    private static readonly string TagName = Environment.GetEnvironmentVariable("CIP_TAG_NAME") ?? "Program:MainProgram.strValue1";
-
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
-    // ─────────────────────────────────────────────────────────────────────────
-
     [Fact]
-    public void WriteAndReadStringTag_RoundTripPreservesValue()
+    public void AStringWrittenWithTheSynchronousApiReadsBackUnchanged()
     {
         // Arrange
-        using var tag = new Tag();
-        tag.Name = TagName;
-        tag.Gateway = ConnectionEndpoint;
-        tag.Path = CipRoutePath;
-        tag.PlcType = PlcType.ControlLogix;
-        tag.Protocol = Protocol.ab_eip;
-        tag.Timeout = Timeout;
-        tag.Read(); // initialize tag metadata before writing
-
-        var expectedValue = $"TEST_{DateTime.UtcNow:HHmmss}";
+        // The first read is what initialises the tag's metadata; a write before it has nothing to size.
+        using var tag = BenchController.RawTagFor(BenchControllerTags.StrValue1);
+        tag.Read();
+        var valueToWrite = $"TEST_{DateTime.UtcNow:HHmmss}";
 
         // Act
-        tag.SetString(0, expectedValue);
+        tag.SetString(0, valueToWrite);
         tag.Write();
         tag.Read();
-        var actualValue = tag.GetString(0);
 
         // Assert
-        actualValue.Should().Be(expectedValue);
+        tag.GetString(0).Should().Be(valueToWrite);
     }
 
     [Fact]
-    public async Task WriteAndReadStringTagAsync_RoundTripPreservesValue()
+    public async Task AStringWrittenWithTheAsynchronousApiReadsBackUnchanged()
     {
         // Arrange
-        using var tag = new Tag();
-        tag.Name = TagName;
-        tag.Gateway = ConnectionEndpoint;
-        tag.Path = CipRoutePath;
-        tag.PlcType = PlcType.ControlLogix;
-        tag.Protocol = Protocol.ab_eip;
-        tag.Timeout = Timeout;
-        await tag.ReadAsync(); // initialize tag metadata before writing
-
-        var expectedValue = $"TEST_{DateTime.UtcNow:HHmmss}";
+        using var tag = BenchController.RawTagFor(BenchControllerTags.StrValue1);
+        await tag.ReadAsync();
+        var valueToWrite = $"TEST_{DateTime.UtcNow:HHmmss}";
 
         // Act
-        tag.SetString(0, expectedValue);
+        tag.SetString(0, valueToWrite);
         await tag.WriteAsync();
         await tag.ReadAsync();
-        var actualValue = tag.GetString(0);
 
         // Assert
-        actualValue.Should().Be(expectedValue);
+        tag.GetString(0).Should().Be(valueToWrite);
     }
 }

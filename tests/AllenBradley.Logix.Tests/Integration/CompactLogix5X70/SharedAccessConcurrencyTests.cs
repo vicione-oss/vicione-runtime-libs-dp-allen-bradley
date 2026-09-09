@@ -1,141 +1,110 @@
-using libplctag;
-using Microsoft.Extensions.Logging.Abstractions;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
 
 /// <summary>
-/// Verifies — against the real CompactLogix L32E — the two claims that justify <c>SynchronizedLogixTagAccess</c>,
-/// rather than taking the word of <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> for them:
-/// <list type="number">
-/// <item>a group can name the same tag twice, so <c>CachingLogixTagManager</c> hands one shared tag to
-/// several concurrent readers (<see cref="Group_NamingTheSameTagTwice_SharesOneTag_AndReadsConsistently"/>);</item>
-/// <item>concurrent read and write on one libplctag handle genuinely races on its single native buffer, so
-/// a bare access self-inflicts errors (<see cref="BareAccess_ConcurrentReadAndWrite_RacesOnTheSharedBuffer"/>)
-/// while a synchronized one does not (<see cref="SynchronizedAccess_ConcurrentReadAndWrite_NeverSelfInflictsAnError"/>).</item>
-/// </list>
-/// Requires the device reachable (see TEST-DEVICE-SETUP.md). The writes here push the DINT's own current
-/// value straight back, so they are idempotent — the tag is never actually changed.
+/// The two device facts that justify <c>SynchronizedLogixTagAccess</c>, rather than taking the word of
+/// <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> for them. The suite writes the DINT's
+/// own current value straight back, so the tag is never actually changed.
 /// </summary>
-[Trait("Category", "Integration")]
-[Collection(PlcCollection.Name)]
-public class SharedAccessConcurrencyTests
+public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
 {
-    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
-
-    // A COUNTER's .PRE member is a stable DINT we can read and write without disturbing the program (see
-    // LogixClientReadTests). Override with CIP_DINT_TAG if your device differs.
-    private static readonly string DintTagName =
-        Environment.GetEnvironmentVariable("CIP_DINT_TAG") ?? "Program:MainProgram.Counter.PRE";
-
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
-
-    // Hard deadline for a single probe op on a bare access, so a collision that wedges an operation
-    // surfaces as a timed-out anomaly rather than an indefinite hang.
-    private static readonly TimeSpan OpDeadline = TimeSpan.FromSeconds(3);
-
-    // How hard the concurrency tests lean on the access: each round fires this many reads and writes at
-    // once, all onto the one shared access, for this many rounds.
+    // How hard the concurrency probes lean on one access: each round fires this many reads and writes at
+    // once, for this many rounds.
     private const int Rounds = 60;
     private const int ReadsPerRound = 3;
     private const int WritesPerRound = 3;
 
+    // Rounds the race probe gives up after, since one collision is all the evidence the design needs.
+    private const int RaceProbeRounds = 20;
+
+    // Hard deadline for a single probe op on an ungated access, so a collision that wedges an operation
+    // surfaces as a timed-out anomaly rather than an indefinite hang.
+    private static readonly TimeSpan OperationDeadline = TimeSpan.FromSeconds(3);
+
+    private static readonly TimeSpan SeedTimeout = TimeSpan.FromSeconds(10);
+
     [Fact]
-    public async Task Group_NamingTheSameTagTwice_SharesOneTag_AndReadsConsistently()
+    public void AGroupNamingOneTagTwiceDrawsTheSameTagForBothEntries()
     {
         // Arrange
-        var clientInformation = ClientInformation();
-        var accessFactory = new LogixTagAccessFactory(clientInformation);
-        var tagManager = new CachingLogixTagManager(
-            accessFactory, new TagDefinitionsLoader(accessFactory), NullLogger<CachingLogixTagManager>.Instance);
-        var first = new DIntDataPoint(new TagName(DintTagName), DefaultPollFrequency, NoChannels);
-        var second = new DIntDataPoint(new TagName(DintTagName), DefaultPollFrequency, NoChannels);
-        using var readClient = new LogixClient(
-            tagManager, clientInformation, NullLogger<LogixClient>.Instance);
-        ILogixDataPoint[] dataPoints = [first, second];
+        // Distinct instances, equal by record value — the shared-access premise, without needing a race.
+        var first = CounterPresetPoint();
+        var second = CounterPresetPoint();
+
+        // Act
+        var tag = TagManager.TagFor(second);
+
+        // Assert
+        tag.Should().BeSameAs(TagManager.TagFor(first));
+    }
+
+    [Fact]
+    public async Task AGroupNamingOneTagTwiceReadsTheSameValueForBothEntries()
+    {
+        // Arrange
+        ILogixDataPoint[] dataPoints = [CounterPresetPoint(), CounterPresetPoint()];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
-        await readClient.ConnectAsync(CancellationToken.None);
-        var values = await readClient.ReadAsync(group, CancellationToken.None);
+        var values = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
         // Assert
-        // Axis 2, deterministically: two distinct but record-equal data points naming one tag resolve to
-        // the *same* tag — and so share its one synchronized access. This is the shared-access premise,
-        // verified without needing a race to occur.
-        tagManager.TagFor(second).Should().BeSameAs(tagManager.TagFor(first));
-
-        // And a group carrying both reads cleanly through the production stack: two entries, one tag,
-        // two concurrent reads that the gate serialized — both returned, both the same value. Reaching
-        // this line is itself the success check: a read that failed would have thrown.
+        // Two entries, one tag, two concurrent reads the gate serialized. Reaching this line is itself a
+        // check: a read that failed would have thrown.
         values.Should().HaveCount(2);
         values.Select(value => value.Value).Distinct().Should().ContainSingle(
             "both entries read the same tag over the same access");
     }
 
     [Fact]
-    public async Task SynchronizedAccess_ConcurrentReadAndWrite_NeverSelfInflictsAnError()
+    public async Task AGatedAccessUnderConcurrentReadsAndWritesNeverSelfInflictsAnError()
     {
         // Arrange
         using ILogixTagAccess access = new SynchronizedLogixTagAccess(new LogixTagAccess(NewRawTag()));
 
         // Act
-        var outcomes = await HammerAsync(access, CancellationToken.None);
+        var outcomes = await HammerAsync(access, TestContext.Current.CancellationToken);
 
         // Assert
-        // The gate makes every operation one whole operation on the access to itself, so nothing the batch
-        // does to this tag can make it fail. On a healthy device that means every read and write is Ok.
-        outcomes.Should().NotContain(o => !o.Ok, "serializing operations on the shared access removes the self-inflicted races");
+        // The gate makes every operation one whole operation on the access to itself, so nothing the
+        // batch does to this tag can make it fail.
+        outcomes.Should().NotContain(outcome => !outcome.Ok,
+            "serializing operations on the shared access removes the self-inflicted races");
     }
 
     [Fact]
-    public async Task BareAccess_ConcurrentReadAndWrite_RacesOnTheSharedBuffer()
+    public async Task AnUngatedAccessUnderConcurrentReadsAndWritesRacesOnItsOneNativeBuffer()
     {
         // Arrange
         using ILogixTagAccess access = new LogixTagAccess(NewRawTag());
-
-        // Seed the write payload from the tag's own value, under its own bounded read.
-        byte[] payload;
-        using (var seedCts = new CancellationTokenSource(Timeout))
-        {
-            var seed = await access.ReadAsync(seedCts.Token);
-            seed.Succeeded.Should().BeTrue("the tag must be readable before the concurrency probe");
-            payload = seed.Buffer.ToArray();
-        }
+        var payload = await SeedPayloadAsync(access);
 
         // Act
-        // Overlapping read and write on one native handle collides on its single buffer — and against real
-        // hardware the collision does not merely come back with an error, it can leave an operation wedged
-        // so the read never completes. So every probe op carries a hard deadline: a wedged op surfaces as a
-        // timed-out anomaly instead of hanging the suite (a hang under MTP would take the whole process
-        // down). Stop at the first collision — one is all the evidence the design needs.
-        var anomalies = new List<OpOutcome>();
-        for (var round = 0; round < 20 && anomalies.Count == 0; round++)
+        // Every probe op carries a hard deadline, because against real hardware a collision can leave an
+        // operation wedged — and a hang under MTP takes the whole process down.
+        var anomalies = new List<OperationOutcome>();
+        for (var round = 0; round < RaceProbeRounds && anomalies.Count == 0; round++)
         {
-            using var opCts = new CancellationTokenSource(OpDeadline);
-            var ops = new[]
+            using var operationCts = new CancellationTokenSource(OperationDeadline);
+            var operations = new[]
             {
-                ReadOnceAsync(access, opCts.Token),
-                WriteOnceAsync(access, payload, opCts.Token),
-                ReadOnceAsync(access, opCts.Token),
-                WriteOnceAsync(access, payload, opCts.Token),
+                ReadOnceAsync(access, operationCts.Token),
+                WriteOnceAsync(access, payload, operationCts.Token),
+                ReadOnceAsync(access, operationCts.Token),
+                WriteOnceAsync(access, payload, operationCts.Token),
             };
 
-            anomalies.AddRange((await Task.WhenAll(ops)).Where(o => !o.Ok));
+            anomalies.AddRange((await Task.WhenAll(operations)).Where(outcome => !outcome.Ok));
         }
 
         // Assert
-        // The race is timing-dependent: a run that reproduces it is the evidence; a run that does not is
-        // inconclusive, not a failure — asserting the race *must* fire here would be a flaky false negative.
+        // The race is timing-dependent: a run that reproduces it is the evidence, and a run that does not
+        // is inconclusive rather than a failure.
         if (anomalies.Count == 0)
         {
             Assert.Skip("No collision reproduced this run — the shared-buffer race is timing-dependent.");
@@ -145,78 +114,75 @@ public class SharedAccessConcurrencyTests
             "an unsynchronized shared access collides read against write on its one native buffer");
     }
 
-    // Fires ReadsPerRound reads and WritesPerRound writes concurrently onto one access, for Rounds rounds,
-    // and returns what each operation reported. Writes push the tag's own current bytes back, so they never
-    // change the value — the point is only that a write is in flight while a read is.
-    private static async Task<IReadOnlyList<OpOutcome>> HammerAsync(ILogixTagAccess access, CancellationToken ct)
-    {
-        // Seed the write payload from the tag's own current value, so every write is a no-op on the device.
-        var seed = await access.ReadAsync(ct).ConfigureAwait(false);
-        seed.Succeeded.Should().BeTrue("the tag must be readable before the concurrency probe");
-        var payload = seed.Buffer.ToArray();
+    private static DIntDataPoint CounterPresetPoint() =>
+        new(new TagName(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels);
 
-        var outcomes = new List<OpOutcome>();
+    private static libplctag.Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
+
+    // The tag's own current bytes, so every write the probes issue is a no-op on the device.
+    private static async Task<byte[]> SeedPayloadAsync(ILogixTagAccess access)
+    {
+        using var seedCts = new CancellationTokenSource(SeedTimeout);
+        var seed = await access.ReadAsync(seedCts.Token);
+        seed.Succeeded.Should().BeTrue("the tag must be readable before the concurrency probe");
+
+        return seed.Buffer.ToArray();
+    }
+
+    // Fires ReadsPerRound reads and WritesPerRound writes concurrently onto one access, for Rounds
+    // rounds, and returns what each operation reported.
+    private static async Task<IReadOnlyList<OperationOutcome>> HammerAsync(
+        ILogixTagAccess access, CancellationToken cancellationToken)
+    {
+        var payload = await SeedPayloadAsync(access).ConfigureAwait(false);
+
+        var outcomes = new List<OperationOutcome>();
         for (var round = 0; round < Rounds; round++)
         {
-            var ops = new List<Task<OpOutcome>>(ReadsPerRound + WritesPerRound);
-            for (var r = 0; r < ReadsPerRound; r++)
+            var operations = new List<Task<OperationOutcome>>(ReadsPerRound + WritesPerRound);
+            for (var read = 0; read < ReadsPerRound; read++)
             {
-                ops.Add(ReadOnceAsync(access, ct));
+                operations.Add(ReadOnceAsync(access, cancellationToken));
             }
 
-            for (var w = 0; w < WritesPerRound; w++)
+            for (var write = 0; write < WritesPerRound; write++)
             {
-                ops.Add(WriteOnceAsync(access, payload, ct));
+                operations.Add(WriteOnceAsync(access, payload, cancellationToken));
             }
 
-            outcomes.AddRange(await Task.WhenAll(ops).ConfigureAwait(false));
+            outcomes.AddRange(await Task.WhenAll(operations).ConfigureAwait(false));
         }
 
         return outcomes;
     }
 
-    private static async Task<OpOutcome> ReadOnceAsync(ILogixTagAccess access, CancellationToken ct)
+    private static async Task<OperationOutcome> ReadOnceAsync(
+        ILogixTagAccess access, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await access.ReadAsync(ct).ConfigureAwait(false);
-            return new OpOutcome("read", result.Succeeded, result.Error);
+            var result = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
+            return new OperationOutcome("read", result.Succeeded, result.Error);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return new OpOutcome("read", false, ex.Message);
+            return new OperationOutcome("read", false, exception.Message);
         }
     }
 
-    private static async Task<OpOutcome> WriteOnceAsync(ILogixTagAccess access, byte[] payload, CancellationToken ct)
+    private static async Task<OperationOutcome> WriteOnceAsync(
+        ILogixTagAccess access, byte[] payload, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await access.WriteAsync(payload, ct).ConfigureAwait(false);
-            return new OpOutcome("write", result.Succeeded, result.Error);
+            var result = await access.WriteAsync(payload, cancellationToken).ConfigureAwait(false);
+            return new OperationOutcome("write", result.Succeeded, result.Error);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            return new OpOutcome("write", false, ex.Message);
+            return new OperationOutcome("write", false, exception.Message);
         }
     }
 
-    private static LogixClientInformation ClientInformation() =>
-        new(
-            new ConnectionEndpoint(ConnectionEndpoint),
-            TcpPort.EtherNetIp,
-            new CipRoutePath(CipRoutePath),
-            new OperationTimeout(Timeout));
-
-    private static Tag NewRawTag() => new()
-    {
-        Gateway = ConnectionEndpoint,
-        Path = CipRoutePath,
-        PlcType = PlcType.ControlLogix,
-        Protocol = Protocol.ab_eip,
-        Name = DintTagName,
-        Timeout = Timeout,
-    };
-
-    private readonly record struct OpOutcome(string Op, bool Ok, string? Error);
+    private readonly record struct OperationOutcome(string Operation, bool Ok, string? Error);
 }

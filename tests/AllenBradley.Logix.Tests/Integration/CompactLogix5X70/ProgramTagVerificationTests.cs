@@ -13,10 +13,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// configuration tree composes, and the key the symbol-table browse files a program tag under. Both are
 /// <c>Program:MainProgram.strValue1</c> by construction, and this is what holds them to it.
 /// </summary>
-public class ProgramTagVerificationTests : LogixIntegrationTestBase
+public sealed class ProgramTagVerificationTests : LogixIntegrationTestBase
 {
     [Fact]
-    public async Task Verify_AStringTagConfiguredUnderItsProgram_ReportsNoMisconfiguration()
+    public async Task AStringTagConfiguredUnderTheProgramThatOwnsItReportsNoMisconfiguration()
     {
         // Arrange
         // strValue1 is program-scoped on the L32E — configured bare, under the program that owns it.
@@ -37,7 +37,7 @@ public class ProgramTagVerificationTests : LogixIntegrationTestBase
 
         // Assert
         dataPoints.Should().ContainSingle()
-            .Which.TagName.Value.Should().Be(LogixTagAddresses.StrValue1);
+            .Which.TagName.Value.Should().Be(BenchControllerTags.StrValue1);
         misconfigured.Should().BeEmpty();
     }
 }

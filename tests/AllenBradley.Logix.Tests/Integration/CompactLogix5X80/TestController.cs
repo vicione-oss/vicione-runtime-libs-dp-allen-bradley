@@ -5,27 +5,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// The CompactLogix 5069-L306ER this folder's suites run against — our own controller, a CompactLogix
-/// 5380 and so a 5X80 — and the <b>only</b> place that says how it is reached. Nothing else here names
-/// an address, a port or a route path.
+/// 5380 and so a 5X80 — and the <b>only</b> place that says how it is reached. The device is on hand but
+/// not commissioned, so every default below is an assumption, each overridable from the environment; see
+/// the table in <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>. The variables carry
+/// a <c>CIP_5X80_</c> prefix rather than sharing the plain <c>CIP_</c> ones, which point at the 5X70
+/// L32E that <c>Integration/CompactLogix5X70</c> targets.
 /// </summary>
-/// <remarks>
-/// The device is on hand but not commissioned, so every default below is an assumption rather than a
-/// fact, and each one is overridable from the environment — see the table in
-/// <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>. A direct connection is assumed:
-/// the endpoint is the controller itself, on the EtherNet/IP port, over the virtual backplane a
-/// DIN-rail controller always presents.
-/// <para>
-/// If it turns out to sit behind a tunnel or a bridge instead, this file is what changes — a fixture
-/// that opens the tunnel, and an endpoint pointing at its local end, the way the sibling S7 repo's
-/// <c>SshPortForwardingFixture</c> does. The suites are written against
-/// <see cref="ClientInformation"/> and cannot tell the difference.
-/// </para>
-/// <para>
-/// The variables are prefixed <c>CIP_5X80_</c> rather than sharing the <c>CIP_</c> ones: those point at
-/// the 5X70 L32E that <c>Integration/CompactLogix5X70</c> targets, and pointing this suite at that
-/// controller would fail on the <c>LREAL</c> it has not got — for confusing reasons.
-/// </para>
-/// </remarks>
 internal static class TestController
 {
     /// <summary>

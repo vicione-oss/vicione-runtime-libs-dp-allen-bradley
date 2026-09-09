@@ -1,11 +1,11 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration;
 
 /// <summary>
-/// The tags the client-stack integration suites target on the CompactLogix L32E. One name per fact
-/// about the device, so a controller change is a one-line edit here rather than a hunt through the
-/// suites. See the test-device setup for the full tag inventory.
+/// The tags this folder's suites target on the CompactLogix L32E — a borrowed controller whose tags we
+/// cannot change, so these are observations rather than a provisioning specification. One name per fact
+/// about the device; see the test-device setup for the full inventory.
 /// </summary>
-internal static class LogixTagAddresses
+internal static class BenchControllerTags
 {
     /// <summary>The program's STRING test tag. The round-trip suite writes it.</summary>
     internal const string StrValue1 = "Program:MainProgram.strValue1";

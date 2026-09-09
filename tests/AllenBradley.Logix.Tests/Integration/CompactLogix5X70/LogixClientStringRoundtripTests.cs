@@ -7,18 +7,16 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
 
 /// <summary>
-/// A full write/read round trip of one scalar data point through the production client stack —
-/// <c>LogixClient</c> → <c>LogixWriteBatch</c>/<c>LogixReadBatch</c> →
-/// <c>DataPointConverterRegistry</c> → <c>LogixStringConverter</c> → <c>CachingLogixTagManager</c> →
-/// <c>LogixTagAccess</c> → libplctag — against the real CompactLogix L32E.
-/// The suite writes <c>strValue1</c>; that is what the tag is for, so nothing is restored.
+/// A full write/read round trip of one <c>STRING</c> point through the production client stack. The
+/// suite writes <c>strValue1</c>; that is what the tag is for, so nothing is restored.
 /// </summary>
-public class LogixClientStringRoundtripTests : LogixIntegrationTestBase
+public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
 {
     // Exactly 82 characters — the built-in STRING's .DATA[82], filled to the last byte.
     private const string FullLengthValue =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor in.";
 
+    /// <summary>Each value written, with what Latin-1 storage gives back for it.</summary>
     public static TheoryData<string, string> StringEncodingTestData => new()
     {
         { "Hello World", "Hello World" }, // plain ASCII
@@ -32,32 +30,44 @@ public class LogixClientStringRoundtripTests : LogixIntegrationTestBase
 
     [Theory]
     [MemberData(nameof(StringEncodingTestData))]
-    public async Task WriteAndReadBack_StringValue_RoundTripsThroughTheClientStack(
+    public async Task AWrittenStringComesBackThroughTheClientStackAsLatin1Stored(
         string valueToWrite, string expectedValue)
     {
         // Arrange
-        var dataPoint = new StringDataPoint(new TagName(LogixTagAddresses.StrValue1), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
+        var dataPoint = StringTag();
         var cancellationToken = TestContext.Current.CancellationToken;
+        ILogixDataPoint[] dataPoints = [dataPoint];
 
         // Act
-        // Asserting through the tag manager rather than the client, because the client seam has no
-        // ResolveDataPoints yet; the manager already joins the controller's declaration onto every tag.
-        var metadata = TagManager.TagFor(dataPoint).Metadata;
         await Client.WriteAsync([dataPoint.CreateLogixValue(valueToWrite)], cancellationToken);
-        ILogixDataPoint[] dataPoints = [dataPoint];
-        var readResult = await Client.ReadAsync(new(DefaultPollFrequency, dataPoints), cancellationToken);
+        var readResult = await Client.ReadAsync(
+            new LogixDataPointGroup(DefaultPollFrequency, dataPoints), cancellationToken);
 
         // Assert
-        metadata.Should().Be(new TagDefinition(
-            new TagName(LogixTagAddresses.StrValue1),
+        readResult.Should().ContainSingle().Which.Should().Be(dataPoint.CreateLogixValue(expectedValue));
+    }
+
+    [Fact]
+    public void TheControllerDeclaresTheStringTagAsAScalarStructureOfEightyTwoCharacters()
+    {
+        // Arrange
+        // Asserted through the tag manager, which joins the controller's declaration onto every tag.
+        var dataPoint = StringTag();
+
+        // Act
+        var metadata = TagManager.TagFor(dataPoint).Metadata;
+
+        // Assert
+        var expected = new TagDefinition(
+            new TagName(BenchControllerTags.StrValue1),
             LogixTypeKind.Structure,
             AllenBradleyDataType.String,
             StringMaxLength.Standard,
             DimensionCount.Scalar,
-            new ElementCount(1)));
-
-        readResult.Should().ContainSingle();
-        readResult[0].DataPoint.Should().Be(dataPoint);
-        readResult[0].Value.Should().Be(expectedValue);
+            new ElementCount(1));
+        metadata.Should().Be(expected);
     }
+
+    private static StringDataPoint StringTag() =>
+        new(new TagName(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 }

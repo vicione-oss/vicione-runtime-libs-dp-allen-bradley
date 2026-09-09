@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text;
-using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -13,18 +12,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// <c>STRING</c> work was specified against, so they can be read off a real controller and recorded in
 /// TEST-DEVICE-SETUP.md. <b>Delete it once they are.</b>
 /// </summary>
-public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegrationTestBase
+public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegrationTestBase
 {
-    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
-
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
-
     [Fact]
-    public async Task ProbeStrValue1_PrintsTheRawBufferAndTheDecodedDeclaration()
+    public async Task TheStringTagsRawBufferAndDecodedDeclarationArePrinted()
     {
         // Arrange
-        var dataPoint = new StringDataPoint(new TagName(LogixTagAddresses.StrValue1), DefaultPollFrequency, NoChannels, new StringMaxLength(StringMaxLength.Standard.Value));
+        var dataPoint = new StringDataPoint(
+            new TagName(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
         var tag = TagManager.TagFor(dataPoint);
 
         // Act
@@ -34,7 +29,7 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
         read.Succeeded.Should().BeTrue(read.Error);
 
         var buffer = read.Buffer.Span;
-        output.WriteLine($"Tag                : {LogixTagAddresses.StrValue1}");
+        output.WriteLine($"Tag                : {BenchControllerTags.StrValue1}");
         output.WriteLine($"Buffer length      : {buffer.Length}   (88 = the padded .LEN + .DATA[82] template)");
         output.WriteLine($"First 16 bytes     : {Hex(buffer[..Math.Min(16, buffer.Length)])}");
         output.WriteLine(string.Empty);
@@ -46,7 +41,7 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
         output.WriteLine($"  {tag.Metadata?.ToString() ?? "(absent from the symbol table)"}");
         output.WriteLine(string.Empty);
         output.WriteLine("Fact 3 — what libplctag itself makes of the tag");
-        output.WriteLine($"  {DescribeWithRawLibplctag(LogixTagAddresses.StrValue1)}");
+        output.WriteLine($"  {DescribeWithRawLibplctag(BenchControllerTags.StrValue1)}");
     }
 
     // libplctag's own view of the tag, for the cross-check: its string accessors apply the Logix layout
@@ -54,14 +49,7 @@ public class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegra
     // between its GetString and our decode is the interesting signal.
     private static string DescribeWithRawLibplctag(string tagName)
     {
-        using var tag = new Tag();
-        tag.Gateway = ConnectionEndpoint;
-        tag.Path = CipRoutePath;
-        tag.PlcType = PlcType.ControlLogix;
-        tag.Protocol = Protocol.ab_eip;
-        tag.Name = tagName;
-        tag.Timeout = Timeout;
-
+        using var tag = BenchController.RawTagFor(tagName);
         tag.Read();
 
         return $"GetSize()={tag.GetSize()}  ElementSize={tag.ElementSize}  ElementCount={tag.ElementCount}  " +

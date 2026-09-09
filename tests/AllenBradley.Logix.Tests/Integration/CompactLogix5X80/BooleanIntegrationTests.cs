@@ -6,9 +6,8 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
 
 /// <summary>
-/// Write and read back the <c>BOOL</c> tag on the CompactLogix 5X80, through the production client
-/// stack. Both states, because a <c>BOOL</c> that reads <c>true</c> whatever was written passes a
-/// one-value test.
+/// Both states, because a <c>BOOL</c> that reads <c>true</c> whatever was written passes a one-value
+/// test.
 /// </summary>
 public sealed class BooleanIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
@@ -16,9 +15,16 @@ public sealed class BooleanIntegrationTests(ITestOutputHelper output)
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task WriteAndReadBack_BoolValue_RoundTripsAndTheTagIsDeclaredBool(bool valueToWrite) =>
+    public async Task ABoolValueRoundTripsAndItsTagIsDeclaredBool(bool valueToWrite)
+    {
+        // Arrange
+        var dataPoint = new BoolDataPoint(new TagName(TagAddresses.Bool), DefaultPollFrequency, NoChannels);
+
+        // Act
+        // Assert
         await AssertRoundTripAsync(
-            new BoolDataPoint(new TagName(TagAddresses.Bool), DefaultPollFrequency, NoChannels),
+            dataPoint,
             valueToWrite,
             ExpectedTagDefinitions.AtomicScalar(TagAddresses.Bool, AllenBradleyDataType.Bool));
+    }
 }

@@ -3,29 +3,16 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
 
 /// <summary>
-/// One tag per data type the port implements — the addresses this folder's round-trip suites write and
-/// read back. This is the <b>only</b> place a tag is named; a suite asks for a type and gets the address
-/// configured for it, so a controller change is a one-line edit here rather than a hunt through the
-/// suites.
+/// One tag per data type the port implements, and the <b>only</b> place this folder names a tag. The
+/// controller is ours and not commissioned yet, so this list is a <b>provisioning specification</b>
+/// rather than a survey: one program-scoped tag per type, named after the type, under
+/// <c>MainProgram</c>, to be created as written here — and every one of them is written by the suites,
+/// so they must be tags nothing in the controller's program depends on. Program scope is the harder of
+/// the two cases and exercises more of the addon: a program tag is browsed under a program-qualified key
+/// the configuration tree has to agree with. How the controller is reached is
+/// <see cref="TestController"/>'s business; which tags it holds is the same everywhere, so it lives here
+/// and in review rather than in the environment.
 /// </summary>
-/// <remarks>
-/// The controller is ours and not commissioned yet, so this list is a <b>provisioning specification</b>
-/// rather than a survey: one program-scoped tag per type, named after the type, in a program called
-/// <c>MainProgram</c>, to be created as written here. They are constants and not environment variables
-/// on purpose — which tags a controller holds is the same everywhere the suite runs, so it belongs in
-/// the source and in review. Only <em>reaching</em> the controller varies by machine, and that is
-/// <see cref="TestController"/>'s business.
-/// <para>
-/// They are program-scoped because that is the harder of the two cases and the one that exercises more
-/// of the addon: a program tag is browsed under a program-qualified key, and the address the
-/// configuration tree composes has to agree with it. A controller-scope tag is a bare name and would
-/// prove less.
-/// </para>
-/// <para>
-/// Every one of them is <b>written</b> by the suites, not only read. They must be tags nothing in the
-/// controller's program depends on.
-/// </para>
-/// </remarks>
 internal static class TagAddresses
 {
     private const string Program = "Program:MainProgram";

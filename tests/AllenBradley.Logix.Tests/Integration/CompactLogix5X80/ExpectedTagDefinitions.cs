@@ -6,21 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// The declaration a round-trip suite expects the controller to report for its tag, built whole so that
-/// it can be compared as one record.
+/// it can be compared as one record: a read shows what the bytes decoded to and nothing else — not that
+/// the tag is a scalar rather than a one-element array, and for a <c>STRING</c> not its capacity.
 /// </summary>
-/// <remarks>
-/// Comparing whole is the point. A read proves what the bytes decoded to and nothing else: it cannot
-/// show that the tag is a scalar rather than a one-element array, and for a <c>STRING</c> it cannot show
-/// the declared capacity at all — writing <c>"Hi"</c> into a <c>STRING_20</c> and reading <c>"Hi"</c>
-/// back says nothing about how much the tag holds. Pinning every field is also what fails a tag that
-/// starts reporting something extra, instead of letting it pass unnoticed.
-/// <para>
-/// Two factories rather than eight literals, because only two fields vary across the elementary types
-/// and spelling the other four out per type would bury them. The fields a scalar is defined by the
-/// <em>absence</em> of are still fixed here — a scalar's rank, its single element, and the capacity only
-/// a string carries.
-/// </para>
-/// </remarks>
 internal static class ExpectedTagDefinitions
 {
     /// <summary>What the controller must report for an elementary scalar tag of <paramref name="dataType"/>.</summary>

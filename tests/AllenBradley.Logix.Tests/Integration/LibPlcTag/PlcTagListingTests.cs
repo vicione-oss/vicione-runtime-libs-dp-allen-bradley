@@ -1,31 +1,26 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.TagListing;
-
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
-[Trait("Category", "Integration")]
-public class PlcTagListingTests(ITestOutputHelper output)
+/// <summary>
+/// Prints the controller's tag namespace as libplctag reports it, for reading rather than for
+/// asserting: what it pins is only that the controller answered the browse at all.
+/// </summary>
+public sealed class PlcTagListingTests(ITestOutputHelper output) : LibPlcTagIntegrationTestBase
 {
-    // ── Connection configuration ──────────────────────────────────────────────
-    private static readonly string ConnectionEndpoint = Environment.GetEnvironmentVariable("CIP_GATEWAY") ?? "192.168.0.100";
-    private static readonly string CipRoutePath = Environment.GetEnvironmentVariable("CIP_PATH") ?? "1,0";
-
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
-    // ─────────────────────────────────────────────────────────────────────────
-
     [Fact]
-    public void ListAllTags_OutputsControllerTagsProgramTagsAndUdts()
+    public void TheControllerAnswersTheBrowseWithItsTagsProgramsAndUdts()
     {
         // Arrange
-        var lister = new PlcTagLister(ConnectionEndpoint, CipRoutePath, Timeout);
 
         // Act
-        var listing = lister.List();
+        var listing = Lister.List();
 
         // Assert
         output.WriteLine("Controller Tags");
         output.WriteLine("===============");
         foreach (var tag in listing.ControllerTags)
+        {
             output.WriteLine($"Id={tag.Id}  Name={tag.Name}  Type=0x{tag.Type:X4}  Length={tag.Length}");
+        }
 
         output.WriteLine(string.Empty);
         output.WriteLine("Programs");
@@ -34,7 +29,9 @@ public class PlcTagListingTests(ITestOutputHelper output)
         {
             output.WriteLine(programName);
             foreach (var tag in programTags)
+            {
                 output.WriteLine($"    {tag.Name}");
+            }
         }
 
         output.WriteLine(string.Empty);
@@ -44,9 +41,13 @@ public class PlcTagListingTests(ITestOutputHelper output)
         {
             output.WriteLine($"Id={udt.Id}  Name={udt.Name}  NumFields={udt.NumFields}  Size={udt.Size}");
             foreach (var field in udt.Fields)
-                output.WriteLine($"    Name={field.Name}  Offset={field.Offset}  Metadata={field.Metadata}  Type=0x{field.Type:X4}");
+            {
+                output.WriteLine(
+                    $"    Name={field.Name}  Offset={field.Offset}  Metadata={field.Metadata}  " +
+                    $"Type=0x{field.Type:X4}");
+            }
         }
 
-        Assert.NotEmpty(listing.ControllerTags);
+        listing.ControllerTags.Should().NotBeEmpty();
     }
 }
