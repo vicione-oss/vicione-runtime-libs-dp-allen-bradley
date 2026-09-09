@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real.Mapping;
@@ -40,7 +40,7 @@ public sealed class RealNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixScalarNode realNode = _mapper.Map(node);
+        ILogixTagNode realNode = _mapper.Map(node);
 
         // Assert
         // REAL is a classic atomic, unlike its 64-bit sibling: no MinimumGeneration of its own, so it
@@ -94,7 +94,7 @@ public sealed class RealNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     private static LinkedNode RealNodeWith(params KeyValuePair<string, Property>[] properties) =>

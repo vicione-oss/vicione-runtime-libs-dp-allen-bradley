@@ -17,9 +17,9 @@ internal sealed class StringNodeMapper : IDataPointNodeMapper<StringNode>
     /// <inheritdoc />
     public StringNode Map(LinkedNode node) => new(
         node,
-        new TagName(node.GetRequiredPropertyValue<string>(ILogixScalarNode.TagNamePropertyName)),
+        new TagName(node.GetRequiredPropertyValue<string>(ILogixTagNode.TagNamePropertyName)),
         PollFrequency.FromMilliseconds(
-            node.GetRequiredPropertyValue<int>(ILogixScalarNode.PollFrequencyPropertyName)),
+            node.GetRequiredPropertyValue<int>(ILogixTagNode.PollFrequencyPropertyName)),
         new StringMaxLength(node.GetRequiredPropertyValue<int>(StringNode.MaxLengthPropertyName)));
 
     /// <inheritdoc />

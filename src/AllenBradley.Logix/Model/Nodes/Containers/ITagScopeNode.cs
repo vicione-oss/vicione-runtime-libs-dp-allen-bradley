@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -27,7 +27,7 @@ public interface ITagScopeNode : IBranchConfigurationNode
 
     /// <summary>
     /// Any tag whose type the controller has, which a container answers by holding the type's
-    /// <see cref="ILogixScalarNode.MinimumGeneration"/> against <paramref name="generation"/>.
+    /// <see cref="ILogixTagNode.MinimumGeneration"/> against <paramref name="generation"/>.
     /// Throws rather than returns <c>false</c>: the manifest keeps the editor from offering such a type, so a
     /// configuration holding one was not built through the editor and must not silently lose a tag.
     /// Shared here rather than defaulted on the interface, so a container exposes <c>CanBeAdded</c> as an
@@ -35,9 +35,9 @@ public interface ITagScopeNode : IBranchConfigurationNode
     /// </summary>
     protected static bool CanHold(IDataPointNode dataPointNode, LogixGeneration generation)
     {
-        // Every data point node is a scalar for now; structures and arrays are later slices, and they
-        // will carry a minimum generation of their own through the same interface.
-        if (dataPointNode is ILogixScalarNode scalarNode && scalarNode.MinimumGeneration > generation)
+        // Shape does not come into it: a scalar and an array both name their minimum generation through
+        // ILogixTagNode, and a structure will when there is one.
+        if (dataPointNode is ILogixTagNode tagNode && tagNode.MinimumGeneration > generation)
         {
             throw new InvalidConfigurationException(
                 $"'{dataPointNode.OriginalNode.DesignId}' is not a data type of a {generation} controller.");

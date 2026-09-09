@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt;
@@ -40,7 +40,7 @@ public sealed class BoolNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixScalarNode boolNode = _mapper.Map(node);
+        ILogixTagNode boolNode = _mapper.Map(node);
 
         // Assert
         // BOOL is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
@@ -94,7 +94,7 @@ public sealed class BoolNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     private static LinkedNode BoolNodeWith(params KeyValuePair<string, Property>[] properties) =>

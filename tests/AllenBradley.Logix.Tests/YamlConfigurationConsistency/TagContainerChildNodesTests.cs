@@ -2,12 +2,12 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.TreeBuilder.Rules.Yaml;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagNodeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.YamlConfigurationConsistency;
 
@@ -74,12 +74,12 @@ public sealed class TagContainerChildNodesTests
     private static Dictionary<string, LogixGeneration> MinimumGenerationsByNodeTypeId() =>
         TypedLogixNodeMapper.Instance().DataPointNodeMappers.ToDictionary(
             mapper => mapper.TargetLinkedNodeTypeId,
-            mapper => ((ILogixScalarNode)mapper.Map(AnyScalarNodeOfType(mapper.TargetLinkedNodeTypeId)))
+            mapper => ((ILogixTagNode)mapper.Map(AnyTagNodeOfType(mapper.TargetLinkedNodeTypeId)))
                 .MinimumGeneration);
 
     // One linked node serves every mapper: a mapper reads the properties its own type needs and ignores
     // the rest, so carrying all three satisfies the widest of them (a STRING's MaxLength).
-    private static LinkedNode AnyScalarNodeOfType(string linkedNodeTypeId) =>
+    private static LinkedNode AnyTagNodeOfType(string linkedNodeTypeId) =>
         CreateLinkedNode(
             linkedNodeTypeId,
             AnyTagName,

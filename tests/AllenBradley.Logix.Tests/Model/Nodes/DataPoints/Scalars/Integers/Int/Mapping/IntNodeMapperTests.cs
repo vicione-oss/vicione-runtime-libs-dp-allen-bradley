@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
@@ -38,7 +38,7 @@ public sealed class IntNodeMapperTests
         var node = IntNodeWith(CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixScalarNode intNode = _mapper.Map(node);
+        ILogixTagNode intNode = _mapper.Map(node);
 
         // Assert
         // INT is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
@@ -89,7 +89,7 @@ public sealed class IntNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     private static LinkedNode IntNodeWith(params KeyValuePair<string, Property>[] properties) =>

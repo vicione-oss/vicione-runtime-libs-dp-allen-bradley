@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using static System.Guid;
@@ -10,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// Builds the configured tag nodes a scope container holds: one node per call, hung off the parent the
 /// caller names, because a node's parent is fixed when the node is constructed.
 /// </summary>
-internal static class ScalarNodeTestDataFactory
+internal static class TagNodeTestDataFactory
 {
     /// <summary>The poll frequency, in milliseconds, every tag the factory makes is configured with.</summary>
     internal const int DefaultPollFrequencyInMilliseconds = 100;
@@ -18,7 +18,7 @@ internal static class ScalarNodeTestDataFactory
     /// <summary>A configured <c>DINT</c> tag under <paramref name="parentId"/>, routed to <paramref name="channel"/>.</summary>
     internal static Node CreateDIntNode(
         string channel, string tagName, Guid parentId, int pollFrequency = DefaultPollFrequencyInMilliseconds) =>
-        CreateScalarDataPointNode(DIntNode.LinkedNodeTypeId, channel, tagName, parentId, pollFrequency);
+        CreateDataPointNode(DIntNode.LinkedNodeTypeId, channel, tagName, parentId, pollFrequency);
 
     /// <summary>
     /// A configured <c>STRING</c> tag under <paramref name="parentId"/>, routed to
@@ -30,7 +30,7 @@ internal static class ScalarNodeTestDataFactory
         Guid parentId,
         int? maxLength = null,
         int pollFrequency = DefaultPollFrequencyInMilliseconds) =>
-        CreateScalarDataPointNode(
+        CreateDataPointNode(
             StringNode.LinkedNodeTypeId,
             channel,
             tagName,
@@ -38,7 +38,7 @@ internal static class ScalarNodeTestDataFactory
             pollFrequency,
             (StringNode.MaxLengthPropertyName, maxLength ?? StringMaxLength.Standard.Value));
 
-    private static Node CreateScalarDataPointNode(
+    private static Node CreateDataPointNode(
         string designId,
         string channel,
         string tagName,
@@ -48,8 +48,8 @@ internal static class ScalarNodeTestDataFactory
     {
         var properties = new Dictionary<string, Property>
         {
-            { ILogixScalarNode.TagNamePropertyName, new Property { Value = tagName } },
-            { ILogixScalarNode.PollFrequencyPropertyName, new Property { Value = pollFrequency } },
+            { ILogixTagNode.TagNamePropertyName, new Property { Value = tagName } },
+            { ILogixTagNode.PollFrequencyPropertyName, new Property { Value = pollFrequency } },
         };
 
         foreach (var (key, value) in extraProperties)

@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.SInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt.Mapping;
@@ -40,7 +40,7 @@ public sealed class USIntNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixScalarNode usIntNode = _mapper.Map(node);
+        ILogixTagNode usIntNode = _mapper.Map(node);
 
         // Assert
         // USINT arrived with the 5X80 controllers, so the node states the generation and a container of
@@ -96,7 +96,7 @@ public sealed class USIntNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     private static LinkedNode USIntNodeWith(params KeyValuePair<string, Property>[] properties) =>

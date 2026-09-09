@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
@@ -14,12 +14,12 @@ internal static class NodePropertyFactory
     /// <summary>How often the configured tag is polled, in milliseconds.</summary>
     internal static KeyValuePair<string, Property> CreatePollFrequency(object pollFrequencyInMilliseconds) =>
         KeyValuePair.Create(
-            ILogixScalarNode.PollFrequencyPropertyName,
+            ILogixTagNode.PollFrequencyPropertyName,
             new Property { Value = pollFrequencyInMilliseconds });
 
     /// <summary>The address the configured tag names on the controller.</summary>
     internal static KeyValuePair<string, Property> CreateTagName(object tagName) =>
-        KeyValuePair.Create(ILogixScalarNode.TagNamePropertyName, new Property { Value = tagName });
+        KeyValuePair.Create(ILogixTagNode.TagNamePropertyName, new Property { Value = tagName });
 
     /// <summary>The character capacity a configured string tag is declared with.</summary>
     internal static KeyValuePair<string, Property> CreateMaxLength(object maxLength) =>

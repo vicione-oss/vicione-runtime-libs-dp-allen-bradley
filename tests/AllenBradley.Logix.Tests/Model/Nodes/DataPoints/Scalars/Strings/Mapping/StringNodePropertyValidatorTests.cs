@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
@@ -90,7 +90,7 @@ public sealed class StringNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -104,8 +104,8 @@ public sealed class StringNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Select(static error => error.PropertyName).Should().BeEquivalentTo(
-            ILogixScalarNode.TagNamePropertyName,
-            ILogixScalarNode.PollFrequencyPropertyName,
+            ILogixTagNode.TagNamePropertyName,
+            ILogixTagNode.PollFrequencyPropertyName,
             StringNode.MaxLengthPropertyName);
     }
 

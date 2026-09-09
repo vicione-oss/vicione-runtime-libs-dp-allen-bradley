@@ -20,7 +20,7 @@ These pages cover only what the Logix port adds on top.
 > `how-to/` is still scaffolding.
 >
 > **Addressing is a plain tag name today.** A configuration node carries the symbolic address the
-> controller knows, and `ScalarNodePropertyValidator` accepts nothing more elaborate: no dotted
+> controller knows, and `TagNodePropertyValidator` accepts nothing more elaborate: no dotted
 > structure members, no array subscripts. What that rules out, and why it is a validation rule rather
 > than a parser, is in [`reference/datatype-support.md`](reference/datatype-support.md).
 

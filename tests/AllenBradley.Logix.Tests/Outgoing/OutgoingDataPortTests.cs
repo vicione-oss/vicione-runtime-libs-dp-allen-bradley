@@ -14,7 +14,7 @@ using ViciOne.Suite.DataPort.Extensions.Outgoing.QueueProcessing;
 using ViciOne.Suite.DataPort.Extensions.Testing.Assertions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ControllerTagsNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ScalarNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
 using static ViciOne.Suite.DataPort.Extensions.Testing.Assertions.EventualAssertions;
 

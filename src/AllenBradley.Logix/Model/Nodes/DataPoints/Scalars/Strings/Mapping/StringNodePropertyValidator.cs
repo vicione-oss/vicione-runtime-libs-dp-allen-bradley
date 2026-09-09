@@ -1,5 +1,5 @@
 using FluentValidation;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
@@ -12,7 +12,7 @@ internal sealed class StringNodePropertyValidator : AbstractValidator<LinkedNode
 {
     public StringNodePropertyValidator()
     {
-        Include(new ScalarNodePropertyValidator());
+        Include(new TagNodePropertyValidator());
         MustHaveMaxLength();
         MustBePositiveMaxLength();
     }

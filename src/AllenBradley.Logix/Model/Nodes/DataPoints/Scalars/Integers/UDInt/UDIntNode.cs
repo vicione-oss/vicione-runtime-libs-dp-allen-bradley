@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads it.</param>
 internal sealed record UDIntNode(LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency)
-    : LogixScalarNode(OriginalNode, TagName, PollFrequency), ILogixScalarNode
+    : LogixTagNode(OriginalNode, TagName, PollFrequency), ILogixTagNode
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "UDInt";
@@ -25,5 +25,5 @@ internal sealed record UDIntNode(LinkedNode OriginalNode, TagName TagName, PollF
     /// Implemented explicitly because the YAML consistency test expects every public property of a data point
     /// node to be one the manifest declares.
     /// </summary>
-    LogixGeneration ILogixScalarNode.MinimumGeneration => LogixGeneration.Logix5X80;
+    LogixGeneration ILogixTagNode.MinimumGeneration => LogixGeneration.Logix5X80;
 }

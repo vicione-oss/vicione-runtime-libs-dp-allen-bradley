@@ -3,13 +3,14 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 
 /// <summary>
-/// A configured scalar tag: the two things every scalar node carries whatever its type, and the names
-/// the manifest declares them under.
+/// A configured tag: the two things every tag node carries whatever its type and whatever its shape, and
+/// the names the manifest declares them under. A tag name and a poll frequency are not a scalar's, so
+/// nothing here says which of the two a node is.
 /// </summary>
-public interface ILogixScalarNode : IDataPointNode
+public interface ILogixTagNode : IDataPointNode
 {
     /// <summary>The manifest property carrying <see cref="TagName"/>.</summary>
     const string TagNamePropertyName = nameof(TagName);

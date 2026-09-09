@@ -51,7 +51,7 @@ the editor did not build, and `DeviceNode.CanBeAdded` refuses a container whose 
 device's — the pairing the first guard rests on. See
 [Splitting the device node by family and generation](../ADR/2026-08-31-splitting-the-device-node-by-family-and-generation.md).
 
-The node states the rule itself, as `ILogixScalarNode.MinimumGeneration`: the oldest generation whose
+The node states the rule itself, as `ILogixTagNode.MinimumGeneration`: the oldest generation whose
 vocabulary has the type. `ITagScopeNode` compares it against the container's own generation and
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
@@ -120,7 +120,7 @@ An array or a structure configured as a scalar is reported at connect by
 
 A tag address may reach into a structure — `Program:MainProgram.Counter.PRE` is a `DINT` inside a
 `COUNTER`, and the client reads it correctly — but **it cannot be configured today**.
-`ScalarNodePropertyValidator` accepts only a plain tag name, so a dotted address fails validation
+`TagNodePropertyValidator` accepts only a plain tag name, so a dotted address fails validation
 before anything reaches the controller.
 
 That rule is about the *configured* name, and it does not stand in the way of program scope: a tag

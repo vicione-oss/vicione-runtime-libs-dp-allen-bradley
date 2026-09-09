@@ -1,21 +1,21 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mapping;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Mapping;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Mapping;
 
 /// <summary>
 /// The gate every configured tag passes before it is mapped. Most of it is one regex, and a regex is
 /// worth a case per boundary: each of the Studio 5000 rules it encodes is a single character away from
 /// the opposite verdict.
 /// </summary>
-public sealed class ScalarNodePropertyValidatorTests
+public sealed class TagNodePropertyValidatorTests
 {
     private const int DefaultPollFrequency = 100;
 
-    private readonly ScalarNodePropertyValidator _validator = new();
+    private readonly TagNodePropertyValidator _validator = new();
 
     [Theory]
     [InlineData("Motor", "the plain case")]
@@ -55,7 +55,7 @@ public sealed class ScalarNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse(invalidBecause);
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     [Theory]
@@ -72,7 +72,7 @@ public sealed class ScalarNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class ScalarNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class ScalarNodePropertyValidatorTests
 
         // Assert
         validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class ScalarNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.PollFrequencyPropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.PollFrequencyPropertyName);
     }
 
     [Theory]
@@ -131,7 +131,7 @@ public sealed class ScalarNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixScalarNode.PollFrequencyPropertyName);
+            .Which.PropertyName.Should().Be(ILogixTagNode.PollFrequencyPropertyName);
     }
 
     [Fact]
@@ -145,8 +145,8 @@ public sealed class ScalarNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Select(static error => error.PropertyName).Should().BeEquivalentTo(
-            ILogixScalarNode.TagNamePropertyName,
-            ILogixScalarNode.PollFrequencyPropertyName);
+            ILogixTagNode.TagNamePropertyName,
+            ILogixTagNode.PollFrequencyPropertyName);
     }
 
     private static LinkedNode DIntNodeWith(params KeyValuePair<string, Property>[] properties) =>
