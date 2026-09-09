@@ -91,10 +91,10 @@ internal sealed class LogixReadBatch
         {
             return ReadOutcome.Ok(entry.Converter.Decode(entry.DataPoint, result.Buffer.Span));
         }
-        catch (ArgumentException ex)
+        catch (Exception ex) when (ex is ArgumentException or LogixDecodeException)
         {
-            // A reply too short for the type the data point was configured as. It should not happen on a
-            // verified tag; caught narrowly so it is reported as this tag's failure with its name on it
+            // A reply that does not fit the type the data point was configured as. It should not happen on
+            // a verified tag; caught narrowly so it is reported as this tag's failure with its name on it
             // rather than as a raw decode exception with no address in the message. Narrow on purpose —
             // this is the buffer being the wrong shape for the decode, and nothing else. A converter that
             // throws anything else is a bug in the converter, and it travels.

@@ -56,31 +56,33 @@ public sealed class IntArrayConverterTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheBytesTheDeclaredCountOccupies()
+    public void ABufferHoldingMoreThanTheDeclaredCountIsRefusedRatherThanTrimmed()
     {
         // Arrange
-        // A reply the controller padded, which nothing between the wire and here trims.
-        byte[] buffer = [.. TenStoredInts, 0xFF, 0xFF, 0xFF, 0xFF];
+        // Eleven INTs from a tag someone grew in Studio 5000 after the port agreed on ten.
+        byte[] buffer = [.. TenStoredInts, 0x2C, 0x00];
 
         // Act
-        var decoded = Converter.Decode(Readings, buffer);
+        var decoding = Converter.Invoking(converter => converter.Decode(Readings, buffer));
 
         // Assert
-        decoded.Value.Should().BeOfType<short[]>().Which.Should().HaveCount(DeclaredElementCount);
+        decoding.Should().Throw<LogixDecodeException>()
+            .WithMessage("*intArray1*returned 11 elements*configured with 10*");
     }
 
     [Fact]
-    public void ABufferTooShortForTheDeclaredCountIsRefusedRatherThanPartlyDecoded()
+    public void ABufferHoldingFewerThanTheDeclaredCountIsRefusedRatherThanPartlyDecoded()
     {
         // Arrange
-        // Twelve bytes where ten INTs need twenty, which nothing checks before the decode.
+        // Twelve bytes where ten INTs need twenty.
         var buffer = new byte[12];
 
         // Act
         var decoding = Converter.Invoking(converter => converter.Decode(Readings, buffer));
 
         // Assert
-        decoding.Should().Throw<ArgumentException>();
+        decoding.Should().Throw<LogixDecodeException>()
+            .WithMessage("*intArray1*returned 6 elements*configured with 10*");
     }
 
     [Fact]

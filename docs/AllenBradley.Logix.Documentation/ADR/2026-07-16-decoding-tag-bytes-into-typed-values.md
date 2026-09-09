@@ -16,7 +16,7 @@ scattered through the code.
 
 The second is run time. A Logix tag is addressed by name, and the controller owns its data type, not our
 configuration. A configured data point can simply disagree with the controller. It might be configured as
-a 32-bit integer and actually be a float. 
+a 32-bit integer and actually be a float.
 
 The open design choice is what the converters consume. They could read the wrapper's typed getters
 (`GetInt32`, `GetString`, …), or they could decode the raw bytes themselves. One fact weighs on that

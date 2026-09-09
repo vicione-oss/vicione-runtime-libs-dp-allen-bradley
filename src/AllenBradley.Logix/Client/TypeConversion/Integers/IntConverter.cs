@@ -8,17 +8,26 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 // direct read/write with no byte swap.
 internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, short>
 {
+    internal const int ElementSize = sizeof(short);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.Int;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Int;
 
-    protected override short DecodeValue(IntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+    internal static short DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt16LittleEndian(buffer);
 
-    protected override byte[] EncodeValue(IntDataPoint dataPoint, short value)
+    internal static byte[] EncodeElement(short value)
     {
-        var bytes = new byte[sizeof(short)];
+        var bytes = new byte[ElementSize];
         BinaryPrimitives.WriteInt16LittleEndian(bytes, value);
         return bytes;
     }
+
+
+    protected override short DecodeValue(IntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(IntDataPoint dataPoint, short value) =>
+        EncodeElement(value);
 }
