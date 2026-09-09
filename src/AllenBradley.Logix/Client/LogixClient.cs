@@ -144,7 +144,6 @@ internal sealed class LogixClient(
     {
         var count = dataPointGroup.DataPoints.Count;
         logger.ReadingBatch(count, _connectionEndpoint);
-
         try
         {
             var result = await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)

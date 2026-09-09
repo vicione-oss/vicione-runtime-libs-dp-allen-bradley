@@ -1,6 +1,7 @@
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
@@ -18,9 +19,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
 /// is named as a failure, while its siblings come home. Only a batch that read nothing at all throws
 /// (ADR/2026-07-16-reading-and-writing-a-group-of-tags.md).
 /// </summary>
-// The tags and the tag manager are substituted: every assertion about them is "the batch did this to its
-// collaborator", which is what NSubstitute is for here. The converter is not — Decode takes a
-// ReadOnlySpan&lt;byte&gt;, and a ref struct cannot travel through a substitute's argument array.
 public class LogixReadBatchTests
 {
     private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
@@ -177,6 +175,48 @@ public class LogixReadBatchTests
         // Cancelling is the caller's decision, not the device's answer, so it travels as itself rather
         // than being collected as one more failed tag in a LogixTagException.
         read.Should().BeAssignableTo<OperationCanceledException>();
+    }
+
+    [Fact(Timeout = 10_000)]
+    public async Task ReadAsync_WhenOneDataPointAppearsSeveralTimes_SerializesTheSharedAccess()
+    {
+        // Arrange
+        // The real gate over a substituted handle, because the question is about the two together: a group
+        // naming one point four times draws the same cached tag for every entry, and the fan-out then
+        // starts four reads against the one handle at once. The timeout is the assertion for the failure
+        // this test exists to rule out — a gate taken and not released would hang the batch, not fail it.
+        var inFlight = 0;
+        var maxConcurrent = 0;
+        var inner = Substitute.For<ILogixTagAccess>();
+        inner.ReadAsync(Arg.Any<CancellationToken>()).Returns(_ => ReadWithOverlapRecordedAsync());
+
+        using var access = new SynchronizedLogixTagAccess(inner);
+        var tagManager = Substitute.For<ILogixTagManager>();
+        tagManager.TagFor(Speed).Returns(new LogixTag(Speed, null, access));
+        var batch = new LogixReadBatch([Speed, Speed, Speed, Speed], tagManager);
+
+        // Act
+        var result = await batch.ReadAsync(CancellationToken.None);
+
+        // Assert
+        // Serialised, not skipped: every entry is its own exchange and comes home with its own value, and
+        // no two of them are inside the handle at the same time. Ungated, all four would have entered
+        // before the first one yielded, since the fan-out starts each read synchronously.
+        maxConcurrent.Should().Be(1);
+        result.Failures.Should().BeEmpty();
+        result.Values.Should().HaveCount(4);
+        result.Values.Should().AllSatisfy(value => value.Value.Should().Be(42));
+        await inner.Received(4).ReadAsync(Arg.Any<CancellationToken>());
+
+        return;
+
+        async Task<LogixTagReadResult> ReadWithOverlapRecordedAsync()
+        {
+            maxConcurrent = Math.Max(maxConcurrent, Interlocked.Increment(ref inFlight));
+            await Task.Yield();
+            Interlocked.Decrement(ref inFlight);
+            return LogixTagReadResult.Ok(FortyTwoAsDint);
+        }
     }
 
     [Fact]
