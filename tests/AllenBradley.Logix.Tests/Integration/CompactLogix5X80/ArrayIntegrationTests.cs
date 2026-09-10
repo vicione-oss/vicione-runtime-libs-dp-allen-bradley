@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -37,6 +38,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly RealArrayDataPoint Temperatures = new(
+        new TagName(TagAddresses.RealArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     // Both ends of the range and one value asymmetric in its bytes, so a swapped or mis-sized element
     // cannot agree with the read-back.
     private static readonly sbyte[] TenSamples =
@@ -50,6 +57,9 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly long[] TenTimestamps =
         [0, 1, -1, 1234567890123, long.MinValue, long.MaxValue, 10, 20, 30, 40];
+
+    private static readonly float[] TenTemperatures =
+        [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
 
     [Fact]
     public async Task TheIntArrayTagIsDeclaredWithTheRankAndCountItIsConfiguredWith()
@@ -130,6 +140,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Timestamps, TenTimestamps, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task ARealArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.RealArray, AllenBradleyDataType.Real, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Temperatures, TenTemperatures, expectedDefinition);
     }
 
     private async Task AssertArrayRoundTripAsync<TElement>(

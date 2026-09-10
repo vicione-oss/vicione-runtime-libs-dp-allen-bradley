@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray;
@@ -63,6 +64,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultIntArrayTagName = new("Readings");
     internal static readonly TagName DefaultDIntArrayTagName = new("Totals");
     internal static readonly TagName DefaultLIntArrayTagName = new("Timestamps");
+    internal static readonly TagName DefaultRealArrayTagName = new("Temperatures");
 
     internal static readonly ElementCount DefaultElementCount = new(10);
 
@@ -191,6 +193,14 @@ internal static class TypedNodeTestDataFactory
             CreateChanneledLinkedNode(
                 LIntArrayNode.LinkedNodeTypeId, DefaultLIntArrayTagName.Value, DefaultChannel),
             DefaultLIntArrayTagName,
+            DefaultPollFrequency,
+            DefaultElementCount);
+
+    internal static RealArrayNode DefaultRealArrayNode =>
+        new(
+            CreateChanneledLinkedNode(
+                RealArrayNode.LinkedNodeTypeId, DefaultRealArrayTagName.Value, DefaultChannel),
+            DefaultRealArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 

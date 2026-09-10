@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
@@ -124,6 +125,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
             TagAddresses.ArrayElementCount),
         new LIntArrayDataPoint(
             new TagName(TagAddresses.LIntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
+        new RealArrayDataPoint(
+            new TagName(TagAddresses.RealArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
     ];
 

@@ -135,6 +135,7 @@ Nodes:
       - Id: IntArray
       - Id: DIntArray
       - Id: LIntArray
+      - Id: RealArray
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -167,6 +168,7 @@ Nodes:
       - Id: IntArray
       - Id: DIntArray
       - Id: LIntArray
+      - Id: RealArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -588,6 +590,34 @@ Nodes:
       Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'Int64[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: RealArray
+    MappingId: RealArray
+    Type: DataPortTreeNode
+    Name: "Real[]"
+    Description: >-
+      Logix-Type: REAL[n] (one-dimensional array of 32-bit IEEE 754 single-precision floats, CIP type code 0xCA)
+      Size: 4 x n bytes
+      Encoding: IEEE 754 single-precision float per element, little-endian; no padding between elements
+      Layout: element i occupies bytes 4i..4i + 3
+      Range: ±1.18e−38..±3.40e+38 per element
+      Direction: read and write; the whole array is one value, and a value of another length is refused
+    Icon: datapoint
+    DataTypes: [ 'Float32[]' ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

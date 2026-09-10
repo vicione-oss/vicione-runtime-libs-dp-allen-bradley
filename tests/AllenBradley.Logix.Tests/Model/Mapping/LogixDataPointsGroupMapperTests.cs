@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
@@ -243,7 +244,7 @@ public sealed class LogixDataPointsGroupMapperTests
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
             DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayNode, DefaultSIntArrayNode,
-            DefaultDIntArrayNode, DefaultLIntArrayNode);
+            DefaultDIntArrayNode, DefaultLIntArrayNode, DefaultRealArrayNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);
@@ -256,7 +257,8 @@ public sealed class LogixDataPointsGroupMapperTests
             static dataPoint => dataPoint.Should().BeOfType<IntArrayDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<SIntArrayDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<DIntArrayDataPoint>(),
-            static dataPoint => dataPoint.Should().BeOfType<LIntArrayDataPoint>());
+            static dataPoint => dataPoint.Should().BeOfType<LIntArrayDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<RealArrayDataPoint>());
     }
 
     [Fact]
