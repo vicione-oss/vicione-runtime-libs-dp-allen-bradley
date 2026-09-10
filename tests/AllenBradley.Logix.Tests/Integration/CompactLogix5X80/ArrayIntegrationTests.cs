@@ -25,6 +25,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly DIntArrayDataPoint Totals = new(
+        new TagName(TagAddresses.DIntArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     // Both ends of the range and one value asymmetric in its bytes, so a swapped or mis-sized element
     // cannot agree with the read-back.
     private static readonly sbyte[] TenSamples =
@@ -32,6 +38,9 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly short[] TenReadings =
         [0, 1, -1, 4711, short.MinValue, short.MaxValue, 10, 20, 30, 40];
+
+    private static readonly int[] TenTotals =
+        [0, 1, -1, 123456, int.MinValue, int.MaxValue, 10, 20, 30, 40];
 
     [Fact]
     public async Task TheIntArrayTagIsDeclaredWithTheRankAndCountItIsConfiguredWith()
@@ -88,6 +97,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Readings, TenReadings, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task ADIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.DIntArray, AllenBradleyDataType.Dint, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Totals, TenTotals, expectedDefinition);
     }
 
     private async Task AssertArrayRoundTripAsync<TElement>(

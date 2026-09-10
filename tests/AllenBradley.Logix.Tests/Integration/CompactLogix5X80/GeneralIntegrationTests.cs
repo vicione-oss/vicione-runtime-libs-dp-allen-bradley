@@ -119,6 +119,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new IntArrayDataPoint(
             new TagName(TagAddresses.IntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
+        new DIntArrayDataPoint(
+            new TagName(TagAddresses.DIntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
     ];
 
     private void Report(

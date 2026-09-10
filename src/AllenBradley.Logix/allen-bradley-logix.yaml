@@ -133,6 +133,7 @@ Nodes:
       # Arrays — grouped by shape rather than by element type, because that is what they have in common
       - Id: SIntArray
       - Id: IntArray
+      - Id: DIntArray
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -163,6 +164,7 @@ Nodes:
       # Arrays
       - Id: SIntArray
       - Id: IntArray
+      - Id: DIntArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -528,6 +530,34 @@ Nodes:
       Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'Int16[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: DIntArray
+    MappingId: DIntArray
+    Type: DataPortTreeNode
+    Name: "DInt[]"
+    Description: >-
+      Logix-Type: DINT[n] (one-dimensional array of 32-bit signed integers, CIP type code 0xC4)
+      Size: 4 x n bytes
+      Encoding: little-endian two's complement per element; no padding between elements
+      Layout: element i occupies bytes 4i..4i + 3
+      Range: −2 147 483 648..2 147 483 647 per element
+      Direction: read and write; the whole array is one value, and a value of another length is refused
+    Icon: datapoint
+    DataTypes: [ 'Int32[]' ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

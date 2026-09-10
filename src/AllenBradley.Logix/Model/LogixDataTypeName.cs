@@ -39,5 +39,7 @@ public readonly record struct LogixDataTypeName(string Value)
 
     public static LogixDataTypeName IntArray => new("INT[]");
 
+    public static LogixDataTypeName DIntArray => new("DINT[]");
+
     public override string ToString() => Value;
 }
