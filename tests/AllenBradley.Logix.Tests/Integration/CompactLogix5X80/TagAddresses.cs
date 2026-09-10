@@ -56,6 +56,11 @@ internal static class TagAddresses
     internal const string DIntArray = $"{Program}.testDintArray";
 
     /// <summary>
+    /// The one-dimensional <c>LINT</c> array test tag, to be declared <c>LINT[10]</c>.
+    /// </summary>
+    internal const string LIntArray = $"{Program}.testLintArray";
+
+    /// <summary>
     /// How many elements every array test tag above is declared to hold. A count that disagrees with the
     /// controller aborts a connect, because a read of the first ten elements would not show a resized tag.
     /// </summary>

@@ -134,6 +134,7 @@ Nodes:
       - Id: SIntArray
       - Id: IntArray
       - Id: DIntArray
+      - Id: LIntArray
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -165,6 +166,7 @@ Nodes:
       - Id: SIntArray
       - Id: IntArray
       - Id: DIntArray
+      - Id: LIntArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -558,6 +560,34 @@ Nodes:
       Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'Int32[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: LIntArray
+    MappingId: LIntArray
+    Type: DataPortTreeNode
+    Name: "LInt[]"
+    Description: >-
+      Logix-Type: LINT[n] (one-dimensional array of 64-bit signed integers, CIP type code 0xC5)
+      Size: 8 x n bytes
+      Encoding: little-endian two's complement per element; no padding between elements
+      Layout: element i occupies bytes 8i..8i + 7
+      Range: −9 223 372 036 854 775 808..9 223 372 036 854 775 807 per element
+      Direction: read and write; the whole array is one value, and a value of another length is refused
+    Icon: datapoint
+    DataTypes: [ 'Int64[]' ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

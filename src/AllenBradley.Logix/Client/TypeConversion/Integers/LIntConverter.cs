@@ -10,17 +10,25 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class LIntConverter : AtomicDataPointConverter<LIntDataPoint, long>
 {
+    internal const int ElementSize = sizeof(long);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LInt;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Lint;
 
-    protected override long DecodeValue(LIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+    internal static long DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt64LittleEndian(buffer);
 
-    protected override byte[] EncodeValue(LIntDataPoint dataPoint, long value)
+    internal static byte[] EncodeElement(long value)
     {
-        var bytes = new byte[sizeof(long)];
+        var bytes = new byte[ElementSize];
         BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
         return bytes;
     }
+
+    protected override long DecodeValue(LIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(LIntDataPoint dataPoint, long value) =>
+        EncodeElement(value);
 }

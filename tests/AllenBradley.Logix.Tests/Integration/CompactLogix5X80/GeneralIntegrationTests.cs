@@ -122,6 +122,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new DIntArrayDataPoint(
             new TagName(TagAddresses.DIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
+        new LIntArrayDataPoint(
+            new TagName(TagAddresses.LIntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
     ];
 
     private void Report(

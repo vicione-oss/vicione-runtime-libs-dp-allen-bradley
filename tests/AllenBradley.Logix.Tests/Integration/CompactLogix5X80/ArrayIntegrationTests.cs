@@ -31,6 +31,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly LIntArrayDataPoint Timestamps = new(
+        new TagName(TagAddresses.LIntArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     // Both ends of the range and one value asymmetric in its bytes, so a swapped or mis-sized element
     // cannot agree with the read-back.
     private static readonly sbyte[] TenSamples =
@@ -41,6 +47,9 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly int[] TenTotals =
         [0, 1, -1, 123456, int.MinValue, int.MaxValue, 10, 20, 30, 40];
+
+    private static readonly long[] TenTimestamps =
+        [0, 1, -1, 1234567890123, long.MinValue, long.MaxValue, 10, 20, 30, 40];
 
     [Fact]
     public async Task TheIntArrayTagIsDeclaredWithTheRankAndCountItIsConfiguredWith()
@@ -109,6 +118,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Totals, TenTotals, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task AnLIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.LIntArray, AllenBradleyDataType.Lint, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Timestamps, TenTimestamps, expectedDefinition);
     }
 
     private async Task AssertArrayRoundTripAsync<TElement>(

@@ -7,6 +7,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.SIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
@@ -88,6 +89,9 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         DIntArrayNode totals => new DIntArrayDataPoint(
             scope.Qualify(totals.TagName), totals.PollFrequency, totals.Channels,
             totals.ElementCount),
+        LIntArrayNode timestamps => new LIntArrayDataPoint(
+            scope.Qualify(timestamps.TagName), timestamps.PollFrequency, timestamps.Channels,
+            timestamps.ElementCount),
         // Unreachable from a manifest: a node this switch does not name has a node mapper and no data
         // point behind it, which only a half-finished type slice produces.
         _ => throw new NotSupportedException(
