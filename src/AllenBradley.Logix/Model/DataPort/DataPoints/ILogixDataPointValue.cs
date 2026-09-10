@@ -21,7 +21,9 @@ public interface ILogixDataPointValue : IDataPointValue
 /// <summary>
 /// A value whose payload is typed to <typeparamref name="TDomain"/>, the .NET type its data point
 /// exchanges. Only <see cref="LogixDataPoint{TDomain}"/> makes one, and only its own, so a payload cannot
-/// disagree with its point about its type.
+/// disagree with its point about its type — which holds because
+/// <see cref="LogixDataPoint{TDomain}.ConvertValue"/> matches the exact runtime type rather than an
+/// assignable one, and stops holding for an array shape if that is ever loosened.
 /// </summary>
 /// <typeparam name="TDomain">The .NET type the data point exchanges — <c>int</c> for a <c>DINT</c>.</typeparam>
 internal interface ILogixDataPointValue<out TDomain> : ILogixDataPointValue, ITypedDataPointValue<TDomain>

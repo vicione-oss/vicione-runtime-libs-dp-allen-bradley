@@ -25,13 +25,16 @@ internal abstract class AtomicArrayDataPointConverter<TDataPoint, TElement>
 
     protected sealed override TElement[] DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {
-        var returnedElementCount = CountElementsIn(buffer);
         var configuredElementCount = dataPoint.ElementCount.Value;
-        if (returnedElementCount != configuredElementCount)
+
+        // The reply carries elements and nothing else, so the configured count fixes its length exactly.
+        // Compared in bytes rather than in elements: a length that is not a whole number of them is the
+        // same disagreement, and dividing it away would decode the elements that did fit.
+        if (buffer.Length != configuredElementCount * ElementSize)
         {
             throw new LogixDecodeException(
-                $"Cannot read {TagNameOf(dataPoint)}; the controller returned {returnedElementCount} " +
-                $"elements, but the tag is configured with {configuredElementCount}.");
+                $"Cannot read {TagNameOf(dataPoint)}; the controller returned {buffer.Length} bytes, " +
+                $"but the tag is configured with {configuredElementCount} elements of {ElementSize} bytes.");
         }
 
         var elements = new TElement[configuredElementCount];
@@ -42,9 +45,6 @@ internal abstract class AtomicArrayDataPointConverter<TDataPoint, TElement>
 
         return elements;
     }
-
-    // The reply carries elements and nothing else, so its length is how many the controller holds.
-    private int CountElementsIn(ReadOnlySpan<byte> buffer) => buffer.Length / ElementSize;
 
     private ReadOnlySpan<byte> ArrayElementAtIndex(int index, ReadOnlySpan<byte> buffer) =>
         buffer.Slice(index * ElementSize, ElementSize);

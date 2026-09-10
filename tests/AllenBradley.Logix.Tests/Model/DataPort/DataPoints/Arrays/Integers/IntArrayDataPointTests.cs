@@ -53,6 +53,23 @@ public sealed class IntArrayDataPointTests
     }
 
     [Fact]
+    public void AnUnsignedArrayOfTheSameWidthIsRefusedRatherThanReinterpreted()
+    {
+        // Arrange
+        // The CLR holds ushort[] and short[] assignment-compatible, so this is the one engine value that
+        // reaches an INT[] point carrying elements of another type.
+        ushort[] unsignedReadings = [0, 1, 2, 3, 4, 5, 6, 7, 8, 40000];
+
+        // Act
+        var conversion = Readings.ConvertValue(unsignedReadings);
+
+        // Assert
+        var failure = conversion.Should()
+            .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
+        failure.Details.Should().Contain(typeof(short[]).ToString()).And.Contain(typeof(ushort[]).ToString());
+    }
+
+    [Fact]
     public void ASingleShortIsRefusedNamingBothTypes()
     {
         // Arrange

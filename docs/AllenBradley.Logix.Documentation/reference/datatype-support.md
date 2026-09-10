@@ -134,6 +134,14 @@ Verification checks the rank and the element count as well as the type, because 
 disagreement are reported at connect — an array tag configured as a scalar, and a scalar tag
 configured as an array — as is a count the controller does not agree with.
 
+An array element type is matched exactly on the way in, which a scalar's never had to be. The CLR
+holds arrays of same-width signed and unsigned elements assignment-compatible — `ushort[]` *is* a
+`short[]` as far as a type test goes, and reads back 40000 as -25536 — so `LogixDataPoint.ConvertValue`
+compares the runtime type rather than asking whether the value fits. Every element type this shape
+grows will have a same-width sibling with the opposite sign, and nothing further down would notice:
+the bytes are identical, so the write succeeds and the tag holds the wrong number. Boxed scalars are
+already exact, so the rule costs the eleven scalar types nothing.
+
 What this case is not:
 
 - **Not written in part.** A write is every element or none. Writing a range of elements is

@@ -31,7 +31,13 @@ public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency Po
     public DataPointValueConversion<ILogixDataPointValue> ConvertValue(object? value) => value switch
     {
         null => ConversionFailure("value was null"),
-        TDomain typed => new ConvertedDataPointValue<ILogixDataPointValue>(CreateLogixValue(typed)),
+
+        // The exact type, not merely one that fits: the CLR holds arrays of same-width signed and
+        // unsigned elements assignment-compatible, so a bare `is TDomain` lets a ushort[] through as a
+        // short[] and writes 40000 to the controller as -25536. Boxed scalars match exactly either way.
+        TDomain typed when value.GetType() == typeof(TDomain) =>
+            new ConvertedDataPointValue<ILogixDataPointValue>(CreateLogixValue(typed)),
+
         _ => ConversionFailure($"value of type {value.GetType()} is not assignable to {typeof(TDomain)}"),
     };
 

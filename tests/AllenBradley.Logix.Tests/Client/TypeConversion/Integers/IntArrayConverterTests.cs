@@ -46,7 +46,8 @@ public sealed class IntArrayConverterTests
 
         // Assert
         short[] expected = [0, 1, -1, 4711, short.MinValue, short.MaxValue, 10, 20, 30, 40];
-        decoded.Value.Should().BeOfType<short[]>().Which.Should().Equal(expected);
+        decoded.Value.Should().BeOfType<short[]>()
+            .Which.Should().Equal(expected);
     }
 
     [Fact]
@@ -60,7 +61,21 @@ public sealed class IntArrayConverterTests
 
         // Assert
         decoding.Should().Throw<LogixDecodeException>()
-            .WithMessage("*intArray1*returned 11 elements*configured with 10*");
+            .WithMessage("*intArray1*returned 22 bytes*configured with 10 elements of 2 bytes*");
+    }
+
+    [Fact]
+    public void ABufferThatIsNotAWholeNumberOfElementsIsRefusedRatherThanRoundedDown()
+    {
+        // Arrange
+        byte[] tenIntsAndAStrayByte = [.. TenStoredInts, 0x2C];
+
+        // Act
+        var decoding = Converter.Invoking(converter => converter.Decode(Readings, tenIntsAndAStrayByte));
+
+        // Assert
+        decoding.Should().Throw<LogixDecodeException>()
+            .WithMessage("*intArray1*returned 21 bytes*configured with 10 elements of 2 bytes*");
     }
 
     [Fact]
@@ -74,7 +89,7 @@ public sealed class IntArrayConverterTests
 
         // Assert
         decoding.Should().Throw<LogixDecodeException>()
-            .WithMessage("*intArray1*returned 6 elements*configured with 10*");
+            .WithMessage("*intArray1*returned 12 bytes*configured with 10 elements of 2 bytes*");
     }
 
     [Fact]

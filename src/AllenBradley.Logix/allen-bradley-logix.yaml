@@ -487,13 +487,13 @@ Nodes:
   - Id: IntArray
     MappingId: IntArray
     Type: DataPortTreeNode
-    Name: "Int Array"
+    Name: "Int[]"
     Description: >-
       Logix-Type: INT[n] (one-dimensional array of 16-bit signed integers, CIP type code 0xC3)
       Size: 2 x n bytes
       Encoding: little-endian two's complement per element; no padding between elements
       Layout: element i occupies bytes 2i and 2i + 1
-      Range: -32 768..32 767 per element
+      Range: −32 768..32 767 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'Int16[]' ]
