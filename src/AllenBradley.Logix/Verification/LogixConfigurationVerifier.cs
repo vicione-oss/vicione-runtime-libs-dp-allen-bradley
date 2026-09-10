@@ -91,7 +91,7 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"but the controller declares {Describe(device.ElementCount)}."),
             ],
             _ => throw new ArgumentOutOfRangeException(
-                nameof(resolved), mismatch, "Unhandled type mismatch kind."),
+                nameof(mismatch), mismatch, "Unhandled type mismatch kind."),
         };
     }
 

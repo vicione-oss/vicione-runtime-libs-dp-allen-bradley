@@ -8,7 +8,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;

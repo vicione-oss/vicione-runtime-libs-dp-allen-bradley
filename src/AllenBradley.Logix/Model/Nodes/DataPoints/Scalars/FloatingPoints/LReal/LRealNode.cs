@@ -2,7 +2,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 

@@ -69,7 +69,7 @@ public sealed class ProgramTagsNodePropertyValidatorTests
     }
 
     [Fact]
-    public void AMissingProgramNameIsLeftToTheRequiredPropertyRule()
+    public void AMissingProgramNameIsRefusedNamingTheProperty()
     {
         // Arrange
         var node = CreateLinkedNode(ProgramTagsNode.Logix5X70LinkedNodeTypeId, "Main");
@@ -78,7 +78,23 @@ public sealed class ProgramTagsNodePropertyValidatorTests
         var validation = _validator.Validate(node);
 
         // Assert
-        validation.Errors.Should().BeEmpty();
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(ProgramTagsNode.ProgramNamePropertyName);
+    }
+
+    [Fact]
+    public void AProgramNameThatIsNotAStringIsRefusedInsteadOfThrowing()
+    {
+        // Arrange
+        var node = CreateLinkedNode(
+            ProgramTagsNode.Logix5X70LinkedNodeTypeId, "Main", CreateProgramName(42));
+
+        // Act
+        var validating = _validator.Invoking(validator => validator.Validate(node));
+
+        // Assert
+        validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(ProgramTagsNode.ProgramNamePropertyName);
     }
 
     private static LinkedNode ProgramNodeNamed(string programName) => CreateLinkedNode(

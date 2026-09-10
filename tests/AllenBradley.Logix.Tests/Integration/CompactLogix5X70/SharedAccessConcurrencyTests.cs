@@ -1,3 +1,4 @@
+using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -106,7 +107,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     private static DIntDataPoint CounterPresetPoint() =>
         new(new TagName(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels);
 
-    private static libplctag.Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
+    private static Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
 
     // The tag's own current bytes, so every write the probes issue is a no-op on the device.
     private static async Task<byte[]> SeedPayloadAsync(ILogixTagAccess access)

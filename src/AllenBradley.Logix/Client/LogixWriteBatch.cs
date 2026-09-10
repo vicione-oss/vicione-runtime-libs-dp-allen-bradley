@@ -17,22 +17,24 @@ internal sealed class LogixWriteBatch
 
     internal LogixWriteBatch(IReadOnlyList<ILogixDataPointValue> values, ILogixTagManager tagManager)
     {
-        _entries = new WriteEntry[values.Count];
+        var entries = new List<WriteEntry>(values.Count);
         var failures = new List<string>();
 
-        for (var i = 0; i < values.Count; i++)
+        foreach (var value in values)
         {
-            var outcome = EncodeEntry(values[i], tagManager);
+            var outcome = EncodeEntry(value, tagManager);
             if (outcome.Failure is not null)
             {
                 failures.Add(outcome.Failure);
                 continue;
             }
 
-            _entries[i] = outcome.Entry;
+            entries.Add(outcome.Entry);
         }
 
         ThrowIfAnythingWouldNotEncode(failures);
+
+        _entries = [.. entries];
     }
 
     internal async Task WriteAsync(CancellationToken cancellationToken)

@@ -4,6 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Controlle
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
+using ViciOne.TreeBuilder.Rules;
 using ViciOne.TreeBuilder.Rules.Yaml;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodePropertyFactory;
@@ -22,7 +23,7 @@ public sealed class TagContainerChildNodesTests
     private const int AnyElementCount = 10;
 
     // Read as the engine reads it, so the anchors the file shares between the two scopes arrive expanded.
-    private static readonly TreeBuilder.Rules.Ruleset Ruleset =
+    private static readonly Ruleset Ruleset =
         RulesDeserializer.Deserialize(LogixYamlConsistencyTests.YamlFileName);
 
     [Theory]
