@@ -32,9 +32,12 @@ public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency Po
     {
         null => ConversionFailure("value was null"),
 
-        // The exact type, not merely one that fits: the CLR holds arrays of same-width signed and
-        // unsigned elements assignment-compatible, so a bare `is TDomain` lets a ushort[] through as a
-        // short[] and writes 40000 to the controller as -25536. Boxed scalars match exactly either way.
+        // The pattern binds the value; the exact-type test is the rule. The CLR holds arrays of
+        // same-width signed and unsigned elements assignment-compatible, so the pattern alone lets a
+        // ushort[] through as a short[] and writes 40000 to the controller as -25536. Dropping the
+        // pattern for a (TDomain) cast is not the shorter spelling it looks like: the same rule makes
+        // that cast succeed, so the test would be all that stands there. Boxed scalars are exact either
+        // way.
         TDomain typed when value.GetType() == typeof(TDomain) =>
             new ConvertedDataPointValue<ILogixDataPointValue>(CreateLogixValue(typed)),
 
