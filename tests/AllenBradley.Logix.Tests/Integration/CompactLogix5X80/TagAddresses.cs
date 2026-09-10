@@ -5,8 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// <summary>
 /// One tag per data type the port implements, and the <b>only</b> place this folder names a tag: a
 /// <b>provisioning specification</b> for a controller of ours that is not commissioned yet, to be created
-/// as written here. Every tag but <see cref="IntArray"/> is written by the suites, so nothing in the
-/// controller's program may depend on one.
+/// as written here. Every tag is written by the suites, so nothing in the controller's program may depend
+/// on one.
 /// </summary>
 internal static class TagAddresses
 {
@@ -41,8 +41,7 @@ internal static class TagAddresses
     internal static StringMaxLength StringCapacity => StringMaxLength.Standard;
 
     /// <summary>
-    /// The one-dimensional <c>INT</c> array test tag, to be declared <c>INT[10]</c>. The one address here
-    /// the suites only read, so its contents are the controller's and nothing resets them.
+    /// The one-dimensional <c>INT</c> array test tag, to be declared <c>INT[10]</c>.
     /// </summary>
     internal const string IntArray = $"{Program}.testIntArray";
 

@@ -482,8 +482,8 @@ Nodes:
             Required: true
 
   # ---- Arrays ----
-  # One dimension, read whole, one element type so far. Rank 2 and 3 exist on Logix and are rejected
-  # at connect; per-element access is a container node with indexed children, which is not this.
+  # One dimension, transferred whole, one element type so far. Rank 2 and 3 exist on Logix and are
+  # rejected at connect; per-element access is a container node with indexed children, which is not this.
   - Id: IntArray
     MappingId: IntArray
     Type: DataPortTreeNode
@@ -494,7 +494,7 @@ Nodes:
       Encoding: little-endian two's complement per element; no padding between elements
       Layout: element i occupies bytes 2i and 2i + 1
       Range: -32 768..32 767 per element
-      Direction: read only; the whole array arrives as one value, and a write is refused
+      Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'Int16[]' ]
     TransferModes: [ OnChange, Periodic ]

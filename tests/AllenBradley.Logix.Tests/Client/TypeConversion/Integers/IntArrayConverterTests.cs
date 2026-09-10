@@ -78,16 +78,44 @@ public sealed class IntArrayConverterTests
     }
 
     [Fact]
-    public void WritingAnIntArrayIsRefusedSayingItIsNotSupportedYet()
+    public void TheDeclaredNumberOfShortsEncodesToTheStoredBytesInIndexOrder()
     {
         // Arrange
-        var value = Readings.CreateLogixValue([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        var value = Readings.CreateLogixValue(
+            [0, 1, -1, 4711, short.MinValue, short.MaxValue, 10, 20, 30, 40]);
+
+        // Act
+        var encoded = Converter.Encode(value);
+
+        // Assert
+        encoded.Should().Equal(TenStoredInts);
+    }
+
+    [Fact]
+    public void AValueHoldingMoreThanTheDeclaredCountIsRefusedRatherThanTruncated()
+    {
+        // Arrange
+        var value = Readings.CreateLogixValue([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
         // Act
         var encoding = Converter.Invoking(converter => converter.Encode(value));
 
         // Assert
         encoding.Should().Throw<InvalidOperationException>()
-            .WithMessage("*not supported yet*");
+            .WithMessage("*intArray1*holds 11 elements*configured with 10*");
+    }
+
+    [Fact]
+    public void AValueHoldingFewerThanTheDeclaredCountIsRefusedRatherThanPartlyWritten()
+    {
+        // Arrange
+        var value = Readings.CreateLogixValue([0, 1, 2, 3, 4, 5]);
+
+        // Act
+        var encoding = Converter.Invoking(converter => converter.Encode(value));
+
+        // Assert
+        encoding.Should().Throw<InvalidOperationException>()
+            .WithMessage("*intArray1*holds 6 elements*configured with 10*");
     }
 }
