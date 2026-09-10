@@ -7,10 +7,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class ULIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new ULIntConverter();
@@ -26,8 +22,6 @@ public sealed class ULIntConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The whole of what tells this converter from the LINT one: the two occupy the same eight bytes
-        // and disagree only about what the top bit means.
         expectedDataType.Should().Be(AllenBradleyDataType.Ulint);
     }
 
@@ -35,8 +29,7 @@ public sealed class ULIntConverterTests
     public void EightStoredBytesDecodeToTheUnsignedLongTheyHoldLeastSignificantFirst()
     {
         // Arrange
-        // Every byte differs, so a swapped or rotated read cannot land on the same value. This is the
-        // widest type the port has, and the one where a byte-order mistake has the most room to hide.
+        // Every byte differs, so a swapped or rotated read cannot land on the same value.
         byte[] buffer = [0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12];
 
         // Act
@@ -55,8 +48,6 @@ public sealed class ULIntConverterTests
     public void AStoredBitPatternDecodesToTheULIntTheControllerMeansByIt(ulong storedBits, ulong expectedValue)
     {
         // Arrange
-        // The top half of the range is the point: a signed decode reads 0x8000000000000000 and above as
-        // long.MinValue upwards to -1.
         var buffer = BitConverter.GetBytes(storedBits);
 
         // Act
@@ -89,8 +80,6 @@ public sealed class ULIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
-        // type declares.
         bytes.Should().Equal(0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12);
     }
 

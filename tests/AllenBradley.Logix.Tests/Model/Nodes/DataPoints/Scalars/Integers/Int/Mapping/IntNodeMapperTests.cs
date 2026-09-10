@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.Int.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>Int</c> node in, an <see cref="IntNode"/> out.</summary>
 public sealed class IntNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -41,8 +40,6 @@ public sealed class IntNodeMapperTests
         ILogixTagNode intNode = _mapper.Map(node);
 
         // Assert
-        // INT is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
-        // addon addresses and a container of any generation admits it.
         intNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -80,7 +77,6 @@ public sealed class IntNodeMapperTests
     public void AnIntNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = IntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

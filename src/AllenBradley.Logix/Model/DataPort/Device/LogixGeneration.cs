@@ -1,11 +1,9 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 /// <summary>
-/// How far along the Logix line a controller is, which is what decides the atomic types it has. The
-/// 5X70 controllers and everything before them have <c>BOOL</c>, <c>SINT</c>, <c>INT</c>, <c>DINT</c>,
-/// <c>LINT</c> and <c>REAL</c>; the 5X80 controllers add the unsigned integers and <c>LREAL</c>.
-/// Members are ordered oldest first and compared, and their values are the numbers in the names, so a later
-/// generation slots in at its own number.
+/// How far along the Logix line a controller is, which is what decides the atomic types it has
+/// (<c>reference/datatype-support.md</c>). Members are compared, so they are ordered oldest first and
+/// numbered after their names — a later generation slots in at its own number.
 /// </summary>
 public enum LogixGeneration
 {

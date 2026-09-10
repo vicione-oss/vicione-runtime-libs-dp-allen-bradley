@@ -4,7 +4,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
 
 internal static partial class LogixClientPoolLogs
 {
-    // Acquisition
     [LoggerMessage(400, LogLevel.Debug, "Acquiring client for {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void AcquiringClient(this ILogger<LogixClientPool> logger, string connectionEndpoint, string cipRoutePath);
 
@@ -17,7 +16,6 @@ internal static partial class LogixClientPoolLogs
     internal static partial void ReusingPooledClient(
         this ILogger<LogixClientPool> logger, string connectionEndpoint, string cipRoutePath, int refCount);
 
-    // Release
     [LoggerMessage(410, LogLevel.Debug, "Releasing client for {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void ReleasingClient(this ILogger<LogixClientPool> logger, string connectionEndpoint, string cipRoutePath);
 
@@ -31,7 +29,6 @@ internal static partial class LogixClientPoolLogs
     internal static partial void DisconnectingPooledClient(
         this ILogger<LogixClientPool> logger, string connectionEndpoint, string cipRoutePath);
 
-    // Errors
     [LoggerMessage(430, LogLevel.Error, "Failed to acquire client for {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void AcquireClientFailed(
         this ILogger<LogixClientPool> logger, Exception exception, string connectionEndpoint, string cipRoutePath);
@@ -50,7 +47,6 @@ internal static partial class LogixClientPoolLogs
     internal static partial void RefCountUnderflow(
         this ILogger<LogixClientPool> logger, string connectionEndpoint, string cipRoutePath);
 
-    // Lifecycle
     [LoggerMessage(440, LogLevel.Information, "Connection pool disposed")]
     internal static partial void PoolDisposed(this ILogger<LogixClientPool> logger);
 }

@@ -17,7 +17,6 @@ public sealed record UIntDataPoint(TagName TagName, PollFrequency PollFrequency,
 
     private sealed record Value(ILogixDataPoint DataPoint, ushort TypedValue) : ILogixDataPointValue<ushort>
     {
-        // A UINT is exactly a ushort: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

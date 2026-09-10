@@ -19,13 +19,14 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
     /// <summary>Each value written, with what Latin-1 storage gives back for it.</summary>
     public static TheoryData<string, string> StringEncodingTestData => new()
     {
-        { "Hello World", "Hello World" }, // plain ASCII
-        { "ÀÉÑÖß", "ÀÉÑÖß" }, // Latin-1 extended, preserved
-        { "A€BДC中DשE", "A?B?C?D?E" }, // outside Latin-1 — one '?' per character
-        { "Hello\r\nWorld", "Hello\r\nWorld" }, // CR+LF
-        { "Hello\tWorld", "Hello\tWorld" }, // tab
-        { "", "" }, // the empty string — .LEN = 0, nothing in .DATA
-        { FullLengthValue, FullLengthValue }, // fills .DATA exactly
+        { "Hello World", "Hello World" },
+        { "ÀÉÑÖß", "ÀÉÑÖß" },
+        // Outside Latin-1 — one '?' per character.
+        { "A€BДC中DשE", "A?B?C?D?E" },
+        { "Hello\r\nWorld", "Hello\r\nWorld" },
+        { "Hello\tWorld", "Hello\tWorld" },
+        { "", "" },
+        { FullLengthValue, FullLengthValue },
     };
 
     [Theory]
@@ -51,7 +52,6 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
     public void TheControllerDeclaresTheStringTagAsAScalarStructureOfEightyTwoCharacters()
     {
         // Arrange
-        // Asserted through the tag manager, which joins the controller's declaration onto every tag.
         var dataPoint = StringTag();
 
         // Act

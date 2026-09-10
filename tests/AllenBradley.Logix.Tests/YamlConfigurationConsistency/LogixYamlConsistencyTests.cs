@@ -8,12 +8,10 @@ using ViciOne.Suite.DataPort.Extensions.Testing.YamlTesting;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.YamlConfigurationConsistency;
 
 /// <summary>
-/// Holds the manifest and the node model to each other: every property a mapper reads is declared in
-/// the YAML, and every property the YAML declares is read by a mapper. Nothing here is written per
-/// node — the base test walks both sides and generates its own cases.
-/// xUnit fails a theory that discovers no cases, and <see cref="ProgramTagsNode.ProgramNamePropertyName"/> is
-/// the only branch-node property feeding two of them; if it is ever gone, the fix is
-/// <c>Theory.SkipTestWithoutData</c> in the base test.
+/// Holds the manifest and the node model to each other; the base test walks both sides and generates its
+/// own cases. xUnit fails a theory that discovers no cases, and
+/// <see cref="ProgramTagsNode.ProgramNamePropertyName"/> is the only branch-node property feeding two of
+/// them; if it is ever gone, the fix is <c>Theory.SkipTestWithoutData</c> in the base test.
 /// </summary>
 public sealed class LogixYamlConsistencyTests :
     YamlConsistencyBaseTest<LogixCommunication, LogixYamlConsistencyTests, DeviceNode>,

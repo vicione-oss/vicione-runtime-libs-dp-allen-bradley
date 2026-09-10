@@ -11,7 +11,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
 /// <see cref="LogixTagAccessFactory"/> → <see cref="TagDefinitionsLoader"/> →
 /// <see cref="CachingLogixTagManager"/> → <see cref="LogixClient"/>.
 /// </summary>
-/// <param name="loggerFactory">Supplies the loggers for the stack this factory builds.</param>
 internal sealed class LogixClientFactory(ILoggerFactory loggerFactory) : ILogixClientFactory
 {
     /// <inheritdoc />

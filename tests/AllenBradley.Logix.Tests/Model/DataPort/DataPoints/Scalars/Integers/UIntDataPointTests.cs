@@ -80,8 +80,6 @@ public sealed class UIntDataPointTests
     public void AShortIsRefusedNamingBothTypes()
     {
         // Arrange
-        // The signed twin of this point's own type, and the one substitution that would otherwise pass
-        // unnoticed: both occupy two bytes, so nothing downstream would object.
 
         // Act
         var conversion = Setpoint.ConvertValue((short)4242);

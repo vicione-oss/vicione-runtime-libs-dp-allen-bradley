@@ -17,8 +17,7 @@ public sealed record RealDataPoint(TagName TagName, PollFrequency PollFrequency,
 
     private sealed record Value(ILogixDataPoint DataPoint, float TypedValue) : ILogixDataPointValue<float>
     {
-        // A REAL is exactly a float, NaN and the infinities included — the controller stores the bit
-        // pattern it is given.
+        // NaN and the infinities included: the controller stores the bit pattern it is given.
         public bool IsInValueRange() => true;
     }
 }

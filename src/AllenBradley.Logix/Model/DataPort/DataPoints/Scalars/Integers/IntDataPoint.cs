@@ -17,7 +17,6 @@ public sealed record IntDataPoint(TagName TagName, PollFrequency PollFrequency, 
 
     private sealed record Value(ILogixDataPoint DataPoint, short TypedValue) : ILogixDataPointValue<short>
     {
-        // An INT is exactly a short: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

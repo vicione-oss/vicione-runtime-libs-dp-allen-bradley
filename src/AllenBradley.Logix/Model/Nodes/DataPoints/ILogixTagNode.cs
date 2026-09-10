@@ -6,9 +6,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 
 /// <summary>
-/// A configured tag: the two things every tag node carries whatever its type and whatever its shape, and
-/// the names the manifest declares them under. A tag name and a poll frequency are not a scalar's, so
-/// nothing here says which of the two a node is.
+/// A configured tag: what every tag node carries whatever its type and shape, and the names the
+/// manifest declares them under.
 /// </summary>
 public interface ILogixTagNode : IDataPointNode
 {
@@ -20,9 +19,7 @@ public interface ILogixTagNode : IDataPointNode
 
     /// <summary>
     /// The oldest generation whose type vocabulary has this type, which is what a tag scope container
-    /// holds its own generation against.
-    /// Defaults to the oldest generation the addon addresses, so only a type that arrived later says
-    /// anything.
+    /// holds its own generation against. Only a type that arrived after the 5X70 overrides the default.
     /// </summary>
     LogixGeneration MinimumGeneration => LogixGeneration.Logix5X70;
 

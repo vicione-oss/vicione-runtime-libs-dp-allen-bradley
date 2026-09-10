@@ -11,17 +11,15 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Strings;
 
 /// <summary>
-/// The buffers are built by hand from the documented structure — <c>.LEN : DINT</c> at offset 0, then
-/// <c>.DATA : SINT[82]</c>, the whole padded to 88 bytes — rather than produced by the encoder, which
-/// would make a decode test agree with itself by construction.
+/// Buffers are built by hand from the documented structure — <c>.LEN : DINT</c> at offset 0, then
+/// <c>.DATA : SINT[82]</c> — so no decode test agrees with the encoder by construction.
 /// </summary>
 public sealed class LogixStringConverterTests
 {
     private const int StructureSize = 88;
     private const int LengthPrefixSize = 4;
 
-    // What the converter hands the write batch: .LEN plus .DATA[n], and nothing after. The padding up to
-    // Logix's 32-bit structure boundary is the tag buffer's, not the converter's.
+    // The padding up to Logix's 32-bit structure boundary is the tag buffer's, not the converter's.
     private const int PayloadSize = LengthPrefixSize + 82;
 
     private static readonly IDataPointConverter Converter = new LogixStringConverter();
@@ -36,8 +34,7 @@ public sealed class LogixStringConverterTests
     public void LenIsReadFromOffsetZeroAndTheCharactersFromBehindIt()
     {
         // Arrange
-        // The offsets hang off libplctag stripping the A0 02 abbreviated-structure prefix. If it ever
-        // stopped doing that, this is the test that would say so.
+        // The offsets hang off libplctag stripping the A0 02 abbreviated-structure prefix.
         var buffer = StructureHolding("Hi");
 
         // Act
@@ -106,8 +103,6 @@ public sealed class LogixStringConverterTests
     public void ALenBeyondTheCapacityIsClampedToTheCapacity()
     {
         // Arrange
-        // The controller claiming more characters than .DATA can hold is either corruption or a tag that
-        // is not the type we think it is, and honouring the claim would read the padding as text.
         var buffer = StructureHolding("Hi");
         buffer[0] = 200;
 
@@ -179,8 +174,6 @@ public sealed class LogixStringConverterTests
     public void AnEncodeCoversTheWholeOfDataSoAShorterValueLeavesNoOldTailBehind()
     {
         // Arrange
-        // Encoding only the characters in hand would let the batch copy two bytes over an 82-character
-        // tail and leave the other 80 standing in the tag.
 
         // Act
         var bytes = Converter.Encode(Label.CreateLogixValue("Hi"));
@@ -191,11 +184,12 @@ public sealed class LogixStringConverterTests
     }
 
     [Theory]
-    [InlineData("Hello World", "Hello World")] // plain ASCII
-    [InlineData("ÀÉÑÖß", "ÀÉÑÖß")] // Latin-1 extended, preserved
-    [InlineData("A€BДC中DשE", "A?B?C?D?E")] // outside Latin-1 — one '?' per character
-    [InlineData("Hello\r\nWorld", "Hello\r\nWorld")] // CR+LF
-    [InlineData("Hello\tWorld", "Hello\tWorld")] // tab
+    [InlineData("Hello World", "Hello World")]
+    [InlineData("ÀÉÑÖß", "ÀÉÑÖß")]
+    // Characters outside Latin-1 encode to the substitution character, one per character.
+    [InlineData("A€BДC中DשE", "A?B?C?D?E")]
+    [InlineData("Hello\r\nWorld", "Hello\r\nWorld")]
+    [InlineData("Hello\tWorld", "Hello\tWorld")]
     [InlineData("", "")]
     public void AValueRoundTripsThroughTheStructureAsLatin1(string valueToWrite, string expectedText)
     {
@@ -228,7 +222,6 @@ public sealed class LogixStringConverterTests
     public void AValueBeyondTheCapacitySaysWhichTagAndWhatCapacityRefusedIt()
     {
         // Arrange
-        // Truncating would write a value the caller never asked for and report success for it.
         var tooLong = new string('X', StringMaxLength.Standard.Value + 1);
 
         // Act
@@ -243,7 +236,6 @@ public sealed class LogixStringConverterTests
     public void AValueIsSizedAgainstItsOwnDataPointsCapacity()
     {
         // Arrange
-        // Twenty characters fit a STRING_20 exactly; the converter is the same object either way.
         var full = new string('X', ShortLabel.MaxLength.Value);
 
         // Act
@@ -296,8 +288,6 @@ public sealed class LogixStringConverterTests
     public void EncodingAValueNoDataPointMadeSaysWhatItExpected()
     {
         // Arrange
-        // ILogixDataPointValue is public, so an outside implementation is what the guard is for: it names
-        // the right point but carries nothing the converter can encode.
         var foreign = new ForeignDataPointValue(Label);
 
         // Act
@@ -308,7 +298,6 @@ public sealed class LogixStringConverterTests
             .WithMessage("*strValue1*").WithMessage("*String*");
     }
 
-    // A STRING structure as it sits in the tag buffer.
     private static byte[] StructureHolding(string value, int structureSize = StructureSize)
     {
         var buffer = new byte[structureSize];
@@ -320,8 +309,7 @@ public sealed class LogixStringConverterTests
 
     private static string DecodedTextOf(byte[] buffer) => (string)Converter.Decode(Label, buffer).Value!;
 
-    // An ILogixDataPointValue that no data point made — the only shape the encode guard can ever reject,
-    // now that a read either returns the point's own typed value or fails its batch.
+    // An ILogixDataPointValue that no data point made: the only shape the encode guard can ever reject.
     private sealed record ForeignDataPointValue(ILogixDataPoint DataPoint) : ILogixDataPointValue
     {
         public object? Value => null;

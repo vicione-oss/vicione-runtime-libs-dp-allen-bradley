@@ -10,8 +10,7 @@ internal static class CipTypeCodeExtensions
 {
     /// <summary>
     /// The data type a code names, or <see cref="AllenBradleyDataType.Unknown"/> for a code outside the
-    /// elementary range — a controller reporting one is describing a tag this addon cannot decode, and
-    /// saying so beats passing the raw byte upwards.
+    /// elementary range — a tag this addon cannot decode.
     /// </summary>
     public static AllenBradleyDataType ToDataType(this CipTypeCode code) => code switch
     {

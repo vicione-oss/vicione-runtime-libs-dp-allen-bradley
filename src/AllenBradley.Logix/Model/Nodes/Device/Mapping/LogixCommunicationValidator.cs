@@ -6,10 +6,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 
 /// <summary>
 /// Rejects a device configuration the client stack could not be built from, before anything opens a
-/// socket. It checks only what is decidable here — a controller that answers at the connection endpoint and CIP route
-/// path is the connect's business, not this class's.
-/// A ControlLogix has to declare a route path; a CompactLogix is never asked for one and gets <see
-/// cref="DataPort.Device.CipRoutePath.VirtualBackplane"/> from <see cref="DeviceNodeMapper"/>.
+/// socket. Whether a controller answers at the configured endpoint and route path is the connect's
+/// business, not this class's.
 /// </summary>
 public sealed class LogixCommunicationValidator : AbstractValidator<LogixCommunication>
 {

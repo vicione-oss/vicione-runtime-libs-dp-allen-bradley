@@ -10,9 +10,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Arrays.Integers.IntArray.Mapping;
 
-/// <summary>
-/// The mapper on its own: a configured <c>IntArray</c> node in, an <see cref="IntArrayNode"/> out.
-/// </summary>
 public sealed class IntArrayNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -54,8 +51,6 @@ public sealed class IntArrayNodeMapperTests
         ILogixTagNode intArrayNode = _mapper.Map(node);
 
         // Assert
-        // An array of a classic atomic is as old as the atomic: no MinimumGeneration of its own, so a
-        // container of any generation admits it.
         intArrayNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -99,7 +94,6 @@ public sealed class IntArrayNodeMapperTests
     public void AnIntArrayNodeWithoutAnElementCountIsRejected()
     {
         // Arrange
-        // The array validator is what says so; this pins that the mapper hands its node to it.
         var node = IntArrayNodeWith(CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act

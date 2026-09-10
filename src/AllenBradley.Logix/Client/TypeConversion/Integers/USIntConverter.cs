@@ -3,10 +3,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// USINT (0xC6): 8-bit unsigned integer. One byte, so there is no byte order to get wrong — the bit
-// pattern is the byte as it stands, and the difference from a SINT is only which half of the range it
-// names. That difference is not visible in the bytes, so ExpectedDataType is what keeps a SINT tag from
-// being read as this and handing back 255 where the controller holds -1.
+/// <summary>
+/// USINT (0xC6): 8-bit unsigned integer — the same byte as a SINT, told apart only by the declared type,
+/// since nothing on the wire records what the top bit means.
+/// </summary>
 internal sealed class USIntConverter : AtomicDataPointConverter<USIntDataPoint, byte>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.USInt;

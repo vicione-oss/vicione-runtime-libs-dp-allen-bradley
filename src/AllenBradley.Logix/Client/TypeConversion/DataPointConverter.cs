@@ -4,22 +4,11 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
-// Typed base for IDataPointConverter. Subclasses work entirely in their own data-point and .NET types
-// (DIntDataPoint <-> int) and never touch object or ILogixDataPoint. The single runtime boundary cast
-// lives here; a failed cast can only mean the registry routed the wrong converter, and it is reported
-// as exactly that, in one place.
-//
-// The data point is a LogixDataPoint<TDomain> rather than any ILogixDataPoint, so the pairing of a
-// converter with the .NET type it decodes is checked by the compiler: a converter cannot be written
-// against a data point that exchanges something else. It is also what lets Decode build the value
-// through the data point instead of a value type of its own — the point owns its value record, and the
-// range rules that record carries.
-//
-// What a match *is* is not decided here or in any subclass. A converter states what it expects the tag
-// to be — ExpectedKind, ExpectedDataType, ExpectedDimensionCount, MaxLengthOf and ElementCountOf — and
-// LogixTypeComparison holds the one rule
-// that reads a TagDefinition against it. An elementary type and a STRING are then two sets of constants
-// rather than two comparisons that must agree.
+/// <summary>
+/// Typed base for <see cref="IDataPointConverter"/>. Subclasses work entirely in their own data-point and
+/// .NET types (DIntDataPoint to int) and never touch <c>object</c>; the single boundary cast lives here, so
+/// a failed cast can only mean the registry routed the wrong converter.
+/// </summary>
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : LogixDataPoint<TDomain>
 {
@@ -29,7 +18,6 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
 
     public abstract AllenBradleyDataType? ExpectedDataType { get; }
 
-    // A converter decodes one value unless it says otherwise, so only an array shape states a rank.
     public virtual DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
 
     StringMaxLength? IDataPointConverter.MaxLengthFor(ILogixDataPoint dataPoint) =>
@@ -38,18 +26,22 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
     ElementCount? IDataPointConverter.ElementCountFor(ILogixDataPoint dataPoint) =>
         ElementCountOf(Cast(dataPoint));
 
-    // The capacity the controller must declare for this data point, or null when the type fixes its own
-    // size and there is nothing left to agree on.
+    /// <summary>
+    /// The character capacity the controller must declare, or null when the type fixes its own size.
+    /// </summary>
     protected abstract StringMaxLength? MaxLengthOf(TDataPoint dataPoint);
 
-    // How many elements the controller must declare for this data point, or null when the shape holds one
-    // value and its extent is not something a configuration states.
+    /// <summary>
+    /// How many elements the controller must declare, or null when the shape holds a single value.
+    /// </summary>
     protected virtual ElementCount? ElementCountOf(TDataPoint dataPoint) => null;
 
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
-    // Returns the bytes the value occupies on the wire, freshly allocated: a subclass sizes them from
-    // its type or the data point's configuration, never from a tag.
+    /// <summary>
+    /// The freshly allocated bytes the value occupies, sized from the type or the data point's
+    /// configuration — never from a tag.
+    /// </summary>
     protected abstract byte[] EncodeValue(TDataPoint dataPoint, TDomain value);
 
     ILogixDataPointValue IDataPointConverter.Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
@@ -62,10 +54,8 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
     {
         var typedDataPoint = Cast(dataPointValue.DataPoint);
 
-        // The payload is asked for through the typed value, not through the framework's object? view:
-        // only the data point makes one of these, and it makes only its own, so a value that is not
-        // this converter's typed value never held a TDomain to begin with. ILogixDataPointValue is
-        // public, so an outside implementation is the one way one can arrive here.
+        // A data point makes only its own value, so ILogixDataPointValue being public is the one way a
+        // foreign value reaches here.
         if (dataPointValue is not ILogixDataPointValue<TDomain> typedValue)
         {
             throw new InvalidOperationException(

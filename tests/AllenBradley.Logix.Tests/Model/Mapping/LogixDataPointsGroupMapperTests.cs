@@ -118,8 +118,6 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        // The pairing is what the walk gets wrong silently: a USINT node paired with the SINT point is
-        // the same byte on the wire and reads back the wrong half of the range.
         var expected = new USIntDataPoint(pressure.TagName, pressure.PollFrequency, pressure.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }

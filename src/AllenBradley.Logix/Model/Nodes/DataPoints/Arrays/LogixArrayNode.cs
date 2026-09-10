@@ -7,8 +7,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Array
 
 /// <summary>
 /// What every configured array tag carries on top of <see cref="LogixTagNode"/>: the number of elements
-/// it was declared with. That is the whole of its shape today — the array is read whole and its rank is
-/// one — so a concrete array node adds only its <c>LinkedNodeTypeId</c>.
+/// it was declared with. That is the whole of its shape today — one dimension, read whole; see
+/// <c>reference/datatype-support.md</c>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

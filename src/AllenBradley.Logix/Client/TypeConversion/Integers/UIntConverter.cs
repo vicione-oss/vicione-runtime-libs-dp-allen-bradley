@@ -4,10 +4,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// UINT (0xC7): 16-bit little-endian unsigned integer. CIP and .NET are both little-endian, so this is
-// a direct read/write with no byte swap. It occupies the same two bytes as an INT and differs only in
-// what the top bit means, which nothing on the wire records — ExpectedDataType is what keeps an INT
-// tag from being read as this and handing back 65535 where the controller holds -1.
+/// <summary>
+/// UINT (0xC7): 16-bit little-endian unsigned integer — the same two bytes as an INT, told apart only by
+/// the declared type, since nothing on the wire records what the top bit means.
+/// </summary>
 internal sealed class UIntConverter : AtomicDataPointConverter<UIntDataPoint, ushort>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.UInt;

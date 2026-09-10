@@ -3,10 +3,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 
-// BOOL (0xC1): one byte, and the only atomic whose decode is not a BinaryPrimitives read. The
-// controller stores 0 or 0xFF, but a member set through a mask can leave any nonzero pattern behind, so
-// the rule is nonzero rather than equality with 0xFF. Writing picks 0xFF, which is what Studio 5000
-// shows for a set BOOL.
+/// <summary>
+/// BOOL (0xC1): one byte. Any nonzero pattern reads as true, because a member set through a mask can leave
+/// one behind; a write picks 0xFF, which is what Studio 5000 shows for a set BOOL.
+/// </summary>
 internal sealed class BoolConverter : AtomicDataPointConverter<BoolDataPoint, bool>
 {
     private const byte True = 0xFF;

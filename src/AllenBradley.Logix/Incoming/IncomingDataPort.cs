@@ -14,25 +14,20 @@ using ViciOne.Suite.DataPort.Extensions.Verification;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Incoming;
 
+/// <summary>
+/// The read direction: polled tag reads in, engine values out.
+/// </summary>
 public sealed class IncomingDataPort : IncomingDataPortBase<
     LogixCommunication, DeviceNode,
     ILogixDataPoint, LogixDataPointGroup, ILogixDataPointValue,
     ILogixClient, LogixClientInformation>
 {
-    /// <summary>
-    /// Public constructor used by the vicione-engine to create an instance of the Allen-Bradley Logix
-    /// data port incoming communication.
-    /// </summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Public constructor used by engine.")]
     public IncomingDataPort(LogixCommunication communication, ILoggerFactory loggerFactory)
         : this(communication, loggerFactory, TimeProvider.System, clientLifecycleManager: null)
     {
     }
 
-    /// <summary>
-    /// Internal constructor for testing, allowing injection of a custom lifecycle manager and time
-    /// provider.
-    /// </summary>
     internal IncomingDataPort(
         LogixCommunication communication,
         ILoggerFactory loggerFactory,

@@ -13,8 +13,6 @@ internal sealed class ProgramTagsNodePropertyValidator : AbstractValidator<Linke
         MustBeValidProgramName();
     }
 
-    // Skipped when the property is absent or not a string, which the required-property rule reports on
-    // its own; without the guard this would throw out of GetRequiredPropertyValue instead.
     private void MustBeValidProgramName() =>
         RuleFor(static node => node)
             .Must(static node =>

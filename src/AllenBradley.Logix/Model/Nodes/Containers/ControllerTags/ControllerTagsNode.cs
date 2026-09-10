@@ -5,17 +5,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 
 /// <summary>
 /// The controller-scope tag container. It declares no properties, because controller scope contributes
-/// no segment to a tag address: a tag configured under it addresses itself. Program scope is the one
-/// that prefixes — <c>Program:MainProgram.Count</c> — and <c>ProgramTagsNode</c> is where its
-/// <c>ProgramName</c> lives.
-/// The generation arrives with the node type rather than from the device above, because the engine assembles
-/// a container's data points before it attaches the container to anything; <see
-/// cref="Device.DeviceNode.CanBeAdded(IConfigurationNode)"/> holds it against the device's later.
+/// no segment to a tag address: a tag configured under it addresses itself. See
+/// <c>explanation/tag-scoping.md</c>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="Generation">
-/// The generation of the controller these tags are configured against, from the container's own node
-/// type. It decides which types may hang off this container./mode
+/// The generation of the controller these tags are configured against, which decides which types may
+/// hang off this container.
 /// </param>
 public sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
@@ -59,10 +55,10 @@ public sealed record ControllerTagsNode(
     /// <inheritdoc />
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
-    /// <summary>Nothing nests inside controller scope yet — structures and programs are later slices.</summary>
+    /// <summary>Nothing nests inside controller scope yet — structures are a later slice.</summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
-    /// <summary>Whether a tag's type is one this controller's generation has. See <see cref="ITagScopeNode.CanHold"/>.</summary>
+    /// <summary>Whether a tag's type is one this controller's generation has.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => ITagScopeNode.CanHold(dataPointNode, Generation);
 
     /// <inheritdoc />

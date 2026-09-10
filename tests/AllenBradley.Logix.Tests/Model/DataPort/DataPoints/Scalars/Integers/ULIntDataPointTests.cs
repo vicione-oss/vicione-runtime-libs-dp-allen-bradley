@@ -80,8 +80,6 @@ public sealed class ULIntDataPointTests
     public void ALongIsRefusedNamingBothTypes()
     {
         // Arrange
-        // The signed twin of this point's own type, and the one substitution that would otherwise pass
-        // unnoticed: both occupy eight bytes, so nothing downstream would object.
 
         // Act
         var conversion = Cycles.ConvertValue(1234567890123L);

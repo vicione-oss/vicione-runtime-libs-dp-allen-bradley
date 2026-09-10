@@ -7,10 +7,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.FloatingPoints;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class LRealConverterTests
 {
     private static readonly IDataPointConverter Converter = new LRealConverter();
@@ -27,7 +23,6 @@ public sealed class LRealConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The one thing a round trip cannot catch: decoding eight bytes off a REAL reads past the tag.
         expectedDataType.Should().Be(AllenBradleyDataType.Lreal);
     }
 

@@ -40,8 +40,7 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
     public async Task ALRealValueRoundTripsAndItsTagIsDeclaredLReal(double valueToWrite)
     {
         // Arrange
-        // A fraction not representable in the narrower type is what catches an LREAL that went out
-        // through the REAL codec.
+        // Math.PI is not representable in a REAL, so it catches an LREAL encoded through the narrower codec.
         var dataPoint = new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels);
 
         // Act

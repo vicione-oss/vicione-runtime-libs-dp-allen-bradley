@@ -17,7 +17,6 @@ public sealed record LIntDataPoint(TagName TagName, PollFrequency PollFrequency,
 
     private sealed record Value(ILogixDataPoint DataPoint, long TypedValue) : ILogixDataPointValue<long>
     {
-        // A LINT is exactly a long: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

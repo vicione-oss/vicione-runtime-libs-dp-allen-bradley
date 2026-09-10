@@ -4,8 +4,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// DINT (0xC4): 32-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
-// direct read/write with no byte swap.
+/// <summary>
+/// DINT (0xC4): 32-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
+/// direct read/write with no byte swap.
+/// </summary>
 internal sealed class DIntConverter : AtomicDataPointConverter<DIntDataPoint, int>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.DInt;

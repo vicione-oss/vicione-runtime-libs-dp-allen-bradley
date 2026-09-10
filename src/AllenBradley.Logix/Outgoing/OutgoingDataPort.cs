@@ -19,21 +19,15 @@ using ViciOne.Suite.DataPort.Extensions.Verification;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Outgoing;
 
 /// <summary>
-/// The write direction: engine values in, tag writes out. It is the incoming port's wiring with a queue
-/// in place of a polling schedule — the same node mapper, the same data-point mapper, the same pool — so
-/// two ports configured against one controller share its connection rather than opening a second.
+/// The write direction: engine values in, tag writes out. The incoming port's wiring with a queue in
+/// place of a polling schedule, down to the shared client pool.
 /// </summary>
 public sealed class OutgoingDataPort : OutgoingDataPortBase<
     ILogixDataPoint, ILogixDataPointValue, ILogixClient, DeviceNode, LogixCommunication, LogixClientInformation>
 {
-    // Industrial writes are state, so a controller that is down should be waited for rather than written
-    // off. Stateless, so one instance serves every port.
+    // Industrial writes are state, so a controller that is down is waited for rather than written off.
     private static readonly InfiniteRetryPolicy SRetryPolicy = new();
 
-    /// <summary>
-    /// Public constructor used by the vicione-engine to create an instance of the Allen-Bradley Logix
-    /// data port outgoing communication.
-    /// </summary>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Public constructor used by engine.")]
     public OutgoingDataPort(LogixCommunication communication, ILoggerFactory loggerFactory)
         : this(communication, loggerFactory, clientLifecycleManager: null, delayProvider: null)

@@ -80,8 +80,6 @@ public sealed class USIntDataPointTests
     public void AnSByteIsRefusedNamingBothTypes()
     {
         // Arrange
-        // The signed twin of this point's own type, and the one substitution that would otherwise pass
-        // unnoticed: both occupy a byte, so nothing downstream would object.
 
         // Act
         var conversion = Level.ConvertValue((sbyte)42);

@@ -9,8 +9,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// <summary>
 /// The one suite in this folder that only reads: writing an array is a later slice, so what
 /// <see cref="TagAddresses.IntArray"/> holds is the controller's and these tests leave it alone.
-/// That is also why the read is checked against the declaration rather than against a value — the
-/// elements are whatever the program put there, and how many of them arrive is the question.
 /// </summary>
 public sealed class ArrayIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
@@ -46,8 +44,7 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         var readResult = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
         // Assert
-        // Written out before the assertion, because the elements are the controller's and the run is the
-        // only place anyone sees them.
+        // The elements are the controller's, and this run is the only place anyone sees them.
         var elements = readResult.Should().ContainSingle().Which.Value.Should().BeOfType<short[]>().Subject;
         Output.WriteLine($"{TagAddresses.IntArray} = [{string.Join(", ", elements)}]");
         elements.Should().HaveCount(

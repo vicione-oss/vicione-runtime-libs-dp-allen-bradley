@@ -17,8 +17,7 @@ public sealed record LRealDataPoint(TagName TagName, PollFrequency PollFrequency
 
     private sealed record Value(ILogixDataPoint DataPoint, double TypedValue) : ILogixDataPointValue<double>
     {
-        // An LREAL is exactly a double, NaN and the infinities included — the controller stores the bit
-        // pattern it is given.
+        // NaN and the infinities included: the controller stores the bit pattern it is given.
         public bool IsInValueRange() => true;
     }
 }

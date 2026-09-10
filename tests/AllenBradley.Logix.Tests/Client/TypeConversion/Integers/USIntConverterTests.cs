@@ -7,10 +7,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class USIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new USIntConverter();
@@ -26,8 +22,6 @@ public sealed class USIntConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The whole of what tells this converter from the SINT one: the two occupy the same byte and
-        // disagree only about what the top bit means.
         expectedDataType.Should().Be(AllenBradleyDataType.Usint);
     }
 
@@ -40,7 +34,6 @@ public sealed class USIntConverterTests
     public void AStoredBitPatternDecodesToTheUSIntTheControllerMeansByIt(byte storedBits, byte expectedValue)
     {
         // Arrange
-        // The top half of the range is the point: a signed decode reads 0x80 and 0xFF as -128 and -1.
         byte[] buffer = [storedBits];
 
         // Act
@@ -73,8 +66,6 @@ public sealed class USIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
-        // type declares.
         bytes.Should().Equal(0x2A);
     }
 

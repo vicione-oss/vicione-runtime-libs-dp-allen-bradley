@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.LInt.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>LInt</c> node in, an <see cref="LIntNode"/> out.</summary>
 public sealed class LIntNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class LIntNodeMapperTests
         ILogixTagNode lIntNode = _mapper.Map(node);
 
         // Assert
-        // LINT is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
-        // addon addresses and a container of any generation admits it.
         lIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -85,7 +82,6 @@ public sealed class LIntNodeMapperTests
     public void ALIntNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = LIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

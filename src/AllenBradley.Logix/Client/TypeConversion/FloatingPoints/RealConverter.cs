@@ -4,7 +4,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 
-// REAL (0xCA): IEEE-754 single-precision, little-endian. Direct read/write, no byte swap.
+/// <summary>
+/// REAL (0xCA): IEEE-754 single-precision, little-endian — a direct read/write with no byte swap.
+/// </summary>
 internal sealed class RealConverter : AtomicDataPointConverter<RealDataPoint, float>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.Real;

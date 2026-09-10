@@ -14,8 +14,8 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinit
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
-/// The rule is read against real converters rather than a stand-in, because an elementary type and a
-/// structure are the two sets of constants it has to serve and they are opposites of each other.
+/// The rule read against real converters rather than a stand-in: an elementary type and a structure are
+/// the two sets of constants it has to serve.
 /// </summary>
 public sealed class LogixTypeComparisonTests
 {
@@ -37,8 +37,6 @@ public sealed class LogixTypeComparisonTests
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
     {
         // Arrange
-        // The verifier reports an absent tag as absent before it asks, so this only pins that the rule
-        // does not invent a mismatch out of a null.
         var resolved = new ResolvedDataPoint(Speed, TagDefinition: null);
 
         // Act
@@ -92,7 +90,6 @@ public sealed class LogixTypeComparisonTests
     public void AnElementaryTypeWhereAStructureWasConfiguredIsAnAtomicMismatch()
     {
         // Arrange
-        // The inverse of the case above, and what a STRING configured onto a DINT tag looks like.
         var resolved = new ResolvedDataPoint(Label, DefaultAtomicTagDefinition());
 
         // Act
@@ -119,8 +116,6 @@ public sealed class LogixTypeComparisonTests
     public void ASmallerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        // A STRING configured onto a STRING_20: the shape agrees, the capacity does not, and nothing in a
-        // round trip of a short value would show it.
         var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
         var resolved = new ResolvedDataPoint(Label, declaration);
 
@@ -135,8 +130,6 @@ public sealed class LogixTypeComparisonTests
     public void ALargerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        // A capacity is an equality, not a bound: a STRING configured onto a STRING_100 sizes every write
-        // buffer 18 bytes short of the tag.
         var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(100) };
         var resolved = new ResolvedDataPoint(Label, declaration);
 
@@ -151,8 +144,6 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayWhereAScalarWasConfiguredIsARankMismatchBeforeAnythingElse()
     {
         // Arrange
-        // An array is the wrong shape whatever its elements hold, and this ordering is the one the
-        // verifier's messages cannot show.
         var declaration = DefaultAtomicTagDefinition() with { DimensionCount = DimensionCount.OneDimensional };
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
@@ -198,8 +189,6 @@ public sealed class LogixTypeComparisonTests
     public void AScalarWhereAnArrayWasConfiguredIsARankMismatch()
     {
         // Arrange
-        // The inverse of the case the port has always caught, and what an array node put on a scalar
-        // tag looks like.
         var declaration = DefaultIntArrayTagDefinition() with
         {
             DimensionCount = DimensionCount.Scalar,
@@ -238,8 +227,6 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayOfAnotherLengthIsAnElementCountMismatch(int declaredElementCount)
     {
         // Arrange
-        // A count is an equality, not a bound: an INT[5] read as ten elements runs off the end of the
-        // tag, and an INT[20] read as ten never sees the other half.
         var declaration = DefaultIntArrayTagDefinition() with
         {
             ElementCount = new ElementCount(declaredElementCount),

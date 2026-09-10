@@ -13,8 +13,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.YamlConfigurationConsi
 
 /// <summary>
 /// Neither side of the comparison is written out here: the offered set is read from the manifest and the
-/// admitted set from the node each data-point mapper produces, so a new type is covered the moment its
-/// mapper is assembled.
+/// admitted set from the node each data-point mapper produces.
 /// </summary>
 public sealed class TagContainerChildNodesTests
 {
@@ -22,8 +21,7 @@ public sealed class TagContainerChildNodesTests
 
     private const int AnyElementCount = 10;
 
-    // The manifest as the engine reads it, rather than as YAML text: the child lists arrive resolved,
-    // so the anchors the file shares between the two scopes are already expanded here.
+    // Read as the engine reads it, so the anchors the file shares between the two scopes arrive expanded.
     private static readonly TreeBuilder.Rules.Ruleset Ruleset =
         RulesDeserializer.Deserialize(LogixYamlConsistencyTests.YamlFileName);
 
@@ -57,31 +55,25 @@ public sealed class TagContainerChildNodesTests
         offeredTypeIds.Should().BeEquivalentTo(TypesAdmittedOn(generation));
     }
 
-    // What the editor offers under the container: the node ids the manifest lists as its children.
     private static IEnumerable<string> TypesOfferedBy(string containerNodeTypeId) =>
         Ruleset.NodeTypes
             .Single(nodeType => nodeType.Id == containerNodeTypeId)
             .ChildNodes
             .Select(child => child.Id);
 
-    // What the container would take if it were asked: every configured type whose own minimum
-    // generation this one meets, which is the comparison ITagScopeNode.CanHold makes.
+    // Mirrors the comparison ITagScopeNode.CanHold makes.
     private static IEnumerable<string> TypesAdmittedOn(LogixGeneration generation) =>
         MinimumGenerationsByNodeTypeId()
             .Where(type => type.Value <= generation)
             .Select(type => type.Key);
 
-    // Every data-point type the addon assembles a mapper for, paired with the generation its node
-    // declares.
     private static Dictionary<string, LogixGeneration> MinimumGenerationsByNodeTypeId() =>
         TypedLogixNodeMapper.Instance().DataPointNodeMappers.ToDictionary(
             mapper => mapper.TargetLinkedNodeTypeId,
             mapper => ((ILogixTagNode)mapper.Map(AnyTagNodeOfType(mapper.TargetLinkedNodeTypeId)))
                 .MinimumGeneration);
 
-    // One linked node serves every mapper: a mapper reads the properties its own type needs and ignores
-    // the rest, so carrying every one of them satisfies the widest (a STRING's MaxLength, an array's
-    // ElementCount).
+    // A mapper reads only the properties its type needs, so one node carrying all of them serves all.
     private static LinkedNode AnyTagNodeOfType(string linkedNodeTypeId) =>
         CreateLinkedNode(
             linkedNodeTypeId,

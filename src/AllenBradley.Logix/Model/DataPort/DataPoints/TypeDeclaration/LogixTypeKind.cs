@@ -1,10 +1,8 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 /// <summary>
-/// What kind of type the controller reports for a tag: an elementary CIP scalar, or a structure (the
-/// <c>0x8000</c> symbol-type marker — a Logix <c>STRING</c>, a <c>TIMER</c>, any UDT). This is the
-/// closed choice the old <c>IsStruct</c> flag stood for, and it settles shape before
-/// <see cref="TagDefinition.DataType"/> settles type.
+/// What kind of type the controller reports for a tag: an elementary CIP type, or a structure — a Logix
+/// <c>STRING</c>, a <c>TIMER</c>, any UDT.
 /// </summary>
 public enum LogixTypeKind
 {
@@ -12,9 +10,8 @@ public enum LogixTypeKind
     Atomic,
 
     /// <summary>
-    /// A structure. The listing names only the id of the template that defines its members, so the one
-    /// structured type this addon models — <see cref="AllenBradleyDataType.String"/> — is what a
-    /// structure decodes as, sized by its <see cref="TagDefinition.MaxLength"/>.
+    /// A structure, marked by <c>0x8000</c> in the symbol type. The listing names only the id of the
+    /// template that defines its members, never the members themselves.
     /// </summary>
     Structure,
 }

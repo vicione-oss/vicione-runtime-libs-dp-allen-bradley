@@ -4,18 +4,15 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
 
 /// <summary>
-/// A program-scope tag container: one program of the controller, and the tags configured inside it. It
-/// is a peer of controller scope under the device rather than a child of it, the way Studio 5000's own
-/// tree puts them.
-/// Every tag below it addresses as <c>Program:{ProgramName}.{TagName}</c>, composed by the tree walk so the
-/// configured tag name stays bare. The generation arrives with the node type for the reason <see
-/// cref="ControllerTags.ControllerTagsNode"/> gives.
+/// A program-scope tag container: one program of the controller, and the tags configured inside it. A
+/// peer of controller scope under the device, the way Studio 5000's own tree puts them. See
+/// <c>explanation/tag-scoping.md</c>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="ProgramName">The program these tags live in, and the segment their addresses carry.</param>
 /// <param name="Generation">
-/// The generation of the controller these tags are configured against, from the container's own node
-/// type. It decides which types may hang off this container.
+/// The generation of the controller these tags are configured against, which decides which types may
+/// hang off this container.
 /// </param>
 public sealed record ProgramTagsNode(
     LinkedNode OriginalNode,
@@ -69,7 +66,7 @@ public sealed record ProgramTagsNode(
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
-    /// <summary>Whether a tag's type is one this controller's generation has. See <see cref="ITagScopeNode.CanHold"/>.</summary>
+    /// <summary>Whether a tag's type is one this controller's generation has.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => ITagScopeNode.CanHold(dataPointNode, Generation);
 
     /// <inheritdoc />

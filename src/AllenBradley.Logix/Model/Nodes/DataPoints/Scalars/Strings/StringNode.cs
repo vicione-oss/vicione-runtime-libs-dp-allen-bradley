@@ -7,8 +7,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 
 /// <summary>
-/// A configured <c>STRING</c> tag. The configuration-time half of <see cref="StringDataPoint"/>: this is
-/// what the manifest produces, that is what the client reads.
+/// A configured <c>STRING</c> tag, the configuration-time half of <see cref="StringDataPoint"/>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

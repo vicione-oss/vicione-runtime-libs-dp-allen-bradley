@@ -6,9 +6,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 
 /// <summary>
 /// What every configured tag carries whatever its type and shape: where it sits in the tree, and the
-/// channels the editor routed it to. Both are read off the untyped node and neither depends on the
-/// type, so a concrete node adds only its <c>LinkedNodeTypeId</c> and whatever its own type needs —
-/// a <c>STRING</c>'s declared capacity, an array's element count, an <c>LREAL</c>'s minimum generation.
+/// channels the editor routed it to. A concrete node adds only its <c>LinkedNodeTypeId</c> and whatever
+/// its own type needs.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

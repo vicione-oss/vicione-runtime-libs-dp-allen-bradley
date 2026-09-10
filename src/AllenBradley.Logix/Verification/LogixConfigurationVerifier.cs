@@ -9,17 +9,15 @@ using ViciOne.Suite.DataPort.Extensions.Verification;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 /// <summary>
-/// Verifies configured data points against the controller's actual tag-definitions: it asks the client to
-/// resolve each data point against the metadata on the device and reports the tags whose declared type, shape or very
-/// existence disagrees with the configuration. This is what <c>CreateConfigurationVerifier</c> returns,
-/// so a misconfigured tag aborts the connect-process.
+/// Reports the configured data points whose declared type, shape or very existence disagrees with the
+/// controller's own tag definitions.
 /// </summary>
 internal sealed class LogixConfigurationVerifier(ILogixClient client)
     : IDataPointConfigurationVerifier<ILogixDataPoint>
 {
     /// <summary>
-    /// Resolves every data point against the metadata on the device, then returns one entry per
-    /// <b>misconfigured</b> one; a fully matching configuration returns an empty list.
+    /// Returns one entry per misconfigured data point; a fully matching configuration returns an empty
+    /// list.
     /// </summary>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     public async ValueTask<IReadOnlyList<MisconfiguredDataPoint<ILogixDataPoint>>> Verify(
@@ -46,11 +44,8 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
             return [new MismatchingConfiguration($"Tag '{dataPoint.TagName}' was not found on the controller.")];
         }
 
-        // The converter is the single source of the expected type, and LogixTypeComparison the single
-        // comparison. This is the only place a configured type is read against the controller's own
-        // declaration (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md) — the poll
-        // trusts the verdict reached here, so a mismatch that gets past it is a mismatch nothing
-        // downstream will catch. The verifier only renders the kind it reports.
+        // The only place a configured type is read against the controller's declaration; the poll trusts
+        // the verdict (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md).
         var converter = DataPointConverterRegistry.GetConverter(dataPoint);
         var mismatch = LogixTypeComparison.Compare(converter, resolved);
         return mismatch switch
@@ -81,9 +76,6 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"Tag '{dataPoint.TagName}' is an elementary {Describe(device.DataType)} on the controller, " +
                     $"but the structured type {converter.ExpectedTypeName} is configured."),
             ],
-            // Rendered in characters, because that is what both sides of the comparison are and what the
-            // configuration is written in. The converter is asked for the configured capacity rather
-            // than the data point, which this method only knows through ILogixDataPoint.
             LogixTypeMismatch.StringCapacity =>
             [
                 new MismatchingConfiguration(
@@ -91,8 +83,6 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"holds {Describe(converter.MaxLengthFor(dataPoint))} characters, " +
                     $"but the controller declares {Describe(device.MaxLength)}."),
             ],
-            // Rendered in elements, for the reason the capacity above is rendered in characters: that is
-            // what both sides of the comparison are, and what the configuration is written in.
             LogixTypeMismatch.ElementCount =>
             [
                 new MismatchingConfiguration(
@@ -112,19 +102,12 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
         { } type => type.ToString(),
     };
 
-    // A capacity is absent only for a type that has none to declare, which the capacity mismatch itself
-    // rules out on the configured side; the device side is null only for a structure the listing gave
-    // nothing to size.
     private static string Describe(StringMaxLength? maxLength) =>
         maxLength?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 
-    // An element count is absent only for a shape with no extent to configure, which the element-count
-    // mismatch itself rules out on the configured side.
     private static string Describe(ElementCount? elementCount) =>
         elementCount?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 
-    // Said from the rank alone, so the one message serves both directions: an array configured onto a
-    // scalar tag is this same disagreement read the other way round.
     private static string Describe(DimensionCount dimensionCount) =>
         dimensionCount.IsScalar ? "a scalar" : $"a {dimensionCount.Value}-dimensional array";
 }

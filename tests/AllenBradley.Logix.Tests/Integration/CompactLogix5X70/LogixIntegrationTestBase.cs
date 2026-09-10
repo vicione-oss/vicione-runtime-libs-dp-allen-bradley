@@ -8,9 +8,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// Builds the production client stack against the controller <see cref="BenchController"/> describes and
-/// tears it down; every layer a derived suite exercises is the shipping code. Disposing the client is not
-/// optional: under MTP a libplctag handle left to its finalizer fail-fasts the process with
-/// <c>0xC0000602</c> on otherwise green tests.
+/// tears it down. Disposing the client is not optional: under MTP a libplctag handle left to its finalizer
+/// fail-fasts the process with <c>0xC0000602</c> on otherwise green tests.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection(PlcCollection.Name)]
@@ -35,8 +34,8 @@ public abstract class LogixIntegrationTestBase : IAsyncLifetime
     internal LogixClient Client { get; }
 
     /// <summary>
-    /// The tag manager, for the facts that are not values: it joins the controller's declaration onto
-    /// every tag, which is how a suite asserts what the controller says a tag <em>is</em>.
+    /// The tag manager, which joins the controller's declaration onto every tag — how a suite asserts what
+    /// the controller says a tag <em>is</em>.
     /// </summary>
     internal ILogixTagManager TagManager => _tagManager;
 

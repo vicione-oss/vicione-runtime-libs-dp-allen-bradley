@@ -26,11 +26,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 
 /// <summary>
-/// Turns a configured node tree into the runtime data points both ports work from, and groups them by
-/// poll frequency for the incoming one. One mapper serves both directions — the outgoing port takes the
-/// flat list and ignores the grouping.
-/// The walk composes each tag's address from the scope its container names, so a configured tag name stays
-/// bare.
+/// Turns a configured node tree into the runtime data points both ports work from, grouped by poll
+/// frequency for the incoming one. The outgoing port takes the flat list and ignores the grouping.
 /// </summary>
 internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogixDataPoint, LogixDataPointGroup,
     DeviceNode, LogixCommunication>
@@ -59,15 +56,9 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         return dataPoints;
     }
 
-    // A container that names a scope replaces the one it hangs under. Anything else passes the enclosing
-    // scope through: the device root, which holds no tags of its own, and later a structure container,
-    // whose path is read off the controller rather than configured.
     private static TagScope ScopeOf(IConfigurationNode configurationNode, TagScope enclosingScope) =>
         configurationNode is ITagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
 
-    // The node-to-point pairing for each type the addon models. A node reaching here that this switch
-    // does not name has a node mapper and no data point behind it, which the manifest cannot express and
-    // only a half-finished type slice produces.
     private static ILogixDataPoint ToDataPoint(IDataPointNode dataPointNode, TagScope scope) => dataPointNode switch
     {
         DIntNode dInt => new DIntDataPoint(scope.Qualify(dInt.TagName), dInt.PollFrequency, dInt.Channels),
@@ -89,6 +80,8 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         IntArrayNode readings => new IntArrayDataPoint(
             scope.Qualify(readings.TagName), readings.PollFrequency, readings.Channels,
             readings.ElementCount),
+        // Unreachable from a manifest: a node this switch does not name has a node mapper and no data
+        // point behind it, which only a half-finished type slice produces.
         _ => throw new NotSupportedException(
             $"Unsupported Logix data point node type '{dataPointNode.GetType().Name}'."),
     };

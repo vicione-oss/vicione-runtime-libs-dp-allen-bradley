@@ -4,7 +4,6 @@ using static System.Guid;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
-/// <summary>Builds the controller-scope container a configured controller tag hangs off.</summary>
 internal static class ControllerTagsNodeTestDataFactory
 {
     /// <summary>

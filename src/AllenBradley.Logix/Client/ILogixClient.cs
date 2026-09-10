@@ -6,21 +6,19 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 /// <summary>
 /// One controller connection with both directions on it: the read and write seams, plus the connect /
-/// disconnect / dispose lifecycle a client lifecycle manager drives them through. This is the type
-/// <c>LogixClientPool</c> pools, and the type either dataport ends up holding.
+/// disconnect / dispose lifecycle a client lifecycle manager drives them through.
 /// </summary>
 public interface ILogixClient : ILogixReadClient, ILogixWriteClient, IDisposable
 {
     /// <summary>
     /// Whether a schema has been browsed and not since dropped. Not a transport check: libplctag exposes
-    /// no connection status and holds no socket to ask about, so this reports what the client did, not
-    /// what the network is doing.
+    /// no connection status, so this reports what the client did, not what the network is doing.
     /// </summary>
     bool IsConnected { get; }
 
     /// <summary>
-    /// Browses the controller's symbol table, which is what makes the client usable: reads and writes
-    /// resolve their tags against it. A no-op when already connected.
+    /// Browses the controller's symbol table, which reads and writes resolve their tags against. A no-op
+    /// when already connected.
     /// </summary>
     /// <exception cref="ConnectionFailureException">The controller could not be browsed.</exception>
     /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>
@@ -35,12 +33,8 @@ public interface ILogixClient : ILogixReadClient, ILogixWriteClient, IDisposable
 
     /// <summary>
     /// Pairs every data point with what the controller's symbol table reports for its tag, in the order
-    /// they were asked for. This is the seam configuration verification diffs against, and the pair it
-    /// gets is the one the read and write gates compare, so a connect-time error and a degraded poll
-    /// cannot disagree.
-    /// Requires a prior connect and resolves in memory against the browsed schema. A tag the controller does
-    /// not have resolves to a <c>null</c> <see cref="ResolvedDataPoint.TagDefinition"/> rather than being
-    /// left out.
+    /// they were asked for. Resolves in memory against the browsed schema; a tag the controller does not
+    /// have gets a <c>null</c> <see cref="ResolvedDataPoint.TagDefinition"/> rather than being left out.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// The client is not connected, so there is no symbol table to resolve against.

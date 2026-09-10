@@ -7,10 +7,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class SIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new SIntConverter();
@@ -26,7 +22,6 @@ public sealed class SIntConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The one thing a round trip cannot catch: decoding one byte off an INT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Sint);
     }
 
@@ -71,8 +66,6 @@ public sealed class SIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
-        // type declares.
         bytes.Should().Equal(0x2A);
     }
 

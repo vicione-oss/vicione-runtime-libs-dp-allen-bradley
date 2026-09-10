@@ -17,7 +17,6 @@ public sealed record ULIntDataPoint(TagName TagName, PollFrequency PollFrequency
 
     private sealed record Value(ILogixDataPoint DataPoint, ulong TypedValue) : ILogixDataPointValue<ulong>
     {
-        // A ULINT is exactly a ulong: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

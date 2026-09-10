@@ -6,9 +6,8 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ProgramTags.Mapping;
 
 /// <summary>
-/// The gate a program container passes before it is mapped. The rule is the tag-name rule, and it is
-/// checked here as well because the two reach the controller through different doors: a tag name is
-/// looked up, a program name is interpolated into the <c>Program:&lt;name&gt;.@tags</c> the browse asks for.
+/// The gate a program container passes before it is mapped: the tag-name rule again, because a program
+/// name is interpolated into the <c>Program:&lt;name&gt;.@tags</c> the browse asks for.
 /// </summary>
 public sealed class ProgramTagsNodePropertyValidatorTests
 {

@@ -10,8 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 
 /// <summary>
 /// The join between the two halves of program scope, against the real CompactLogix L32E: the address the
-/// configuration tree composes, and the key the symbol-table browse files a program tag under. Both are
-/// <c>Program:MainProgram.strValue1</c> by construction, and this is what holds them to it.
+/// configuration tree composes, and the key the symbol-table browse files a program tag under.
 /// </summary>
 public sealed class ProgramTagVerificationTests : LogixIntegrationTestBase
 {

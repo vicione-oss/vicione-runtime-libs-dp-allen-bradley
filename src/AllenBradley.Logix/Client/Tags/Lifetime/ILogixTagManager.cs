@@ -4,22 +4,17 @@ using ViciOne.Suite.DataPort.Extensions.Exceptions;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 /// <summary>
-/// Owns the controller's symbol table and resolves the <see cref="ILogixTag"/> for a data
-/// point — data point, metadata and handle joined into one object.
-/// <see cref="CachingLogixTagManager"/> is the production implementation; tests supply a fake that
-/// hands back in-process tags.
-/// A returned tag is borrowed, never owned: the manager disposes it, and a consumer that disposes one breaks
-/// every other holder. <see cref="Drain"/> frees the connect-scoped state and leaves the manager ready to
-/// load again; <see cref="IDisposable.Dispose"/> is terminal.
+/// Owns the controller's symbol table and resolves the <see cref="ILogixTag"/> for a data point. A
+/// returned tag is borrowed, never owned: the manager disposes it, and a consumer that disposes one
+/// breaks every other holder. <see cref="Drain"/> is reversible; <see cref="IDisposable.Dispose"/> is
+/// terminal.
 /// </summary>
 internal interface ILogixTagManager : IDisposable
 {
     /// <summary>
     /// Browses the controller's symbol table once and retains it, so <see cref="TagFor"/> can stamp each
-    /// tag with the controller's metadata. Idempotent — a second call is a no-op. Connect calls this before
-    /// the first <see cref="TagFor"/>.
-    /// Concurrent callers share one browse. A browse that fails is not remembered, so the next call tries
-    /// again.
+    /// tag with the controller's metadata. Idempotent, and concurrent callers share one browse; a browse
+    /// that fails is not remembered, so the next call tries again.
     /// </summary>
     /// <exception cref="DataRetrievalException">The symbol table could not be browsed.</exception>
     Task LoadTagDefinitionsAsync(CancellationToken cancellationToken);
@@ -34,9 +29,9 @@ internal interface ILogixTagManager : IDisposable
     ILogixTag TagFor(ILogixDataPoint dataPoint);
 
     /// <summary>
-    /// Disposes every tag this manager created and drops the schema, putting the manager back to its
-    /// pre-connect state. Idempotent, and reversible: a later <see cref="LoadTagDefinitionsAsync"/> browses again
-    /// and <see cref="TagFor"/> recreates the tags it needs.
+    /// Disposes every tag this manager created and drops the schema, putting it back to its pre-connect
+    /// state. A later <see cref="LoadTagDefinitionsAsync"/> browses again and <see cref="TagFor"/>
+    /// recreates the tags it needs.
     /// </summary>
     /// <exception cref="ObjectDisposedException">The manager has been disposed.</exception>
     void Drain();

@@ -4,9 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
 /// <summary>
 /// Carries the trait and the collection for the suites that drive libplctag on its own, against the
-/// controller <see cref="BenchController"/> describes. Nothing here touches the addon: these probe what
-/// the library makes of the device, which is the ground truth the addon's own suites are written
-/// against.
+/// controller <see cref="BenchController"/> describes. Nothing here touches the addon.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection(PlcCollection.Name)]

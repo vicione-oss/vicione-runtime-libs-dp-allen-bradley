@@ -30,8 +30,7 @@ public sealed class LogixClientTests
     private static readonly StringDataPoint Label =
         new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
-    // 42 and 7 as DINTs on the wire, spelled out rather than taken from BitConverter, which would
-    // re-derive them through the same host-endianness assumption the converter makes.
+    // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
     private static readonly byte[] SevenAsDint = [7, 0, 0, 0];
 
@@ -108,9 +107,9 @@ public sealed class LogixClientTests
     public async Task AReplyTooShortForItsTypeCostsThatTagItsValueAndNoOther()
     {
         // Arrange
-        // Two bytes where a DINT needs four, which nothing checks before the decode.
+        var tooShortForADint = new byte[2];
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, AtomicMetadataFor(Speed), LogixTagReadResult.Ok(new byte[2])),
+            FakeTag.Reading(Speed, AtomicMetadataFor(Speed), LogixTagReadResult.Ok(tooShortForADint)),
             FakeTag.Reading(Level, AtomicMetadataFor(Level), LogixTagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
 
@@ -144,7 +143,6 @@ public sealed class LogixClientTests
     public async Task ADataPointWithoutAConverterIsRefusedBeforeAnyTagIsRead()
     {
         // Arrange
-        // Both points have a tag, so the only thing left that can throw is the missing converter.
         var speedTag = FakeTag.Reading(Speed, AtomicMetadataFor(Speed), LogixTagReadResult.Ok(FortyTwoAsDint));
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
@@ -239,7 +237,6 @@ public sealed class LogixClientTests
     public async Task EveryValueThatWillNotEncodeIsNamedAndNoTagIsTouched()
     {
         // Arrange
-        // Two tags declared to hold four characters, handed values that do not fit.
         var shortLabel = ShortStringDataPoint("Line.Short");
         var shortCode = ShortStringDataPoint("Line.Code");
         var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), LogixTagWriteResult.Ok());
@@ -265,7 +262,6 @@ public sealed class LogixClientTests
     public async Task AValueThatWillNotEncodeLeavesTheTagsThatWouldHaveTakenTheirsUntouched()
     {
         // Arrange
-        // The good value is exactly what a partial write would consist of.
         var shortLabel = ShortStringDataPoint("Line.Short");
         var speedTag = FakeTag.Writing(Speed, AtomicMetadataFor(Speed), LogixTagWriteResult.Ok());
         var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), LogixTagWriteResult.Ok());
@@ -285,7 +281,6 @@ public sealed class LogixClientTests
     public async Task AValueNoDataPointMadeIsRefusedUnderItsTagsName()
     {
         // Arrange
-        // ILogixDataPointValue is public, so an outside implementation is what the write guard is for.
         var speedTag = FakeTag.Writing(Speed, AtomicMetadataFor(Speed), LogixTagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(speedTag));
         ILogixDataPointValue[] values = [new ForeignDataPointValue(Speed)];
@@ -325,8 +320,7 @@ public sealed class LogixClientTests
         await client.WriteAsync(values, CancellationToken.None);
 
         // Assert
-        // The two bytes of alignment padding that make the tag 88 on the controller belong to libplctag's
-        // handle and never pass through the client.
+        // The two padding bytes that make the tag 88 on the controller belong to libplctag, not the client.
         var expected = new byte[4 + StringMaxLength.Standard.Value];
         expected[0] = 2;
         expected[4] = (byte)'H';
@@ -338,7 +332,6 @@ public sealed class LogixClientTests
     public async Task EachResolvedDataPointCarriesTheControllersDefinitionForItsTag()
     {
         // Arrange
-        // Line.Label is deliberately absent from the symbol table, which its tag carries as null metadata.
         var tagManager = TagManagerFor(
             FakeTag.Reading(Speed, AtomicMetadataFor(Speed), LogixTagReadResult.Ok(FortyTwoAsDint)),
             FakeTag.Reading(Label, metadata: null, LogixTagReadResult.Ok(new byte[StringStructureSize])));
@@ -409,8 +402,6 @@ public sealed class LogixClientTests
     public async Task AClientWhoseBrowseFailedReportsAConnectionFailureAndStaysDisconnected()
     {
         // Arrange
-        // A retrieval failure is what an unreachable endpoint or a dead route path comes back as, and the
-        // framework's acquire contract is a single exception type.
         var tagManager = Substitute.For<ILogixTagManager>();
         tagManager.LoadTagDefinitionsAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new DataRetrievalException("no route to host")));
@@ -480,7 +471,6 @@ public sealed class LogixClientTests
     public async Task AReconnectBrowsesTheSymbolTableAfresh()
     {
         // Arrange
-        // The controller may have changed underneath a connection that ended, so the schema is not kept.
         var tagManager = Substitute.For<ILogixTagManager>();
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
@@ -506,7 +496,6 @@ public sealed class LogixClientTests
         client.Dispose();
 
         // Assert
-        // Disposing is what frees the native handles, and a double dispose must not double-free them.
         tagManager.Received(1).Dispose();
     }
 
@@ -527,7 +516,6 @@ public sealed class LogixClientTests
     public async Task ConnectingADisposedClientIsRefusedAndBrowsesNothing()
     {
         // Arrange
-        // Dispose is terminal: the pool builds a fresh client rather than reviving one.
         var tagManager = Substitute.For<ILogixTagManager>();
         var client = CreateClient(tagManager);
         client.Dispose();
@@ -555,7 +543,6 @@ public sealed class LogixClientTests
     private static TagDefinition StringMetadataFor(StringDataPoint dataPoint) =>
         DefaultStringTagDefinition() with { TagName = dataPoint.TagName, MaxLength = dataPoint.MaxLength };
 
-    // A tag manager that hands back exactly these tags, each keyed on the data point it already carries.
     private static ILogixTagManager TagManagerFor(params ILogixTag[] tags)
     {
         var tagManager = Substitute.For<ILogixTagManager>();
@@ -567,8 +554,7 @@ public sealed class LogixClientTests
         return tagManager;
     }
 
-    // An ILogixDataPointValue that no data point made: the one shape the write path's converter guard can
-    // ever be handed, because a read returns the point's own typed value or fails its batch.
+    // An ILogixDataPointValue that no data point made: the only shape the write path's guard can meet.
     private sealed record ForeignDataPointValue(ILogixDataPoint DataPoint) : ILogixDataPointValue
     {
         public object? Value => null;
@@ -576,8 +562,7 @@ public sealed class LogixClientTests
         public bool IsInValueRange() => false;
     }
 
-    // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
-    // that nobody wired a converter for.
+    // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
@@ -613,8 +598,7 @@ public sealed class LogixClientTests
             ILogixDataPoint dataPoint, TagDefinition? metadata, LogixTagWriteResult result) =>
             new(dataPoint, metadata) { _writeResult = result };
 
-        // Cancellation is honoured the way the real access honours it, by throwing rather than coming home
-        // as a failed result.
+        // The real access honours cancellation by throwing rather than returning a failed result.
         public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

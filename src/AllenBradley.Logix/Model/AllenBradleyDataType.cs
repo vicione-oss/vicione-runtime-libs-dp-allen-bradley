@@ -3,9 +3,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// <summary>
 /// An Allen-Bradley data type, as Studio 5000 spells it: the type a tag holds, with nothing of how the
 /// controller encodes it.
-/// Every member but <see cref="String"/> is fixed in size by the type alone; a string's <c>n</c> travels
-/// beside it as a <see cref="DataPort.DataPoints.TypeDeclaration.StringMaxLength"/>. Structures such as
-/// <c>TIMER</c> or a UDT have no member here.
 /// </summary>
 public enum AllenBradleyDataType
 {
@@ -47,8 +44,7 @@ public enum AllenBradleyDataType
 
     /// <summary>
     /// <c>STRING</c> — the predefined <c>.LEN : DINT</c> + <c>.DATA : SINT[n]</c> structure. The
-    /// <c>n</c> is not part of the type: the built-in <c>STRING</c> and a <c>STRING_20</c> are both
-    /// this, told apart by the capacity beside them.
+    /// <c>n</c> is not part of the type: a built-in <c>STRING</c> and a <c>STRING_20</c> are both this.
     /// </summary>
     String,
 }

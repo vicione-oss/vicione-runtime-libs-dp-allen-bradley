@@ -29,10 +29,8 @@ public sealed class OutgoingDataPortTests : IDisposable
     private const string Channel = "MotorSpeed";
     private const string TagName = "MotorSpeed";
 
-    /// <summary>The value the queue-overrun cases jam the head of the queue with.</summary>
     private const int FirstValue = 1;
 
-    /// <summary>Controller scope on the device, the container the single configured tag hangs off.</summary>
     private static readonly Node ControllerTagsNode = CreateControllerTagsNodeFor();
 
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
@@ -136,7 +134,6 @@ public sealed class OutgoingDataPortTests : IDisposable
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
-        // A DINT carries an int, and "not a number" cannot become one.
         await outgoing.SendAsync(1, [ExternalValue(Channel, "not a number")], CancellationToken.None);
 
         // Assert
@@ -238,7 +235,6 @@ public sealed class OutgoingDataPortTests : IDisposable
     private static LogixCommunication DeviceWithOneConfiguredTag() =>
         CreateCommunicationOf([ControllerTagsNode, CreateDIntNode(Channel, TagName, ControllerTagsNode.Id)]);
 
-    /// <summary>A device whose queue is small enough that a handful of sends overruns it.</summary>
     private static LogixCommunication SmallQueue(QueueStrategy strategy) =>
         DeviceWithOneConfiguredTag() with { MaxPendingMessages = 2, Strategy = (byte)strategy };
 
@@ -251,8 +247,7 @@ public sealed class OutgoingDataPortTests : IDisposable
     {
         await outgoing.SendAsync(1, [ExternalValue(Channel, FirstValue)], CancellationToken.None);
 
-        // The processor has to have picked the first batch up before the rest arrive, or there is no
-        // stuck head for them to pile up behind.
+        // The processor must pick the first batch up before the rest arrive, or there is no stuck head.
         await Task.Delay(25, TestContext.Current.CancellationToken);
 
         for (var value = 2; value <= 8; value++)
@@ -264,7 +259,6 @@ public sealed class OutgoingDataPortTests : IDisposable
     private OutgoingDataPort CreatePort(LogixCommunication communication) =>
         new(communication, _loggerFactory, _lifecycleManager, new InstantDelayProvider());
 
-    /// <summary>Every batch the client was handed, in the order the queue processor wrote them.</summary>
     private List<IReadOnlyList<ILogixDataPointValue>> WrittenValues =>
     [
         .. _client.ReceivedCalls()
@@ -272,8 +266,7 @@ public sealed class OutgoingDataPortTests : IDisposable
             .Select(static call => (IReadOnlyList<ILogixDataPointValue>)call.GetArguments()[0]!),
     ];
 
-    // A drop is the absence of a write, and the disconnect is what makes the absence worth asserting: it
-    // stops the queue processor, so anything that was going to be written has been by the time it returns.
+    // The disconnect stops the queue processor, so any write that was going to happen already has.
     private async Task NothingIsWritten(OutgoingDataPort outgoing)
     {
         await outgoing.DisconnectAsync(CancellationToken.None);
@@ -281,8 +274,7 @@ public sealed class OutgoingDataPortTests : IDisposable
             .WriteAsync(Arg.Any<IReadOnlyList<ILogixDataPointValue>>(), Arg.Any<CancellationToken>());
     }
 
-    // Only the head batch fails, and it fails forever: under the infinite retry policy that leaves it at
-    // the head of the queue, which is the state a queue has to overrun for its strategy to show.
+    // It fails forever, so the infinite retry policy leaves it stuck at the head of the queue.
     private void FailOnlyTheFirstValue() =>
         _client.WriteAsync(Arg.Any<IReadOnlyList<ILogixDataPointValue>>(), Arg.Any<CancellationToken>())
             .Returns(callInfo =>

@@ -6,7 +6,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNode
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ControllerTags.Mapping;
 
-/// <summary>The mapper on its own: a node in, a container out, without the tree walk around it.</summary>
 public sealed class ControllerTagsNodeMapperTests
 {
     private static readonly LinkedNode X70ControllerNode =

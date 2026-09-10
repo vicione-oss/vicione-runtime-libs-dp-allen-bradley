@@ -4,8 +4,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// LINT (0xC5): 64-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
-// direct read/write with no byte swap — the same as the narrower integers, over eight bytes.
+/// <summary>
+/// LINT (0xC5): 64-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
+/// direct read/write with no byte swap.
+/// </summary>
 internal sealed class LIntConverter : AtomicDataPointConverter<LIntDataPoint, long>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LInt;

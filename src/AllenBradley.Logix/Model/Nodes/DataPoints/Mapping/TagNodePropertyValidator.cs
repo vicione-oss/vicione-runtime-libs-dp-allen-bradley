@@ -5,9 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mappi
 
 /// <summary>
 /// Checks what every tag node carries before it is mapped, whatever its type and shape: a tag name
-/// Studio 5000 could have declared, and a poll frequency that is a positive number of milliseconds.
-/// The name is the bare one, never an address; the tree walk composes the scope prefix. Whether the
-/// controller has the tag is verified against the symbol table on connect.
+/// Studio 5000 could have declared — the bare one, never an address, since the tree walk composes the
+/// scope prefix — and a poll frequency that is a positive number of milliseconds.
 /// </summary>
 internal sealed class TagNodePropertyValidator : AbstractValidator<LinkedNode>
 {

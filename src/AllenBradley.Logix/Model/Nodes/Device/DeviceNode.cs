@@ -6,9 +6,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 
 /// <summary>
-/// The root of a configured tree: one controller, and the tag containers configured against it. It
-/// carries the <see cref="LogixClientInformation"/> the pool keys a connection under, so a port holds
-/// its device identity in one place rather than re-deriving it from the communication record.
+/// The root of a configured tree: one controller, and the tag containers configured against it.
 /// </summary>
 /// <param name="OriginalCommunication">The configuration this node was mapped from.</param>
 /// <param name="ClientInformation">Which controller to reach, and how long an operation against it may take.</param>
@@ -74,11 +72,9 @@ public sealed record DeviceNode(
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
     /// <summary>
-    /// A scope container of this controller's own generation — controller scope, or a program. The other
-    /// container of each pair stands for a type vocabulary this controller has not got, and would carry
-    /// that answer down to the tags below it: a <c>ControllerTags5X80</c> under a 5X70 device is what
-    /// would let an <c>LREAL</c> past <see cref="ITagScopeNode.CanBeAdded(IDataPointNode)"/>, which
-    /// believes the container.
+    /// A scope container of this controller's own generation — controller scope, or a program. A
+    /// container of the other generation would carry its type vocabulary down to the tags below it; see
+    /// <c>reference/datatype-support.md</c>.
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {

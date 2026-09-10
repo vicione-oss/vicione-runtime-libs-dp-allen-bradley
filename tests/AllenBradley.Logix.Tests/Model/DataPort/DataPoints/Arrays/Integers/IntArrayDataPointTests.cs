@@ -23,7 +23,6 @@ public sealed class IntArrayDataPointTests
         var dataTypeName = Readings.DataTypeName;
 
         // Assert
-        // A display name is one per type: the length travels beside it as the element count.
         dataTypeName.Should().Be(new DataTypeName("INT[]"));
     }
 

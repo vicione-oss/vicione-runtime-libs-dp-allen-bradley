@@ -6,11 +6,7 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Mapping;
 
-/// <summary>
-/// The gate every configured tag passes before it is mapped. Most of it is one regex, and a regex is
-/// worth a case per boundary: each of the Studio 5000 rules it encodes is a single character away from
-/// the opposite verdict.
-/// </summary>
+/// <summary>The gate every configured tag passes before it is mapped, checked a case per boundary.</summary>
 public sealed class TagNodePropertyValidatorTests
 {
     private const int DefaultPollFrequency = 100;

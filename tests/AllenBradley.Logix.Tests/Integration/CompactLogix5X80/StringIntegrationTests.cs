@@ -16,10 +16,11 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
     /// <summary>Each value written, with what Latin-1 storage gives back for it.</summary>
     public static TheoryData<string, string> ShortValues => new()
     {
-        { "Hello World", "Hello World" }, // plain ASCII
-        { "ÀÉÑÖß", "ÀÉÑÖß" }, // Latin-1 extended, preserved
-        { "A€BДC中DשE", "A?B?C?D?E" }, // outside Latin-1 — one '?' per character, lossy by design
-        { string.Empty, string.Empty }, // .LEN = 0, nothing in .DATA
+        { "Hello World", "Hello World" },
+        { "ÀÉÑÖß", "ÀÉÑÖß" },
+        // Outside Latin-1 — one '?' per character, lossy by design.
+        { "A€BДC中DשE", "A?B?C?D?E" },
+        { string.Empty, string.Empty },
     };
 
     [Theory]
@@ -42,8 +43,6 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
     public async Task AStringFillingTheDeclaredCapacityRoundTrips()
     {
         // Arrange
-        // Written from the configured capacity rather than a literal, so overriding the capacity moves
-        // this case with it instead of turning it into a rejection.
         var valueToWrite = new string('X', TagAddresses.StringCapacity.Value);
 
         // Act
@@ -58,7 +57,6 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
     public async Task AStringLongerThanTheDeclaredCapacityIsRefusedBeforeAnythingIsSent()
     {
         // Arrange
-        // A truncating write would report success for a value the caller never asked for.
         var dataPoint = StringTag();
         var tooLong = new string('X', TagAddresses.StringCapacity.Value + 1);
         var cancellationToken = TestContext.Current.CancellationToken;

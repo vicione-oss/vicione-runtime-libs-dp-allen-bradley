@@ -21,9 +21,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 
 /// <summary>
-/// Assembles every node mapper into the one the dataport base classes take: the root mapper, the branch
-/// mappers, and the data-point mappers. A configured node no mapper here claims is a hard configuration
-/// error, so this list and the manifest's nodes are the same set.
+/// Assembles every node mapper into the one the dataport base classes take. This list and the
+/// manifest's nodes are the same set: a configured node no mapper here claims is a configuration error.
 /// </summary>
 public static class TypedLogixNodeMapper
 {
@@ -37,9 +36,6 @@ public static class TypedLogixNodeMapper
             ],
             DataPointNodeMappers());
 
-    // Grouped the way the manifest's tag nodes and the converters are: one method per type family,
-    // so adding a type touches the family it belongs to rather than a single flat list that every
-    // slice appends to.
     private static IDataPointNodeMapper<IDataPointNode>[] DataPointNodeMappers() =>
         [
             .. BooleanNodeMappers(), .. IntegerNodeMappers(), .. FloatingPointNodeMappers(),
@@ -61,8 +57,6 @@ public static class TypedLogixNodeMapper
     private static IDataPointNodeMapper<IDataPointNode>[] StringNodeMappers() =>
         [new StringNodeMapper()];
 
-    // A family by shape rather than by element type: every array node maps the same three properties
-    // whatever it holds, so the other element types join this list rather than start their own.
     private static IDataPointNodeMapper<IDataPointNode>[] ArrayNodeMappers() =>
         [new IntArrayNodeMapper()];
 }

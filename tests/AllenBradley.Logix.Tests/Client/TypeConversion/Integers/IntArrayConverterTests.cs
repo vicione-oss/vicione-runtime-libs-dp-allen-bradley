@@ -8,10 +8,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class IntArrayConverterTests
 {
     private const int DeclaredElementCount = 10;
@@ -21,8 +17,7 @@ public sealed class IntArrayConverterTests
     private static readonly IntArrayDataPoint Readings = new(
         new TagName("intArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
-    // Ten INTs, least significant byte first, holding both ends of the range and a value that is not
-    // symmetric in its two bytes.
+    // Least significant byte first, holding both ends of the range and one value asymmetric in its bytes.
     private static readonly byte[] TenStoredInts =
     [
         0x00, 0x00, 0x01, 0x00, 0xFF, 0xFF, 0x67, 0x12, 0x00, 0x80,
@@ -38,7 +33,6 @@ public sealed class IntArrayConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The one thing a whole-array read cannot catch: twenty bytes off a DINT[5] decode happily.
         expectedDataType.Should().Be(AllenBradleyDataType.Int);
     }
 
@@ -59,11 +53,10 @@ public sealed class IntArrayConverterTests
     public void ABufferHoldingMoreThanTheDeclaredCountIsRefusedRatherThanTrimmed()
     {
         // Arrange
-        // Eleven INTs from a tag someone grew in Studio 5000 after the port agreed on ten.
-        byte[] buffer = [.. TenStoredInts, 0x2C, 0x00];
+        byte[] elevenInts = [.. TenStoredInts, 0x2C, 0x00];
 
         // Act
-        var decoding = Converter.Invoking(converter => converter.Decode(Readings, buffer));
+        var decoding = Converter.Invoking(converter => converter.Decode(Readings, elevenInts));
 
         // Assert
         decoding.Should().Throw<LogixDecodeException>()
@@ -74,11 +67,10 @@ public sealed class IntArrayConverterTests
     public void ABufferHoldingFewerThanTheDeclaredCountIsRefusedRatherThanPartlyDecoded()
     {
         // Arrange
-        // Twelve bytes where ten INTs need twenty.
-        var buffer = new byte[12];
+        var sixInts = new byte[12];
 
         // Act
-        var decoding = Converter.Invoking(converter => converter.Decode(Readings, buffer));
+        var decoding = Converter.Invoking(converter => converter.Decode(Readings, sixInts));
 
         // Assert
         decoding.Should().Throw<LogixDecodeException>()
@@ -95,8 +87,6 @@ public sealed class IntArrayConverterTests
         var encoding = Converter.Invoking(converter => converter.Encode(value));
 
         // Assert
-        // The message is the behaviour: an integrator who configured an outbound channel has nothing
-        // else to read.
         encoding.Should().Throw<InvalidOperationException>()
             .WithMessage("*not supported yet*");
     }

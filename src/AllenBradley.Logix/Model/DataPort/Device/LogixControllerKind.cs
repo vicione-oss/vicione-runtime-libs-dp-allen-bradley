@@ -2,8 +2,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 /// <summary>
 /// A controller family and generation together: the family decides how a request reaches the CPU, the
-/// generation decides what the controller has to address. Neither answers anything on its own that a
-/// port acts on, so they travel as one value.
+/// generation decides what the controller has to address.
 /// </summary>
 /// <param name="Family">The line the controller belongs to.</param>
 /// <param name="Generation">How far along that line it is.</param>

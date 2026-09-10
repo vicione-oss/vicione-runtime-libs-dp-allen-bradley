@@ -4,8 +4,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// INT (0xC3): 16-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
-// direct read/write with no byte swap.
+/// <summary>
+/// INT (0xC3): 16-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
+/// direct read/write with no byte swap.
+/// </summary>
 internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, short>
 {
     internal const int ElementSize = sizeof(short);
@@ -23,7 +25,6 @@ internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, shor
         BinaryPrimitives.WriteInt16LittleEndian(bytes, value);
         return bytes;
     }
-
 
     protected override short DecodeValue(IntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
         DecodeElement(buffer);

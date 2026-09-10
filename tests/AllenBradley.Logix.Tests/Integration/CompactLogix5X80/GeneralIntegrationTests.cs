@@ -13,8 +13,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// <summary>
 /// What holds for the controller as a whole rather than for one type. Run
 /// <see cref="EveryTypeInTheVocabularyIsDeclaredAsItIsConfigured"/> first against a newly provisioned
-/// controller: the addresses in <see cref="TagAddresses"/> are assumptions until a real device confirms
-/// them, and this turns a wrong one into a named disagreement rather than a round-trip failure per type.
+/// controller: it turns a wrong assumption in <see cref="TagAddresses"/> into a named disagreement.
 /// </summary>
 public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
@@ -43,8 +42,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         var misconfigured = await verifier.Verify(dataPoints, TestContext.Current.CancellationToken);
 
         // Assert
-        // Written out before the assertion, because a collection assertion truncates and the reasons are
-        // the whole point: each one names its tag and says what disagreed.
+        // Written out before the assertion, because a collection assertion truncates the reasons.
         Report(dataPoints.Count, misconfigured);
         misconfigured.Should().BeEmpty(
             "every tag this folder assumes should exist on the controller, declared as the type and shape "
@@ -71,7 +69,6 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     public async Task EveryReportedMismatchNamesTheTagItIsAbout()
     {
         // Arrange
-        // A connect that aborts names the tag, not a count.
         var verifier = new LogixConfigurationVerifier(Client);
 
         // Act
@@ -85,10 +82,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     }
 
     // Every pairing is a tag that exists, configured as a type it is not — the case a round trip cannot
-    // reach, because the read would decode the bytes as whatever was configured and hand back a plausible
-    // value. SINT-on-a-USINT is the mismatch with the width taken away: two types of equal width have no
-    // backstop in either direction, and every byte pattern is legal for both. Two of them cross the
-    // atomic/structure line, and the last two cross the scalar/array line in both directions.
+    // reach, because the read decodes the bytes as whatever was configured and hands back a plausible
+    // value. SINT-on-a-USINT is that with the width taken away: every byte pattern is legal for both.
     private static IReadOnlyList<ILogixDataPoint> TagsConfiguredAsTheWrongType() =>
     [
         new SIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
@@ -103,9 +98,6 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
             new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.IntArrayElementCount),
     ];
 
-    // The whole configured vocabulary, exactly as the round-trip suites configure it — one point per
-    // type and shape, at the address configured for it, with the STRING at its configured capacity and
-    // the array at its configured element count.
     private static IReadOnlyList<ILogixDataPoint> TheWholeVocabulary() =>
     [
         new BoolDataPoint(new TagName(TagAddresses.Bool), DefaultPollFrequency, NoChannels),

@@ -2,12 +2,11 @@ using libplctag;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
-// ILogixTagAccess over a libplctag Tag — the adapter that binds the client stack to the native
-// library (ADR/2026-07-16-operations-not-accessors-over-libplctag.md). Each member runs one whole operation
-// (read + size + buffer out, buffer in + write) so the native handle's buffer is never exposed
-// between calls, and maps LibPlcTagException onto a failed result, so the layers above see neither
-// the library's exception type nor its buffer protocol. No batching happens here: the native core
-// packs same-connection requests into a Multiple Service Packet on its own.
+/// <summary>
+/// The adapter that binds the client stack to libplctag's native <c>Tag</c>: one whole operation per
+/// member, so the handle's buffer is never exposed between calls, and <c>LibPlcTagException</c> mapped
+/// onto a failed result (ADR/2026-07-16-operations-not-accessors-over-libplctag.md).
+/// </summary>
 internal sealed class LogixTagAccess(Tag tag) : ILogixTagAccess
 {
     public async Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
@@ -20,17 +19,15 @@ internal sealed class LogixTagAccess(Tag tag) : ILogixTagAccess
         }
         catch (LibPlcTagException ex)
         {
-            // The reason travels as data; cancellation is not caught here — it is the caller's
-            // decision, not the device's answer.
+            // Deliberately not catching cancellation: that is the caller's decision, not the device's.
             return LogixTagReadResult.Failed($"Read failed for tag '{tag.Name}': {ex.Message}");
         }
     }
 
-    // SetBuffer copies the bytes into the handle's own buffer, which is the controller's width for the
-    // tag. The core bounds-checks the copy (plc_tag_set_raw_bytes, libplctag 2.6.3): a buffer longer than
-    // the handle is refused with ErrorOutOfBounds before anything is sent, and lands in the catch below
-    // like any device failure. A shorter one fills the handle from the start and leaves the rest as it
-    // was — on a verified tag that is only a STRING's alignment padding, which is not a member.
+    // SetBuffer copies into the handle's own buffer, which is the controller's width for the tag. The
+    // core bounds-checks the copy (plc_tag_set_raw_bytes, libplctag 2.6.3), so a buffer longer than the
+    // handle is refused before anything is sent and lands in the catch below; a shorter one fills the
+    // handle from the start and leaves the rest as it was.
     public async Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
     {
         try

@@ -7,8 +7,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
 
 /// <summary>
-/// A configured one-dimensional <c>INT</c> array tag. The configuration-time half of
-/// <see cref="IntArrayDataPoint"/>: this is what the manifest produces, that is what the client reads.
+/// A configured one-dimensional <c>INT</c> array tag, the configuration-time half of
+/// <see cref="IntArrayDataPoint"/>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

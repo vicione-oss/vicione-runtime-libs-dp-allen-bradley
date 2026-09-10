@@ -2,7 +2,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 internal static class LinkedNodesDataFactory
 {
-    /// <summary>A linked node of <paramref name="designId"/> carrying <paramref name="properties"/>.</summary>
     internal static LinkedNode CreateLinkedNode(
         string designId, string name, params KeyValuePair<string, Property>[] properties) =>
         Wrap(new Node

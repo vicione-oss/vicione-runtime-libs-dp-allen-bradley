@@ -3,8 +3,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// INT[n] (0xC3, rank 1). Elements are decoded by IntConverter, so nothing here knows how wide an INT is
-// or which way round it sits — the one thing the scalar and array shapes could otherwise disagree about.
+/// <summary>
+/// INT[n] (0xC3, rank 1). Elements are decoded by <see cref="IntConverter"/>, so the scalar and array
+/// shapes cannot disagree about how wide an INT is or which way round it sits.
+/// </summary>
 internal sealed class IntArrayConverter : AtomicArrayDataPointConverter<IntArrayDataPoint, short>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.IntArray;

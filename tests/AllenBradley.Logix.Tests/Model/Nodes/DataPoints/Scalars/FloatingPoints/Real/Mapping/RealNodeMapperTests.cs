@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>Real</c> node in, a <see cref="RealNode"/> out.</summary>
 public sealed class RealNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class RealNodeMapperTests
         ILogixTagNode realNode = _mapper.Map(node);
 
         // Assert
-        // REAL is a classic atomic, unlike its 64-bit sibling: no MinimumGeneration of its own, so it
-        // inherits the oldest the addon addresses and a container of any generation admits it.
         realNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -85,7 +82,6 @@ public sealed class RealNodeMapperTests
     public void ARealNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = RealNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

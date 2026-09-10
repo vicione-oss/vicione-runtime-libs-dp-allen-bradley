@@ -3,11 +3,10 @@ using ViciOne.Suite.DataPort.Extensions.Client;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 /// <summary>
-/// Identifies a single controller and says how long one operation against it may take: the address,
-/// port and route path that pick out one device, plus the timeout stamped onto every handle built for
-/// it. It is the key <c>LogixClientPool</c> holds a connection under.
-/// The controller family is deliberately absent: libplctag opens every family the same way, and carrying it
-/// would split one connection whenever two ports on one controller used different node types.
+/// Identifies one controller and says how long an operation against it may take — the key
+/// <c>LogixClientPool</c> holds a connection under. The controller family is deliberately absent, so that
+/// two ports on one controller share a connection
+/// (<c>ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md</c>).
 /// </summary>
 /// <param name="ConnectionEndpoint">Controller IP address or host name.</param>
 /// <param name="TcpPort">The TCP port that endpoint listens on, 44818 unless something moved it.</param>
@@ -21,8 +20,7 @@ public record LogixClientInformation(
 
 /// <summary>
 /// Where an EtherNet/IP session is opened: the IP address or host name of the controller, or of the
-/// bridge in front of it. The port it answers on is <see cref="Device.TcpPort"/>, kept apart from the
-/// address here and joined only where a client needs them as one string.
+/// bridge in front of it. The port it answers on is <see cref="Device.TcpPort"/>, kept apart from it.
 /// </summary>
 public readonly record struct ConnectionEndpoint(string Value);
 
@@ -33,25 +31,26 @@ public readonly record struct ConnectionEndpoint(string Value);
 public readonly record struct TcpPort(ushort Value)
 {
     /// <summary>
-    /// The port ODVA registered for EtherNet/IP, and the one a controller answers on unless something
-    /// between it and us — a NAT rule, a tunnel — moved it.
+    /// The port ODVA registered for EtherNet/IP, unless a NAT rule or a tunnel moved it.
     /// </summary>
     public static TcpPort EtherNetIp => new(44818);
 }
 
+/// <summary>
+/// How a request travels from the connection endpoint to the controller, as a sequence of hops.
+/// </summary>
 public readonly record struct CipRoutePath(string Value)
 {
     /// <summary>
-    /// The CIP route path to a controller that places itself on a virtual backplane: hop 1 is the backplane,
-    /// and slot 0 is where a DIN-rail controller always sits. Nothing about it is configurable, which is
-    /// why a CompactLogix node does not ask for a route path at all.
+    /// The route path to a controller on a virtual backplane: hop 1 is the backplane, and slot 0 is where
+    /// a DIN-rail controller always sits.
     /// </summary>
     public static CipRoutePath VirtualBackplane => new("1,0");
 }
 
 /// <summary>
-/// How long one tag read or write may take before libplctag aborts it. Per-device configuration rather
-/// than a constant on the factory: the shared-connection ADR sizes it for the worst case of draining
-/// <em>this</em> controller's session, which depends on how much is configured against it.
+/// How long one tag read or write may take before libplctag aborts it. Per-device rather than a
+/// constant, because it is sized for draining <em>this</em> controller's session
+/// (<c>ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md</c>).
 /// </summary>
 public readonly record struct OperationTimeout(TimeSpan Value);

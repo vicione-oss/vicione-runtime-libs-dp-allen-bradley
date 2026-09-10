@@ -7,10 +7,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
-// Single source of truth for how each data-point type maps to a converter. Keyed by the data point's
-// concrete .NET type; exhaustive by design — a lookup miss is a data point added without a converter
-// and throws with a pointer here. The generic Register helper keys each converter under its own
-// TDataPoint, so a converter cannot be wired to a data point type it does not handle (compile error).
+/// <summary>
+/// Single source of truth for how each data-point type maps to a converter, keyed by the data point's
+/// concrete .NET type. Exhaustive by design: a lookup miss is a data point added without a converter.
+/// </summary>
 internal static class DataPointConverterRegistry
 {
     private static readonly FrozenDictionary<Type, IDataPointConverter> Converters = Build();
@@ -43,12 +43,8 @@ internal static class DataPointConverterRegistry
         return converters.ToFrozenDictionary();
     }
 
-    // Derives the key from the converter instead of taking one, which is what makes a mis-registration
-    // unrepresentable rather than merely unlikely: TDataPoint is inferred from the converter's own base
-    // (DIntConverter is an AtomicDataPointConverter<DIntDataPoint, int>), so there is no second place
-    // for a key to disagree with the converter filed under it. A literal dictionary entry would take
-    // both halves from the caller and compile happily with them mismatched, failing only at run time in
-    // DataPointConverter.Cast.
+    // Infers the key from the converter's own type parameter rather than taking it, so filing a converter
+    // under a data point it does not handle is a compile error rather than a run-time routing failure.
     private static void Register<TDataPoint, TDomain>(
         Dictionary<Type, IDataPointConverter> converters,
         DataPointConverter<TDataPoint, TDomain> converter)

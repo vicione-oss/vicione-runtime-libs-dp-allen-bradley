@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.USInt.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>USInt</c> node in, a <see cref="USIntNode"/> out.</summary>
 public sealed class USIntNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class USIntNodeMapperTests
         ILogixTagNode usIntNode = _mapper.Map(node);
 
         // Assert
-        // USINT arrived with the 5X80 controllers, so the node states the generation and a container of
-        // an older one turns it away — the same one line LRealNode carries, and no edit to a container.
         usIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X80);
     }
 
@@ -54,8 +51,6 @@ public sealed class USIntNodeMapperTests
     public void ItClaimsAUSIntNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
-        // The signed twin is the node it must not claim: the two are one byte each and differ only in
-        // the type the controller declares, so claiming both would read every SINT as unsigned.
         var node = CreateLinkedNode(
             linkedNodeTypeId,
             TagName,
@@ -87,7 +82,6 @@ public sealed class USIntNodeMapperTests
     public void AUSIntNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = USIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

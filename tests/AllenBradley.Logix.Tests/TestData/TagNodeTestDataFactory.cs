@@ -12,7 +12,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// </summary>
 internal static class TagNodeTestDataFactory
 {
-    /// <summary>The poll frequency, in milliseconds, every tag the factory makes is configured with.</summary>
     internal const int DefaultPollFrequencyInMilliseconds = 100;
 
     /// <summary>A configured <c>DINT</c> tag under <paramref name="parentId"/>, routed to <paramref name="channel"/>.</summary>

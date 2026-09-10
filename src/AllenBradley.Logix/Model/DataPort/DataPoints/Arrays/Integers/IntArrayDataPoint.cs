@@ -21,15 +21,15 @@ public sealed record IntArrayDataPoint(
     /// <inheritdoc />
     internal override ILogixDataPointValue<short[]> CreateLogixValue(short[] value) => new Value(this, value);
 
-    // The value keeps the concrete point rather than the interface, because the length it is judged
-    // against is the point's own configuration.
+    // Keeps the concrete point rather than the interface: the length a value is judged against is the
+    // point's own configuration.
     private sealed record Value(IntArrayDataPoint IntArrayDataPoint, short[] TypedValue)
         : ILogixDataPointValue<short[]>
     {
         public ILogixDataPoint DataPoint => IntArrayDataPoint;
 
-        // A whole array is one value, so a different length is not a smaller value of this tag — it is a
-        // value of some other tag. Every element an INT can hold, the tag can hold.
+        // A whole array is one value: a different length is not an out-of-range value of this tag but a
+        // value of some other tag.
         public bool IsInValueRange() =>
             TypedValue is not null && TypedValue.Length == IntArrayDataPoint.ElementCount.Value;
     }

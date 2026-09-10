@@ -4,20 +4,16 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
 
 /// <summary>
-/// The CompactLogix 5069-L306ER this folder's suites run against — our own controller, a CompactLogix
-/// 5380 and so a 5X80 — and the <b>only</b> place that says how it is reached. The device is on hand but
-/// not commissioned, so every default below is an assumption, each overridable from the environment; see
-/// the table in <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>. The variables carry
-/// a <c>CIP_5X80_</c> prefix rather than sharing the plain <c>CIP_</c> ones, which point at the 5X70
-/// L32E that <c>Integration/CompactLogix5X70</c> targets.
+/// The CompactLogix 5069-L306ER this folder's suites run against, and the <b>only</b> place that says how
+/// it is reached. The device is on hand but not commissioned, so every default below is an assumption,
+/// each overridable from the environment; see
+/// <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>.
 /// </summary>
 internal static class TestController
 {
     /// <summary>
-    /// The controller kind every assumption in this folder rests on. A 5X80 is what has the whole type
-    /// vocabulary the addon implements: on a 5X70 the <c>LREAL</c> suite addresses a type the controller
-    /// cannot resolve. Not passed to the client — libplctag opens every Logix the same way — but it is
-    /// what makes this folder a folder, so it is written to the test output on every run.
+    /// The controller kind every assumption in this folder rests on. Not passed to the client — libplctag
+    /// opens every Logix the same way — but written to the test output on every run.
     /// </summary>
     internal static LogixControllerKind Kind => LogixControllerKind.CompactLogix5X80;
 
@@ -26,17 +22,15 @@ internal static class TestController
     private const string RoutePathVariable = "CIP_5X80_PATH";
     private const string TimeoutVariable = "CIP_5X80_TIMEOUT_SECONDS";
 
-    // Where the L306ER will sit is not decided yet, so this is a placeholder: 192.168.0.102 is the
-    // second CompactLogix on the lab subnet — labelled AB_CompactLogix and not configured at the time
-    // of writing (TEST-DEVICE-SETUP.md) — chosen because it is at least a real address on the network
-    // the tunnel routes, rather than an invented one.
+    // A placeholder until the L306ER has an address of its own: the unconfigured second CompactLogix on
+    // the lab subnet (TEST-DEVICE-SETUP.md).
     private const string DefaultEndpoint = "192.168.0.102";
 
     private const int DefaultTimeoutSeconds = 10;
 
     /// <summary>
-    /// Which controller to reach and how long one operation against it may take — the same value the
-    /// pool keys a production connection under, so these suites connect exactly as a deployment does.
+    /// The same value the pool keys a production connection under, so these suites connect as a deployment
+    /// does.
     /// </summary>
     internal static LogixClientInformation ClientInformation { get; } = new(
         new ConnectionEndpoint(Configured(EndpointVariable, DefaultEndpoint)),
@@ -45,8 +39,8 @@ internal static class TestController
         new OperationTimeout(TimeSpan.FromSeconds(ConfiguredTimeoutSeconds())));
 
     /// <summary>
-    /// One line naming the controller a run talked to, written to every test's output so that a result
-    /// file says which device produced it rather than leaving it to be inferred from when it was run.
+    /// One line naming the controller a run talked to, written to every test's output so a result file
+    /// says which device produced it.
     /// </summary>
     internal static string Description =>
         $"{Kind.Family} {Kind.Generation} at {ClientInformation.ConnectionEndpoint.Value}:" +
@@ -58,8 +52,8 @@ internal static class TestController
         return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
     }
 
-    // A malformed override is refused rather than quietly falling back: a typo that silently restores
-    // the default is a connection to the wrong place, diagnosed as a timeout half an hour later.
+    // A malformed override is refused rather than quietly falling back on the default, which would be a
+    // connection to the wrong place diagnosed as a timeout half an hour later.
     private static ushort ConfiguredPort()
     {
         var configured = Configured(PortVariable, string.Empty);

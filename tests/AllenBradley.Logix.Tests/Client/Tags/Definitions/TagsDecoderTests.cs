@@ -69,8 +69,6 @@ public sealed class TagsDecoderTests
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        // The element length is spent here and leaves as a capacity: nothing above the decoder is told a
-        // byte count.
         var expected = DefaultStringTagDefinition() with { TagName = new TagName("Line.Label") };
         decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
@@ -79,7 +77,7 @@ public sealed class TagsDecoderTests
     public void ACustomStringEntryDecodesToItsOwnCapacity()
     {
         // Arrange
-        // A STRING_20 is the same .LEN + .DATA[n] shape with a different n, described the same way.
+        // An element length of 24 is .LEN (4) + .DATA[20].
         var listing = Listing(new TagEntry("Line.Code", StructureSymbolType) { ElementLength = 24 });
 
         // Act
@@ -98,7 +96,6 @@ public sealed class TagsDecoderTests
     public void AnAtomicEntryDecodesWithNoCapacity()
     {
         // Arrange
-        // Capacity belongs to the one type whose size the type does not fix; a DINT has none to report.
         var listing = Listing(new TagEntry("Motor.Speed", DintSymbolType));
 
         // Act
@@ -138,7 +135,7 @@ public sealed class TagsDecoderTests
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        // Still atomic, because the structure bit is clear, but the wire code stops at the decoder.
+        // Still atomic, because the structure bit is clear in the symbol type.
         var expected = DefaultAtomicTagDefinition() with
         {
             TagName = new TagName("Exotic"),

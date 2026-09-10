@@ -26,13 +26,10 @@ public sealed class LogixWriteBatchTests
     private static readonly StringDataPoint Recipe =
         new(new TagName("Line.Recipe"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
-    // 42 and 7 as DINTs on the wire, spelled out rather than taken from BitConverter, which would
-    // re-derive them through the same host-endianness assumption the converter makes.
+    // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
     private static readonly byte[] SevenAsDint = [7, 0, 0, 0];
 
-    // One character more than a STRING's .DATA holds: the only encode failure reachable without a
-    // hand-rolled converter.
     private static readonly string TooLongForAString = new('X', StringMaxLength.Standard.Value + 1);
 
     [Fact]
@@ -50,8 +47,7 @@ public sealed class LogixWriteBatchTests
         await batch.WriteAsync(CancellationToken.None);
 
         // Assert
-        // The writes are fanned out concurrently, so the pairing made at construction is what keeps a
-        // value with its own tag.
+        // The writes are fanned out concurrently, so the pairing made at construction is what holds.
         speedWrites.Should().ContainSingle().Which.Should().Equal(FortyTwoAsDint);
         levelWrites.Should().ContainSingle().Which.Should().Equal(SevenAsDint);
     }
@@ -126,8 +122,7 @@ public sealed class LogixWriteBatchTests
         var write = await Record.ExceptionAsync(() => batch.WriteAsync(cts.Token));
 
         // Assert
-        // Read off the captured buffers rather than DidNotReceive, whose replay would throw the very
-        // cancellation the assertion is asking about.
+        // DidNotReceive replays the call, which would throw the very cancellation being asserted.
         write.Should().BeAssignableTo<OperationCanceledException>();
         speedWrites.Should().BeEmpty();
     }
@@ -169,7 +164,6 @@ public sealed class LogixWriteBatchTests
     public void AValueThatWillNotEncodeIsRefusedWithoutASiblingReachingItsTag()
     {
         // Arrange
-        // The good value is exactly what a partial write would consist of.
         var speedTag = TagWriting(LogixTagWriteResult.Ok());
         var tagManager = TagManagerFor(
             (Speed, speedTag),
@@ -207,7 +201,6 @@ public sealed class LogixWriteBatchTests
     public void ADataPointWithoutAConverterIsRefusedBeforeAnyWriteIsPossible()
     {
         // Arrange
-        // Both points have a tag, so the only thing left that can throw is the missing converter.
         var speedTag = TagWriting(LogixTagWriteResult.Ok());
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
@@ -223,8 +216,7 @@ public sealed class LogixWriteBatchTests
         speedTag.ReceivedCalls().Should().BeEmpty();
     }
 
-    // A tag that answers with one prepared result and records the bytes it was handed, honouring
-    // cancellation by throwing the way the real access does.
+    // The real access honours cancellation by throwing rather than returning a failed result.
     private static ILogixTag TagWriting(LogixTagWriteResult result, List<byte[]>? writtenBuffers = null)
     {
         var tag = Substitute.For<ILogixTag>();
@@ -249,8 +241,7 @@ public sealed class LogixWriteBatchTests
         return tagManager;
     }
 
-    // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
-    // that nobody wired a converter for.
+    // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {

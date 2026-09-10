@@ -17,7 +17,6 @@ public sealed record UDIntDataPoint(TagName TagName, PollFrequency PollFrequency
 
     private sealed record Value(ILogixDataPoint DataPoint, uint TypedValue) : ILogixDataPointValue<uint>
     {
-        // A UDINT is exactly a uint: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

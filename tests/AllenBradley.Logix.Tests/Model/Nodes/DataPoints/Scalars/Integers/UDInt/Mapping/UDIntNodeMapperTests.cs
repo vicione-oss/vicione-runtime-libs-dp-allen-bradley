@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.UDInt.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>UDInt</c> node in, a <see cref="UDIntNode"/> out.</summary>
 public sealed class UDIntNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class UDIntNodeMapperTests
         ILogixTagNode uDIntNode = _mapper.Map(node);
 
         // Assert
-        // UDINT arrived with the 5X80 controllers, so the node states the generation and a container of
-        // an older one turns it away — one line, and no edit to either tag-scope container.
         uDIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X80);
     }
 
@@ -54,8 +51,6 @@ public sealed class UDIntNodeMapperTests
     public void ItClaimsAUDIntNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
-        // The signed twin is the node it must not claim: the two are four bytes each and differ only in
-        // the type the controller declares, so claiming both would read every DINT as unsigned.
         var node = CreateLinkedNode(
             linkedNodeTypeId,
             TagName,
@@ -87,7 +82,6 @@ public sealed class UDIntNodeMapperTests
     public void AUDIntNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = UDIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

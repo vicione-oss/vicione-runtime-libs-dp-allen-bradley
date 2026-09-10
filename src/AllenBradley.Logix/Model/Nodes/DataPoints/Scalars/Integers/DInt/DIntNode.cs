@@ -6,8 +6,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
 
 /// <summary>
-/// A configured <c>DINT</c> tag. The configuration-time half of <see cref="DIntDataPoint"/>: this is
-/// what the manifest produces, that is what the client reads.
+/// A configured <c>DINT</c> tag, the configuration-time half of <see cref="DIntDataPoint"/>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

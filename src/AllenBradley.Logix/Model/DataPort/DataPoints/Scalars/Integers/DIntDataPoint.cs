@@ -17,7 +17,6 @@ public sealed record DIntDataPoint(TagName TagName, PollFrequency PollFrequency,
 
     private sealed record Value(ILogixDataPoint DataPoint, int TypedValue) : ILogixDataPointValue<int>
     {
-        // A DINT is exactly an int: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

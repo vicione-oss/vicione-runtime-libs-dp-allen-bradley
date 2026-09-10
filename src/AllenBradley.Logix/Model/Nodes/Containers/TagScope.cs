@@ -14,7 +14,6 @@ public readonly record struct TagScope(string Segment)
     public static TagScope Controller => new(string.Empty);
 
     /// <summary>The scope one program's tags live in.</summary>
-    /// <param name="programName">The program that owns them.</param>
     public static TagScope Program(ProgramName programName) => new($"Program:{programName.Value}");
 
     /// <summary>The address a bare <paramref name="tagName"/> has inside this scope.</summary>

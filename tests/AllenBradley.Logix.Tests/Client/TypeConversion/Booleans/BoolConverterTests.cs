@@ -7,10 +7,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Booleans;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class BoolConverterTests
 {
     private static readonly IDataPointConverter Converter = new BoolConverter();
@@ -26,7 +22,6 @@ public sealed class BoolConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The one thing a round trip cannot catch: reading a byte off a SINT succeeds and is wrong.
         expectedDataType.Should().Be(AllenBradleyDataType.Bool);
     }
 
@@ -37,8 +32,7 @@ public sealed class BoolConverterTests
     public void AnyNonzeroStoredByteDecodesToTrue(byte storedBits)
     {
         // Arrange
-        // 0xFF is what the controller stores for a set BOOL, but a member set through a mask can leave any
-        // nonzero pattern behind.
+        // The controller stores 0xFF for a set BOOL, but a masked member can leave any nonzero pattern.
         byte[] buffer = [storedBits];
 
         // Act
@@ -84,8 +78,6 @@ public sealed class BoolConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
-        // type declares.
         bytes.Should().Equal(0xFF);
     }
 

@@ -6,8 +6,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.Int;
 
 /// <summary>
-/// A configured <c>INT</c> tag. The configuration-time half of <see cref="IntDataPoint"/>: this is
-/// what the manifest produces, that is what the client reads.
+/// A configured <c>INT</c> tag, the configuration-time half of <see cref="IntDataPoint"/>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>

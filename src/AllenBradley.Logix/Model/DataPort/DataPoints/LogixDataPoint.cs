@@ -4,9 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 /// <summary>
 /// What every Logix data point carries whatever its type: the tag it addresses, how often it is polled,
-/// the channels it feeds, and the .NET type it exchanges. Concrete shapes add only their
-/// <see cref="TypeName"/>, their value record, and whatever configuration their type needs — a
-/// <c>STRING</c>'s declared capacity, and nothing at all for the elementary types.
+/// the channels it feeds, and the .NET type it exchanges.
 /// </summary>
 /// <typeparam name="TDomain">The .NET type this point exchanges — <c>int</c> for a <c>DINT</c>.</typeparam>
 /// <param name="TagName">The symbolic tag address.</param>
@@ -22,8 +20,7 @@ public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency Po
     public DataTypeName DataTypeName => new(TypeName.Value);
 
     /// <summary>
-    /// This point's type as Studio 5000 names it. Shared with the converter that decodes it, so a type
-    /// has one spelling rather than one per reader.
+    /// This point's type name, shared with the converter that decodes it so a type has one spelling.
     /// </summary>
     protected abstract LogixDataTypeName TypeName { get; }
 
@@ -39,15 +36,14 @@ public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency Po
     };
 
     /// <summary>
-    /// Wraps <paramref name="value"/> in this point's own value record. The narrower twin of
-    /// <see cref="CreateTypedValue"/> — the converters decode straight into it, so the read path never
+    /// Wraps <paramref name="value"/> in this point's own value record — the narrower twin of
+    /// <see cref="CreateTypedValue"/>, which the converters decode straight into so the read path never
     /// casts the framework's view back to ours.
     /// </summary>
-    /// <param name="value">The payload the value carries.</param>
     internal abstract ILogixDataPointValue<TDomain> CreateLogixValue(TDomain value);
 
-    // Names the point and the type it wanted, because a rejected write is diagnosed from the log line
-    // and nothing else: the engine value that caused it is gone by the time anyone reads it.
+    // A rejected write is diagnosed from this message and nothing else: the engine value that caused it
+    // is gone by the time anyone reads the log line.
     private NotConvertedDataPointValue<ILogixDataPointValue> ConversionFailure(string detail) =>
         new(new DataPointValueValidationFailure(
             this,

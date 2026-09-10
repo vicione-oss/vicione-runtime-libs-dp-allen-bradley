@@ -5,8 +5,8 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
 
 /// <summary>
-/// The scalar rules plus the one only a string has: a declared capacity that is a positive number of
-/// characters.
+/// The rules every tag node has plus the one only a string has: a declared capacity that is a positive
+/// number of characters.
 /// </summary>
 internal sealed class StringNodePropertyValidator : AbstractValidator<LinkedNode>
 {

@@ -14,8 +14,7 @@ public sealed class LogixClientReadTests : LogixIntegrationTestBase
     public async Task ADintDecodesToTheSameValueLibplctagReadsRaw()
     {
         // Arrange
-        // The target is a COUNTER member, absent from the flat symbol table, so nothing checked its
-        // type: the decode reads the bytes as the DINT the configuration says they are.
+        // The target is a COUNTER member, absent from the symbol table, so nothing checked its type.
         var expected = ReadDintWithRawLibplctag(BenchControllerTags.CounterPreset);
         ILogixDataPoint[] dataPoints =
         [
@@ -30,8 +29,7 @@ public sealed class LogixClientReadTests : LogixIntegrationTestBase
         values.Should().ContainSingle().Which.Value.Should().Be(expected);
     }
 
-    // libplctag's own typed getter on the same tag, which is what makes this a cross-check rather than
-    // the decode agreeing with itself.
+    // libplctag's own typed getter, so the expectation does not come from the decode under test.
     private static int ReadDintWithRawLibplctag(string tagName)
     {
         using var tag = BenchController.RawTagFor(tagName);

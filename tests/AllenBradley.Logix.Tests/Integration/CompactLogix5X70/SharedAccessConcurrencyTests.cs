@@ -13,17 +13,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// </summary>
 public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
 {
-    // How hard the concurrency probes lean on one access: each round fires this many reads and writes at
-    // once, for this many rounds.
     private const int Rounds = 60;
     private const int ReadsPerRound = 3;
     private const int WritesPerRound = 3;
 
-    // Rounds the race probe gives up after, since one collision is all the evidence the design needs.
     private const int RaceProbeRounds = 20;
 
-    // Hard deadline for a single probe op on an ungated access, so a collision that wedges an operation
-    // surfaces as a timed-out anomaly rather than an indefinite hang.
+    // A collision can wedge an operation on real hardware, and a hang under MTP takes the process down.
     private static readonly TimeSpan OperationDeadline = TimeSpan.FromSeconds(3);
 
     private static readonly TimeSpan SeedTimeout = TimeSpan.FromSeconds(10);
@@ -32,7 +28,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     public void AGroupNamingOneTagTwiceDrawsTheSameTagForBothEntries()
     {
         // Arrange
-        // Distinct instances, equal by record value — the shared-access premise, without needing a race.
+        // Distinct instances, equal by record value — the premise the shared access rests on.
         var first = CounterPresetPoint();
         var second = CounterPresetPoint();
 
@@ -54,8 +50,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
         var values = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
         // Assert
-        // Two entries, one tag, two concurrent reads the gate serialized. Reaching this line is itself a
-        // check: a read that failed would have thrown.
+        // Reaching this line is itself a check: a read that failed would have thrown.
         values.Should().HaveCount(2);
         values.Select(value => value.Value).Distinct().Should().ContainSingle(
             "both entries read the same tag over the same access");
@@ -71,8 +66,6 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
         var outcomes = await HammerAsync(access, TestContext.Current.CancellationToken);
 
         // Assert
-        // The gate makes every operation one whole operation on the access to itself, so nothing the
-        // batch does to this tag can make it fail.
         outcomes.Should().NotContain(outcome => !outcome.Ok,
             "serializing operations on the shared access removes the self-inflicted races");
     }
@@ -85,8 +78,6 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
         var payload = await SeedPayloadAsync(access);
 
         // Act
-        // Every probe op carries a hard deadline, because against real hardware a collision can leave an
-        // operation wedged — and a hang under MTP takes the whole process down.
         var anomalies = new List<OperationOutcome>();
         for (var round = 0; round < RaceProbeRounds && anomalies.Count == 0; round++)
         {
@@ -103,8 +94,6 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
         }
 
         // Assert
-        // The race is timing-dependent: a run that reproduces it is the evidence, and a run that does not
-        // is inconclusive rather than a failure.
         if (anomalies.Count == 0)
         {
             Assert.Skip("No collision reproduced this run — the shared-buffer race is timing-dependent.");
@@ -129,8 +118,6 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
         return seed.Buffer.ToArray();
     }
 
-    // Fires ReadsPerRound reads and WritesPerRound writes concurrently onto one access, for Rounds
-    // rounds, and returns what each operation reported.
     private static async Task<IReadOnlyList<OperationOutcome>> HammerAsync(
         ILogixTagAccess access, CancellationToken cancellationToken)
     {

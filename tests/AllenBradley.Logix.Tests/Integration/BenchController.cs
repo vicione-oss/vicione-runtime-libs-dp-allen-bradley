@@ -19,8 +19,8 @@ internal static class BenchController
     private static readonly OperationTimeout Timeout = new(TimeSpan.FromSeconds(10));
 
     /// <summary>
-    /// Which controller to reach and how long one operation against it may take — the same value the
-    /// pool keys a production connection under, so these suites connect exactly as a deployment does.
+    /// The same value the pool keys a production connection under, so these suites connect as a deployment
+    /// does.
     /// </summary>
     internal static LogixClientInformation ClientInformation { get; } = new(
         new ConnectionEndpoint(Configured(EndpointVariable, DefaultEndpoint)),

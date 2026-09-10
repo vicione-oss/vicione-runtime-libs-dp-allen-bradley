@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Integers.SInt.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>SInt</c> node in, an <see cref="SIntNode"/> out.</summary>
 public sealed class SIntNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class SIntNodeMapperTests
         ILogixTagNode sIntNode = _mapper.Map(node);
 
         // Assert
-        // SINT is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
-        // addon addresses and a container of any generation admits it.
         sIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -85,7 +82,6 @@ public sealed class SIntNodeMapperTests
     public void ASIntNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = SIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

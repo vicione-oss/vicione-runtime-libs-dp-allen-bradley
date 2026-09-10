@@ -3,17 +3,13 @@ using static System.Guid;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
-/// <summary>Builds the program-scope container a configured program tag hangs off.</summary>
 internal static class ProgramTagsNodeTestDataFactory
 {
     /// <summary>
     /// A program-scope container named <paramref name="programName"/>, hanging directly off the device.
+    /// <paramref name="containerDesignId"/> decides the generation it holds its tags to, and defaults to
+    /// the 5X70 one, matching <see cref="LogixCommunicationTestDataFactory.DeviceDesignId"/>.
     /// </summary>
-    /// <param name="programName">The program whose tags the container holds.</param>
-    /// <param name="containerDesignId">
-    /// The container's node type, which decides the generation it holds its tags to. Defaults to the 5X70
-    /// one, matching <see cref="LogixCommunicationTestDataFactory.DeviceDesignId"/>.
-    /// </param>
     internal static Node CreateProgramTagsNode(string programName, string? containerDesignId = null) =>
         new()
         {

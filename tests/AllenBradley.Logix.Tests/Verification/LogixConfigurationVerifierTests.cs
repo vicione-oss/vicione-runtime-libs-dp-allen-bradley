@@ -20,9 +20,8 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinit
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
-/// <see cref="LogixConfigurationVerifier.GetMismatches"/> is the whole of the rule and is exercised
-/// directly per mismatch class; <c>Verify</c> — the seam the dataport base class calls — is checked end to
-/// end against a fake client.
+/// <see cref="LogixConfigurationVerifier.GetMismatches"/> is exercised directly per mismatch class;
+/// <c>Verify</c>, the seam the dataport base class calls, end to end against a fake client.
 /// </summary>
 public sealed class LogixConfigurationVerifierTests
 {
@@ -56,7 +55,6 @@ public sealed class LogixConfigurationVerifierTests
     public void ATagOfAnotherAtomicTypeIsReportedWithBothTypesNamed()
     {
         // Arrange
-        // DINT configured, REAL on the controller.
         var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
         var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), declaration);
 
@@ -99,7 +97,6 @@ public sealed class LogixConfigurationVerifierTests
     public void AScalarWhereAnArrayWasConfiguredIsReportedWithBothShapesNamed()
     {
         // Arrange
-        // The direction the message could not say before an array could be the configured side.
         var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), DefaultAtomicTagDefinition());
 
         // Act
@@ -114,7 +111,6 @@ public sealed class LogixConfigurationVerifierTests
     public void ABoolArrayConfiguredAsAScalarIsReportedAsAShapeMismatch()
     {
         // Arrange
-        // The BOOL node is the atomic tag only, and a BOOL[] packs eight to the byte.
         var declaration = DefaultAtomicTagDefinition() with
         {
             DataType = AllenBradleyDataType.Bool,
@@ -148,7 +144,6 @@ public sealed class LogixConfigurationVerifierTests
     public void AnElementCountThatDiffersIsReportedInElements()
     {
         // Arrange
-        // An INT[10] configured onto an INT[20], which a read of the first ten elements would never show.
         var declaration = DefaultIntArrayTagDefinition() with { ElementCount = new ElementCount(20) };
         var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), declaration);
 
@@ -177,7 +172,6 @@ public sealed class LogixConfigurationVerifierTests
     public void AnElementaryTagWhereAStringWasConfiguredIsReportedWithBothTypesNamed()
     {
         // Arrange
-        // The inverse of the structure case: a STRING configured onto a DINT tag.
         var resolved = new ResolvedDataPoint(StringPointNamed("Motor.Speed"), DefaultAtomicTagDefinition());
 
         // Act
@@ -191,7 +185,6 @@ public sealed class LogixConfigurationVerifierTests
     public void AStringCapacityThatDiffersIsReportedInCharacters()
     {
         // Arrange
-        // A STRING (82) configured onto a STRING_20, which a round trip of a short value would never show.
         var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
         var resolved = new ResolvedDataPoint(StringPointNamed("Label"), declaration);
 
@@ -228,7 +221,6 @@ public sealed class LogixConfigurationVerifierTests
     public async Task EveryReportedMismatchNamesTheTagItIsAbout()
     {
         // Arrange
-        // A base class that logs the result names the tag, not a count.
         var verifier = new LogixConfigurationVerifier(new FakeClient
         {
             ["WrongType"] = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real },
@@ -292,15 +284,11 @@ public sealed class LogixConfigurationVerifierTests
     private static IntArrayDataPoint IntArrayPointNamed(string tagName) =>
         new(new TagName(tagName), DefaultPollFrequency, NoChannels, TenElements);
 
-    // The tree the engine's configuration produces, walked into the points the verifier is handed. A
-    // hand-built point could not disagree with the walk about a program prefix, which is the whole
-    // question the two program cases ask.
+    // A hand-built point could not disagree with the walk about a program prefix.
     private static IReadOnlyList<ILogixDataPoint> DataPointsOf(LogixCommunication communication) =>
         new LogixDataPointsGroupsMapper().ToDataPoints(
             TypedLogixNodeMapper.Instance().MapToTypedNodes(communication));
 
-    // Stands in for LogixClient: it maps a tag name to the definition the controller would report and
-    // resolves each data point against it, with null for a tag the controller does not have.
     private sealed class FakeClient : ILogixClient
     {
         private readonly Dictionary<TagName, TagDefinition> _declarations =

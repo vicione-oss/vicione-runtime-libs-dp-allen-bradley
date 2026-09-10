@@ -7,14 +7,9 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.Integers;
 
-/// <summary>
-/// The byte patterns are spelled out rather than produced by the encoder, which would make a decode test
-/// agree with itself by construction.
-/// </summary>
 public sealed class LIntConverterTests
 {
-    // One below long.MaxValue, so every byte but the last is 0xFF and a swapped byte order cannot pass by
-    // symmetry.
+    // One below long.MaxValue, so a swapped byte order cannot pass by symmetry.
     private const long AlmostMaxValue = 9223372036854775806L;
 
     private static readonly IDataPointConverter Converter = new LIntConverter();
@@ -30,7 +25,6 @@ public sealed class LIntConverterTests
         var expectedDataType = Converter.ExpectedDataType;
 
         // Assert
-        // The one thing a round trip cannot catch: decoding eight bytes off a DINT reads past the tag.
         expectedDataType.Should().Be(AllenBradleyDataType.Lint);
     }
 
@@ -87,8 +81,6 @@ public sealed class LIntConverterTests
         var bytes = Converter.Encode(value);
 
         // Assert
-        // The batch copies these into the tag's buffer, so a longer array would be a wider tag than the
-        // type declares.
         bytes.Should().Equal(0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F);
     }
 

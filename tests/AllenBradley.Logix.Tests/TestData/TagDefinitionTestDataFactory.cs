@@ -10,13 +10,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 /// </summary>
 internal static class TagDefinitionTestDataFactory
 {
-    /// <summary>The rank of a tag that is not an array.</summary>
     internal static readonly DimensionCount Scalar = new(0);
 
-    /// <summary>The element count a scalar tag reports.</summary>
     internal static readonly ElementCount OneElement = new(1);
 
-    /// <summary>The number of elements the array declaration the factory makes reports.</summary>
     internal static readonly ElementCount TenElements = new(10);
 
     /// <summary>What the controller reports for a DINT tag.</summary>

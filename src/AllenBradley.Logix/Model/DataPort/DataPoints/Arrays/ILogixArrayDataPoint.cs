@@ -3,9 +3,8 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDe
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 
 /// <summary>
-/// A tag read as one whole array: the shape, with nothing of the element type. It is what a caller
-/// holding an <see cref="ILogixDataPoint"/> asks when the answer turns on how many elements the tag holds
-/// and not on what they are — the width of the libplctag handle is the one that does today.
+/// A tag read as one whole array: the shape, with nothing of the element type. What a caller asks when
+/// the answer turns on how many elements the tag holds and not on what they are.
 /// </summary>
 public interface ILogixArrayDataPoint : ILogixDataPoint
 {

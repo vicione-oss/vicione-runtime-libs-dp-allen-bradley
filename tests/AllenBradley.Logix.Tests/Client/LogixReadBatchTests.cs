@@ -24,8 +24,7 @@ public sealed class LogixReadBatchTests
     private static readonly IntArrayDataPoint Readings = new(
         new TagName("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
 
-    // 42 and 7 as DINTs on the wire, spelled out rather than taken from BitConverter, which would
-    // re-derive them through the same host-endianness assumption the converter makes.
+    // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
     private static readonly byte[] SevenAsDint = [7, 0, 0, 0];
 
@@ -87,10 +86,10 @@ public sealed class LogixReadBatchTests
     public async Task AnArrayReplyTooShortForItsDeclaredCountCostsOnlyItsOwnValue()
     {
         // Arrange
-        // Twelve bytes where ten INTs need twenty, which nothing checks before the decode.
+        var tooShortForTenInts = new byte[12];
         var tagManager = TagManagerFor(
             (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Readings, TagReading(LogixTagReadResult.Ok(new byte[12]))));
+            (Readings, TagReading(LogixTagReadResult.Ok(tooShortForTenInts))));
         var batch = new LogixReadBatch([Speed, Readings], tagManager);
 
         // Act
@@ -123,9 +122,9 @@ public sealed class LogixReadBatchTests
     public async Task ATagThatWillNotReadAndOneThatWillNotDecodeAreBothNamedInTheThrow()
     {
         // Arrange
-        // Two bytes where a DINT needs four: a reply the device delivered and the converter refuses.
+        var tooShortForADint = new byte[2];
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(new byte[2]))),
+            (Speed, TagReading(LogixTagReadResult.Ok(tooShortForADint))),
             (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
@@ -158,8 +157,6 @@ public sealed class LogixReadBatchTests
     public async Task ADataPointNamedSeveralTimesInOneGroupReadsThroughItsSharedTagOneAtATime()
     {
         // Arrange
-        // The real gate over a fake handle: all four entries draw the same cached tag, so the fan-out
-        // starts four reads against one handle at once.
         var handle = new OverlapRecordingTagAccess();
         using var access = new SynchronizedLogixTagAccess(handle);
         var tagManager = Substitute.For<ILogixTagManager>();
@@ -216,7 +213,6 @@ public sealed class LogixReadBatchTests
     public void ADataPointWithoutAConverterIsRefusedBeforeAnyReadIsPossible()
     {
         // Arrange
-        // Both points have a tag, so the only thing left that can throw is the missing converter.
         var speedTag = TagReading(LogixTagReadResult.Ok(FortyTwoAsDint));
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
@@ -277,8 +273,8 @@ public sealed class LogixReadBatchTests
     public async Task AReplyTooShortForTheTypeBecomesThatTagsFailureUnderItsName()
     {
         // Arrange
-        // Two bytes where a DINT needs four, which nothing checks before the decode.
-        var entry = EntryFor(Speed, LogixTagReadResult.Ok(new byte[2]));
+        var tooShortForADint = new byte[2];
+        var entry = EntryFor(Speed, LogixTagReadResult.Ok(tooShortForADint));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
@@ -324,8 +320,7 @@ public sealed class LogixReadBatchTests
             converter ?? DataPointConverterRegistry.GetConverter(dataPoint),
             TagReading(result));
 
-    // A tag that answers with one prepared result, honouring cancellation by throwing the way the real
-    // access does.
+    // The real access honours cancellation by throwing rather than returning a failed result.
     private static ILogixTag TagReading(LogixTagReadResult result)
     {
         var tag = Substitute.For<ILogixTag>();
@@ -349,8 +344,7 @@ public sealed class LogixReadBatchTests
         return tagManager;
     }
 
-    // A data point shape deliberately absent from DataPointConverterRegistry: the model gaining a type
-    // that nobody wired a converter for.
+    // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
@@ -359,7 +353,6 @@ public sealed class LogixReadBatchTests
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
 
-    // A handle that answers 42 and records how many reads were inside it at once.
     private sealed class OverlapRecordingTagAccess : ILogixTagAccess
     {
         private int _inFlight;
@@ -387,9 +380,8 @@ public sealed class LogixReadBatchTests
         }
     }
 
-    // A converter that records whether it was asked to decode, and can be made to fail in a way the entry
-    // does not catch. Hand-rolled because Decode takes a ReadOnlySpan<byte>: a substitute routes its
-    // arguments through an object array, and a ref struct cannot go in one.
+    // Hand-rolled because Decode takes a ReadOnlySpan<byte>, and a ref struct cannot travel through the
+    // object array a substitute routes its arguments in.
     private sealed class SpyConverter : IDataPointConverter
     {
         public int Decodes { get; private set; }

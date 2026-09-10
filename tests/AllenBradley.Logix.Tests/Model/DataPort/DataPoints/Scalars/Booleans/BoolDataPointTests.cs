@@ -80,7 +80,6 @@ public sealed class BoolDataPointTests
     public void AnIntIsRefusedNamingBothTypes()
     {
         // Arrange
-        // Nonzero is true on the wire, and nothing here extends that to the engine value: a 1 is an int.
 
         // Act
         var conversion = Flag.ConvertValue(1);

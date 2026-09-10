@@ -80,8 +80,6 @@ public sealed class UDIntDataPointTests
     public void AnIntIsRefusedNamingBothTypes()
     {
         // Arrange
-        // The signed twin of this point's own type, and the one substitution that would otherwise pass
-        // unnoticed: both occupy four bytes, so nothing downstream would object.
 
         // Act
         var conversion = Runtime.ConvertValue(123456);

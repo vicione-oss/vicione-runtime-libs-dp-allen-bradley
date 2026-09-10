@@ -3,8 +3,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 
-// SINT (0xC2): 8-bit signed integer. One byte, so there is no byte order to get wrong — the bit pattern
-// is the two's-complement sbyte as it stands.
+/// <summary>
+/// SINT (0xC2): 8-bit signed integer. One byte, so there is no byte order to get wrong — the bit pattern is
+/// the two's-complement sbyte as it stands.
+/// </summary>
 internal sealed class SIntConverter : AtomicDataPointConverter<SIntDataPoint, sbyte>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.SInt;

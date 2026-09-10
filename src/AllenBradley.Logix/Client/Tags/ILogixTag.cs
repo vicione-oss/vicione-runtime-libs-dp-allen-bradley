@@ -5,9 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 
 /// <summary>
 /// One data point and everything known about it: the configured <see cref="DataPoint"/>, the controller's
-/// <see cref="Metadata"/> for its tag, and the read/write handle. This is the single object every consumer
-/// passes around — the batches, decode and verification all project off it — the way S7's
-/// <c>ISymbolicDataPointAccess</c> is the source of truth for its data point.
+/// <see cref="Metadata"/> for its tag, and the read/write handle. The batches, decode and verification
+/// all project off this one object.
 /// </summary>
 internal interface ILogixTag : IDisposable
 {
@@ -21,9 +20,8 @@ internal interface ILogixTag : IDisposable
     TagDefinition? Metadata { get; init; }
 
     /// <summary>
-    /// The configured-against-reported pair configuration verification takes. Defaulted rather than
-    /// implemented per tag because it is a projection of the two getters above and nothing else, and both
-    /// are immutable — so it is the same pair every time it is asked for.
+    /// The configured-against-reported pair configuration verification takes. A projection of the two
+    /// immutable getters above, so it is the same pair every time it is asked for.
     /// </summary>
     ResolvedDataPoint Resolved => new(DataPoint, Metadata);
 

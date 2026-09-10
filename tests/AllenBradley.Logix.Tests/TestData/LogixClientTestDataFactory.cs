@@ -2,9 +2,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
-/// <summary>
-/// Constructs the <see cref="LogixClientInformation"/> the client and pool suites are driven with.
-/// </summary>
 internal static class LogixClientTestDataFactory
 {
     internal static readonly OperationTimeout DefaultOperationTimeout = new(TimeSpan.FromSeconds(5));

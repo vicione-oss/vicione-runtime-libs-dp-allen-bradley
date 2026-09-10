@@ -4,8 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.
 
 /// <summary>
 /// Dumps the controller's tag namespace with symbol types decoded and writes it to the file named by
-/// <c>CIP_DUMP_PATH</c>. It is ground truth for the node-tree and addressing design rather than a test:
-/// what it pins is only that the controller answered the browse.
+/// <c>CIP_DUMP_PATH</c>. What it pins is only that the controller answered the browse.
 /// </summary>
 public sealed class TagNamespaceDumpTests(ITestOutputHelper output) : LibPlcTagIntegrationTestBase
 {

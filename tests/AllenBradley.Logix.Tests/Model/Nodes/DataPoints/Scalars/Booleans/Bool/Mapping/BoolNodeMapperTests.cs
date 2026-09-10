@@ -9,7 +9,6 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Scalars.Booleans.Bool.Mapping;
 
-/// <summary>The mapper on its own: a configured <c>Bool</c> node in, a <see cref="BoolNode"/> out.</summary>
 public sealed class BoolNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
@@ -43,8 +42,6 @@ public sealed class BoolNodeMapperTests
         ILogixTagNode boolNode = _mapper.Map(node);
 
         // Assert
-        // BOOL is a classic atomic: no MinimumGeneration of its own, so it inherits the oldest the
-        // addon addresses and a container of any generation admits it.
         boolNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
@@ -85,7 +82,6 @@ public sealed class BoolNodeMapperTests
     public void ABoolNodeWithoutATagNameIsRejected()
     {
         // Arrange
-        // The scalar validator is what says so; this pins that the mapper hands its node to it.
         var node = BoolNodeWith(CreatePollFrequency(DefaultPollFrequency));
 
         // Act

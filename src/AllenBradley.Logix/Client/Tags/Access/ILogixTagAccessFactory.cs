@@ -5,7 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 /// <summary>
 /// Creates access to a data point's tag. Splitting creation from reuse keeps
 /// <see cref="Lifetime.CachingLogixTagManager"/> clear of libplctag, so the reuse rules can be tested
-/// in-process against a fake factory rather than a real controller.
+/// against a fake factory rather than a real controller.
 /// </summary>
 internal interface ILogixTagAccessFactory
 {

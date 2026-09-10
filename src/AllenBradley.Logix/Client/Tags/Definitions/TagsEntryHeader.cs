@@ -4,12 +4,10 @@ using System.Runtime.InteropServices;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
-/// The fixed part of an <c>@tags</c> listing entry, laid out exactly as the controller sends it, so
-/// <see cref="TagsDecoder"/> reads a header in one reinterpret rather than seven offset
-/// calculations. The tag's name follows the header and is variable-length, so it stays outside.
-/// <c>Pack = 1</c> is load-bearing: without it <see cref="NameLength"/> pads the struct to 24 bytes and every
-/// entry after the first starts two bytes late. Reinterpreting assumes little-endian, which CIP and every
-/// .NET platform are.
+/// The fixed part of an <c>@tags</c> listing entry, laid out exactly as the controller sends it so
+/// <see cref="TagsDecoder"/> can reinterpret it in one step; the variable-length name follows outside.
+/// <c>Pack = 1</c> is load-bearing: without it <see cref="NameLength"/> pads the struct to 24 bytes and
+/// every entry after the first starts two bytes late. Reinterpreting assumes little-endian.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 internal readonly struct TagsEntryHeader
@@ -43,7 +41,7 @@ internal readonly struct TagsEntryHeader
 
     /// <summary>
     /// Reinterprets the first <see cref="Size"/> bytes of <paramref name="entry"/> as a header. Entries
-    /// start wherever the previous name ended, so the read is deliberately alignment-agnostic.
+    /// start wherever the previous name ended, so the read must stay alignment-agnostic.
     /// </summary>
     public static TagsEntryHeader ReadFrom(ReadOnlySpan<byte> entry) =>
         MemoryMarshal.Read<TagsEntryHeader>(entry);

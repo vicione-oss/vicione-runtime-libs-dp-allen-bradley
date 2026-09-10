@@ -11,9 +11,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 /// The controller client: reads and writes Logix data points over one shared tag manager, and owns that
 /// manager's lifetime.
 /// </summary>
-/// <param name="tagManager">Resolves the tag for each data point this client reads or writes.</param>
-/// <param name="clientInformation">The controller this client talks to — named in every log line.</param>
-/// <param name="logger">Records the browse, which is the slow part of a connect.</param>
 internal sealed class LogixClient(
     ILogixTagManager tagManager,
     LogixClientInformation clientInformation,
@@ -41,9 +38,7 @@ internal sealed class LogixClient(
     /// <inheritdoc />
     public async Task ConnectAsync(CancellationToken cancellationToken)
     {
-        // Not what makes a second connect free — the tag manager's own gate is, and it holds for
-        // concurrent callers as this check cannot. This is the fast path and the log line that says a
-        // caller drove connect defensively; two callers slipping past it together cost nothing.
+        // A fast path only: the tag manager's own gate is what makes a concurrent second connect free.
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
@@ -59,12 +54,9 @@ internal sealed class LogixClient(
             logger.LoadingTagDefinitions(_connectionEndpoint, _cipRoutePath);
             await tagManager.LoadTagDefinitionsAsync(cancellationToken).ConfigureAwait(false);
         }
-        // Every way a browse can fail — an unreachable connection endpoint, a route path that goes nowhere, a
-        // controller that will not answer @tags — means the same thing to the caller of a connect, so
-        // they arrive as the one exception the framework expects from an acquire.
-        //
-        // The exclusions are not answers about the device and would be lies as connection failures: a
-        // cancellation is the caller's own shutdown, and a client disposed mid-browse is a caller bug.
+        // Every way a browse can fail means the same thing to a connect, so it arrives as the one
+        // exception the framework expects from an acquire. The exclusions are not answers about the
+        // device: a cancellation is the caller's own shutdown, a disposal mid-browse a caller bug.
         catch (Exception ex) when (ex is not (OperationCanceledException or ObjectDisposedException))
         {
             logger.ConnectFailed(ex, _connectionEndpoint, _cipRoutePath);
@@ -109,8 +101,7 @@ internal sealed class LogixClient(
         var resolved = new ResolvedDataPoint[dataPoints.Count];
         for (var i = 0; i < dataPoints.Count; i++)
         {
-            // The tag the poll will use, projected to its (configured, reported) pair: what verification
-            // diffs is the very tag the reads run against, not a second lookup of it.
+            // Deliberately the very tag the polls will run against, not a second lookup of it.
             resolved[i] = tagManager.TagFor(dataPoints[i]).Resolved;
         }
 
@@ -118,10 +109,8 @@ internal sealed class LogixClient(
     }
 
     /// <summary>
-    /// The connect this client has to have behind it before its schema can be read off. Stated here
-    /// rather than worked around: the dataport base verifies against the client it has just acquired, so
-    /// an unconnected one reaching this is a caller that has broken the lifecycle, and browsing on its
-    /// behalf would hide that.
+    /// Refuses an unconnected client rather than browsing on its behalf, which would hide a caller that
+    /// has broken the lifecycle.
     /// </summary>
     private void ThrowIfNotConnected()
     {
@@ -149,9 +138,7 @@ internal sealed class LogixClient(
             var result = await new LogixReadBatch(dataPointGroup.DataPoints, tagManager)
                 .ReadAsync(cancellationToken).ConfigureAwait(false);
 
-            // The tags that did answer are still worth publishing, so a partial batch is a warning rather
-            // than a failure. It is logged here because this is where the logger is: the batch names the
-            // tags, the client says which controller they were on.
+            // The tags that did answer are still worth publishing, so a partial batch is a warning.
             if (result.Failures.Count > 0)
             {
                 logger.ReadBatchPartiallyFailed(
@@ -161,8 +148,6 @@ internal sealed class LogixClient(
             logger.ReadBatchSucceeded(result.Values.Count, _connectionEndpoint);
             return result.Values;
         }
-        // A cancelled batch is the caller's own shutdown, not the controller failing to answer, so it is
-        // logged as what it is and travels untouched. Everything else is a batch that read nothing at all.
         catch (OperationCanceledException ex)
         {
             logger.BatchCancelled(ex, _connectionEndpoint);
@@ -200,8 +185,8 @@ internal sealed class LogixClient(
     }
 
     /// <summary>
-    /// Ends the client and the tag manager with it. Disposing is what frees the native handles, and a
-    /// handle left to its finalizer fail-fasts the process at CLR teardown.
+    /// Ends the client and the tag manager with it. Disposing is what frees the native handles; one left
+    /// to its finalizer fail-fasts the process at CLR teardown.
     /// </summary>
     public void Dispose()
     {

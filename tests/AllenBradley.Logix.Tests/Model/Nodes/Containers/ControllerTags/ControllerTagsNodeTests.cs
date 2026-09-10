@@ -77,8 +77,6 @@ public sealed class ControllerTagsNodeTests
         var adding = controllerTags.Invoking(node => node.CanBeAdded(usInt));
 
         // Assert
-        // The refusal is all an integrator gets to go on, so it names the type it turned away and the
-        // generation that has not got it.
         adding.Should().Throw<InvalidConfigurationException>()
             .WithMessage($"*{USIntNode.LinkedNodeTypeId}*{LogixGeneration.Logix5X70}*");
     }

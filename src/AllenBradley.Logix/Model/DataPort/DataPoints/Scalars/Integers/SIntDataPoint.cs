@@ -17,7 +17,6 @@ public sealed record SIntDataPoint(TagName TagName, PollFrequency PollFrequency,
 
     private sealed record Value(ILogixDataPoint DataPoint, sbyte TypedValue) : ILogixDataPointValue<sbyte>
     {
-        // A SINT is exactly an sbyte: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

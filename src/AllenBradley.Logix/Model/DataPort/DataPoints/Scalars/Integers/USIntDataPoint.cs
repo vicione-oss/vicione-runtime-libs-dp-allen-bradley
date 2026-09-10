@@ -17,7 +17,6 @@ public sealed record USIntDataPoint(TagName TagName, PollFrequency PollFrequency
 
     private sealed record Value(ILogixDataPoint DataPoint, byte TypedValue) : ILogixDataPointValue<byte>
     {
-        // A USINT is exactly a byte: every value the type can hold, the tag can hold.
         public bool IsInValueRange() => true;
     }
 }

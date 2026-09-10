@@ -18,8 +18,7 @@ public sealed class SynchronizedLogixTagAccessTests : IDisposable
         await _handle.Entered;
 
         // Act
-        // The mark is taken before the gate is released, so the answer is decided rather than raced: the
-        // handle runs synchronously up to its own block, and an ungated write would already be inside.
+        // The mark is taken before the gate is released, so the answer is decided rather than raced.
         var write = _access.WriteAsync([1, 2, 3, 4], CancellationToken.None);
         var callersInsideTheHandle = _handle.MaxConcurrent;
         _handle.Release();
@@ -33,7 +32,6 @@ public sealed class SynchronizedLogixTagAccessTests : IDisposable
     public async Task ManyCallersSharingOneAccessEnterTheHandleOneAtATime()
     {
         // Arrange
-        // A group naming one tag several times draws the same access for each entry.
         var reads = Enumerable.Range(0, 8)
             .Select(_ => _access.ReadAsync(CancellationToken.None))
             .ToArray();
@@ -81,8 +79,7 @@ public sealed class SynchronizedLogixTagAccessTests : IDisposable
         _access.Dispose();
     }
 
-    // Blocks inside every operation until Release, so overlap is observable rather than a matter of
-    // timing: it records the high-water mark of concurrent callers.
+    // Blocks inside every operation until Release, so overlap is observable rather than a race.
     private sealed class BlockingTagAccess : ILogixTagAccess
     {
         private readonly TaskCompletionSource _released = new();

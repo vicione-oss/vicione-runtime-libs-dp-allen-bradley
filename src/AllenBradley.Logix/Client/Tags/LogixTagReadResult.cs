@@ -18,12 +18,9 @@ internal readonly record struct LogixTagReadResult
     /// <summary>Why the read failed; <c>null</c> when it succeeded.</summary>
     public string? Error { get; }
 
-    /// <summary>Whether the read succeeded.</summary>
     public bool Succeeded => Error is null;
 
-    /// <summary>A read that succeeded, carrying the bytes it produced.</summary>
     public static LogixTagReadResult Ok(ReadOnlyMemory<byte> buffer) => new(buffer, null);
 
-    /// <summary>A read that failed, carrying why.</summary>
     public static LogixTagReadResult Failed(string error) => new(default, error);
 }

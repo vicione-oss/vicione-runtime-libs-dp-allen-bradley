@@ -5,16 +5,13 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 /// <summary>
 /// Builds synthetic <c>@tags</c> listing bytes the way a controller lays them out, so the decoder can be
-/// exercised without a device. One <see cref="TagEntry"/> per tag; <see cref="Listing"/> concatenates them
-/// into the 22-byte-header-plus-ASCII-name format the decoder reads, written the long way round — explicit
-/// little-endian primitives at explicit offsets.
+/// exercised without a device: one <see cref="TagEntry"/> per tag, concatenated into the
+/// 22-byte-header-plus-ASCII-name format the decoder reads.
 /// </summary>
 internal static class TagsListingTestDataFactory
 {
-    /// <summary>The elementary CIP code for a <c>DINT</c>.</summary>
     internal const ushort DintSymbolType = 0x00C4;
 
-    /// <summary>The elementary CIP code for a <c>REAL</c>.</summary>
     internal const ushort RealSymbolType = 0x00CA;
 
     /// <summary>The structure bit set, with a template id in the low bits.</summary>

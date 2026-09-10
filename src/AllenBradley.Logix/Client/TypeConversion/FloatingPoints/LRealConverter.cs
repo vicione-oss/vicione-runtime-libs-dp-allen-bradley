@@ -4,7 +4,9 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 
-// LREAL (0xCB): IEEE-754 double-precision, little-endian. Direct read/write, no byte swap.
+/// <summary>
+/// LREAL (0xCB): IEEE-754 double-precision, little-endian — a direct read/write with no byte swap.
+/// </summary>
 internal sealed class LRealConverter : AtomicDataPointConverter<LRealDataPoint, double>
 {
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LReal;

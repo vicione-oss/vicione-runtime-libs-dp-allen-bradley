@@ -44,9 +44,8 @@ public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : Logix
         output.WriteLine($"  {DescribeWithRawLibplctag(BenchControllerTags.StrValue1)}");
     }
 
-    // libplctag's own view of the tag, for the cross-check: its string accessors apply the Logix layout
-    // (count word at offset 0, capacity 82, 88 total) that this converter is built on, so a disagreement
-    // between its GetString and our decode is the interesting signal.
+    // libplctag's string accessors apply the Logix layout this converter is built on, so a disagreement
+    // between its GetString and our decode is the signal the probe is after.
     private static string DescribeWithRawLibplctag(string tagName)
     {
         using var tag = BenchController.RawTagFor(tagName);

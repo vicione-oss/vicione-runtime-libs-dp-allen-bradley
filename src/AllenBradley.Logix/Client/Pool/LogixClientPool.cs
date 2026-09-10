@@ -6,9 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
 
 /// <summary>
 /// Hands out one connected <see cref="ILogixClient"/> per <see cref="LogixClientInformation"/> and
-/// reference-counts it, so the incoming and outgoing dataports for a controller share its connection
-/// instead of opening two (the shared-connection ADR). Released down to zero, the client is
-/// disconnected and disposed.
+/// reference-counts it, so both dataports for a controller share its connection instead of opening two
+/// (ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md). Released down to zero, the
+/// client is disconnected and disposed.
 /// </summary>
 internal sealed class LogixClientPool
     : IClientLifecycleManager<ILogixClient, LogixClientInformation>, IAsyncDisposable
@@ -39,8 +39,8 @@ internal sealed class LogixClientPool
     }
 
     /// <summary>
-    /// A pool of its own, over a factory the caller names. The singleton is deliberately unreachable
-    /// from a test: one shared instance across a suite would carry entries between test cases.
+    /// A pool of its own, over a factory the caller names. Tests must not reach the singleton: one shared
+    /// instance across a suite would carry entries between test cases.
     /// </summary>
     internal static LogixClientPool CreateTestInstance(
         ILoggerFactory loggerFactory, ILogixClientFactory clientFactory) => new(loggerFactory, clientFactory);
@@ -60,14 +60,12 @@ internal sealed class LogixClientPool
 
         try
         {
-            // The one connect for this controller, whether this caller started it or found it running.
-            // The token only abandons the wait: a caller walking away must not cancel the browse the
-            // other holders are waiting on.
+            // The token abandons only this caller's wait: walking away must not cancel the one connect
+            // the other holders are waiting on.
             var client = await entry.Connected.Value.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            // The pool can have been disposed while this connect was in flight, in which case the entry
-            // has already been torn down and this client is on its way out — handing it over would give
-            // the caller a client about to be disposed under it.
+            // A pool disposed while this connect was in flight has already torn the entry down, so this
+            // client is on its way out and must not be handed over.
             ThrowIfDisposed();
 
             return client;
@@ -125,16 +123,15 @@ internal sealed class LogixClientPool
 
             _disposed = true;
 
-            // Snapshot and clear under the lock rather than iterating the live dictionary: an acquire
-            // that was already past the lock when this ran will come back to release its reference, and
-            // it must not be mutating the collection this is walking. Finding its entry gone is also
-            // what stops it tearing the same client down a second time.
+            // Snapshot and clear under the lock: an acquire already past the lock will come back to
+            // release its reference, and must neither mutate the collection this walks nor find its
+            // entry still there and tear the same client down twice.
             entries = [.. _pooledClients];
             _pooledClients.Clear();
         }
 
-        // Deliberately not waiting on a connect still in flight: a browse that will not answer is
-        // exactly the case a shutdown must not hang on. Its caller is turned away by ThrowIfDisposed.
+        // Deliberately not waiting on a connect still in flight: a browse that will not answer is exactly
+        // the case a shutdown must not hang on. Its caller is turned away by ThrowIfDisposed.
         await Task.WhenAll(
                 entries.Select(entry => DisconnectAndDisposeAsync(entry.Value.Client, entry.Key).AsTask()))
             .ConfigureAwait(false);
@@ -169,9 +166,8 @@ internal sealed class LogixClientPool
     }
 
     /// <summary>
-    /// Gives one reference back, whether it was ever used or not, and tears the entry down when it was
-    /// the last. The single exit for a release, a failed connect, a cancelled wait and a disposed pool,
-    /// so none of them can free a client another holder is still using.
+    /// Gives one reference back and tears the entry down when it was the last. The single exit for a
+    /// release, a failed connect and a cancelled wait alike.
     /// </summary>
     private async ValueTask ReleaseReferenceAsync(
         PooledClient entry, LogixClientInformation clientInformation)
@@ -185,9 +181,8 @@ internal sealed class LogixClientPool
                 _logger.RefCountUnderflow(clientInformation.ConnectionEndpoint.Value, clientInformation.CipRoutePath.Value);
             }
 
-            // Removed by identity, not by key: this entry may already have been replaced by a later
-            // acquire or taken by a dispose, and tearing down whatever is filed under the key now would
-            // close a connection its own holders still expect.
+            // Removed by identity, not by key: a later acquire may have replaced this entry, and tearing
+            // down whatever is filed under the key now would close a connection its holders still expect.
             tearDown = entry.RefCount <= 0 && RemoveIfStillPooled(clientInformation, entry);
 
             if (!tearDown)
@@ -238,12 +233,10 @@ internal sealed class LogixClientPool
         }
     }
 
-    /// <summary>One pooled client, its holder count, and the single connect every holder awaits.</summary>
-    /// <param name="client">The client this entry pools.</param>
-    /// <param name="cancellationToken">
-    /// The creating caller's token. It drives the connect itself, so a later holder's cancellation
-    /// abandons only that holder's wait.
-    /// </param>
+    /// <summary>
+    /// One pooled client, its holder count, and the single connect every holder awaits. Only the creating
+    /// caller's <paramref name="cancellationToken"/> drives that connect.
+    /// </summary>
     internal sealed class PooledClient(ILogixClient client, CancellationToken cancellationToken)
     {
         public ILogixClient Client { get; } = client;

@@ -27,20 +27,16 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 /// <summary>
-/// Builds the mapped tree's nodes directly, without the mapper that normally makes them, so a suite
-/// about what a node admits or what a tree walk reads reads as the nodes under test rather than as a
-/// configuration to be mapped. One default node per member, unattached and unparameterised: a test
-/// varies what it is about with <c>with { }</c>, and composes its tree in its own Arrange.
+/// Builds the mapped tree's nodes directly, without the mapper that normally makes them: one default node
+/// per member, unattached, so a test varies what it is about with <c>with { }</c> and composes its own
+/// tree. The <c>LREAL</c> and unsigned-integer nodes are the types a 5X70 controller has not got.
 /// </summary>
 internal static class TypedNodeTestDataFactory
 {
-    /// <summary>The controller every device the factory makes stands for.</summary>
     internal static readonly LogixControllerKind DefaultControllerKind = ControlLogix5X70;
 
-    /// <summary>The generation every container the factory makes holds its tags to.</summary>
     internal static readonly LogixGeneration DefaultGeneration = DefaultControllerKind.Generation;
 
-    /// <summary>The program every program container the factory makes holds the tags of.</summary>
     internal static readonly ProgramName DefaultProgramName = new("MainProgram");
 
     /// <summary>
@@ -49,58 +45,32 @@ internal static class TypedNodeTestDataFactory
     /// </summary>
     internal const string DefaultChannel = "Channel";
 
-    /// <summary>The address of the <c>DINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultDIntTagName = new("Counter");
-
-    /// <summary>The address of the <c>INT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultIntTagName = new("Setpoint");
-
-    /// <summary>The address of the <c>SINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultSIntTagName = new("Level");
-
-    /// <summary>The address of the <c>LINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLIntTagName = new("Ticks");
-
-    /// <summary>The address of the <c>USINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultUSIntTagName = new("Pressure");
-
-    /// <summary>The address of the <c>UINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultUIntTagName = new("Revolutions");
-
-    /// <summary>The address of the <c>UDINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultUDIntTagName = new("Runtime");
-
-    /// <summary>The address of the <c>ULINT</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultULIntTagName = new("Cycles");
-
-    /// <summary>The address of the <c>BOOL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultBoolTagName = new("Running");
-
-    /// <summary>The address of the <c>REAL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultRealTagName = new("FlowRate");
-
-    /// <summary>The address of the <c>LREAL</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
-
-    /// <summary>The address of the <c>STRING</c> tag the factory makes.</summary>
     internal static readonly TagName DefaultStringTagName = new("Label");
-
-    /// <summary>The address of the <c>INT</c> array tag the factory makes.</summary>
     internal static readonly TagName DefaultIntArrayTagName = new("Readings");
 
-    /// <summary>The number of elements the array tag the factory makes is declared with.</summary>
     internal static readonly ElementCount DefaultElementCount = new(10);
 
     /// <summary>
-    /// A stand-in for the linked node a mapped node came from. A suite about what a node admits never
-    /// reads it, so it carries nothing.
+    /// A stand-in for the linked node a mapped node came from. Nothing a suite asserts reads it, so it
+    /// carries nothing.
     /// </summary>
     internal static LinkedNode DummyOriginalNode => new(new Node());
 
     /// <summary>
-    /// A controller of <see cref="DefaultControllerKind"/>, with nothing configured under it. A suite
-    /// about another controller overrides <c>ControllerKind</c>, which the node's own communication
-    /// record — read only for the text of a refusal — does not follow.
+    /// A controller of <see cref="DefaultControllerKind"/>, with nothing configured under it. A suite about
+    /// another controller overrides <c>ControllerKind</c>, which the node's own communication record does
+    /// not follow.
     /// </summary>
     internal static DeviceNode DefaultDeviceNode =>
         new(CreateCommunicationOf([], DeviceNode.DesignIdFor(DefaultControllerKind)),
@@ -118,8 +88,8 @@ internal static class TypedNodeTestDataFactory
         new(DummyOriginalNode, DefaultProgramName, DefaultGeneration);
 
     /// <summary>
-    /// A configured <c>LREAL</c> tag, the first type a 5X70 controller has not got. Its linked node
-    /// carries the node type, which is what a container names when it refuses the tag.
+    /// A configured <c>LREAL</c> tag. Its linked node carries the node type, which is what a container
+    /// names when it refuses the tag.
     /// </summary>
     internal static LRealNode DefaultLRealNode =>
         new(
@@ -127,101 +97,66 @@ internal static class TypedNodeTestDataFactory
             DefaultLRealTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>DINT</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static DIntNode DefaultDIntNode =>
         new(
             CreateChanneledLinkedNode(DIntNode.LinkedNodeTypeId, DefaultDIntTagName.Value, DefaultChannel),
             DefaultDIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>INT</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static IntNode DefaultIntNode =>
         new(
             CreateChanneledLinkedNode(IntNode.LinkedNodeTypeId, DefaultIntTagName.Value, DefaultChannel),
             DefaultIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>SINT</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static SIntNode DefaultSIntNode =>
         new(
             CreateChanneledLinkedNode(SIntNode.LinkedNodeTypeId, DefaultSIntTagName.Value, DefaultChannel),
             DefaultSIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>LINT</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static LIntNode DefaultLIntNode =>
         new(
             CreateChanneledLinkedNode(LIntNode.LinkedNodeTypeId, DefaultLIntTagName.Value, DefaultChannel),
             DefaultLIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>USINT</c> tag, one of the unsigned integers a 5X70 controller has not got. Its
-    /// linked node carries the node type, which is what a container names when it refuses the tag.
-    /// </summary>
     internal static USIntNode DefaultUSIntNode =>
         new(
             CreateChanneledLinkedNode(USIntNode.LinkedNodeTypeId, DefaultUSIntTagName.Value, DefaultChannel),
             DefaultUSIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>UINT</c> tag, one of the unsigned integers a 5X70 controller has not got.
-    /// </summary>
     internal static UIntNode DefaultUIntNode =>
         new(
             CreateChanneledLinkedNode(UIntNode.LinkedNodeTypeId, DefaultUIntTagName.Value, DefaultChannel),
             DefaultUIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>UDINT</c> tag, one of the unsigned integers a 5X70 controller has not got.
-    /// </summary>
     internal static UDIntNode DefaultUDIntNode =>
         new(
             CreateChanneledLinkedNode(UDIntNode.LinkedNodeTypeId, DefaultUDIntTagName.Value, DefaultChannel),
             DefaultUDIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>ULINT</c> tag, one of the unsigned integers a 5X70 controller has not got.
-    /// </summary>
     internal static ULIntNode DefaultULIntNode =>
         new(
             CreateChanneledLinkedNode(ULIntNode.LinkedNodeTypeId, DefaultULIntTagName.Value, DefaultChannel),
             DefaultULIntTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>BOOL</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static BoolNode DefaultBoolNode =>
         new(
             CreateChanneledLinkedNode(BoolNode.LinkedNodeTypeId, DefaultBoolTagName.Value, DefaultChannel),
             DefaultBoolTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured <c>REAL</c> tag, a type every generation has, so a container of any generation admits it.
-    /// </summary>
     internal static RealNode DefaultRealNode =>
         new(
             CreateChanneledLinkedNode(RealNode.LinkedNodeTypeId, DefaultRealTagName.Value, DefaultChannel),
             DefaultRealTagName,
             DefaultPollFrequency);
 
-    /// <summary>
-    /// A configured one-dimensional <c>INT</c> array tag. Its element type is one every generation has,
-    /// so a container of any generation admits it.
-    /// </summary>
     internal static IntArrayNode DefaultIntArrayNode =>
         new(
             CreateChanneledLinkedNode(

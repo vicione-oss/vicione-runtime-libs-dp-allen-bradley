@@ -7,8 +7,7 @@ using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt;
 
 /// <summary>
-/// A configured <c>UINT</c> tag. The configuration-time half of <see cref="UIntDataPoint"/>: this is
-/// what the manifest produces, that is what the client reads.
+/// A configured <c>UINT</c> tag, the configuration-time half of <see cref="UIntDataPoint"/>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>
@@ -20,10 +19,8 @@ internal sealed record UIntNode(LinkedNode OriginalNode, TagName TagName, PollFr
     public const string LinkedNodeTypeId = "UInt";
 
     /// <summary>
-    /// The 5X80 controllers are the ones that have the unsigned integers; a 5X70 cannot resolve a tag of
-    /// this type at all.
-    /// Implemented explicitly because the YAML consistency test expects every public property of a data point
-    /// node to be one the manifest declares.
+    /// The unsigned integers arrived with the 5X80 controllers. Implemented explicitly, because the YAML
+    /// consistency test expects every public property of a data point node to be a manifest property.
     /// </summary>
     LogixGeneration ILogixTagNode.MinimumGeneration => LogixGeneration.Logix5X80;
 }

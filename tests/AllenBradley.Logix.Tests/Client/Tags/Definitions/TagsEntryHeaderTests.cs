@@ -14,8 +14,7 @@ public sealed class TagsEntryHeaderTests
     private const ushort EntrySymbolType = 0x8123;
     private const ushort EntryElementLength = 68;
 
-    // Every field holds a different value, so a swapped pair shows up as a wrong value rather than
-    // passing by coincidence.
+    // Distinct values, so a swapped pair of fields shows up rather than passing by coincidence.
     private static readonly TagEntry Distinct = new(EntryName, EntrySymbolType)
     {
         InstanceId = EntryInstanceId,
@@ -34,8 +33,7 @@ public sealed class TagsEntryHeaderTests
         var size = TagsEntryHeader.Size;
 
         // Assert
-        // Without Pack = 1 the trailing ushort is padded to the struct's four-byte alignment and this
-        // reports 24, which walks every entry after the first two bytes off the end of its name.
+        // Without Pack = 1 the trailing ushort is padded to four-byte alignment and this reports 24.
         size.Should().Be(22);
     }
 
@@ -49,8 +47,7 @@ public sealed class TagsEntryHeaderTests
         var header = TagsEntryHeader.ReadFrom(listing);
 
         // Assert
-        // Asserted field by field because the struct offers no constructor to build an expectation from,
-        // and each field's offset is what the test is about.
+        // Field by field because the struct offers no constructor to build a whole expectation from.
         header.InstanceId.Should().Be(EntryInstanceId);
         header.SymbolType.Should().Be(EntrySymbolType);
         header.ElementLength.Should().Be(EntryElementLength);
@@ -64,8 +61,7 @@ public sealed class TagsEntryHeaderTests
     public void AnEntryAtAnUnalignedOffsetIsReadTheSameWay()
     {
         // Arrange
-        // Entries start wherever the previous name ended, so a one-character name puts this second header
-        // on an odd address.
+        // Entries start where the previous name ended, so a one-character name gives an odd address.
         var listing = Listing(new TagEntry("A", DintSymbolType), Distinct);
         var secondEntry = listing.AsSpan(TagsEntryHeader.Size + 1);
 

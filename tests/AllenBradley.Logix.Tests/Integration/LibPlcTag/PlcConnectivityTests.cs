@@ -3,9 +3,8 @@ using libplctag;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag;
 
 /// <summary>
-/// libplctag's own round trip against the device, with none of this addon in the way — the baseline a
-/// failure elsewhere is read against. The suite writes <c>strValue1</c>; that is what the tag is for, so
-/// nothing is restored.
+/// libplctag's own round trip against the device, with none of this addon in the way. The suite writes
+/// <c>strValue1</c>; that is what the tag is for, so nothing is restored.
 /// </summary>
 public sealed class PlcConnectivityTests : LibPlcTagIntegrationTestBase
 {

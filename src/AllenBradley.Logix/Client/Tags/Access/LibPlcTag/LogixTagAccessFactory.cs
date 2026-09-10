@@ -10,20 +10,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag
 /// binding the connection attributes onto every tag. It creates and never owns — disposal belongs to
 /// whoever holds the access, in practice <see cref="Lifetime.CachingLogixTagManager"/>.
 /// </summary>
-/// <param name="clientInformation">
-/// Connection endpoint, TCP port, CIP route path and per-operation timeout — everything the attribute
-/// string needs, carried by the same value the pool keys the connection under.
-/// </param>
 internal sealed class LogixTagAccessFactory(LogixClientInformation clientInformation) : ILogixTagAccessFactory
 {
     /// <summary>
-    /// Every controller this addon addresses is a Logix-5000, and libplctag has one PLC type for the
-    /// whole line: a CompactLogix is opened as a ControlLogix and answers identically.
+    /// libplctag has one PLC type for the whole Logix-5000 line: a CompactLogix is opened as a
+    /// ControlLogix and answers identically.
     /// </summary>
     private const PlcType LogixPlcType = PlcType.ControlLogix;
 
-    // Endpoint and port go onto the handle as one "host:port" string, because that is the only shape
-    // libplctag's gateway attribute has. GatewayAttribute composes it.
     private readonly string _gateway = GatewayAttribute.For(clientInformation).Value;
     private readonly string _cipRoutePath = clientInformation.CipRoutePath.Value;
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
@@ -33,9 +27,9 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     {
         var tag = CreateTag(dataPoint.TagName);
 
-        // libplctag treats every tag as an array and reads one element unless told otherwise, which is
-        // why the scalar handles say nothing here. ElementSize is not set beside it: the library ignores
-        // it for Allen-Bradley and takes the width from the controller's own declaration.
+        // libplctag treats every tag as an array and reads one element unless told otherwise, so scalars
+        // say nothing here. ElementSize stays unset: the library ignores it for Allen-Bradley and takes
+        // the width from the controller's own declaration.
         if (dataPoint is ILogixArrayDataPoint arrayDataPoint)
         {
             tag.ElementCount = arrayDataPoint.ElementCount.Value;
@@ -47,9 +41,8 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     /// <inheritdoc />
     public ILogixTagAccess CreateForSchemaTag(TagName tagName) => Wrap(CreateTag(tagName));
 
-    // A schema name is bound exactly like a tag name: libplctag resolves @tags and @udt/<id> itself,
-    // so the attribute string is the same either way. The element count is not, which is why it is set
-    // on the data point path alone — a @tags directory read is not an array of ten INTs.
+    // A schema name needs no special binding: libplctag resolves @tags and @udt/<id> itself, so the
+    // attribute string is the same either way.
     private Tag CreateTag(TagName tagName) =>
         new()
         {
