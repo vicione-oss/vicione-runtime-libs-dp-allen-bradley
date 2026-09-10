@@ -32,9 +32,11 @@ public readonly record struct LogixDataTypeName(string Value)
     public static LogixDataTypeName String => new("STRING");
 
     /// <summary>
-    /// A one-dimensional <c>INT</c> array. The length is per declaration rather than per type, so it is
-    /// not in the name: Studio 5000 would say <c>INT[10]</c>.
+    /// A one-dimensional <c>SINT</c> array. The length is per declaration rather than per type, so no
+    /// array name carries it: Studio 5000 would say <c>SINT[10]</c>.
     /// </summary>
+    public static LogixDataTypeName SIntArray => new("SINT[]");
+
     public static LogixDataTypeName IntArray => new("INT[]");
 
     public override string ToString() => Value;

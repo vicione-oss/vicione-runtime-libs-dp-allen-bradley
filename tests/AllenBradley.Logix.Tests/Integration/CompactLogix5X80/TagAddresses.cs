@@ -41,13 +41,18 @@ internal static class TagAddresses
     internal static StringMaxLength StringCapacity => StringMaxLength.Standard;
 
     /// <summary>
+    /// The one-dimensional <c>SINT</c> array test tag, to be declared <c>SINT[10]</c>.
+    /// </summary>
+    internal const string SIntArray = $"{Program}.testSintArray";
+
+    /// <summary>
     /// The one-dimensional <c>INT</c> array test tag, to be declared <c>INT[10]</c>.
     /// </summary>
     internal const string IntArray = $"{Program}.testIntArray";
 
     /// <summary>
-    /// How many elements <see cref="IntArray"/> is declared to hold. A count that disagrees with the
+    /// How many elements every array test tag above is declared to hold. A count that disagrees with the
     /// controller aborts a connect, because a read of the first ten elements would not show a resized tag.
     /// </summary>
-    internal static ElementCount IntArrayElementCount => new(10);
+    internal static ElementCount ArrayElementCount => new(10);
 }

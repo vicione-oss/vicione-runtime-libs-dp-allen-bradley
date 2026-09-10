@@ -9,11 +9,19 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class SIntConverter : AtomicDataPointConverter<SIntDataPoint, sbyte>
 {
+    internal const int ElementSize = sizeof(sbyte);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.SInt;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Sint;
 
-    protected override sbyte DecodeValue(SIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) => (sbyte)buffer[0];
+    internal static sbyte DecodeElement(ReadOnlySpan<byte> buffer) => (sbyte)buffer[0];
 
-    protected override byte[] EncodeValue(SIntDataPoint dataPoint, sbyte value) => [(byte)value];
+    internal static byte[] EncodeElement(sbyte value) => [(byte)value];
+
+    protected override sbyte DecodeValue(SIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(SIntDataPoint dataPoint, sbyte value) =>
+        EncodeElement(value);
 }

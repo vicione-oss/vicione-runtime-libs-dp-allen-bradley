@@ -242,7 +242,7 @@ public sealed class LogixDataPointsGroupMapperTests
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
-            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayNode);
+            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayNode, DefaultSIntArrayNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);
@@ -252,7 +252,8 @@ public sealed class LogixDataPointsGroupMapperTests
             static dataPoint => dataPoint.Should().BeOfType<DIntDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<IntDataPoint>(),
             static dataPoint => dataPoint.Should().BeOfType<StringDataPoint>(),
-            static dataPoint => dataPoint.Should().BeOfType<IntArrayDataPoint>());
+            static dataPoint => dataPoint.Should().BeOfType<IntArrayDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<SIntArrayDataPoint>());
     }
 
     [Fact]

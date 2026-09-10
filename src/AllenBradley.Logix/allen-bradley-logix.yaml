@@ -131,6 +131,7 @@ Nodes:
       # String
       - Id: String
       # Arrays — grouped by shape rather than by element type, because that is what they have in common
+      - Id: SIntArray
       - Id: IntArray
 
   - Id: ControllerTags5X80
@@ -160,6 +161,7 @@ Nodes:
       # String
       - Id: String
       # Arrays
+      - Id: SIntArray
       - Id: IntArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
@@ -482,8 +484,37 @@ Nodes:
             Required: true
 
   # ---- Arrays ----
-  # One dimension, transferred whole, one element type so far. Rank 2 and 3 exist on Logix and are
-  # rejected at connect; per-element access is a container node with indexed children, which is not this.
+  # One dimension, transferred whole, and ordered by element type as the scalars above are. Rank 2 and 3
+  # exist on Logix and are rejected at connect; per-element access is a container node with indexed
+  # children, which is not this.
+  - Id: SIntArray
+    MappingId: SIntArray
+    Type: DataPortTreeNode
+    Name: "SInt[]"
+    Description: >-
+      Logix-Type: SINT[n] (one-dimensional array of 8-bit signed integers, CIP type code 0xC2)
+      Size: n bytes
+      Encoding: two's complement per element; a single byte has no byte order, and elements are unpadded
+      Layout: element i occupies byte i
+      Range: −128..127 per element
+      Direction: read and write; the whole array is one value, and a value of another length is refused
+    Icon: datapoint
+    DataTypes: [ 'Int8[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
   - Id: IntArray
     MappingId: IntArray
     Type: DataPortTreeNode

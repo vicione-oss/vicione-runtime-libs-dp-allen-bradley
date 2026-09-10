@@ -95,7 +95,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
             new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
         new IntDataPoint(new TagName(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
         new IntArrayDataPoint(
-            new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.IntArrayElementCount),
+            new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
     ];
 
     private static IReadOnlyList<ILogixDataPoint> TheWholeVocabulary() =>
@@ -113,9 +113,12 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
             new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new SIntArrayDataPoint(
+            new TagName(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
         new IntArrayDataPoint(
             new TagName(TagAddresses.IntArray), DefaultPollFrequency, NoChannels,
-            TagAddresses.IntArrayElementCount),
+            TagAddresses.ArrayElementCount),
     ];
 
     private void Report(
