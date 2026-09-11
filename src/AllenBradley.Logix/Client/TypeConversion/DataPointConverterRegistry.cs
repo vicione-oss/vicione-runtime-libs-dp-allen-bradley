@@ -26,6 +26,28 @@ internal static class DataPointConverterRegistry
     {
         var converters = new Dictionary<Type, IDataPointConverter>();
 
+        RegisterScalarConverters(converters);
+        RegisterArrayConverters(converters);
+
+        return converters.ToFrozenDictionary();
+    }
+
+    private static void RegisterArrayConverters(Dictionary<Type, IDataPointConverter> converters)
+    {
+        Register(converters, new SIntArrayConverter());
+        Register(converters, new IntArrayConverter());
+        Register(converters, new DIntArrayConverter());
+        Register(converters, new LIntArrayConverter());
+        Register(converters, new USIntArrayConverter());
+        Register(converters, new UIntArrayConverter());
+        Register(converters, new UDIntArrayConverter());
+        Register(converters, new ULIntArrayConverter());
+        Register(converters, new RealArrayConverter());
+        Register(converters, new LRealArrayConverter());
+    }
+
+    private static void RegisterScalarConverters(Dictionary<Type, IDataPointConverter> converters)
+    {
         Register(converters, new BoolConverter());
         Register(converters, new SIntConverter());
         Register(converters, new IntConverter());
@@ -38,18 +60,6 @@ internal static class DataPointConverterRegistry
         Register(converters, new RealConverter());
         Register(converters, new LRealConverter());
         Register(converters, new LogixStringConverter());
-        Register(converters, new SIntArrayConverter());
-        Register(converters, new IntArrayConverter());
-        Register(converters, new DIntArrayConverter());
-        Register(converters, new LIntArrayConverter());
-        Register(converters, new USIntArrayConverter());
-        Register(converters, new UIntArrayConverter());
-        Register(converters, new UDIntArrayConverter());
-        Register(converters, new ULIntArrayConverter());
-        Register(converters, new RealArrayConverter());
-        Register(converters, new LRealArrayConverter());
-
-        return converters.ToFrozenDictionary();
     }
 
     // Infers the key from the converter's own type parameter rather than taking it, so filing a converter

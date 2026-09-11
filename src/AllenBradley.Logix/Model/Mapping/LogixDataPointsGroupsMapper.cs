@@ -6,6 +6,8 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.LRealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
@@ -55,8 +57,11 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     private static List<ILogixDataPoint> Collect(
         IConfigurationNode configurationNode, TagScope scope, List<ILogixDataPoint> dataPoints)
     {
-        dataPoints.AddRange(
-            configurationNode.DataPointNodes.Select(dataPointNode => ToDataPoint(dataPointNode, scope)));
+        var logixDataPoints = configurationNode.DataPointNodes
+            .OfType<ILogixTagNode>()
+            .Select(dataPointNode => ToDataPoint(dataPointNode, scope));
+
+        dataPoints.AddRange(logixDataPoints);
 
         foreach (var childNode in configurationNode.ConfigurationNodes)
         {
@@ -69,57 +74,55 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     private static TagScope ScopeOf(IConfigurationNode configurationNode, TagScope enclosingScope) =>
         configurationNode is ITagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
 
-    private static ILogixDataPoint ToDataPoint(IDataPointNode dataPointNode, TagScope scope) => dataPointNode switch
+    private static ILogixDataPoint ToDataPoint(ILogixTagNode dataPointNode, TagScope scope)
     {
-        DIntNode dInt => new DIntDataPoint(scope.Qualify(dInt.TagName), dInt.PollFrequency, dInt.Channels),
-        SIntNode sInt => new SIntDataPoint(scope.Qualify(sInt.TagName), sInt.PollFrequency, sInt.Channels),
-        LIntNode lInt => new LIntDataPoint(scope.Qualify(lInt.TagName), lInt.PollFrequency, lInt.Channels),
-        USIntNode usInt => new USIntDataPoint(scope.Qualify(usInt.TagName), usInt.PollFrequency, usInt.Channels),
-        UIntNode uInt => new UIntDataPoint(scope.Qualify(uInt.TagName), uInt.PollFrequency, uInt.Channels),
-        UDIntNode uDInt => new UDIntDataPoint(
-            scope.Qualify(uDInt.TagName), uDInt.PollFrequency, uDInt.Channels),
-        ULIntNode uLInt => new ULIntDataPoint(
-            scope.Qualify(uLInt.TagName), uLInt.PollFrequency, uLInt.Channels),
-        BoolNode flag => new BoolDataPoint(scope.Qualify(flag.TagName), flag.PollFrequency, flag.Channels),
-        IntNode integer => new IntDataPoint(
-            scope.Qualify(integer.TagName), integer.PollFrequency, integer.Channels),
-        RealNode real => new RealDataPoint(scope.Qualify(real.TagName), real.PollFrequency, real.Channels),
-        LRealNode lReal => new LRealDataPoint(scope.Qualify(lReal.TagName), lReal.PollFrequency, lReal.Channels),
-        StringNode text => new StringDataPoint(
-            scope.Qualify(text.TagName), text.PollFrequency, text.Channels, text.MaxLength),
-        SIntArrayNode samples => new SIntArrayDataPoint(
-            scope.Qualify(samples.TagName), samples.PollFrequency, samples.Channels,
-            samples.ElementCount),
-        IntArrayNode readings => new IntArrayDataPoint(
-            scope.Qualify(readings.TagName), readings.PollFrequency, readings.Channels,
-            readings.ElementCount),
-        DIntArrayNode totals => new DIntArrayDataPoint(
-            scope.Qualify(totals.TagName), totals.PollFrequency, totals.Channels,
-            totals.ElementCount),
-        LIntArrayNode timestamps => new LIntArrayDataPoint(
-            scope.Qualify(timestamps.TagName), timestamps.PollFrequency, timestamps.Channels,
-            timestamps.ElementCount),
-        USIntArrayNode pressures => new USIntArrayDataPoint(
-            scope.Qualify(pressures.TagName), pressures.PollFrequency, pressures.Channels,
-            pressures.ElementCount),
-        UIntArrayNode speeds => new UIntArrayDataPoint(
-            scope.Qualify(speeds.TagName), speeds.PollFrequency, speeds.Channels,
-            speeds.ElementCount),
-        UDIntArrayNode runtimes => new UDIntArrayDataPoint(
-            scope.Qualify(runtimes.TagName), runtimes.PollFrequency, runtimes.Channels,
-            runtimes.ElementCount),
-        ULIntArrayNode cycleCounts => new ULIntArrayDataPoint(
-            scope.Qualify(cycleCounts.TagName), cycleCounts.PollFrequency, cycleCounts.Channels,
-            cycleCounts.ElementCount),
-        RealArrayNode temperatures => new RealArrayDataPoint(
-            scope.Qualify(temperatures.TagName), temperatures.PollFrequency, temperatures.Channels,
-            temperatures.ElementCount),
-        LRealArrayNode positions => new LRealArrayDataPoint(
-            scope.Qualify(positions.TagName), positions.PollFrequency, positions.Channels,
-            positions.ElementCount),
-        // Unreachable from a manifest: a node this switch does not name has a node mapper and no data
-        // point behind it, which only a half-finished type slice produces.
-        _ => throw new NotSupportedException(
-            $"Unsupported Logix data point node type '{dataPointNode.GetType().Name}'."),
-    };
+        var pollFrequency = dataPointNode.PollFrequency;
+        var channels = dataPointNode.Channels;
+        var tagName = scope.Qualify(dataPointNode.TagName);
+
+        return dataPointNode switch
+        {
+            BoolNode => new BoolDataPoint(tagName, pollFrequency, channels),
+            SIntNode => new SIntDataPoint(tagName, pollFrequency, channels),
+            IntNode => new IntDataPoint(tagName, pollFrequency, channels),
+            DIntNode => new DIntDataPoint(tagName, pollFrequency, channels),
+            LIntNode => new LIntDataPoint(tagName, pollFrequency, channels),
+            USIntNode => new USIntDataPoint(tagName, pollFrequency, channels),
+            UIntNode => new UIntDataPoint(tagName, pollFrequency, channels),
+            UDIntNode => new UDIntDataPoint(tagName, pollFrequency, channels),
+            ULIntNode => new ULIntDataPoint(tagName, pollFrequency, channels),
+            RealNode => new RealDataPoint(tagName, pollFrequency, channels),
+            LRealNode => new LRealDataPoint(tagName, pollFrequency, channels),
+            StringNode stringNode => new StringDataPoint(tagName, pollFrequency, channels, stringNode.MaxLength),
+            LogixArrayNode arrayNode => ToArrayDataPoint(arrayNode, tagName),
+            _ => throw UnsupportedNode(dataPointNode),
+        };
+    }
+
+    private static ILogixDataPoint ToArrayDataPoint(LogixArrayNode arrayNode, TagName tagName)
+    {
+        var pollFrequency = arrayNode.PollFrequency;
+        var channels = arrayNode.Channels;
+        var elementCount = arrayNode.ElementCount;
+
+        return arrayNode switch
+        {
+            SIntArrayNode => new SIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            IntArrayNode => new IntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            DIntArrayNode => new DIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            LIntArrayNode => new LIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            USIntArrayNode => new USIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UIntArrayNode => new UIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UDIntArrayNode => new UDIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            ULIntArrayNode => new ULIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            RealArrayNode => new RealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            LRealArrayNode => new LRealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            _ => throw UnsupportedNode(arrayNode),
+        };
+    }
+
+    // Unreachable from a manifest: a node the switches do not name has a node mapper and no data
+    // point behind it, which only a half-finished type slice produces.
+    private static NotSupportedException UnsupportedNode(ILogixTagNode dataPointNode) =>
+        new($"Unsupported Logix data point node type '{dataPointNode.GetType().Name}'.");
 }
