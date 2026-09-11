@@ -135,6 +135,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new UDIntArrayDataPoint(
             new TagName(TagAddresses.UDIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
+        new ULIntArrayDataPoint(
+            new TagName(TagAddresses.ULIntArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
         new RealArrayDataPoint(
             new TagName(TagAddresses.RealArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),

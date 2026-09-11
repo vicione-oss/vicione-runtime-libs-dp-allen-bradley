@@ -172,6 +172,7 @@ Nodes:
       - Id: USIntArray
       - Id: UIntArray
       - Id: UDIntArray
+      - Id: ULIntArray
       - Id: RealArray
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
@@ -678,6 +679,34 @@ Nodes:
       Direction: read and write; the whole array is one value, and a value of another length is refused
     Icon: datapoint
     DataTypes: [ 'UInt32[]' ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: TagDeclaration
+        Properties:
+          - Id: ElementCount
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: ULIntArray
+    MappingId: ULIntArray
+    Type: DataPortTreeNode
+    Name: "ULInt[]"
+    Description: >-
+      Logix-Type: ULINT[n] (one-dimensional array of 64-bit unsigned integers, CIP type code 0xC9)
+      Size: 8 x n bytes
+      Encoding: little-endian unsigned binary per element; no padding between elements
+      Layout: element i occupies bytes 8i..8i + 7
+      Range: 0..18 446 744 073 709 551 615 per element
+      Direction: read and write; the whole array is one value, and a value of another length is refused
+    Icon: datapoint
+    DataTypes: [ 'UInt64[]' ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: TagAddress

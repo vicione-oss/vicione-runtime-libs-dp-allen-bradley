@@ -56,6 +56,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly ULIntArrayDataPoint CycleCounts = new(
+        new TagName(TagAddresses.ULIntArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     private static readonly RealArrayDataPoint Temperatures = new(
         new TagName(TagAddresses.RealArray),
         DefaultPollFrequency,
@@ -86,6 +92,11 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly uint[] TenRuntimes =
         [0, 1, 123456, 2147483648, 4000000000, uint.MaxValue, 10, 20, 30, 40];
+
+    private static readonly ulong[] TenCycleCounts =
+    [
+        0, 1, 1234567890123, 9223372036854775808, 18446744073709551614, ulong.MaxValue, 10, 20, 30, 40,
+    ];
 
     private static readonly float[] TenTemperatures =
         [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
@@ -205,6 +216,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Runtimes, TenRuntimes, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task AULIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.ULIntArray, AllenBradleyDataType.Ulint, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(CycleCounts, TenCycleCounts, expectedDefinition);
     }
 
     [Fact]

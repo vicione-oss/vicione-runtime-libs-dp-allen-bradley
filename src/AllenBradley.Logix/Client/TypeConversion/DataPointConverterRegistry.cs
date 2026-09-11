@@ -45,6 +45,7 @@ internal static class DataPointConverterRegistry
         Register(converters, new USIntArrayConverter());
         Register(converters, new UIntArrayConverter());
         Register(converters, new UDIntArrayConverter());
+        Register(converters, new ULIntArrayConverter());
         Register(converters, new RealArrayConverter());
 
         return converters.ToFrozenDictionary();
