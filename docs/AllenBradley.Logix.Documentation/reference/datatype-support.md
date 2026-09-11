@@ -10,31 +10,36 @@ the wire layout of each type is in the
 
 ## Supported
 
-| Logix type            | Node            | Data point           | .NET type | Wire size | Converter              | Controllers |
-|-----------------------|-----------------|----------------------|-----------|-----------|------------------------|-------------|
-| **Bool**              |                 |                      |           |           |                        |             |
-| `BOOL`                | `BoolNode`      | `BoolDataPoint`      | `bool`    | 1         | `BoolConverter`        | all         |
-| **Signed integers**   |                 |                      |           |           |                        |             |
-| `SINT`                | `SIntNode`      | `SIntDataPoint`      | `sbyte`   | 1         | `SIntConverter`        | all         |
-| `INT`                 | `IntNode`       | `IntDataPoint`       | `short`   | 2         | `IntConverter`         | all         |
-| `DINT`                | `DIntNode`      | `DIntDataPoint`      | `int`     | 4         | `DIntConverter`        | all         |
-| `LINT`                | `LIntNode`      | `LIntDataPoint`      | `long`    | 8         | `LIntConverter`        | all         |
-| **Unsigned integers** |                 |                      |           |           |                        |             |
-| `USINT`               | `USIntNode`     | `USIntDataPoint`     | `byte`    | 1         | `USIntConverter`       | 5X80 only   |
-| `UINT`                | `UIntNode`      | `UIntDataPoint`      | `ushort`  | 2         | `UIntConverter`        | 5X80 only   |
-| `UDINT`               | `UDIntNode`     | `UDIntDataPoint`     | `uint`    | 4         | `UDIntConverter`       | 5X80 only   |
-| `ULINT`               | `ULIntNode`     | `ULIntDataPoint`     | `ulong`   | 8         | `ULIntConverter`       | 5X80 only   |
-| **Floating point**    |                 |                      |           |           |                        |             |
-| `REAL`                | `RealNode`      | `RealDataPoint`      | `float`   | 4         | `RealConverter`        | all         |
-| `LREAL`               | `LRealNode`     | `LRealDataPoint`     | `double`  | 8         | `LRealConverter`       | 5X80 only   |
-| **String**            |                 |                      |           |           |                        |             |
-| `STRING`              | `StringNode`    | `StringDataPoint`    | `string`  | 4 + n     | `LogixStringConverter` | all         |
-| **Arrays**            |                 |                      |           |           |                        |             |
-| `SINT[n]`             | `SIntArrayNode` | `SIntArrayDataPoint` | `sbyte[]` | n         | `SIntArrayConverter`   | all         |
-| `INT[n]`              | `IntArrayNode`  | `IntArrayDataPoint`  | `short[]` | 2 × n     | `IntArrayConverter`    | all         |
-| `DINT[n]`             | `DIntArrayNode` | `DIntArrayDataPoint` | `int[]`   | 4 × n     | `DIntArrayConverter`   | all         |
-| `LINT[n]`             | `LIntArrayNode` | `LIntArrayDataPoint` | `long[]`  | 8 × n     | `LIntArrayConverter`   | all         |
-| `REAL[n]`             | `RealArrayNode` | `RealArrayDataPoint` | `float[]` | 4 × n     | `RealArrayConverter`   | all         |
+| Logix type            | Node             | Data point            | .NET type  | Wire size | Converter              | Controllers |
+|-----------------------|------------------|-----------------------|------------|-----------|------------------------|-------------|
+| **Bool**              |                  |                       |            |           |                        |             |
+| `BOOL`                | `BoolNode`       | `BoolDataPoint`       | `bool`     | 1         | `BoolConverter`        | all         |
+| **Signed integers**   |                  |                       |            |           |                        |             |
+| `SINT`                | `SIntNode`       | `SIntDataPoint`       | `sbyte`    | 1         | `SIntConverter`        | all         |
+| `INT`                 | `IntNode`        | `IntDataPoint`        | `short`    | 2         | `IntConverter`         | all         |
+| `DINT`                | `DIntNode`       | `DIntDataPoint`       | `int`      | 4         | `DIntConverter`        | all         |
+| `LINT`                | `LIntNode`       | `LIntDataPoint`       | `long`     | 8         | `LIntConverter`        | all         |
+| **Unsigned integers** |                  |                       |            |           |                        |             |
+| `USINT`               | `USIntNode`      | `USIntDataPoint`      | `byte`     | 1         | `USIntConverter`       | 5X80 only   |
+| `UINT`                | `UIntNode`       | `UIntDataPoint`       | `ushort`   | 2         | `UIntConverter`        | 5X80 only   |
+| `UDINT`               | `UDIntNode`      | `UDIntDataPoint`      | `uint`     | 4         | `UDIntConverter`       | 5X80 only   |
+| `ULINT`               | `ULIntNode`      | `ULIntDataPoint`      | `ulong`    | 8         | `ULIntConverter`       | 5X80 only   |
+| **Floating point**    |                  |                       |            |           |                        |             |
+| `REAL`                | `RealNode`       | `RealDataPoint`       | `float`    | 4         | `RealConverter`        | all         |
+| `LREAL`               | `LRealNode`      | `LRealDataPoint`      | `double`   | 8         | `LRealConverter`       | 5X80 only   |
+| **String**            |                  |                       |            |           |                        |             |
+| `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
+| **Arrays**            |                  |                       |            |           |                        |             |
+| `SINT[n]`             | `SIntArrayNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
+| `INT[n]`              | `IntArrayNode`   | `IntArrayDataPoint`   | `short[]`  | 2 × n     | `IntArrayConverter`    | all         |
+| `DINT[n]`             | `DIntArrayNode`  | `DIntArrayDataPoint`  | `int[]`    | 4 × n     | `DIntArrayConverter`   | all         |
+| `LINT[n]`             | `LIntArrayNode`  | `LIntArrayDataPoint`  | `long[]`   | 8 × n     | `LIntArrayConverter`   | all         |
+| `USINT[n]`            | `USIntArrayNode` | `USIntArrayDataPoint` | `byte[]`   | n         | `USIntArrayConverter`  | 5X80 only   |
+| `UINT[n]`             | `UIntArrayNode`  | `UIntArrayDataPoint`  | `ushort[]` | 2 × n     | `UIntArrayConverter`   | 5X80 only   |
+| `UDINT[n]`            | `UDIntArrayNode` | `UDIntArrayDataPoint` | `uint[]`   | 4 × n     | `UDIntArrayConverter`  | 5X80 only   |
+| `ULINT[n]`            | `ULIntArrayNode` | `ULIntArrayDataPoint` | `ulong[]`  | 8 × n     | `ULIntArrayConverter`  | 5X80 only   |
+| `REAL[n]`             | `RealArrayNode`  | `RealArrayDataPoint`  | `float[]`  | 4 × n     | `RealArrayConverter`   | all         |
+| `LREAL[n]`            | `LRealArrayNode` | `LRealArrayDataPoint` | `double[]` | 8 × n     | `LRealArrayConverter`  | 5X80 only   |
 
 A supported type is supported end to end: the manifest declares the node, a node mapper claims it,
 `LogixDataPointsGroupsMapper` turns it into the data point, and `DataPointConverterRegistry` holds a
@@ -49,8 +54,8 @@ element count, and both are configuration rather than type: the same converter s
 ### Types the 5X70 controllers have not got
 
 Every entry in the table marked `5X80 only` is there for the same reason: the 5X70 controllers have no
-`LREAL` and no unsigned integer at all, so configuring one of those there addresses a type the
-controller cannot resolve.
+`LREAL` and no unsigned integer at all, so configuring one of those there — or an array of one —
+addresses a type the controller cannot resolve.
 
 The device node type is what decides. A 5X80 device node's controller-scope container is
 `ControllerTags5X80`, which lists those types among its children; the 5X70 container does not,
@@ -64,14 +69,19 @@ vocabulary has the type. `ITagScopeNode` compares it against the container's own
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
 addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode`, `RealNode`,
-`StringNode` and every array node say nothing. The comparison reads `LogixGeneration`
-in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later generation slots in
-at its own number.
+`StringNode`, and the array nodes of the signed integers and `REAL`, say nothing. The comparison reads
+`LogixGeneration` in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later
+generation slots in at its own number.
 
 `LREAL` was the only type carrying that line for a while, so the mechanism had a single witness and
 could as well have been a special case. The four unsigned integers are the check that it is not: each
 declares the same one line, and both tag-scope containers turn it away on a 5X70 with nothing added to
 either — no container gained a rule for any of them.
+
+The five arrays of those types say what the rule is *about*. `USIntArrayNode` carries what
+`USIntNode` carries, because an array of a type the controller cannot resolve is not a different
+question from a scalar of it: the generation follows the element type, and the shape has nothing to do
+with it.
 
 ### The unsigned integers
 
@@ -95,6 +105,10 @@ loses that tell but still misreads as soon as the tag holds a value outside the 
 of equal width have neither — every byte pattern is legal for both, in both directions, and the value
 that comes back is always the value that went in. Verification is the only thing standing there.
 
+An array of one of them is that case one element at a time, and no worse: the array converter is the
+scalar's element codec and a stride, so a `USINT[10]` configured over a `SINT[10]` is the same
+mistake ten times over, and the same declaration at connect catches it.
+
 ### `STRING`
 
 A Logix `STRING` is a predefined structure — `.LEN : DINT` then `.DATA : SINT[82]`, padded to 88
@@ -117,8 +131,8 @@ Verification checks the declared capacity as well as the shape, because a round 
 One shape, and its boundaries are worth stating exactly: a **one-dimensional array of an elementary
 type, transferred whole**. An `ARRAY[0..9] OF INT` is configured as one node carrying a tag name, an
 element count and a poll frequency; a poll delivers one `short[10]` with the elements in index order,
-and a write sends a `short[10]` back the same way. `SINT`, `DINT`, `LINT` and `REAL` are the same
-sentence with their own element type.
+and a write sends a `short[10]` back the same way. Nine more element types are that sentence with the
+element type swapped — every atomic type the port has, `BOOL` excepted, because `BOOL` packs.
 
 The wire layout is the whole of what the codec needs. Elements are contiguous, little-endian and
 unpadded, so element *i* is the scalar codec of the element type at offset *i* × its width. An array
@@ -145,11 +159,12 @@ configured as an array — as is a count the controller does not agree with.
 An array element type is matched exactly on the way in, which a scalar's never had to be. The CLR
 holds arrays of same-width signed and unsigned elements assignment-compatible — `ushort[]` *is* a
 `short[]` as far as a type test goes, and reads back 40000 as -25536 — so `LogixDataPoint.ConvertValue`
-compares the runtime type rather than asking whether the value fits. Each of the four integer element
-types has such a sibling, and nothing further down would notice: the bytes are identical, so the write
-succeeds and the tag holds the wrong number. `REAL` is the exception that shows what the rule is for —
-nothing is assignment-compatible with `float[]`, so a same-width `int[]` is turned away by the type
-test itself. Boxed scalars are already exact, so the rule costs the eleven scalar types nothing.
+compares the runtime type rather than asking whether the value fits. The eight integer element types
+are four such pairs, and nothing further down would notice: the bytes are identical, so the write
+succeeds and the tag holds the wrong number. The two floating-point types are the exception that shows
+what the rule is for — nothing is assignment-compatible with `float[]` or `double[]`, so a same-width
+`int[]` or `long[]` is turned away by the type test itself. Boxed scalars are already exact, so the
+rule costs the eleven scalar types nothing.
 
 What this shape is not:
 
@@ -168,7 +183,6 @@ What this shape is not:
 | Logix type                      | Notes                                                                                            |
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | Writing part of an array        | A write is the whole array; a range of elements is per-element addressing under another name     |
-| Arrays of the 5X80-only types   | `USINT`, `UINT`, `UDINT`, `ULINT` and `LREAL` — a node, a data point and a converter each        |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
 | `BOOL[]`                        | Packs into 32-bit words, so an index addresses a word and a masked write clobbers its neighbours |
 | Arrays of `STRING` or of a UDT  | Need `TagsEntryHeader.ElementLength`, which is kept only for structures, as `MaxLength`          |
