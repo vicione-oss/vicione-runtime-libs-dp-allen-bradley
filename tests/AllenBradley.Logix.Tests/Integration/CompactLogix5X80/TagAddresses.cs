@@ -67,6 +67,11 @@ internal static class TagAddresses
     internal const string USIntArray = $"{Program}.testUsintArray";
 
     /// <summary>
+    /// The one-dimensional <c>UINT</c> array test tag, to be declared <c>UINT[10]</c>.
+    /// </summary>
+    internal const string UIntArray = $"{Program}.testUintArray";
+
+    /// <summary>
     /// The one-dimensional <c>REAL</c> array test tag, to be declared <c>REAL[10]</c>.
     /// </summary>
     internal const string RealArray = $"{Program}.testRealArray";

@@ -44,6 +44,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly UIntArrayDataPoint Speeds = new(
+        new TagName(TagAddresses.UIntArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     private static readonly RealArrayDataPoint Temperatures = new(
         new TagName(TagAddresses.RealArray),
         DefaultPollFrequency,
@@ -68,6 +74,9 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
     // what a signed misreading gets wrong.
     private static readonly byte[] TenPressures =
         [0, 1, 42, 128, 200, byte.MaxValue, 10, 20, 30, 40];
+
+    private static readonly ushort[] TenSpeeds =
+        [0, 1, 4242, 32768, 50000, ushort.MaxValue, 10, 20, 30, 40];
 
     private static readonly float[] TenTemperatures =
         [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
@@ -163,6 +172,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Pressures, TenPressures, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task AUIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.UIntArray, AllenBradleyDataType.Uint, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Speeds, TenSpeeds, expectedDefinition);
     }
 
     [Fact]

@@ -10,17 +10,25 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class UIntConverter : AtomicDataPointConverter<UIntDataPoint, ushort>
 {
+    internal const int ElementSize = sizeof(ushort);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.UInt;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Uint;
 
-    protected override ushort DecodeValue(UIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+    internal static ushort DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt16LittleEndian(buffer);
 
-    protected override byte[] EncodeValue(UIntDataPoint dataPoint, ushort value)
+    internal static byte[] EncodeElement(ushort value)
     {
-        var bytes = new byte[sizeof(ushort)];
+        var bytes = new byte[ElementSize];
         BinaryPrimitives.WriteUInt16LittleEndian(bytes, value);
         return bytes;
     }
+
+    protected override ushort DecodeValue(UIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(UIntDataPoint dataPoint, ushort value) =>
+        EncodeElement(value);
 }

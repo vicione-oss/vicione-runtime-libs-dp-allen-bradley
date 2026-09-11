@@ -45,6 +45,8 @@ public readonly record struct LogixDataTypeName(string Value)
 
     public static LogixDataTypeName USIntArray => new("USINT[]");
 
+    public static LogixDataTypeName UIntArray => new("UINT[]");
+
     public static LogixDataTypeName RealArray => new("REAL[]");
 
     public override string ToString() => Value;
