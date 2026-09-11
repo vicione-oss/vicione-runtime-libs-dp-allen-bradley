@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.In
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.SIntArray.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UDIntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UIntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.USIntArray.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool.Mapping;
@@ -67,6 +68,6 @@ public static class TypedLogixNodeMapper
         [
             new SIntArrayNodeMapper(), new IntArrayNodeMapper(), new DIntArrayNodeMapper(),
             new LIntArrayNodeMapper(), new USIntArrayNodeMapper(), new UIntArrayNodeMapper(),
-            new RealArrayNodeMapper(),
+            new UDIntArrayNodeMapper(), new RealArrayNodeMapper(),
         ];
 }

@@ -11,6 +11,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.In
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.SIntArray;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UDIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.USIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
@@ -102,6 +103,9 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         UIntArrayNode speeds => new UIntArrayDataPoint(
             scope.Qualify(speeds.TagName), speeds.PollFrequency, speeds.Channels,
             speeds.ElementCount),
+        UDIntArrayNode runtimes => new UDIntArrayDataPoint(
+            scope.Qualify(runtimes.TagName), runtimes.PollFrequency, runtimes.Channels,
+            runtimes.ElementCount),
         RealArrayNode temperatures => new RealArrayDataPoint(
             scope.Qualify(temperatures.TagName), temperatures.PollFrequency, temperatures.Channels,
             temperatures.ElementCount),

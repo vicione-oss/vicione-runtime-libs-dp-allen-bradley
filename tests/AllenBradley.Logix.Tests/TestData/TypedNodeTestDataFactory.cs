@@ -8,6 +8,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.In
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.IntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.SIntArray;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UDIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.UIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.USIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
@@ -68,6 +69,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultLIntArrayTagName = new("Timestamps");
     internal static readonly TagName DefaultUSIntArrayTagName = new("Pressures");
     internal static readonly TagName DefaultUIntArrayTagName = new("Speeds");
+    internal static readonly TagName DefaultUDIntArrayTagName = new("Runtimes");
     internal static readonly TagName DefaultRealArrayTagName = new("Temperatures");
 
     internal static readonly ElementCount DefaultElementCount = new(10);
@@ -213,6 +215,14 @@ internal static class TypedNodeTestDataFactory
             CreateChanneledLinkedNode(
                 UIntArrayNode.LinkedNodeTypeId, DefaultUIntArrayTagName.Value, DefaultChannel),
             DefaultUIntArrayTagName,
+            DefaultPollFrequency,
+            DefaultElementCount);
+
+    internal static UDIntArrayNode DefaultUDIntArrayNode =>
+        new(
+            CreateChanneledLinkedNode(
+                UDIntArrayNode.LinkedNodeTypeId, DefaultUDIntArrayTagName.Value, DefaultChannel),
+            DefaultUDIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
