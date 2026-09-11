@@ -165,6 +165,25 @@ One tag per type, all program-scoped in `MainProgram`:
 | `LREAL` | `Program:MainProgram.testLreal` |
 | `STRING` | `Program:MainProgram.testString`, declared to hold 82 characters |
 
+And one array per element type, every one of them ten elements long except the `BOOL` array:
+
+| Type | Tag |
+|------|-----|
+| `BOOL[32]` | `Program:MainProgram.testBoolArray` |
+| `SINT[10]` | `Program:MainProgram.testSintArray` |
+| `INT[10]` | `Program:MainProgram.testIntArray` |
+| `DINT[10]` | `Program:MainProgram.testDintArray` |
+| `LINT[10]` | `Program:MainProgram.testLintArray` |
+| `USINT[10]` | `Program:MainProgram.testUsintArray` |
+| `UINT[10]` | `Program:MainProgram.testUintArray` |
+| `UDINT[10]` | `Program:MainProgram.testUdintArray` |
+| `ULINT[10]` | `Program:MainProgram.testUlintArray` |
+| `REAL[10]` | `Program:MainProgram.testRealArray` |
+| `LREAL[10]` | `Program:MainProgram.testLrealArray` |
+
+The `BOOL` array is 32 rather than 10 because Studio 5000 will not declare one otherwise: it packs
+the bits into 32-bit words, so a length that is not a multiple of 32 is not a length it offers.
+
 Constants, not environment variables. Which tags a controller holds is the same everywhere the suite
 runs, so it belongs in the source and in review; on a controller we provision ourselves, this file is
 the list to type into Studio 5000 rather than a guess to be corrected afterwards.

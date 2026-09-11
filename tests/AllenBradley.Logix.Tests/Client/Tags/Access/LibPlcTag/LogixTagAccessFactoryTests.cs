@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -48,6 +49,24 @@ public sealed class LogixTagAccessFactoryTests
         tag.ElementCount.Should().Be(DeclaredElementCount * 2);
     }
 
+    [Theory]
+    [InlineData(32, 1)]
+    [InlineData(64, 2)]
+    public void ABoolArrayTagIsSizedToTheWordsItsBitsArePackedInto(int declaredBitCount, int expectedWords)
+    {
+        // Arrange
+        // libplctag puts the count on the request unchanged, and the controller counts a BOOL array in
+        // the 32-bit words it allocated.
+        var flags = new BoolArrayDataPoint(
+            DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
+
+        // Act
+        using var tag = _factory.CreateTagFor(flags);
+
+        // Assert
+        tag.ElementCount.Should().Be(expectedWords);
+    }
+
     /// <summary>One data point per shape that configures no extent: an elementary type, and a STRING.</summary>
     public static TheoryData<ILogixDataPoint> ScalarDataPoints =>
     [
@@ -57,7 +76,7 @@ public sealed class LogixTagAccessFactoryTests
 
     [Theory]
     [MemberData(nameof(ScalarDataPoints))]
-    public void AScalarTagLeavesTheElementCountToLibplctag(ILogixDataPoint dataPoint)
+    public void AScalarTagIsSizedToOneElementRatherThanLeftToLibplctag(ILogixDataPoint dataPoint)
     {
         // Arrange
 
@@ -65,7 +84,7 @@ public sealed class LogixTagAccessFactoryTests
         using var tag = _factory.CreateTagFor(dataPoint);
 
         // Assert
-        tag.ElementCount.Should().BeNull("libplctag reads one element from a handle that does not say");
+        tag.ElementCount.Should().Be(1);
     }
 
     [Fact]

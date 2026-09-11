@@ -38,4 +38,10 @@ internal enum CipTypeCode : byte
 
     /// <summary>IEEE-754 double-precision float (<c>0xCB</c>).</summary>
     Lreal = 0xCB,
+
+    /// <summary>
+    /// 32-bit bit string (<c>0xD3</c>). Logix has no <c>DWORD</c> of its own to declare, so this code
+    /// reaches a client only as the word a <c>BOOL</c> array is packed into.
+    /// </summary>
+    Dword = 0xD3,
 }

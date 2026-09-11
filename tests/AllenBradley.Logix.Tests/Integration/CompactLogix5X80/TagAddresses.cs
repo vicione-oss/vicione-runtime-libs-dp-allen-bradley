@@ -41,6 +41,16 @@ internal static class TagAddresses
     internal static StringMaxLength StringCapacity => StringMaxLength.Standard;
 
     /// <summary>
+    /// The one-dimensional <c>BOOL</c> array test tag, to be declared <c>BOOL[32]</c>. It is the one
+    /// array tag not declared with <see cref="ArrayElementCount"/> elements: Studio 5000 takes only a
+    /// multiple of 32 for a <c>BOOL</c> array, because it packs the bits into 32-bit words.
+    /// </summary>
+    internal const string BoolArray = $"{Program}.testBoolArray";
+
+    /// <summary>How many bits <see cref="BoolArray"/> is declared to hold.</summary>
+    internal static ElementCount BoolArrayElementCount => new(32);
+
+    /// <summary>
     /// The one-dimensional <c>SINT</c> array test tag, to be declared <c>SINT[10]</c>.
     /// </summary>
     internal const string SIntArray = $"{Program}.testSintArray";

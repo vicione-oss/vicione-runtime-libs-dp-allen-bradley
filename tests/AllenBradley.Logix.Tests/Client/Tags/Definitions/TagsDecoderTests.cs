@@ -125,6 +125,30 @@ public sealed class TagsDecoderTests
         decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData(1u, 32)]
+    [InlineData(2u, 64)]
+    public void ABoolArrayEntryDecodesItsWordDimensionIntoTheBitsItHolds(
+        uint declaredWords, int expectedBitCount)
+    {
+        // Arrange
+        var listing = Listing(
+            new TagEntry("Flags", OneDimensionSymbolType | DwordSymbolType) { Dimension0 = declaredWords });
+
+        // Act
+        var decoded = TagsDecoder.Decode(listing);
+
+        // Assert
+        var expected = DefaultAtomicTagDefinition() with
+        {
+            TagName = new TagName("Flags"),
+            DataType = AllenBradleyDataType.Bool,
+            DimensionCount = new DimensionCount(1),
+            ElementCount = new ElementCount(expectedBitCount),
+        };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
     [Fact]
     public void AnUnmodelledTypeCodeDecodesToUnknownRatherThanTravellingAsANumber()
     {

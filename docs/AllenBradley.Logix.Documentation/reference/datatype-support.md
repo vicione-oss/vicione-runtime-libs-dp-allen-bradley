@@ -30,6 +30,7 @@ the wire layout of each type is in the
 | **String**            |                  |                       |            |           |                        |             |
 | `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
 | **Arrays**            |                  |                       |            |           |                        |             |
+| `BOOL[n]`             | `BoolArrayNode`  | `BoolArrayDataPoint`  | `bool[]`   | 4 × n/32  | `BoolArrayConverter`   | all         |
 | `SINT[n]`             | `SIntArrayNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
 | `INT[n]`              | `IntArrayNode`   | `IntArrayDataPoint`   | `short[]`  | 2 × n     | `IntArrayConverter`    | all         |
 | `DINT[n]`             | `DIntArrayNode`  | `DIntArrayDataPoint`  | `int[]`    | 4 × n     | `DIntArrayConverter`   | all         |
@@ -69,7 +70,7 @@ vocabulary has the type. `ITagScopeNode` compares it against the container's own
 implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
 addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode`, `RealNode`,
-`StringNode`, and the array nodes of the signed integers and `REAL`, say nothing. The comparison reads
+`StringNode`, and the array nodes of `BOOL`, the signed integers and `REAL`, say nothing. The comparison reads
 `LogixGeneration` in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later
 generation slots in at its own number.
 
@@ -131,10 +132,12 @@ Verification checks the declared capacity as well as the shape, because a round 
 One shape, and its boundaries are worth stating exactly: a **one-dimensional array of an elementary
 type, transferred whole**. An `ARRAY[0..9] OF INT` is configured as one node carrying a tag name, an
 element count and a poll frequency; a poll delivers one `short[10]` with the elements in index order,
-and a write sends a `short[10]` back the same way. Nine more element types are that sentence with the
-element type swapped — every atomic type the port has, `BOOL` excepted, because `BOOL` packs.
+and a write sends a `short[10]` back the same way. Ten more element types are that sentence with the
+element type swapped — every atomic type the port has. `BOOL[n]` is the same sentence too, but it
+reaches it differently; see [`BOOL[n]`](#booln).
 
-The wire layout is the whole of what the codec needs. Elements are contiguous, little-endian and
+The wire layout is the whole of what the codec needs. For ten of the eleven element types, elements
+are contiguous, little-endian and
 unpadded, so element *i* is the scalar codec of the element type at offset *i* × its width. An array
 converter names that width and those two codec calls and nothing else, and takes all three off the
 scalar converter: `IntArrayConverter` asks `IntConverter`, so a scalar `INT` and an element of an
@@ -178,13 +181,50 @@ What this shape is not:
   supporting them means keeping the dimensions rather than the product, and nothing new comes off the
   wire.
 
+### `BOOL[n]`
+
+A `BOOL` array is configured, verified, polled and written exactly as the other ten are — one node
+with a tag name, an element count and a poll frequency; one `bool[n]` in either direction. What is
+different is everything underneath, because **a Logix `BOOL` array is not an array of `BOOL`s**. The
+controller packs the bits 32 to a 32-bit word and allocates the words, so three things that hold for
+every other element type do not hold here:
+
+- **The controller calls it a `DWORD` array.** The `@tags` entry carries type code `0xD3`, not the
+  `0xC1` of a scalar `BOOL`, and its element length is 4. `CipTypeCodeExtensions` maps that code back
+  to `Bool`, because the packing is how the tag is stored and not what it holds. Logix has no `DWORD`
+  a project can declare, so a rank-1 `0xD3` means a `BOOL` array and nothing else.
+- **The dimension is counted in words.** A `BOOL[64]` reports `2`. `TagsDecoder` turns that into the
+  64 bits it holds, the way a string structure's 86 member bytes leave it as a capacity of 82, so
+  `TagDefinition` speaks one vocabulary throughout and `LogixTypeComparison` compares bits against
+  bits.
+- **The request is counted in words too**, and that one is not converted away: libplctag puts the
+  handle's element count straight onto the CIP request, so `LogixTagAccessFactory` sizes a `BOOL`
+  array's handle from `BoolArrayDataPoint.WordCount`, the `n / 32` the controller expects, while
+  `ElementCount` stays the `n` the configuration declares. Every other array is sized from its
+  `ElementCount`, and a scalar is sized to one.
+
+`n` must be a multiple of 32 — the only length Studio 5000 declares a `BOOL` array with. The node
+validator enforces it rather than leaving it to the connect, since no controller is needed to know
+that `BOOL[10]` is not a tag anyone has.
+
+That rule is also what makes the write safe. The issue this slice came from worried about a
+read-modify-write clobbering bits the port was not asked to touch; there are none. A whole-array
+write of a multiple-of-32 array is whole words from the first bit to the last, so every bit in the
+buffer belongs to the tag being written. Writing *one* bit of an array would be a read-modify-write,
+and that is per-element access, which this shape does not offer.
+
+The codec is the one array converter that does not extend `AtomicArrayDataPointConverter`, whose
+whole contract is *n* contiguous unpadded elements. `BoolArrayConverter` sits beside it instead:
+element *i* is bit *i* mod 8 of byte *i* div 8, so bit 32 opens the second word. The raw buffer is
+enough for that — libplctag's `GetBit`/`SetBit` exist but would push bit arithmetic into the access
+layer, which holds one whole operation per member and nothing smaller.
+
 ## Not supported yet
 
 | Logix type                      | Notes                                                                                            |
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | Writing part of an array        | A write is the whole array; a range of elements is per-element addressing under another name     |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
-| `BOOL[]`                        | Packs into 32-bit words, so an index addresses a word and a masked write clobbers its neighbours |
 | Arrays of `STRING` or of a UDT  | Need `TagsEntryHeader.ElementLength`, which is kept only for structures, as `MaxLength`          |
 | `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                                                    |
 | UDTs                            | Need the `@udt/<id>` template read to learn the member layout                                    |

@@ -1,3 +1,4 @@
+using FluentValidation;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mapping;
@@ -11,9 +12,15 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Array
 /// declared element count off the configured node.
 /// </summary>
 /// <typeparam name="TNode">The array node the mapper produces.</typeparam>
-internal abstract class LogixArrayNodeMapper<TNode>() : LogixTagNodeMapper<TNode>(new ArrayNodePropertyValidator())
+/// <param name="validator">The rules the configured node must satisfy before it is mapped.</param>
+internal abstract class LogixArrayNodeMapper<TNode>(AbstractValidator<LinkedNode> validator)
+    : LogixTagNodeMapper<TNode>(validator)
     where TNode : LogixArrayNode
 {
+    protected LogixArrayNodeMapper() : this(new ArrayNodePropertyValidator())
+    {
+    }
+
     protected sealed override TNode CreateNode(LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency) =>
         CreateNode(originalNode, tagName, pollFrequency, GetElementCount(originalNode));
 

@@ -25,6 +25,10 @@ internal static class CipTypeCodeExtensions
         CipTypeCode.Ulint => AllenBradleyDataType.Ulint,
         CipTypeCode.Real => AllenBradleyDataType.Real,
         CipTypeCode.Lreal => AllenBradleyDataType.Lreal,
+
+        // A BOOL array declares itself as DWORD, because the 32-bit word is what the controller
+        // allocates and counts. That is storage rather than type, and the type is BOOL either way.
+        CipTypeCode.Dword => AllenBradleyDataType.Bool,
         _ => AllenBradleyDataType.Unknown,
     };
 }

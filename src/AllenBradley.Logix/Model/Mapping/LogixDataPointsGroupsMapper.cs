@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
@@ -8,6 +9,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.LRealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
@@ -107,6 +109,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
 
         return arrayNode switch
         {
+            BoolArrayNode => new BoolArrayDataPoint(tagName, pollFrequency, channels, elementCount),
             SIntArrayNode => new SIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
             IntArrayNode => new IntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
             DIntArrayNode => new DIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),

@@ -22,4 +22,12 @@ internal static class SymbolType
     /// <summary>The elementary data type the low byte names; meaningful only for a non-structure.</summary>
     public static AllenBradleyDataType AtomicType(ushort type) =>
         ((CipTypeCode)(byte)(type & AtomicCodeMask)).ToDataType();
+
+    /// <summary>
+    /// Whether the tag is a <c>BOOL</c> array, which the controller declares as an array of the
+    /// <c>DWORD</c>s it packs the bits into. It is the one atomic type whose dimensions do not count
+    /// what <see cref="AtomicType"/> reports, so it is the one the element count must be derived for.
+    /// </summary>
+    public static bool IsPackedBoolArray(ushort type) =>
+        !IsStruct(type) && DimensionCount(type) > 0 && (type & AtomicCodeMask) == (ushort)CipTypeCode.Dword;
 }

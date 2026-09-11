@@ -1,6 +1,7 @@
 using System.Text;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
@@ -55,18 +56,31 @@ internal static class TagsDecoder
             ElementCount: GetElementCount(header, dimensionCount));
     }
 
+    // A BOOL array's dimensions count the DWORDs its bits are packed into, because that is the array the
+    // controller allocated; every other type counts what it declares. Converting here keeps the two
+    // halves of a TagDefinition in one vocabulary, the way a structure's element length leaves as a
+    // character capacity rather than as bytes.
+    private static ElementCount GetElementCount(in TagsEntryHeader header, int dimensionCount)
+    {
+        var declaredCount = GetDeclaredCount(header, dimensionCount);
+
+        return SymbolType.IsPackedBoolArray(header.SymbolType)
+            ? BoolArrayDataPoint.ElementCountOfPackedWords(declaredCount)
+            : new ElementCount((int)declaredCount);
+    }
+
     // Dimensions past the declared rank hold whatever the controller left there, so only the ones the
     // rank owns are multiplied — leaving a scalar at the empty product of one.
-    private static ElementCount GetElementCount(in TagsEntryHeader header, int dimensionCount)
+    private static uint GetDeclaredCount(in TagsEntryHeader header, int dimensionCount)
     {
         ReadOnlySpan<uint> dimensions = [header.FirstDimension, header.SecondDimension, header.ThirdDimension];
 
-        var elementCount = 1u;
+        var declaredCount = 1u;
         foreach (var dimension in dimensions[..dimensionCount])
         {
-            elementCount *= dimension;
+            declaredCount *= dimension;
         }
 
-        return new ElementCount((int)elementCount);
+        return declaredCount;
     }
 }

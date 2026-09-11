@@ -34,6 +34,7 @@ internal static class DataPointConverterRegistry
 
     private static void RegisterArrayConverters(Dictionary<Type, IDataPointConverter> converters)
     {
+        Register(converters, new BoolArrayConverter());
         Register(converters, new SIntArrayConverter());
         Register(converters, new IntArrayConverter());
         Register(converters, new DIntArrayConverter());

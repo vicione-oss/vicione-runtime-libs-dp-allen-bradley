@@ -1,8 +1,10 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -24,6 +26,8 @@ public sealed class LogixTypeComparisonTests
     private static readonly IDataPointConverter StringCodec = new LogixStringConverter();
 
     private static readonly IDataPointConverter IntArrayCodec = new IntArrayConverter();
+
+    private static readonly IDataPointConverter BoolArrayCodec = new BoolArrayConverter();
 
     private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
@@ -235,6 +239,50 @@ public sealed class LogixTypeComparisonTests
 
         // Act
         var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.ElementCount);
+    }
+
+    [Fact]
+    public void ABoolArrayIsComparedInBitsOnBothSidesRatherThanBitsAgainstWords()
+    {
+        // Arrange
+        // TagsDecoder has already turned the controller's two DWORDs into the 64 bits they hold, so the
+        // comparison never sees the packing.
+        var flags = new BoolArrayDataPoint(
+            new TagName("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            TagName = new TagName("Line.Flags"),
+            DataType = AllenBradleyDataType.Bool,
+            ElementCount = new ElementCount(64),
+        };
+        var resolved = new ResolvedDataPoint(flags, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(BoolArrayCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.None);
+    }
+
+    [Fact]
+    public void ABoolArrayDeclaredWithAnotherNumberOfWordsIsAnElementCountMismatch()
+    {
+        // Arrange
+        var flags = new BoolArrayDataPoint(
+            new TagName("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            TagName = new TagName("Line.Flags"),
+            DataType = AllenBradleyDataType.Bool,
+            ElementCount = new ElementCount(32),
+        };
+        var resolved = new ResolvedDataPoint(flags, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(BoolArrayCodec, resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementCount);

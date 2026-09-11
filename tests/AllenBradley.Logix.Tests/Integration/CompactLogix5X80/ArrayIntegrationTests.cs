@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -14,6 +15,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 public sealed class ArrayIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
 {
+    private static readonly BoolArrayDataPoint Flags = new(
+        new TagName(TagAddresses.BoolArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.BoolArrayElementCount);
+
     private static readonly SIntArrayDataPoint Samples = new(
         new TagName(TagAddresses.SIntArray),
         DefaultPollFrequency,
@@ -73,6 +80,16 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
+
+    // Both ends of every byte of the word, so a bit read at the wrong shift or out of the wrong byte
+    // cannot agree with the read-back. Grouped eight to a line as the controller packs them.
+    private static readonly bool[] ThirtyTwoFlags =
+    [
+        true, true, false, false, false, false, false, true,
+        true, false, false, false, false, false, false, true,
+        true, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, true, true,
+    ];
 
     // Both ends of the range and one value asymmetric in its bytes, so a swapped or mis-sized element
     // cannot agree with the read-back.
@@ -143,6 +160,20 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         elements.Should().HaveCount(
             TagAddresses.ArrayElementCount.Value,
             "the handle carries the configured element count, and one without it reads a single element");
+    }
+
+    [Fact]
+    public async Task ABoolArrayIsWrittenWholeAndReadsBackAsTheBitsThatWentIn()
+    {
+        // Arrange
+        // The controller declares the two halves of this differently from every other array: the type
+        // as DWORD, which decodes to Bool, and the extent as the one word its 32 bits fill.
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.BoolArray, AllenBradleyDataType.Bool, TagAddresses.BoolArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Flags, ThirtyTwoFlags, expectedDefinition);
     }
 
     [Fact]

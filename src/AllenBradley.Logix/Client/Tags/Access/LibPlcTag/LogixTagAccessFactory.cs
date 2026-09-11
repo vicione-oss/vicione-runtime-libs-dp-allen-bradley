@@ -1,6 +1,8 @@
 using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
@@ -23,27 +25,31 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
-    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => Wrap(CreateTagFor(dataPoint));
+    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => CreateSynchronizedLogixTagFrom(CreateTagFor(dataPoint));
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateForSchemaTag(TagName tagName) => Wrap(CreateTag(tagName));
+    public ILogixTagAccess CreateForSchemaTag(TagName tagName) => CreateSynchronizedLogixTagFrom(CreateTag(tagName));
 
     // Internal rather than private because nothing above the factory exposes a handle's attributes, and
     // the element count is the difference between reading an array and reading its first element.
     internal Tag CreateTagFor(ILogixDataPoint dataPoint)
     {
         var tag = CreateTag(dataPoint.TagName);
-
-        // libplctag treats every tag as an array and reads one element unless told otherwise, so scalars
-        // say nothing here. ElementSize stays unset: the library ignores it for Allen-Bradley and takes
-        // the width from the controller's own declaration.
-        if (dataPoint is ILogixArrayDataPoint arrayDataPoint)
-        {
-            tag.ElementCount = arrayDataPoint.ElementCount.Value;
-        }
-
+        tag.ElementCount = GetElementCount(dataPoint).Value;
         return tag;
     }
+
+    // libplctag treats every tag as an array and puts this count on the CIP request as it stands, so it
+    // is what the controller counts and not what a value holds: a BOOL array is counted in the 32-bit
+    // words its bits are packed into. A scalar is said to be one rather than left to the library's
+    // default. ElementSize stays unset: the library ignores it for Allen-Bradley and takes the width
+    // from the controller's own declaration.
+    private static ElementCount GetElementCount(ILogixDataPoint dataPoint) => dataPoint switch
+    {
+        BoolArrayDataPoint boolArrayDataPoint => boolArrayDataPoint.WordCount,
+        ILogixArrayDataPoint arrayDataPoint => arrayDataPoint.ElementCount,
+        _ => ElementCount.Scalar,
+    };
 
     // A schema name needs no special binding: libplctag resolves @tags and @udt/<id> itself, so the
     // attribute string is the same either way.
@@ -56,9 +62,9 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
             Protocol = Protocol.ab_eip,
             Name = tagName.Value,
             Timeout = _timeout,
-            AllowPacking = true,
+            AllowPacking = true
         };
 
-    private static SynchronizedLogixTagAccess Wrap(Tag tag) =>
+    private static SynchronizedLogixTagAccess CreateSynchronizedLogixTagFrom(Tag tag) =>
         new(new LogixTagAccess(tag));
 }

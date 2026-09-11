@@ -14,6 +14,12 @@ internal static class TagsListingTestDataFactory
 
     internal const ushort RealSymbolType = 0x00CA;
 
+    /// <summary>
+    /// The code a <c>BOOL</c> array carries: the controller declares the <c>DWORD</c>s it packs the
+    /// bits into rather than the bits.
+    /// </summary>
+    internal const ushort DwordSymbolType = 0x00D3;
+
     /// <summary>The structure bit set, with a template id in the low bits.</summary>
     internal const ushort StructureSymbolType = 0x8123;
 
