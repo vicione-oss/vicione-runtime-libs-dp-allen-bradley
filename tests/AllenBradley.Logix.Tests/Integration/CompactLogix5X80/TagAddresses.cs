@@ -61,6 +61,12 @@ internal static class TagAddresses
     internal const string LIntArray = $"{Program}.testLintArray";
 
     /// <summary>
+    /// The one-dimensional <c>USINT</c> array test tag, to be declared <c>USINT[10]</c>. It is a 5X80-only
+    /// type as its scalar is, for the same reason.
+    /// </summary>
+    internal const string USIntArray = $"{Program}.testUsintArray";
+
+    /// <summary>
     /// The one-dimensional <c>REAL</c> array test tag, to be declared <c>REAL[10]</c>.
     /// </summary>
     internal const string RealArray = $"{Program}.testRealArray";

@@ -38,6 +38,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly USIntArrayDataPoint Pressures = new(
+        new TagName(TagAddresses.USIntArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     private static readonly RealArrayDataPoint Temperatures = new(
         new TagName(TagAddresses.RealArray),
         DefaultPollFrequency,
@@ -57,6 +63,11 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly long[] TenTimestamps =
         [0, 1, -1, 1234567890123, long.MinValue, long.MaxValue, 10, 20, 30, 40];
+
+    // An unsigned type's ends are zero and its maximum, and the two elements above the signed maximum are
+    // what a signed misreading gets wrong.
+    private static readonly byte[] TenPressures =
+        [0, 1, 42, 128, 200, byte.MaxValue, 10, 20, 30, 40];
 
     private static readonly float[] TenTemperatures =
         [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
@@ -140,6 +151,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Timestamps, TenTimestamps, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task AUSIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.USIntArray, AllenBradleyDataType.Usint, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Pressures, TenPressures, expectedDefinition);
     }
 
     [Fact]

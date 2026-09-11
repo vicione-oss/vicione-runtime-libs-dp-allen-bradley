@@ -9,11 +9,19 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class USIntConverter : AtomicDataPointConverter<USIntDataPoint, byte>
 {
+    internal const int ElementSize = sizeof(byte);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.USInt;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Usint;
 
-    protected override byte DecodeValue(USIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) => buffer[0];
+    internal static byte DecodeElement(ReadOnlySpan<byte> buffer) => buffer[0];
 
-    protected override byte[] EncodeValue(USIntDataPoint dataPoint, byte value) => [value];
+    internal static byte[] EncodeElement(byte value) => [value];
+
+    protected override byte DecodeValue(USIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(USIntDataPoint dataPoint, byte value) =>
+        EncodeElement(value);
 }
