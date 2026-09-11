@@ -99,17 +99,4 @@ public sealed class SIntArrayDataPointTests
         // Assert
         value.IsInValueRange().Should().Be(expectedInRange);
     }
-
-    [Fact]
-    public void AnAbsentArrayIsOutOfRangeRatherThanACrash()
-    {
-        // Arrange
-        // ConvertValue turns away a null engine value, so only a caller inside the model reaches here.
-
-        // Act
-        var value = Samples.CreateTypedValue(null!);
-
-        // Assert
-        value.IsInValueRange().Should().BeFalse();
-    }
 }

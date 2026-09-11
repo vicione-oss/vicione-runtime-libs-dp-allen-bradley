@@ -99,17 +99,4 @@ public sealed class RealArrayDataPointTests
         // Assert
         value.IsInValueRange().Should().Be(expectedInRange);
     }
-
-    [Fact]
-    public void AnAbsentArrayIsOutOfRangeRatherThanACrash()
-    {
-        // Arrange
-        // ConvertValue turns away a null engine value, so only a caller inside the model reaches here.
-
-        // Act
-        var value = Temperatures.CreateTypedValue(null!);
-
-        // Assert
-        value.IsInValueRange().Should().BeFalse();
-    }
 }

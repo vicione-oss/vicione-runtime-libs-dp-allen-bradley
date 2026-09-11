@@ -1,7 +1,6 @@
 using FluentValidation;
 using FluentValidation.Results;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Base;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
@@ -26,11 +25,17 @@ internal abstract class LogixTagNodeMapper<TNode>(AbstractValidator<LinkedNode> 
     public abstract string TargetLinkedNodeTypeId { get; }
 
     /// <inheritdoc />
-    public TNode Map(LinkedNode node) =>
-        CreateNode(node, TagNameExtractor.GetTagName(node), PollFrequencyExtractor.GetPollFrequency(node));
+    public TNode Map(LinkedNode node) => CreateNode(node, GetTagName(node), GetPollFrequency(node));
 
     /// <inheritdoc />
     public ValidationResult Validate(LinkedNode linkedNode) => validator.Validate(linkedNode);
 
     protected abstract TNode CreateNode(LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency);
+
+    private static TagName GetTagName(LinkedNode node) =>
+        new(node.GetRequiredPropertyValue<string>(ILogixTagNode.TagNamePropertyName));
+
+    private static PollFrequency GetPollFrequency(LinkedNode node) =>
+        PollFrequency.FromMilliseconds(
+            node.GetRequiredPropertyValue<int>(ILogixTagNode.PollFrequencyPropertyName));
 }

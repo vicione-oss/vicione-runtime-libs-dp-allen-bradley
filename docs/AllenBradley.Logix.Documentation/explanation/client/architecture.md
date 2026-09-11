@@ -50,9 +50,10 @@ font-fix after editing one.
 ## Values are typed by their data point
 
 A data point is a `LogixDataPoint<TDomain>`, generic in the .NET type it exchanges, and it is the only
-thing that makes a value of that type. Each concrete point nests its own value record and hands one out
-through `CreateLogixValue`, so a payload and the point it belongs to cannot disagree about their type.
-There is no separate value class a caller could construct against the wrong point.
+thing that makes a value of that type. A point hands one out through `CreateLogixValue` from a value
+record nested in it — its own for a scalar, and the one `LogixArrayDataPoint<TElement>` carries for
+every array shape — so a payload and the point it belongs to cannot disagree about their type. There is
+no separate value class a caller could construct against the wrong point.
 
 That leaves exactly one shape on the wire home: a typed value carrying a payload. There is no
 valueless one, and no quality flag beside the payload, because a read that produced nothing fails its
@@ -66,8 +67,9 @@ Going the other way, `ILogixDataPoint.ConvertValue` is the single door an untype
 through. The outgoing port hands down whatever the engine gave it; the point either wraps it in its own
 value record or returns a failure naming the tag and the type it wanted. Range is the second gate, and
 `IsInValueRange` lives on the value record because that is where the configuration it is judged against
-already sits. Only `STRING` has anything to say: a value longer than the declared capacity has nowhere
-to go. The elementary types are exactly their .NET types and answer `true`.
+already sits. Only the configured shapes have anything to say: a `STRING` longer than the declared
+capacity has nowhere to go, and an array of a length other than the declared count is a value of some
+other tag. The elementary scalars are exactly their .NET types and answer `true`.
 
 ## The converter hierarchy
 

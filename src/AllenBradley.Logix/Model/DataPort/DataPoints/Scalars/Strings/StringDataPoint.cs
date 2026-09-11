@@ -11,7 +11,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Sc
 /// The declared character capacity; <see cref="StringMaxLength.Standard"/> for the built-in <c>STRING</c>.
 /// </param>
 public sealed record StringDataPoint(
-    TagName TagName, PollFrequency PollFrequency, Channels Channels, StringMaxLength MaxLength)
+    TagName TagName,
+    PollFrequency PollFrequency,
+    Channels Channels,
+    StringMaxLength MaxLength)
     : LogixDataPoint<string>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />
@@ -20,8 +23,6 @@ public sealed record StringDataPoint(
     /// <inheritdoc />
     internal override ILogixDataPointValue<string> CreateLogixValue(string value) => new Value(this, value);
 
-    // Keeps the concrete point rather than the interface: the capacity a value is judged against is the
-    // point's own configuration.
     private sealed record Value(StringDataPoint StringDataPoint, string TypedValue)
         : ILogixDataPointValue<string>
     {
