@@ -53,5 +53,7 @@ public readonly record struct LogixDataTypeName(string Value)
 
     public static LogixDataTypeName RealArray => new("REAL[]");
 
+    public static LogixDataTypeName LRealArray => new("LREAL[]");
+
     public override string ToString() => Value;
 }

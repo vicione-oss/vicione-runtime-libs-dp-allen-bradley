@@ -141,6 +141,9 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new RealArrayDataPoint(
             new TagName(TagAddresses.RealArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
+        new LRealArrayDataPoint(
+            new TagName(TagAddresses.LRealArray), DefaultPollFrequency, NoChannels,
+            TagAddresses.ArrayElementCount),
     ];
 
     private void Report(

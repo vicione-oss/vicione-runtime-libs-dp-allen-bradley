@@ -9,17 +9,25 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class LRealConverter : AtomicDataPointConverter<LRealDataPoint, double>
 {
+    internal const int ElementSize = sizeof(double);
+
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LReal;
 
     public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Lreal;
 
-    protected override double DecodeValue(LRealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+    internal static double DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadDoubleLittleEndian(buffer);
 
-    protected override byte[] EncodeValue(LRealDataPoint dataPoint, double value)
+    internal static byte[] EncodeElement(double value)
     {
-        var bytes = new byte[sizeof(double)];
+        var bytes = new byte[ElementSize];
         BinaryPrimitives.WriteDoubleLittleEndian(bytes, value);
         return bytes;
     }
+
+    protected override double DecodeValue(LRealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
+        DecodeElement(buffer);
+
+    protected override byte[] EncodeValue(LRealDataPoint dataPoint, double value) =>
+        EncodeElement(value);
 }

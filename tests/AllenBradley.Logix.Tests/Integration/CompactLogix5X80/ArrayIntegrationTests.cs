@@ -68,6 +68,12 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         NoChannels,
         TagAddresses.ArrayElementCount);
 
+    private static readonly LRealArrayDataPoint Positions = new(
+        new TagName(TagAddresses.LRealArray),
+        DefaultPollFrequency,
+        NoChannels,
+        TagAddresses.ArrayElementCount);
+
     // Both ends of the range and one value asymmetric in its bytes, so a swapped or mis-sized element
     // cannot agree with the read-back.
     private static readonly sbyte[] TenSamples =
@@ -100,6 +106,11 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
 
     private static readonly float[] TenTemperatures =
         [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
+
+    private static readonly double[] TenPositions =
+    [
+        0d, 1d, -1d, 3.141592653589793d, double.MinValue, double.MaxValue, 10.5d, -20.25d, 30.75d, 40d,
+    ];
 
     [Fact]
     public async Task TheIntArrayTagIsDeclaredWithTheRankAndCountItIsConfiguredWith()
@@ -240,6 +251,18 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         // Act
         // Assert
         await AssertArrayRoundTripAsync(Temperatures, TenTemperatures, expectedDefinition);
+    }
+
+    [Fact]
+    public async Task AnLRealArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    {
+        // Arrange
+        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
+            TagAddresses.LRealArray, AllenBradleyDataType.Lreal, TagAddresses.ArrayElementCount);
+
+        // Act
+        // Assert
+        await AssertArrayRoundTripAsync(Positions, TenPositions, expectedDefinition);
     }
 
     private async Task AssertArrayRoundTripAsync<TElement>(

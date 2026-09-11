@@ -87,6 +87,12 @@ internal static class TagAddresses
     internal const string RealArray = $"{Program}.testRealArray";
 
     /// <summary>
+    /// The one-dimensional <c>LREAL</c> array test tag, to be declared <c>LREAL[10]</c>. It is a 5X80-only
+    /// type as its scalar is, for the same reason.
+    /// </summary>
+    internal const string LRealArray = $"{Program}.testLrealArray";
+
+    /// <summary>
     /// How many elements every array test tag above is declared to hold. A count that disagrees with the
     /// controller aborts a connect, because a read of the first ten elements would not show a resized tag.
     /// </summary>
