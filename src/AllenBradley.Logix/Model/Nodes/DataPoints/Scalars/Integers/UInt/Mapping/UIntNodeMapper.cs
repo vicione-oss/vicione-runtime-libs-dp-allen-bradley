@@ -1,26 +1,16 @@
-using FluentValidation.Results;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.UInt.Mapping;
 
-/// <summary>Maps a configured <c>UInt</c> node onto a <see cref="UIntNode"/>.</summary>
-internal sealed class UIntNodeMapper : IDataPointNodeMapper<UIntNode>
+/// <summary>Maps a configured <c>UInt</c> node onto an <see cref="UIntNode"/>.</summary>
+internal sealed class UIntNodeMapper : LogixTagNodeMapper<UIntNode>
 {
-    private readonly TagNodePropertyValidator _validator = new();
+    /// <inheritdoc />
+    public override string TargetLinkedNodeTypeId => UIntNode.LinkedNodeTypeId;
 
     /// <inheritdoc />
-    public string TargetLinkedNodeTypeId => UIntNode.LinkedNodeTypeId;
-
-    /// <inheritdoc />
-    public UIntNode Map(LinkedNode node) => new(
-        node,
-        new TagName(node.GetRequiredPropertyValue<string>(ILogixTagNode.TagNamePropertyName)),
-        PollFrequency.FromMilliseconds(
-            node.GetRequiredPropertyValue<int>(ILogixTagNode.PollFrequencyPropertyName)));
-
-    /// <inheritdoc />
-    public ValidationResult Validate(LinkedNode linkedNode) => _validator.Validate(linkedNode);
+    protected override UIntNode CreateNode(LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency) =>
+        new(originalNode, tagName, pollFrequency);
 }
