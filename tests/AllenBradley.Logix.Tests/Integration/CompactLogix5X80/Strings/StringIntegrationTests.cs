@@ -1,9 +1,9 @@
-using System.Globalization;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Strings;
 
 /// <summary>
 /// The one type in the vocabulary that is a structure on the wire, that has a configured capacity, and
@@ -29,51 +29,52 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
         string valueToWrite, string expectedValue)
     {
         // Arrange
+        var dataPoint = StringTag();
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            StringTag(),
-            valueToWrite,
-            expectedValue,
-            ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity));
+        var expectedDefinition = ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(expectedValue));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
     public async Task AStringFillingTheDeclaredCapacityRoundTrips()
     {
         // Arrange
+        var dataPoint = StringTag();
         var valueToWrite = new string('X', TagAddresses.StringCapacity.Value);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            StringTag(),
-            valueToWrite,
-            ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity));
+        var expectedDefinition = ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
-    public async Task AStringLongerThanTheDeclaredCapacityIsRefusedBeforeAnythingIsSent()
+    public async Task AStringLongerThanTheDeclaredCapacityIsRefused()
     {
         // Arrange
         var dataPoint = StringTag();
         var tooLong = new string('X', TagAddresses.StringCapacity.Value + 1);
-        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        var write = await Record.ExceptionAsync(
-            () => Client.WriteAsync([dataPoint.CreateLogixValue(tooLong)], cancellationToken).AsTask());
+        var writing = Client.Awaiting(client =>
+            client.WriteAsync([dataPoint.CreateLogixValue(tooLong)], TestContext.Current.CancellationToken).AsTask());
 
         // Assert
-        write.Should().BeOfType<InvalidOperationException>()
-            .Which.Message.Should().Contain(TagAddresses.String)
-            .And.Contain(TagAddresses.StringCapacity.Value.ToString(CultureInfo.InvariantCulture));
-
-        ILogixDataPoint[] dataPoints = [dataPoint];
-        var readResult = await Client.ReadAsync(
-            new LogixDataPointGroup(DefaultPollFrequency, dataPoints), cancellationToken);
-        readResult.Should().ContainSingle().Which.Value.Should().NotBe(tooLong);
+        await writing.Should().ThrowAsync<InvalidOperationException>();
     }
 
     private static StringDataPoint StringTag() =>

@@ -1,9 +1,10 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.FloatingPoints;
 
 /// <summary>
 /// Compared for exact equality, deliberately: a controller hands back the bytes it was given, so a round
@@ -24,11 +25,15 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
         var dataPoint = new RealDataPoint(new TagName(TagAddresses.Real), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.Real, AllenBradleyDataType.Real));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.Real, AllenBradleyDataType.Real);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -44,10 +49,14 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
         var dataPoint = new LRealDataPoint(new TagName(TagAddresses.LReal), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.LReal, AllenBradleyDataType.Lreal));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.LReal, AllenBradleyDataType.Lreal);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 }

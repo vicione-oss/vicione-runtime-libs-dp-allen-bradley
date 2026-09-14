@@ -1,9 +1,10 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Integers;
 
 /// <summary>
 /// Each type is driven to both ends of its range as well as through the middle, because the width is
@@ -24,11 +25,15 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
         var dataPoint = new SIntDataPoint(new TagName(TagAddresses.SInt), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.SInt, AllenBradleyDataType.Sint));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.SInt, AllenBradleyDataType.Sint);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -43,11 +48,15 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
         var dataPoint = new IntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.Int, AllenBradleyDataType.Int));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.Int, AllenBradleyDataType.Int);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -62,11 +71,15 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
         var dataPoint = new DIntDataPoint(new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.DInt, AllenBradleyDataType.Dint));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.DInt, AllenBradleyDataType.Dint);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 
     [Theory]
@@ -81,10 +94,14 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
         var dataPoint = new LIntDataPoint(new TagName(TagAddresses.LInt), DefaultPollFrequency, NoChannels);
 
         // Act
+        var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
+
         // Assert
-        await AssertRoundTripAsync(
-            dataPoint,
-            valueToWrite,
-            ExpectedTagDefinitions.AtomicScalar(TagAddresses.LInt, AllenBradleyDataType.Lint));
+        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.LInt, AllenBradleyDataType.Lint);
+        var expectedResult = new RoundTripResult(
+            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            dataPoint.CreateLogixValue(valueToWrite));
+
+        roundTripResult.Should().Be(expectedResult);
     }
 }

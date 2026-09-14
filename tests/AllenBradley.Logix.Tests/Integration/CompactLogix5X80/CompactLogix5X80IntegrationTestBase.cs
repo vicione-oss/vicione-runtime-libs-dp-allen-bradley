@@ -54,39 +54,26 @@ public abstract class CompactLogix5X80IntegrationTestBase : IAsyncLifetime
     }
 
     /// <summary>
-    /// The one shape every scalar round trip has: resolve the tag, write the value, read it back, and check
-    /// both what the controller says the tag <em>is</em> and what came back out of it.
+    /// The one shape every round trip has: resolve the tag, write the value, read it back, and hand both to
+    /// the caller. Resolving is what makes the read-back say something: a value that survives a write and a
+    /// read is consistent with the tag being almost anything of the right width.
     /// </summary>
-    private protected Task AssertRoundTripAsync<TDomain>(
-        LogixDataPoint<TDomain> dataPoint, TDomain valueToWrite, TagDefinition expectedDefinition) =>
-        AssertRoundTripAsync(dataPoint, valueToWrite, valueToWrite, expectedDefinition);
-
-    /// <summary>
-    /// A round trip whose read-back is not the value that went in, which only the <c>STRING</c> needs: a
-    /// character outside Latin-1 has no byte to be stored as and comes back as <c>'?'</c>.
-    /// </summary>
-    private protected async Task AssertRoundTripAsync<TDomain>(
-        LogixDataPoint<TDomain> dataPoint,
-        TDomain valueToWrite,
-        TDomain expectedValue,
-        TagDefinition expectedDefinition)
+    private protected async Task<RoundTripResult> RoundTripAsync<TDomain>(
+        LogixDataPoint<TDomain> dataPoint, TDomain valueToWrite)
     {
-        // Arrange
-        // Resolving as well as reading is what makes this say something: a value that survives a write and
-        // a read is consistent with the tag being almost anything of the right width.
-        var cancellationToken = TestContext.Current.CancellationToken;
         ILogixDataPoint[] dataPoints = [dataPoint];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
-        // Act
-        var resolved = await Client.ResolveDataPoints(dataPoints, cancellationToken);
-        await Client.WriteAsync([dataPoint.CreateLogixValue(valueToWrite)], cancellationToken);
-        var readResult = await Client.ReadAsync(group, cancellationToken);
+        var resolved = await Client.ResolveDataPoints(dataPoints, TestContext.Current.CancellationToken);
+        await Client.WriteAsync([dataPoint.CreateLogixValue(valueToWrite)], TestContext.Current.CancellationToken);
+        var readResult = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
-        // Assert
-        resolved.Should().ContainSingle()
-            .Which.Should().Be(new ResolvedDataPoint(dataPoint, expectedDefinition));
-        readResult.Should().ContainSingle()
-            .Which.Should().Be(dataPoint.CreateLogixValue(expectedValue));
+        return new RoundTripResult(resolved.Single(), readResult.Single());
     }
+
+    /// <summary>
+    /// A scalar value compares by content, so a test asserts the whole record; an array value compares by
+    /// reference, so a test asserts the elements of <see cref="ReadValue"/> instead.
+    /// </summary>
+    private protected sealed record RoundTripResult(ResolvedDataPoint Resolved, ILogixDataPointValue ReadValue);
 }
