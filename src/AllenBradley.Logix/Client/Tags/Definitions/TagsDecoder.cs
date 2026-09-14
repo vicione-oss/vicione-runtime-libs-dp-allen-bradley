@@ -66,7 +66,7 @@ internal static class TagsDecoder
 
         return SymbolType.IsPackedBoolArray(header.SymbolType)
             ? BoolArrayDataPoint.ElementCountOfPackedWords(declaredCount)
-            : new ElementCount((int)declaredCount);
+            : new ElementCount(declaredCount);
     }
 
     // Dimensions past the declared rank hold whatever the controller left there, so only the ones the

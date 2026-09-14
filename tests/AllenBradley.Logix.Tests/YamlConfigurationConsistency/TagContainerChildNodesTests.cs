@@ -20,7 +20,7 @@ public sealed class TagContainerChildNodesTests
 {
     private const string AnyTagName = "AnyTag";
 
-    private const int AnyElementCount = 10;
+    private const uint AnyElementCount = 10;
 
     // Read as the engine reads it, so the anchors the file shares between the two scopes arrive expanded.
     private static readonly Ruleset Ruleset =

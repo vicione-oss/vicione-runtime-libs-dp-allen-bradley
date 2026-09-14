@@ -14,7 +14,7 @@ public sealed class DIntArrayNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
 
-    private const int DeclaredElementCount = 10;
+    private const uint DeclaredElementCount = 10;
 
     private const string TagName = "MyDIntArrayTag";
 

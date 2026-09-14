@@ -28,5 +28,5 @@ internal abstract class LogixArrayNodeMapper<TNode>(AbstractValidator<LinkedNode
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount);
 
     private static ElementCount GetElementCount(LinkedNode node) =>
-        new(node.GetRequiredPropertyValue<int>(LogixArrayNode.ElementCountPropertyName));
+        new(node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName));
 }

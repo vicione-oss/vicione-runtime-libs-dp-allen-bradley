@@ -11,7 +11,7 @@ public sealed class ArrayNodePropertyValidatorTests
 {
     private const int DefaultPollFrequency = 100;
 
-    private const int DeclaredElementCount = 10;
+    private const uint DeclaredElementCount = 10;
 
     private readonly ArrayNodePropertyValidator _validator = new();
 
@@ -45,12 +45,16 @@ public sealed class ArrayNodePropertyValidatorTests
             .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
     }
 
-    [Fact]
-    public void AnElementCountThatIsNotAnIntegerIsRefusedInsteadOfThrowing()
+    /// <summary>Values the manifest's UInt32 property cannot carry: text, and a signed integer.</summary>
+    public static TheoryData<object> ValuesThatAreNotAnUnsignedInteger => ["10", -1];
+
+    [Theory]
+    [MemberData(nameof(ValuesThatAreNotAnUnsignedInteger))]
+    public void AnElementCountThatIsNotAnUnsignedIntegerIsRefusedInsteadOfThrowing(object elementCount)
     {
         // Arrange
         var node = ArrayNodeWith(
-            CreateTagName("Readings"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount("10"));
+            CreateTagName("Readings"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(elementCount));
 
         // Act
         var validating = _validator.Invoking(validator => validator.Validate(node));
@@ -60,20 +64,18 @@ public sealed class ArrayNodePropertyValidatorTests
             .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
     }
 
-    [Theory]
-    [InlineData(0, "a tag that holds nothing is not an array tag")]
-    [InlineData(-1, "a count of elements cannot be negative")]
-    public void AnElementCountThatIsNotPositiveIsRefused(int elementCount, string invalidBecause)
+    [Fact]
+    public void AnElementCountOfZeroIsRefused()
     {
         // Arrange
         var node = ArrayNodeWith(
-            CreateTagName("TestTag"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(elementCount));
+            CreateTagName("TestTag"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(0u));
 
         // Act
         var validation = _validator.Validate(node);
 
         // Assert
-        validation.IsValid.Should().BeFalse(invalidBecause);
+        validation.IsValid.Should().BeFalse("a tag that holds nothing is not an array tag");
         validation.Errors.Should().ContainSingle()
             .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
     }

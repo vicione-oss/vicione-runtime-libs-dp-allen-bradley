@@ -226,9 +226,9 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Theory]
-    [InlineData(20)]
-    [InlineData(5)]
-    public void AnArrayOfAnotherLengthIsAnElementCountMismatch(int declaredElementCount)
+    [InlineData(20u)]
+    [InlineData(5u)]
+    public void AnArrayOfAnotherLengthIsAnElementCountMismatch(uint declaredElementCount)
     {
         // Arrange
         var declaration = DefaultIntArrayTagDefinition() with

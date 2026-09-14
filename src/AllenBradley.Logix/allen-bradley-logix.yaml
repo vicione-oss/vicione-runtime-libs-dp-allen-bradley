@@ -948,7 +948,7 @@ Properties:
   - Id: ElementCount
     Name: "Element count"
     Description: "How many elements the array is declared with in Studio 5000: 10 for an ARRAY[0..9]"
-    DataType: Int32
+    DataType: UInt32
     UiControl: NumericUpDown
     DefaultValue: 10
     MinValue: 1

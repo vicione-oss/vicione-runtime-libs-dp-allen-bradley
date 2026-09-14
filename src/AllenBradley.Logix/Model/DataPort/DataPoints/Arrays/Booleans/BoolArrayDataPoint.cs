@@ -45,5 +45,5 @@ public sealed record BoolArrayDataPoint(
     /// <c>2</c> the <c>@tags</c> listing reports for a <c>BOOL[64]</c> is 64 of them. The controller
     /// counts the words because it knows the tag as a <c>DWORD</c> array; everyone above counts bits.
     /// </summary>
-    internal static ElementCount ElementCountOfPackedWords(uint wordCount) => new((int)wordCount * BoolsPerWord);
+    internal static ElementCount ElementCountOfPackedWords(uint wordCount) => new(wordCount * BoolsPerWord);
 }

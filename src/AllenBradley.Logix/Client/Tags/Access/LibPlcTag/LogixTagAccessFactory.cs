@@ -35,7 +35,7 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     internal Tag CreateTagFor(ILogixDataPoint dataPoint)
     {
         var tag = CreateTag(dataPoint.TagName);
-        tag.ElementCount = GetElementCount(dataPoint).Value;
+        tag.ElementCount = (int)GetElementCount(dataPoint).Value;
         return tag;
     }
 

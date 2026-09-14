@@ -15,7 +15,7 @@ public sealed class BoolArrayNodeMapperTests
 {
     private const int DefaultPollFrequency = 100;
 
-    private const int DeclaredBitCount = 32;
+    private const uint DeclaredBitCount = 32;
 
     private const string TagName = "MyBoolArrayTag";
 
@@ -96,7 +96,7 @@ public sealed class BoolArrayNodeMapperTests
     {
         // Arrange
         var node = BoolArrayNodeWith(
-            CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(10));
+            CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(10u));
 
         // Act
         var validation = _mapper.Validate(node);

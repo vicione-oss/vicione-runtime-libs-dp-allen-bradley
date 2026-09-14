@@ -19,17 +19,17 @@ internal sealed class ArrayNodePropertyValidator : AbstractValidator<LinkedNode>
 
     private void MustHaveElementCount() =>
         RuleFor(static node => node)
-            .Must(static node => node.HasPropertyOfType<int>(LogixArrayNode.ElementCountPropertyName))
+            .Must(static node => node.HasPropertyOfType<uint>(LogixArrayNode.ElementCountPropertyName))
             .WithMessage(static node =>
-                $"Node '{node.Name}' ({node.DesignId}): property '{LogixArrayNode.ElementCountPropertyName}' is required and must be an integer.")
+                $"Node '{node.Name}' ({node.DesignId}): property '{LogixArrayNode.ElementCountPropertyName}' is required and must be an unsigned integer.")
             .WithName(LogixArrayNode.ElementCountPropertyName);
 
     private void MustBePositiveElementCount() =>
         RuleFor(static node => node)
             .Must(static node =>
-                node.GetRequiredPropertyValue<int>(LogixArrayNode.ElementCountPropertyName) > 0)
+                node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName) > 0)
             .WithMessage(static node =>
                 $"Node '{node.Name}' ({node.DesignId}): property '{LogixArrayNode.ElementCountPropertyName}' must be a positive integer.")
-            .When(static node => node.HasPropertyOfType<int>(LogixArrayNode.ElementCountPropertyName))
+            .When(static node => node.HasPropertyOfType<uint>(LogixArrayNode.ElementCountPropertyName))
             .WithName(LogixArrayNode.ElementCountPropertyName);
 }

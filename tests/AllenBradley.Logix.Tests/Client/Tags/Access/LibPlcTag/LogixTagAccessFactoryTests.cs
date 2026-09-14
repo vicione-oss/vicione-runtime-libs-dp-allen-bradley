@@ -50,9 +50,9 @@ public sealed class LogixTagAccessFactoryTests
     }
 
     [Theory]
-    [InlineData(32, 1)]
-    [InlineData(64, 2)]
-    public void ABoolArrayTagIsSizedToTheWordsItsBitsArePackedInto(int declaredBitCount, int expectedWords)
+    [InlineData(32u, 1)]
+    [InlineData(64u, 2)]
+    public void ABoolArrayTagIsSizedToTheWordsItsBitsArePackedInto(uint declaredBitCount, int expectedWords)
     {
         // Arrange
         // libplctag puts the count on the request unchanged, and the controller counts a BOOL array in

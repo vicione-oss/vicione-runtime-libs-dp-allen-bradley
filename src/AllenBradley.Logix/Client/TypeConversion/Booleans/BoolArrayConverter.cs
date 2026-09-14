@@ -13,7 +13,7 @@ internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDat
 {
     private const int BitsPerByte = 8;
 
-    private const int BytesPerWord = BoolArrayDataPoint.BoolsPerWord / BitsPerByte;
+    private const uint BytesPerWord = BoolArrayDataPoint.BoolsPerWord / BitsPerByte;
 
     public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.BoolArray;
 
@@ -76,7 +76,7 @@ internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDat
         }
     }
 
-    private static int WidthInBytes(BoolArrayDataPoint dataPoint) =>
+    private static uint WidthInBytes(BoolArrayDataPoint dataPoint) =>
         dataPoint.WordCount.Value * BytesPerWord;
 
     // Little-endian throughout: bit i is bit i % 8 of byte i / 8, so bit 32 opens the second word.

@@ -15,11 +15,11 @@ public sealed class BoolArrayNodePropertyValidatorTests
     private readonly BoolArrayNodePropertyValidator _validator = new();
 
     /// <summary>Each declared count Studio 5000 would accept for a BOOL array.</summary>
-    public static TheoryData<int> CountsThatFillWholeWords => [32, 64, 320];
+    public static TheoryData<uint> CountsThatFillWholeWords => [32, 64, 320];
 
     [Theory]
     [MemberData(nameof(CountsThatFillWholeWords))]
-    public void ACountThatFillsWholeWordsIsAccepted(int declaredBitCount)
+    public void ACountThatFillsWholeWordsIsAccepted(uint declaredBitCount)
     {
         // Arrange
         var node = BoolArrayNodeWith(
@@ -35,10 +35,10 @@ public sealed class BoolArrayNodePropertyValidatorTests
     }
 
     [Theory]
-    [InlineData(1, "a single BOOL still occupies a whole word")]
-    [InlineData(10, "an ARRAY[0..9] OF BOOL is not a declaration Studio 5000 makes")]
-    [InlineData(33, "one bit past a word needs a second one the tag has not got")]
-    public void ACountThatLeavesAWordPartlyOwnedIsRefused(int declaredBitCount, string invalidBecause)
+    [InlineData(1u, "a single BOOL still occupies a whole word")]
+    [InlineData(10u, "an ARRAY[0..9] OF BOOL is not a declaration Studio 5000 makes")]
+    [InlineData(33u, "one bit past a word needs a second one the tag has not got")]
+    public void ACountThatLeavesAWordPartlyOwnedIsRefused(uint declaredBitCount, string invalidBecause)
     {
         // Arrange
         var node = BoolArrayNodeWith(
@@ -60,7 +60,7 @@ public sealed class BoolArrayNodePropertyValidatorTests
     {
         // Arrange
         var node = BoolArrayNodeWith(
-            CreateTagName("Flags"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(0));
+            CreateTagName("Flags"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(0u));
 
         // Act
         var validation = _validator.Validate(node);
@@ -89,7 +89,7 @@ public sealed class BoolArrayNodePropertyValidatorTests
     {
         // Arrange
         var node = BoolArrayNodeWith(
-            CreateTagName("1Flags"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(32));
+            CreateTagName("1Flags"), CreatePollFrequency(DefaultPollFrequency), CreateElementCount(32u));
 
         // Act
         var validation = _validator.Validate(node);

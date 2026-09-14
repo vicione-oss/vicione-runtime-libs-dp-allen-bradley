@@ -39,7 +39,7 @@ public sealed class BoolArrayDataPointTests
     }
 
     /// <summary>Each declared bit count with the number of 32-bit words the controller packs it into.</summary>
-    public static TheoryData<int, int> BitCountsAndTheirWords =>
+    public static TheoryData<uint, uint> BitCountsAndTheirWords =>
         new()
         {
             { 32, 1 },
@@ -49,7 +49,7 @@ public sealed class BoolArrayDataPointTests
 
     [Theory]
     [MemberData(nameof(BitCountsAndTheirWords))]
-    public void ItCountsTheWordsItsBitsArePackedInto(int declaredBitCount, int expectedWordCount)
+    public void ItCountsTheWordsItsBitsArePackedInto(uint declaredBitCount, uint expectedWordCount)
     {
         // Arrange
         var flags = Flags with { ElementCount = new ElementCount(declaredBitCount) };

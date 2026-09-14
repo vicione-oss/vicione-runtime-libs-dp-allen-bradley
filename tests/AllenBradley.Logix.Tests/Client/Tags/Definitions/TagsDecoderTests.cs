@@ -126,10 +126,10 @@ public sealed class TagsDecoderTests
     }
 
     [Theory]
-    [InlineData(1u, 32)]
-    [InlineData(2u, 64)]
+    [InlineData(1u, 32u)]
+    [InlineData(2u, 64u)]
     public void ABoolArrayEntryDecodesItsWordDimensionIntoTheBitsItHolds(
-        uint declaredWords, int expectedBitCount)
+        uint declaredWords, uint expectedBitCount)
     {
         // Arrange
         var listing = Listing(

@@ -158,7 +158,7 @@ public sealed class ArrayIntegrationTests(ITestOutputHelper output)
         var elements = readResult.Should().ContainSingle().Which.Value.Should().BeOfType<short[]>().Subject;
         Output.WriteLine($"{TagAddresses.IntArray} = [{string.Join(", ", elements)}]");
         elements.Should().HaveCount(
-            TagAddresses.ArrayElementCount.Value,
+            (int)TagAddresses.ArrayElementCount.Value,
             "the handle carries the configured element count, and one without it reads a single element");
     }
 

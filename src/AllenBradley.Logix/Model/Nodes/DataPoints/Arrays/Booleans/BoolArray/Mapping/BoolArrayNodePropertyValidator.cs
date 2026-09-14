@@ -22,14 +22,14 @@ internal sealed class BoolArrayNodePropertyValidator : AbstractValidator<LinkedN
     private void MustFillWholeWords() =>
         RuleFor(static node => node)
             .Must(static node =>
-                node.GetRequiredPropertyValue<int>(LogixArrayNode.ElementCountPropertyName)
+                node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName)
                 % BoolArrayDataPoint.BoolsPerWord == 0)
             .WithMessage(static node =>
                 $"Node '{node.Name}' ({node.DesignId}): property " +
                 $"'{LogixArrayNode.ElementCountPropertyName}' must be a multiple of " +
                 $"{BoolArrayDataPoint.BoolsPerWord}, because a BOOL array is packed into 32-bit words.")
             .When(static node =>
-                node.HasPropertyOfType<int>(LogixArrayNode.ElementCountPropertyName)
-                && node.GetRequiredPropertyValue<int>(LogixArrayNode.ElementCountPropertyName) > 0)
+                node.HasPropertyOfType<uint>(LogixArrayNode.ElementCountPropertyName)
+                && node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName) > 0)
             .WithName(LogixArrayNode.ElementCountPropertyName);
 }
