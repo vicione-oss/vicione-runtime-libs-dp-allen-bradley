@@ -18,7 +18,7 @@ public sealed class BooleanArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         BoolArrayDataPoint flags = new(
-            new TagName(TagAddresses.BoolArray),
+            new TagAddress(TagAddresses.BoolArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.BoolArrayElementCount);

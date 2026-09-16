@@ -12,7 +12,7 @@ public sealed class LRealConverterTests
     private static readonly IDataPointConverter Converter = new LRealConverter();
 
     private static readonly LRealDataPoint Measurement =
-        new(new TagName("PrecisionValue"), DefaultPollFrequency, NoChannels);
+        new(new TagAddress("PrecisionValue"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagALReal()

@@ -41,7 +41,7 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
 
         if (resolved.TagDefinition is not { } device)
         {
-            return [new MismatchingConfiguration($"Tag '{dataPoint.TagName}' was not found on the controller.")];
+            return [new MismatchingConfiguration($"Tag '{dataPoint.TagAddress.Value}' was not found on the controller.")];
         }
 
         // The only place a configured type is read against the controller's declaration; the poll trusts
@@ -54,39 +54,39 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
             LogixTypeMismatch.Rank =>
             [
                 new MismatchingConfiguration(
-                    $"Shape mismatch for tag '{dataPoint.TagName}': " +
+                    $"Shape mismatch for tag '{dataPoint.TagAddress.Value}': " +
                     $"configured {Describe(converter.ExpectedDimensionCount)}, " +
                     $"controller reports {Describe(device.DimensionCount)}."),
             ],
             LogixTypeMismatch.Structure =>
             [
                 new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagName}' is a structure on the controller, " +
+                    $"Tag '{dataPoint.TagAddress.Value}' is a structure on the controller, " +
                     $"but a scalar of type {converter.ExpectedTypeName} is configured."),
             ],
             LogixTypeMismatch.AtomicType =>
             [
                 new MismatchingConfiguration(
-                    $"Data type mismatch for tag '{dataPoint.TagName}': configured {converter.ExpectedTypeName}, " +
+                    $"Data type mismatch for tag '{dataPoint.TagAddress.Value}': configured {converter.ExpectedTypeName}, " +
                     $"controller reports {Describe(device.DataType)}."),
             ],
             LogixTypeMismatch.Atomic =>
             [
                 new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagName}' is an elementary {Describe(device.DataType)} on the controller, " +
+                    $"Tag '{dataPoint.TagAddress.Value}' is an elementary {Describe(device.DataType)} on the controller, " +
                     $"but the structured type {converter.ExpectedTypeName} is configured."),
             ],
             LogixTypeMismatch.StringCapacity =>
             [
                 new MismatchingConfiguration(
-                    $"Capacity mismatch for tag '{dataPoint.TagName}': the configured {converter.ExpectedTypeName} " +
+                    $"Capacity mismatch for tag '{dataPoint.TagAddress.Value}': the configured {converter.ExpectedTypeName} " +
                     $"holds {Describe(converter.MaxLengthFor(dataPoint))} characters, " +
                     $"but the controller declares {Describe(device.MaxLength)}."),
             ],
             LogixTypeMismatch.ElementCount =>
             [
                 new MismatchingConfiguration(
-                    $"Element count mismatch for tag '{dataPoint.TagName}': the configured " +
+                    $"Element count mismatch for tag '{dataPoint.TagAddress.Value}': the configured " +
                     $"{converter.ExpectedTypeName} holds {Describe(converter.ElementCountFor(dataPoint))} elements, " +
                     $"but the controller declares {Describe(device.ElementCount)}."),
             ],

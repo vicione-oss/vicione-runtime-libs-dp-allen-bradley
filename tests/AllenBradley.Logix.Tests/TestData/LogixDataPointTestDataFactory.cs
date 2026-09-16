@@ -10,5 +10,5 @@ internal static class LogixDataPointTestDataFactory
     /// <summary>No channel routing — nothing below the data port reads the channels.</summary>
     internal static Channels NoChannels { get; } = new([], []);
 
-    internal static TagName DefaultTagName { get; } = new("AnyTag");
+    internal static TagAddress DefaultTagAddress { get; } = new("AnyTag");
 }

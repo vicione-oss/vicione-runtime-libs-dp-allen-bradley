@@ -42,7 +42,7 @@ internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDat
             // Refused here rather than sent short: SetBuffer would fill the handle from the start and
             // leave the tail of the tag as the controller had it, which is a partial write in disguise.
             throw new InvalidOperationException(
-                $"Cannot write {dataPoint.TagName}; the value holds {value.Length} elements, " +
+                $"Cannot write {dataPoint.TagAddress}; the value holds {value.Length} elements, " +
                 $"but the tag is configured with {declaredBitCount}.");
         }
 
@@ -68,7 +68,7 @@ internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDat
         if (bufferLength != declaredWidth)
         {
             throw new LogixDecodeException(
-                $"Cannot read {dataPoint.TagName}; the controller returned {bufferLength} bytes, " +
+                $"Cannot read {dataPoint.TagAddress}; the controller returned {bufferLength} bytes, " +
                 $"but the tag is configured with {dataPoint.ElementCount.Value} elements packed into " +
                 $"{declaredWidth} bytes.");
         }

@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 public sealed class IntDataPointTests
 {
     private static readonly IntDataPoint Counter =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
@@ -73,7 +73,7 @@ public sealed class IntDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Counter);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("INT");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("INT");
     }
 
     [Fact]

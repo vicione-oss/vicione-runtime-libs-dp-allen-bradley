@@ -25,7 +25,7 @@ internal sealed class TagNamePropertyValidator : AbstractValidator<LinkedNode>
     private void MustBeValidTagName() =>
         RuleFor(static node => node)
             .Must(static node =>
-                LogixIdentifier.IsWellFormed(
+                TagName.IsWellFormed(
                     node.GetRequiredPropertyValue<string>(ILogixDataPointNode.TagNamePropertyName)))
             .WithMessage(static node =>
                 $"The tag name '{node.GetRequiredPropertyValue<string>(ILogixDataPointNode.TagNamePropertyName)}' in node '{node.Name}' ({node.DesignId}) is not a valid Logix tag name.")

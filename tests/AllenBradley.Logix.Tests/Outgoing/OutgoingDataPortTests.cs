@@ -45,7 +45,7 @@ public sealed class OutgoingDataPortTests : IDisposable
         _client.DisconnectAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         _client.WriteAsync(Arg.Any<IReadOnlyList<ILogixDataPointValue>>(), Arg.Any<CancellationToken>())
             .Returns(ValueTask.CompletedTask);
-        ResolveEveryTagAs(dataPoint => DefaultAtomicTagDefinition() with { TagName = dataPoint.TagName });
+        ResolveEveryTagAs(dataPoint => DefaultAtomicTagDefinition() with { TagAddress = dataPoint.TagAddress });
 
         _lifecycleManager
             .AcquireConnectedAsync(Arg.Any<LogixClientInformation>(), Arg.Any<CancellationToken>())
@@ -122,7 +122,7 @@ public sealed class OutgoingDataPortTests : IDisposable
         // Assert
         Eventually(() => WrittenValues.Count).Should().Be(1, "the queue processor should have written once");
         var written = WrittenValues[0].Should().ContainSingle().Subject;
-        written.DataPoint.Should().BeOfType<DIntDataPoint>().Which.TagName.Value.Should().Be(TagName);
+        written.DataPoint.Should().BeOfType<DIntDataPoint>().Which.TagAddress.Value.Should().Be(TagName);
         written.Value.Should().Be(42);
     }
 

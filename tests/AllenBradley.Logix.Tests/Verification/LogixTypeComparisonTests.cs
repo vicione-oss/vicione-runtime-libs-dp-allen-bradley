@@ -29,13 +29,13 @@ public sealed class LogixTypeComparisonTests
 
     private static readonly IDataPointConverter BoolArrayCodec = new BoolArrayConverter();
 
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
-        new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     private static readonly IntArrayDataPoint Readings =
-        new(new TagName("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
+        new(new TagAddress("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
 
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
@@ -251,10 +251,10 @@ public sealed class LogixTypeComparisonTests
         // TagsDecoder has already turned the controller's two DWORDs into the 64 bits they hold, so the
         // comparison never sees the packing.
         var flags = new BoolArrayDataPoint(
-            new TagName("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
+            new TagAddress("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
         var declaration = DefaultIntArrayTagDefinition() with
         {
-            TagName = new TagName("Line.Flags"),
+            TagAddress = new TagAddress("Line.Flags"),
             DataType = AllenBradleyDataType.Bool,
             ElementCount = new ElementCount(64),
         };
@@ -272,10 +272,10 @@ public sealed class LogixTypeComparisonTests
     {
         // Arrange
         var flags = new BoolArrayDataPoint(
-            new TagName("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
+            new TagAddress("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
         var declaration = DefaultIntArrayTagDefinition() with
         {
-            TagName = new TagName("Line.Flags"),
+            TagAddress = new TagAddress("Line.Flags"),
             DataType = AllenBradleyDataType.Bool,
             ElementCount = new ElementCount(32),
         };

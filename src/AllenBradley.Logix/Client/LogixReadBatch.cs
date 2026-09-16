@@ -69,7 +69,7 @@ internal sealed class LogixReadBatch
         if (!result.Succeeded)
         {
             // Non-null by construction: LogixTagReadResult.Succeeded is defined as having no error.
-            return ReadOutcome.Failed(entry.DataPoint.TagName, result.Error!);
+            return ReadOutcome.Failed(entry.DataPoint.TagAddress, result.Error!);
         }
 
         try
@@ -80,7 +80,7 @@ internal sealed class LogixReadBatch
         {
             // Narrow on purpose: a buffer the wrong shape for the decode is named as this tag's failure,
             // while anything else a converter throws is a converter bug and travels.
-            return ReadOutcome.Failed(entry.DataPoint.TagName, ex.Message);
+            return ReadOutcome.Failed(entry.DataPoint.TagAddress, ex.Message);
         }
     }
 
@@ -109,17 +109,17 @@ internal sealed class LogixReadBatch
     {
         /// <summary>Every failed tag with its own reason, in one line, for the caller that logs them.</summary>
         internal string DescribeFailures() =>
-            string.Join("; ", Failures.Select(failure => $"{failure.TagName}: {failure.Error}"));
+            string.Join("; ", Failures.Select(failure => $"{failure.TagAddress}: {failure.Error}"));
     }
 
     /// <summary>
     /// The outcome of one entry's read and decode: the value it produced, or why it produced none.
     /// </summary>
-    internal readonly record struct ReadOutcome(TagName TagName, ILogixDataPointValue? Value, string? Error)
+    internal readonly record struct ReadOutcome(TagAddress TagAddress, ILogixDataPointValue? Value, string? Error)
     {
         internal static ReadOutcome Ok(ILogixDataPointValue value) =>
-            new(value.DataPoint.TagName, value, null);
+            new(value.DataPoint.TagAddress, value, null);
 
-        internal static ReadOutcome Failed(TagName tagName, string error) => new(tagName, null, error);
+        internal static ReadOutcome Failed(TagAddress tagAddress, string error) => new(tagAddress, null, error);
     }
 }

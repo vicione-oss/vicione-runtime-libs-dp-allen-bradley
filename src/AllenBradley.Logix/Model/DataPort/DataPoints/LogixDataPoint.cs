@@ -7,14 +7,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// the channels it feeds, and the .NET type it exchanges.
 /// </summary>
 /// <typeparam name="TDomain">The .NET type this point exchanges — <c>int</c> for a <c>DINT</c>.</typeparam>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagAddress">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency PollFrequency, Channels Channels)
+public abstract record LogixDataPoint<TDomain>(TagAddress TagAddress, PollFrequency PollFrequency, Channels Channels)
     : ILogixDataPoint, ITypedDataPoint<TDomain>
 {
     /// <inheritdoc />
-    public DataPointIdentifier Identifier => new(TagName.Value);
+    public DataPointIdentifier Identifier => new(TagAddress.Value);
 
     /// <inheritdoc />
     public DataTypeName DataTypeName => new(TypeName);

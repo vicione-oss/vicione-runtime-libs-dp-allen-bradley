@@ -36,7 +36,7 @@ public sealed class ProgramTagVerificationTests : LogixIntegrationTestBase
 
         // Assert
         dataPoints.Should().ContainSingle()
-            .Which.TagName.Value.Should().Be(BenchControllerTags.StrValue1);
+            .Which.TagAddress.Value.Should().Be(BenchControllerTags.StrValue1);
         misconfigured.Should().BeEmpty();
     }
 }

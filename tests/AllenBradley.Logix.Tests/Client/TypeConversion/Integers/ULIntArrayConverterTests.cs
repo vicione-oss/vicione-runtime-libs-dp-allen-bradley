@@ -20,7 +20,7 @@ public sealed class ULIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new ULIntArrayConverter();
 
     private static readonly ULIntArrayDataPoint CycleCounts = new(
-        new TagName("ulintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new TagAddress("ulintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range, a value asymmetric in its bytes and two
     // above the signed maximum, which is where a ULINT and the LINT beside it disagree.

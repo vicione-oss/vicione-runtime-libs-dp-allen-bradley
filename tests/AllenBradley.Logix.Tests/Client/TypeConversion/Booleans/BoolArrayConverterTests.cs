@@ -15,7 +15,7 @@ public sealed class BoolArrayConverterTests
     private static readonly IDataPointConverter Converter = new BoolArrayConverter();
 
     private static readonly BoolArrayDataPoint Flags = new(
-        new TagName("boolArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
+        new TagAddress("boolArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
 
     // One 32-bit word, least significant bit of the first byte first: bits 0, 7, 9 and 31 set. Both ends
     // of the word and a byte boundary, so a bit read at the wrong shift or out of the wrong byte shows.

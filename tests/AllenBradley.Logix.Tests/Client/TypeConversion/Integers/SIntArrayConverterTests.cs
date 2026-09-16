@@ -19,7 +19,7 @@ public sealed class SIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new SIntArrayConverter();
 
     private static readonly SIntArrayDataPoint Samples = new(
-        new TagName("sintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new TagAddress("sintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Both ends of the range and a zero, with no two elements sharing a bit pattern, so an element read
     // at the wrong offset cannot agree with the one that belongs there.

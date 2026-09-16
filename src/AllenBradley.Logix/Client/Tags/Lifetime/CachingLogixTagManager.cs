@@ -83,7 +83,7 @@ internal sealed class CachingLogixTagManager(
                 return cached;
             }
 
-            var metadata = schema.Lookup(dataPoint.TagName);
+            var metadata = schema.Lookup(dataPoint.TagAddress);
             var access = factory.Create(dataPoint);
             var tag = new LogixTag(dataPoint, metadata, access);
             _tagByDataPoint.Add(dataPoint, tag);

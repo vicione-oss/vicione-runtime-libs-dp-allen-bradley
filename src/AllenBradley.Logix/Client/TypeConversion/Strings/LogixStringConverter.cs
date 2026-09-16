@@ -43,7 +43,7 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
         if (characterCount > dataPoint.MaxLength.Value)
         {
             throw new InvalidOperationException(
-                $"Cannot write {characterCount} characters to {dataPoint.TagName}; " +
+                $"Cannot write {characterCount} characters to {dataPoint.TagAddress}; " +
                 $"the tag is configured to hold {dataPoint.MaxLength.Value}.");
         }
 

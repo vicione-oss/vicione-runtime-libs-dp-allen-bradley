@@ -11,7 +11,7 @@ public sealed class IntConverterTests
 {
     private static readonly IDataPointConverter Converter = new IntConverter();
 
-    private static readonly IntDataPoint Counter = new(new TagName("intValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly IntDataPoint Counter = new(new TagAddress("intValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagAnInt()

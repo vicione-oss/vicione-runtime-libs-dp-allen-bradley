@@ -17,15 +17,15 @@ public sealed class LogixWriteBatchTests
     private const string TagIsReadOnly = "tag is read-only";
     private const string TagNotFound = "tag not found";
 
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Torque = new(new TagName("Motor.Torque"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(new TagAddress("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Torque = new(new TagAddress("Motor.Torque"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
-        new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     private static readonly StringDataPoint Recipe =
-        new(new TagName("Line.Recipe"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress("Line.Recipe"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
@@ -67,7 +67,7 @@ public sealed class LogixWriteBatchTests
 
         // Assert
         (await writing.Should().ThrowAsync<LogixTagException>())
-            .Which.Message.Should().Contain(Level.TagName.Value).And.Contain(TagIsReadOnly);
+            .Which.Message.Should().Contain(Level.TagAddress.Value).And.Contain(TagIsReadOnly);
     }
 
     [Fact]
@@ -105,8 +105,8 @@ public sealed class LogixWriteBatchTests
 
         // Assert
         var message = (await writing.Should().ThrowAsync<LogixTagException>()).Which.Message;
-        message.Should().Contain(Speed.TagName.Value).And.Contain(TagIsReadOnly);
-        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
+        message.Should().Contain(Speed.TagAddress.Value).And.Contain(TagIsReadOnly);
+        message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public sealed class LogixWriteBatchTests
 
         // Assert
         construct.Should().BeOfType<LogixTagException>()
-            .Which.Message.Should().Contain(Label.TagName.Value).And.Contain("Nothing was sent");
+            .Which.Message.Should().Contain(Label.TagAddress.Value).And.Contain("Nothing was sent");
         speedTag.ReceivedCalls().Should().BeEmpty();
     }
 
@@ -194,8 +194,8 @@ public sealed class LogixWriteBatchTests
 
         // Assert
         var message = construct.Should().BeOfType<LogixTagException>().Which.Message;
-        message.Should().Contain(Label.TagName.Value);
-        message.Should().Contain(Recipe.TagName.Value);
+        message.Should().Contain(Label.TagAddress.Value);
+        message.Should().Contain(Recipe.TagAddress.Value);
     }
 
     [Fact]
@@ -244,7 +244,7 @@ public sealed class LogixWriteBatchTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
-        : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
+        : LogixDataPoint<int>(new TagAddress("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
         public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 

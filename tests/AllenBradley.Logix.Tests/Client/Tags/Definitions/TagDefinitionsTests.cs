@@ -7,10 +7,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definition
 
 public sealed class TagDefinitionsTests
 {
-    private static readonly TagName SpeedTagName = new("Motor.Speed");
+    private static readonly TagAddress SpeedTagAddress = new("Motor.Speed");
 
     private static readonly TagDefinition SpeedDefinition =
-        DefaultAtomicTagDefinition() with { TagName = SpeedTagName };
+        DefaultAtomicTagDefinition() with { TagAddress = SpeedTagAddress };
 
     [Fact]
     public void ATagNameIsLookedUpWithoutRegardToCase()
@@ -19,7 +19,7 @@ public sealed class TagDefinitionsTests
         var definitions = DefinitionsHolding(SpeedDefinition);
 
         // Act
-        var found = definitions.Lookup(new TagName("motor.speed"));
+        var found = definitions.Lookup(new TagAddress("motor.speed"));
 
         // Assert
         found.Should().Be(SpeedDefinition);
@@ -32,12 +32,12 @@ public sealed class TagDefinitionsTests
         var definitions = DefinitionsHolding();
 
         // Act
-        var found = definitions.Lookup(new TagName("Nope"));
+        var found = definitions.Lookup(new TagAddress("Nope"));
 
         // Assert
         found.Should().BeNull();
     }
 
     private static TagDefinitions DefinitionsHolding(params TagDefinition[] definitions) =>
-        new(definitions.ToDictionary(definition => definition.TagName, TagName.CaseInsensitiveComparer));
+        new(definitions.ToDictionary(definition => definition.TagAddress, TagAddress.CaseInsensitiveComparer));
 }

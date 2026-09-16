@@ -25,7 +25,7 @@ internal sealed class ProgramTagsNodePropertyValidator : AbstractValidator<Linke
     private void MustBeValidProgramName() =>
         RuleFor(static node => node)
             .Must(static node =>
-                LogixIdentifier.IsWellFormed(
+                TagName.IsWellFormed(
                     node.GetRequiredPropertyValue<string>(ProgramTagsNode.ProgramNamePropertyName)))
             .WithMessage(static node =>
                 $"The program name '{node.GetRequiredPropertyValue<string>(ProgramTagsNode.ProgramNamePropertyName)}' in node '{node.Name}' ({node.DesignId}) is not a valid Logix program name.")

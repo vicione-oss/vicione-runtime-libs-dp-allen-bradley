@@ -12,7 +12,7 @@ public sealed class RealConverterTests
     private static readonly IDataPointConverter Converter = new RealConverter();
 
     private static readonly RealDataPoint Measurement =
-        new(new TagName("realValue1"), DefaultPollFrequency, NoChannels);
+        new(new TagAddress("realValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagAReal()

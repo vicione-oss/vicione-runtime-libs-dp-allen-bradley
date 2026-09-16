@@ -22,7 +22,7 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     public async Task ASIntValueRoundTripsAndItsTagIsDeclaredSInt(sbyte valueToWrite)
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(new TagName(TagAddresses.SInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new SIntDataPoint(new TagAddress(TagAddresses.SInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -45,7 +45,7 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     public async Task AnIntValueRoundTripsAndItsTagIsDeclaredInt(short valueToWrite)
     {
         // Arrange
-        var dataPoint = new IntDataPoint(new TagName(TagAddresses.Int), DefaultPollFrequency, NoChannels);
+        var dataPoint = new IntDataPoint(new TagAddress(TagAddresses.Int), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -68,7 +68,7 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     public async Task ADIntValueRoundTripsAndItsTagIsDeclaredDInt(int valueToWrite)
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(new TagName(TagAddresses.DInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new DIntDataPoint(new TagAddress(TagAddresses.DInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -91,7 +91,7 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     public async Task ALIntValueRoundTripsAndItsTagIsDeclaredLInt(long valueToWrite)
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(new TagName(TagAddresses.LInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new LIntDataPoint(new TagAddress(TagAddresses.LInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);

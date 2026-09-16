@@ -105,7 +105,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     }
 
     private static DIntDataPoint CounterPresetPoint() =>
-        new(new TagName(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels);
+        new(new TagAddress(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels);
 
     private static Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
 

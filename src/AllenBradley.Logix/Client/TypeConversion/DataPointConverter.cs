@@ -57,7 +57,7 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
         if (dataPointValue is not ILogixDataPointValue<TDomain> typedValue)
         {
             throw new InvalidOperationException(
-                $"Cannot write {dataPointValue.GetType().Name} to {typedDataPoint.TagName}; " +
+                $"Cannot write {dataPointValue.GetType().Name} to {typedDataPoint.TagAddress}; " +
                 $"expected a value carrying {typeof(TDomain).Name}.");
         }
 

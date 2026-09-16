@@ -11,7 +11,7 @@ public sealed class UDIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new UDIntConverter();
 
-    private static readonly UDIntDataPoint Runtime = new(new TagName("udintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly UDIntDataPoint Runtime = new(new TagAddress("udintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagAUDInt()

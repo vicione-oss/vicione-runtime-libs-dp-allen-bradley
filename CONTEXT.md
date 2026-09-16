@@ -194,6 +194,15 @@ The identifier a tag is declared with, unique within its scope. Letters, digits 
 to 40 characters. The controller preserves the case it was declared with but resolves names
 case-insensitively.
 
+**Tag address**:
+The string that reaches a value — `Count`, `Program:Main.Count`, `Arr[5]`. It is what a data point
+resolves to and what libplctag is handed. Rockwell has no word for it; PM004 writes such references
+as `array_name[subscript]` and `structure_tag.member` and calls the whole thing an operand. When
+the tag sits in controller scope with no member or subscript, the address and the tag name are the
+same string.
+_Avoid_: tag name (only the identifier), operand (Rockwell's word, but it names a slot in an
+instruction rather than the string in it)
+
 **Scope**:
 Which part of a controller a tag is visible in — controller scope or program scope. Scope is part
 of a tag's identity, so two tags may share a name if they sit in different scopes.
@@ -338,9 +347,6 @@ to redefine, and they must not be used for Allen-Bradley concepts:
 
 Terms we still need and Rockwell does not supply, recorded so nobody invents a third word for them:
 
-- **The string that reaches a value.** `Motor.Speed` and `Arr[5]` are neither tag names nor tags.
-  CIP encodes them as a chain of symbolic, member and element segments; Rockwell has no crisp
-  project-level word. Candidates: tag address, tag path.
 - **The collection of a controller's symbols.** Rockwell names the Symbol object and enumerates its
   instances per scope, but never names the set. Studio 5000 has two named collections — Controller
   Tags and Program Tags — not one. Candidates: symbol table, tag listing.

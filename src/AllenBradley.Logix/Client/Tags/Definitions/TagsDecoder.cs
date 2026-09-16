@@ -48,7 +48,7 @@ internal static class TagsDecoder
         var dimensionCount = SymbolType.DimensionCount(header.SymbolType);
 
         return new TagDefinition(
-            TagName: new TagName(Encoding.ASCII.GetString(tagName)),
+            TagAddress: new TagAddress(Encoding.ASCII.GetString(tagName)),
             Kind: isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
             DataType: isStruct ? AllenBradleyDataType.String : SymbolType.AtomicType(header.SymbolType),
             MaxLength: isStruct ? StringMaxLength.OfStructure(header.ElementLength) : null,

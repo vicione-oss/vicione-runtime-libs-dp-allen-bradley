@@ -25,10 +25,10 @@ public sealed class LogixStringConverterTests
     private static readonly IDataPointConverter Converter = new LogixStringConverter();
 
     private static readonly StringDataPoint Label = new(
-        new TagName("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new TagAddress("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     private static readonly StringDataPoint ShortLabel =
-        new(Label.TagName, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
+        new(Label.TagAddress, DefaultPollFrequency, NoChannels, new StringMaxLength(20));
 
     [Fact]
     public void LenIsReadFromOffsetZeroAndTheCharactersFromBehindIt()
@@ -275,7 +275,7 @@ public sealed class LogixStringConverterTests
     public void DecodingForANonStringDataPointSaysTheRegistryRoutedTheWrongConverter()
     {
         // Arrange
-        var dInt = new DIntDataPoint(Label.TagName, DefaultPollFrequency, NoChannels);
+        var dInt = new DIntDataPoint(Label.TagAddress, DefaultPollFrequency, NoChannels);
 
         // Act
         var decoding = Converter.Invoking(c => c.Decode(dInt, new byte[StructureSize]));

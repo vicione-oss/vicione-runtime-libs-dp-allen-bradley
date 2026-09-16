@@ -19,7 +19,7 @@ public sealed class LRealArrayConverterTests
     private static readonly IDataPointConverter Converter = new LRealArrayConverter();
 
     private static readonly LRealArrayDataPoint Positions = new(
-        new TagName("lrealArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new TagAddress("lrealArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range, a negative, a fraction and values whose
     // eight bytes differ, so a swapped element cannot agree with the one that belongs there.

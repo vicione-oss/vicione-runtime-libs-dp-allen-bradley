@@ -18,6 +18,6 @@ public readonly record struct TagScope(string Segment)
 
     /// <summary>The address a bare <paramref name="tagName"/> has inside this scope.</summary>
     /// <param name="tagName">The tag name as configured, without any scope segment.</param>
-    public TagName Qualify(TagName tagName) =>
-        Segment.Length == 0 ? tagName : new TagName($"{Segment}.{tagName.Value}");
+    public TagAddress Qualify(TagName tagName) =>
+        Segment.Length == 0 ? tagName.ToTagAddress() : new TagAddress($"{Segment}.{tagName.Value}");
 }

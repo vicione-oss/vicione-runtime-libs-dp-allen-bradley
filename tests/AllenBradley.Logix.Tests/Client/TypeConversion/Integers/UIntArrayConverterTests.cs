@@ -19,7 +19,7 @@ public sealed class UIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new UIntArrayConverter();
 
     private static readonly UIntArrayDataPoint Speeds = new(
-        new TagName("uintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new TagAddress("uintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range, a value asymmetric in its bytes and two
     // above the signed maximum, which is where a UINT and the INT beside it disagree.

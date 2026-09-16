@@ -12,7 +12,7 @@ public sealed class IntArrayDataPointTests
     private const int DeclaredElementCount = 10;
 
     private static readonly IntArrayDataPoint Readings =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()
@@ -96,7 +96,7 @@ public sealed class IntArrayDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Readings);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("INT[]");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("INT[]");
     }
 
     [Theory]

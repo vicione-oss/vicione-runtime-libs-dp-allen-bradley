@@ -8,16 +8,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ar
 /// A one-dimensional Logix <c>ULINT</c> array tag, read whole and carried as one <see cref="ulong"/> array
 /// of the declared length.
 /// </summary>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagAddress">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
 /// <param name="ElementCount">The number of elements the tag is declared with in Studio 5000.</param>
 public sealed record ULIntArrayDataPoint(
-    TagName TagName,
+    TagAddress TagAddress,
     PollFrequency PollFrequency,
     Channels Channels,
     ElementCount ElementCount)
-    : LogixArrayDataPoint<ulong>(TagName, PollFrequency, Channels, ElementCount)
+    : LogixArrayDataPoint<ulong>(TagAddress, PollFrequency, Channels, ElementCount)
 {
     /// <inheritdoc />
     public override AllenBradleyDataType DataType => AllenBradleyDataType.Ulint;

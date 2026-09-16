@@ -18,7 +18,7 @@ public sealed class LogixClientReadTests : LogixIntegrationTestBase
         var expected = ReadDintWithRawLibplctag(BenchControllerTags.CounterPreset);
         ILogixDataPoint[] dataPoints =
         [
-            new DIntDataPoint(new TagName(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels),
+            new DIntDataPoint(new TagAddress(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels),
         ];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 

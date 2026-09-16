@@ -7,7 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Sc
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public sealed record BoolDataPoint(TagName TagName, PollFrequency PollFrequency, Channels Channels)
+public sealed record BoolDataPoint(TagAddress TagName, PollFrequency PollFrequency, Channels Channels)
     : LogixDataPoint<bool>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />

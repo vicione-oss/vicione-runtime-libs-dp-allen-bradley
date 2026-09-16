@@ -4,11 +4,11 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 /// <summary>A Logix <c>UDINT</c> tag — a 32-bit unsigned integer, carried as <see cref="uint"/>.</summary>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagAddress">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public sealed record UDIntDataPoint(TagName TagName, PollFrequency PollFrequency, Channels Channels)
-    : LogixDataPoint<uint>(TagName, PollFrequency, Channels)
+public sealed record UDIntDataPoint(TagAddress TagAddress, PollFrequency PollFrequency, Channels Channels)
+    : LogixDataPoint<uint>(TagAddress, PollFrequency, Channels)
 {
     /// <inheritdoc />
     public override AllenBradleyDataType DataType => AllenBradleyDataType.Udint;

@@ -25,7 +25,7 @@ public sealed class TagsDecoderTests
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        var expected = DefaultAtomicTagDefinition() with { TagName = new TagName("Motor.Speed") };
+        var expected = DefaultAtomicTagDefinition() with { TagAddress = new TagAddress("Motor.Speed") };
         decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -45,14 +45,14 @@ public sealed class TagsDecoderTests
         // Assert
         TagDefinition[] expected =
         [
-            DefaultAtomicTagDefinition() with { TagName = new TagName("A") },
+            DefaultAtomicTagDefinition() with { TagAddress = new TagAddress("A") },
             DefaultAtomicTagDefinition() with
             {
-                TagName = new TagName("Tank.Level"), DataType = AllenBradleyDataType.Real,
+                TagAddress = new TagAddress("Tank.Level"), DataType = AllenBradleyDataType.Real,
             },
             DefaultAtomicTagDefinition() with
             {
-                TagName = new TagName("Program:Main"), DataType = AllenBradleyDataType.Unknown,
+                TagAddress = new TagAddress("Program:Main"), DataType = AllenBradleyDataType.Unknown,
             },
         ];
         decoded.Should().Equal(expected);
@@ -69,7 +69,7 @@ public sealed class TagsDecoderTests
         var decoded = TagsDecoder.Decode(listing);
 
         // Assert
-        var expected = DefaultStringTagDefinition() with { TagName = new TagName("Line.Label") };
+        var expected = DefaultStringTagDefinition() with { TagAddress = new TagAddress("Line.Label") };
         decoded.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -86,7 +86,7 @@ public sealed class TagsDecoderTests
         // Assert
         var expected = DefaultStringTagDefinition() with
         {
-            TagName = new TagName("Line.Code"),
+            TagAddress = new TagAddress("Line.Code"),
             MaxLength = new StringMaxLength(20),
         };
         decoded.Should().ContainSingle().Which.Should().Be(expected);
@@ -118,7 +118,7 @@ public sealed class TagsDecoderTests
         // Assert
         var expected = DefaultAtomicTagDefinition() with
         {
-            TagName = new TagName("Counts"),
+            TagAddress = new TagAddress("Counts"),
             DimensionCount = new DimensionCount(1),
             ElementCount = new ElementCount(10),
         };
@@ -141,7 +141,7 @@ public sealed class TagsDecoderTests
         // Assert
         var expected = DefaultAtomicTagDefinition() with
         {
-            TagName = new TagName("Flags"),
+            TagAddress = new TagAddress("Flags"),
             DataType = AllenBradleyDataType.Bool,
             DimensionCount = new DimensionCount(1),
             ElementCount = new ElementCount(expectedBitCount),
@@ -162,7 +162,7 @@ public sealed class TagsDecoderTests
         // Still atomic, because the structure bit is clear in the symbol type.
         var expected = DefaultAtomicTagDefinition() with
         {
-            TagName = new TagName("Exotic"),
+            TagAddress = new TagAddress("Exotic"),
             DataType = AllenBradleyDataType.Unknown,
         };
         decoded.Should().ContainSingle().Which.Should().Be(expected);

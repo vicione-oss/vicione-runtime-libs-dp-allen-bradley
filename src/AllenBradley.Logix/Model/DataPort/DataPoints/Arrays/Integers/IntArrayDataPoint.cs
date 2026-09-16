@@ -13,7 +13,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ar
 /// <param name="Channels">The channels this point's value is routed to.</param>
 /// <param name="ElementCount">The number of elements the tag is declared with in Studio 5000.</param>
 public sealed record IntArrayDataPoint(
-    TagName TagName,
+    TagAddress TagName,
     PollFrequency PollFrequency,
     Channels Channels,
     ElementCount ElementCount)

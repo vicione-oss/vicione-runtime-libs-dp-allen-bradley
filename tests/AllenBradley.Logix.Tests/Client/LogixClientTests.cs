@@ -25,11 +25,11 @@ public sealed class LogixClientTests
     private const string TagNotFound = "tag not found";
     private const int StringStructureSize = 88;
 
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(new TagAddress("Tank.Level"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
-        new(new TagName("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
@@ -100,8 +100,8 @@ public sealed class LogixClientTests
 
         // Assert
         var message = (await reading.Should().ThrowAsync<LogixTagException>()).Which.Message;
-        message.Should().Contain(Speed.TagName.Value).And.Contain(TagIsWriteOnly);
-        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
+        message.Should().Contain(Speed.TagAddress.Value).And.Contain(TagIsWriteOnly);
+        message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public sealed class LogixClientTests
 
         // Assert
         (await writing.Should().ThrowAsync<LogixTagException>())
-            .Which.Message.Should().Contain(Speed.TagName.Value).And.Contain(TagIsReadOnly);
+            .Which.Message.Should().Contain(Speed.TagAddress.Value).And.Contain(TagIsReadOnly);
     }
 
     [Fact]
@@ -212,8 +212,8 @@ public sealed class LogixClientTests
 
         // Assert
         var message = (await writing.Should().ThrowAsync<LogixTagException>()).Which.Message;
-        message.Should().Contain(Speed.TagName.Value).And.Contain(TagIsReadOnly);
-        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
+        message.Should().Contain(Speed.TagAddress.Value).And.Contain(TagIsReadOnly);
+        message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
@@ -254,7 +254,7 @@ public sealed class LogixClientTests
 
         // Assert
         write.Should().BeOfType<LogixTagException>()
-            .Which.Message.Should().Contain(shortLabel.TagName.Value).And.Contain(shortCode.TagName.Value);
+            .Which.Message.Should().Contain(shortLabel.TagAddress.Value).And.Contain(shortCode.TagAddress.Value);
         labelTag.Written.Should().BeNull();
         codeTag.Written.Should().BeNull();
     }
@@ -273,7 +273,7 @@ public sealed class LogixClientTests
         var write = await Record.ExceptionAsync(() => client.WriteAsync(values, CancellationToken.None).AsTask());
 
         // Assert
-        write.Should().BeOfType<LogixTagException>().Which.Message.Should().Contain(shortLabel.TagName.Value);
+        write.Should().BeOfType<LogixTagException>().Which.Message.Should().Contain(shortLabel.TagAddress.Value);
         speedTag.Written.Should().BeNull();
         labelTag.Written.Should().BeNull();
     }
@@ -290,7 +290,7 @@ public sealed class LogixClientTests
         var write = await Record.ExceptionAsync(() => client.WriteAsync(values, CancellationToken.None).AsTask());
 
         // Assert
-        write.Should().BeOfType<LogixTagException>().Which.Message.Should().Contain(Speed.TagName.Value);
+        write.Should().BeOfType<LogixTagException>().Which.Message.Should().Contain(Speed.TagAddress.Value);
         speedTag.Written.Should().BeNull();
     }
 
@@ -536,13 +536,13 @@ public sealed class LogixClientTests
         new(DefaultPollFrequency, dataPoints);
 
     private static StringDataPoint ShortStringDataPoint(string tagName) =>
-        new(new TagName(tagName), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
+        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
 
     private static TagDefinition AtomicMetadataFor(ILogixDataPoint dataPoint) =>
-        DefaultAtomicTagDefinition() with { TagName = dataPoint.TagName };
+        DefaultAtomicTagDefinition() with { TagAddress = dataPoint.TagAddress };
 
     private static TagDefinition StringMetadataFor(StringDataPoint dataPoint) =>
-        DefaultStringTagDefinition() with { TagName = dataPoint.TagName, MaxLength = dataPoint.MaxLength };
+        DefaultStringTagDefinition() with { TagAddress = dataPoint.TagAddress, MaxLength = dataPoint.MaxLength };
 
     private static ILogixTagManager TagManagerFor(params ILogixTag[] tags)
     {
@@ -565,7 +565,7 @@ public sealed class LogixClientTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
-        : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
+        : LogixDataPoint<int>(new TagAddress("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
         public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 

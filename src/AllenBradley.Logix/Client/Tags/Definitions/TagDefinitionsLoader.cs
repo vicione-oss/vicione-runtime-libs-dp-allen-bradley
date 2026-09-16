@@ -12,53 +12,53 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 /// </summary>
 internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory) : ITagDefinitionsLoader
 {
-    private static readonly TagName ControllerTags = new("@tags");
+    private static readonly TagAddress ControllerTags = new("@tags");
     private const string ProgramPrefix = "Program:";
 
     /// <inheritdoc />
     public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
     {
-        var declarationsByTagName = new Dictionary<TagName, TagDefinition>(TagName.CaseInsensitiveComparer);
+        var declarationsByTagName = new Dictionary<TagAddress, TagDefinition>(TagAddress.CaseInsensitiveComparer);
 
         var controllerTags = await ReadDirectoryAsync(ControllerTags, cancellationToken).ConfigureAwait(false);
         AddTags(declarationsByTagName, controllerTags, programScope: null);
 
         foreach (var program in controllerTags.Where(IsProgram))
         {
-            var programTags = await ReadDirectoryAsync(new TagName($"{program.TagName.Value}.@tags"), cancellationToken)
+            var programTags = await ReadDirectoryAsync(new TagAddress($"{program.TagAddress.Value}.@tags"), cancellationToken)
                 .ConfigureAwait(false);
-            AddTags(declarationsByTagName, programTags, programScope: program.TagName);
+            AddTags(declarationsByTagName, programTags, programScope: program.TagAddress);
         }
 
         return new TagDefinitions(declarationsByTagName);
     }
 
     private async Task<IReadOnlyList<TagDefinition>> ReadDirectoryAsync(
-        TagName schemaTagName, CancellationToken cancellationToken)
+        TagAddress schemaTagAddress, CancellationToken cancellationToken)
     {
-        using var access = accessFactory.CreateForSchemaTag(schemaTagName);
+        using var access = accessFactory.CreateForSchemaTag(schemaTagAddress);
         var readResult = await access.ReadAsync(cancellationToken).ConfigureAwait(false);
 
         if (!readResult.Succeeded)
         {
             throw new DataRetrievalException(
-                $"Could not browse the controller symbol table via '{schemaTagName}': {readResult.Error}");
+                $"Could not browse the controller symbol table via '{schemaTagAddress}': {readResult.Error}");
         }
 
         return TagsDecoder.Decode(readResult.Buffer.Span);
     }
 
     private static bool IsProgram(TagDefinition declaration) =>
-        declaration.TagName.Value.StartsWith(ProgramPrefix, StringComparison.Ordinal);
+        declaration.TagAddress.Value.StartsWith(ProgramPrefix, StringComparison.Ordinal);
 
     private static void AddTags(
-        Dictionary<TagName, TagDefinition> declarationsByTagName,
+        Dictionary<TagAddress, TagDefinition> declarationsByTagName,
         IReadOnlyList<TagDefinition> tags,
-        TagName? programScope)
+        TagAddress? programScope)
     {
         foreach (var tag in tags)
         {
-            if (tag.TagName.Value.Length == 0)
+            if (tag.TagAddress.Value.Length == 0)
             {
                 continue;
             }
@@ -67,12 +67,12 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
             // rewritten to carry that same name.
             if (programScope is { } scope)
             {
-                var qualifiedName = new TagName($"{scope.Value}.{tag.TagName.Value}");
-                declarationsByTagName.TryAdd(qualifiedName, tag with { TagName = qualifiedName });
+                var qualifiedName = new TagAddress($"{scope.Value}.{tag.TagAddress.Value}");
+                declarationsByTagName.TryAdd(qualifiedName, tag with { TagAddress = qualifiedName });
             }
             else
             {
-                declarationsByTagName.TryAdd(tag.TagName, tag);
+                declarationsByTagName.TryAdd(tag.TagAddress, tag);
             }
         }
     }

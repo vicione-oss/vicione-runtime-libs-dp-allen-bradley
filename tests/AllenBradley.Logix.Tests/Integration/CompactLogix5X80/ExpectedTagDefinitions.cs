@@ -13,7 +13,7 @@ internal static class ExpectedTagDefinitions
     /// <summary>What the controller must report for an elementary scalar tag of <paramref name="dataType"/>.</summary>
     internal static TagDefinition AtomicScalar(string tagName, AllenBradleyDataType dataType) =>
         new(
-            new TagName(tagName),
+            new TagAddress(tagName),
             LogixTypeKind.Atomic,
             dataType,
             MaxLength: null,
@@ -27,7 +27,7 @@ internal static class ExpectedTagDefinitions
     internal static TagDefinition AtomicArray(
         string tagName, AllenBradleyDataType dataType, ElementCount elementCount) =>
         new(
-            new TagName(tagName),
+            new TagAddress(tagName),
             LogixTypeKind.Atomic,
             dataType,
             MaxLength: null,
@@ -40,7 +40,7 @@ internal static class ExpectedTagDefinitions
     /// </summary>
     internal static TagDefinition StringScalar(string tagName, StringMaxLength maxLength) =>
         new(
-            new TagName(tagName),
+            new TagAddress(tagName),
             LogixTypeKind.Structure,
             AllenBradleyDataType.String,
             maxLength,

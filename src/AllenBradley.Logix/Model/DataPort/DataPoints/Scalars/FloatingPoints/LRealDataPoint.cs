@@ -4,11 +4,11 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 
 /// <summary>A Logix <c>LREAL</c> tag — an IEEE-754 double, carried as <see cref="double"/>.</summary>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagAddress">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public sealed record LRealDataPoint(TagName TagName, PollFrequency PollFrequency, Channels Channels)
-    : LogixDataPoint<double>(TagName, PollFrequency, Channels)
+public sealed record LRealDataPoint(TagAddress TagAddress, PollFrequency PollFrequency, Channels Channels)
+    : LogixDataPoint<double>(TagAddress, PollFrequency, Channels)
 {
     /// <inheritdoc />
     public override AllenBradleyDataType DataType => AllenBradleyDataType.Lreal;

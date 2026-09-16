@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 public sealed class BoolDataPointTests
 {
     private static readonly BoolDataPoint Flag =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
@@ -73,7 +73,7 @@ public sealed class BoolDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Flag);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("BOOL");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("BOOL");
     }
 
     [Fact]

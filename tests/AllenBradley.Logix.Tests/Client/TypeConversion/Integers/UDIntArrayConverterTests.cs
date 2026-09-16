@@ -19,7 +19,7 @@ public sealed class UDIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new UDIntArrayConverter();
 
     private static readonly UDIntArrayDataPoint Runtimes = new(
-        new TagName("udintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new TagAddress("udintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range, a value asymmetric in its bytes and two
     // above the signed maximum, which is where a UDINT and the DINT beside it disagree.

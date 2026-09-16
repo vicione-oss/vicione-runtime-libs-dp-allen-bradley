@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 public sealed class SIntDataPointTests
 {
     private static readonly SIntDataPoint Level =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels);
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
@@ -73,7 +73,7 @@ public sealed class SIntDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Level);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("SINT");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("SINT");
     }
 
     [Fact]

@@ -12,7 +12,7 @@ public sealed class DIntArrayDataPointTests
     private const int DeclaredElementCount = 10;
 
     private static readonly DIntArrayDataPoint Totals =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()
@@ -82,7 +82,7 @@ public sealed class DIntArrayDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Totals);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("DINT[]");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("DINT[]");
     }
 
     [Theory]

@@ -1,13 +1,12 @@
 using System.Text.RegularExpressions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 
-/// <summary>
-/// The name rule Studio 5000 holds a declaration to. One place, because a tag name and a program name
-/// are the same rule.
-/// </summary>
-internal static partial class LogixIdentifier
+public readonly partial record struct TagName(string Value)
 {
+    internal TagAddress ToTagAddress() => new(Value);
+
     /// <summary>
     /// Whether <paramref name="name"/> is one Studio 5000 could have declared: 1 to 40 characters,
     /// starting with a letter or an underscore, then letters, digits and single underscores that never
@@ -17,5 +16,5 @@ internal static partial class LogixIdentifier
     internal static bool IsWellFormed(string name) => WellFormed().IsMatch(name);
 
     [GeneratedRegex(@"\A(?=.{1,40}\z)[A-Za-z_](?:_?[A-Za-z0-9])*\z")]
-    private static partial Regex WellFormed();
+    internal static partial Regex WellFormed();
 }

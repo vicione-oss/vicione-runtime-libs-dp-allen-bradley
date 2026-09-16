@@ -23,7 +23,7 @@ public sealed class TagDefinitionsLoaderTests
         var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        definitions.Lookup(new TagName("Motor.Speed")).Should().NotBeNull();
+        definitions.Lookup(new TagAddress("Motor.Speed")).Should().NotBeNull();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public sealed class TagDefinitionsLoaderTests
         var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        definitions.Lookup(new TagName("Program:Main.Count")).Should().NotBeNull();
+        definitions.Lookup(new TagAddress("Program:Main.Count")).Should().NotBeNull();
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public sealed class TagDefinitionsLoaderTests
         var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        definitions.Lookup(new TagName("Count")).Should().BeNull();
+        definitions.Lookup(new TagAddress("Count")).Should().BeNull();
     }
 
     [Fact]
@@ -105,13 +105,13 @@ public sealed class TagDefinitionsLoaderTests
         public ILogixTagAccess Create(ILogixDataPoint dataPoint) =>
             throw new NotSupportedException("The loader only reads schema tags.");
 
-        public ILogixTagAccess CreateForSchemaTag(TagName tagName)
+        public ILogixTagAccess CreateForSchemaTag(TagAddress tagAddress)
         {
             var access = Substitute.For<ILogixTagAccess>();
             access.ReadAsync(Arg.Any<CancellationToken>()).Returns(
-                _listingsByTagName.TryGetValue(tagName.Value, out var listing)
+                _listingsByTagName.TryGetValue(tagAddress.Value, out var listing)
                     ? LogixTagReadResult.Ok(listing)
-                    : LogixTagReadResult.Failed($"no such schema tag '{tagName.Value}'"));
+                    : LogixTagReadResult.Failed($"no such schema tag '{tagAddress.Value}'"));
             _created.Add(access);
             return access;
         }

@@ -11,7 +11,7 @@ public sealed class SIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new SIntConverter();
 
-    private static readonly SIntDataPoint Level = new(new TagName("sintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly SIntDataPoint Level = new(new TagAddress("sintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagASInt()

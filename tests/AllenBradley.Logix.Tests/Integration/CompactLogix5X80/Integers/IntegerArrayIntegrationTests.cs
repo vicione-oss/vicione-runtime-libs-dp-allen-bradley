@@ -18,7 +18,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         IntArrayDataPoint dataPoint = new(
-            new TagName(TagAddresses.IntArray),
+            new TagAddress(TagAddresses.IntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -40,7 +40,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         var dataPoint = new IntArrayDataPoint(
-            new TagName(TagAddresses.IntArray),
+            new TagAddress(TagAddresses.IntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -63,7 +63,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         SIntArrayDataPoint samples = new(
-            new TagName(TagAddresses.SIntArray),
+            new TagAddress(TagAddresses.SIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -89,7 +89,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
 
         // Act
         IntArrayDataPoint dataPoint1 = new(
-            new TagName(TagAddresses.IntArray),
+            new TagAddress(TagAddresses.IntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -109,7 +109,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         DIntArrayDataPoint totals = new(
-            new TagName(TagAddresses.DIntArray),
+            new TagAddress(TagAddresses.DIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -132,7 +132,7 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         LIntArrayDataPoint timestamps = new(
-            new TagName(TagAddresses.LIntArray),
+            new TagAddress(TagAddresses.LIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);

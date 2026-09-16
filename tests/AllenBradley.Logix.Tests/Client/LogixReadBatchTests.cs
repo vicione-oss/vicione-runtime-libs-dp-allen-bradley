@@ -18,12 +18,12 @@ public sealed class LogixReadBatchTests
 {
     private const string TagNotFound = "tag not found";
 
-    private static readonly DIntDataPoint Speed = new(new TagName("Motor.Speed"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Level = new(new TagName("Tank.Level"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Torque = new(new TagName("Motor.Torque"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(new TagAddress("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Torque = new(new TagAddress("Motor.Torque"), DefaultPollFrequency, NoChannels);
 
     private static readonly IntArrayDataPoint Readings = new(
-        new TagName("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
+        new TagAddress("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
 
     // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
@@ -79,7 +79,7 @@ public sealed class LogixReadBatchTests
         var batchRead = await batch.ReadAsync(CancellationToken.None);
 
         // Assert
-        var expected = LogixReadBatch.ReadOutcome.Failed(Level.TagName, TagNotFound);
+        var expected = LogixReadBatch.ReadOutcome.Failed(Level.TagAddress, TagNotFound);
         batchRead.Failures.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -98,7 +98,7 @@ public sealed class LogixReadBatchTests
 
         // Assert
         batchRead.Values.Should().Equal(Speed.CreateLogixValue(42));
-        batchRead.Failures.Should().ContainSingle().Which.TagName.Should().Be(Readings.TagName);
+        batchRead.Failures.Should().ContainSingle().Which.TagAddress.Should().Be(Readings.TagAddress);
     }
 
     [Fact]
@@ -115,8 +115,8 @@ public sealed class LogixReadBatchTests
 
         // Assert
         var message = (await reading.Should().ThrowAsync<LogixTagException>()).Which.Message;
-        message.Should().Contain(Speed.TagName.Value).And.Contain("tag is write-only");
-        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
+        message.Should().Contain(Speed.TagAddress.Value).And.Contain("tag is write-only");
+        message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
@@ -134,8 +134,8 @@ public sealed class LogixReadBatchTests
 
         // Assert
         var message = (await reading.Should().ThrowAsync<LogixTagException>()).Which.Message;
-        message.Should().Contain(Speed.TagName.Value);
-        message.Should().Contain(Level.TagName.Value).And.Contain(TagNotFound);
+        message.Should().Contain(Speed.TagAddress.Value);
+        message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public sealed class LogixReadBatchTests
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        var expected = LogixReadBatch.ReadOutcome.Failed(Speed.TagName, TagNotFound);
+        var expected = LogixReadBatch.ReadOutcome.Failed(Speed.TagAddress, TagNotFound);
         outcome.Should().Be(expected);
     }
 
@@ -281,7 +281,7 @@ public sealed class LogixReadBatchTests
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
 
         // Assert
-        outcome.TagName.Should().Be(Speed.TagName);
+        outcome.TagAddress.Should().Be(Speed.TagAddress);
         outcome.Error.Should().NotBeNullOrEmpty();
     }
 
@@ -347,7 +347,7 @@ public sealed class LogixReadBatchTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
-        : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
+        : LogixDataPoint<int>(new TagAddress("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
         public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 

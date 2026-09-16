@@ -59,7 +59,7 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
 
         // Assert
         var expected = new TagDefinition(
-            new TagName(BenchControllerTags.StrValue1),
+            new TagAddress(BenchControllerTags.StrValue1),
             LogixTypeKind.Structure,
             AllenBradleyDataType.String,
             StringMaxLength.Standard,
@@ -69,5 +69,5 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
     }
 
     private static StringDataPoint StringTag() =>
-        new(new TagName(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 }

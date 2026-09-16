@@ -12,7 +12,7 @@ public sealed class StringDataPointTests
     private const int DeclaredCapacity = 82;
 
     private static readonly StringDataPoint Label =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()
@@ -64,7 +64,7 @@ public sealed class StringDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Label);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("STRING");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("STRING");
     }
 
     [Fact]

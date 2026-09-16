@@ -25,7 +25,7 @@ public sealed class LogixTagAccessFactoryTests
     {
         // Arrange
         var readings = new IntArrayDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
         // Act
         using var tag = _factory.CreateTagFor(readings);
@@ -39,7 +39,7 @@ public sealed class LogixTagAccessFactoryTests
     {
         // Arrange
         var readings = new IntArrayDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
         var moreReadings = readings with { ElementCount = new ElementCount(DeclaredElementCount * 2) };
 
         // Act
@@ -58,7 +58,7 @@ public sealed class LogixTagAccessFactoryTests
         // libplctag puts the count on the request unchanged, and the controller counts a BOOL array in
         // the 32-bit words it allocated.
         var flags = new BoolArrayDataPoint(
-            DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
+            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
 
         // Act
         using var tag = _factory.CreateTagFor(flags);
@@ -70,8 +70,8 @@ public sealed class LogixTagAccessFactoryTests
     /// <summary>One data point per shape that configures no extent: an elementary type, and a STRING.</summary>
     public static TheoryData<ILogixDataPoint> ScalarDataPoints =>
     [
-        new IntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels),
-        new StringDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels, StringMaxLength.Standard),
+        new IntDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels),
+        new StringDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels, StringMaxLength.Standard),
     ];
 
     [Theory]
@@ -94,7 +94,7 @@ public sealed class LogixTagAccessFactoryTests
         // The @tags directory is a listing, not an array of the elements any data point is configured as.
 
         // Act
-        using var tag = _factory.CreateTag(new TagName("@tags"));
+        using var tag = _factory.CreateTag(new TagAddress("@tags"));
 
         // Assert
         tag.ElementCount.Should().BeNull();

@@ -116,7 +116,7 @@ public sealed class LogixConfigurationVerifierTests
             DimensionCount = DimensionCount.OneDimensional,
         };
         var resolved = new ResolvedDataPoint(
-            new BoolDataPoint(new TagName("Flags"), DefaultPollFrequency, NoChannels), declaration);
+            new BoolDataPoint(new TagAddress("Flags"), DefaultPollFrequency, NoChannels), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -212,7 +212,7 @@ public sealed class LogixConfigurationVerifierTests
             TestContext.Current.CancellationToken);
 
         // Assert
-        mismatches.Select(mismatch => mismatch.DataPoint.TagName.Value).Should()
+        mismatches.Select(mismatch => mismatch.DataPoint.TagAddress.Value).Should()
             .BeEquivalentTo("WrongType", "Missing");
     }
 
@@ -231,7 +231,7 @@ public sealed class LogixConfigurationVerifierTests
 
         // Assert
         mismatches.Should().AllSatisfy(mismatch => mismatch.MismatchingConfigurations.Should().ContainSingle()
-            .Which.Value.Should().Contain(mismatch.DataPoint.TagName.Value));
+            .Which.Value.Should().Contain(mismatch.DataPoint.TagAddress.Value));
     }
 
     [Fact]
@@ -275,13 +275,13 @@ public sealed class LogixConfigurationVerifierTests
     }
 
     private static DIntDataPoint DIntPointNamed(string tagName) =>
-        new(new TagName(tagName), DefaultPollFrequency, NoChannels);
+        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels);
 
     private static StringDataPoint StringPointNamed(string tagName) =>
-        new(new TagName(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     private static IntArrayDataPoint IntArrayPointNamed(string tagName) =>
-        new(new TagName(tagName), DefaultPollFrequency, NoChannels, TenElements);
+        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, TenElements);
 
     // A hand-built point could not disagree with the walk about a program prefix.
     private static IReadOnlyList<ILogixDataPoint> DataPointsOf(LogixCommunication communication) =>
@@ -290,12 +290,12 @@ public sealed class LogixConfigurationVerifierTests
 
     private sealed class FakeClient : ILogixClient
     {
-        private readonly Dictionary<TagName, TagDefinition> _declarations =
-            new(TagName.CaseInsensitiveComparer);
+        private readonly Dictionary<TagAddress, TagDefinition> _declarations =
+            new(TagAddress.CaseInsensitiveComparer);
 
         public TagDefinition this[string tagName]
         {
-            set => _declarations[new TagName(tagName)] = value;
+            set => _declarations[new TagAddress(tagName)] = value;
         }
 
         public bool IsConnected => true;
@@ -306,7 +306,7 @@ public sealed class LogixConfigurationVerifierTests
             [
                 .. dataPoints.Select(dataPoint => new ResolvedDataPoint(
                     dataPoint,
-                    _declarations.TryGetValue(dataPoint.TagName, out var declaration) ? declaration : null)),
+                    _declarations.TryGetValue(dataPoint.TagAddress, out var declaration) ? declaration : null)),
             ]);
 
         public Task ConnectAsync(CancellationToken cancellationToken) => Task.CompletedTask;

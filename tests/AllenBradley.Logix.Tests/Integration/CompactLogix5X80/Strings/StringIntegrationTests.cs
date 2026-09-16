@@ -78,5 +78,5 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
     }
 
     private static StringDataPoint StringTag() =>
-        new(new TagName(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity);
+        new(new TagAddress(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity);
 }

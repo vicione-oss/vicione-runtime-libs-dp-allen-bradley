@@ -101,7 +101,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         };
     }
 
-    private static ILogixDataPoint ToArrayDataPoint(LogixArrayDataPointNode arrayDataPointNode, TagName tagName)
+    private static ILogixDataPoint ToArrayDataPoint(LogixArrayDataPointNode arrayDataPointNode, TagAddress tagAddress)
     {
         var pollFrequency = arrayDataPointNode.PollFrequency;
         var channels = arrayDataPointNode.Channels;
@@ -109,17 +109,17 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
 
         return arrayDataPointNode switch
         {
-            BoolArrayDataPointNode => new BoolArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            SIntArrayDataPointNode => new SIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            IntArrayDataPointNode => new IntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            DIntArrayDataPointNode => new DIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            LIntArrayDataPointNode => new LIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UsIntArrayDataPointNode => new USIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UIntArrayDataPointNode => new UIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UdIntArrayDataPointNode => new UDIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UlIntArrayDataPointNode => new ULIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            RealArrayDataPointNode => new RealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            LRealArrayDataPointNode => new LRealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            BoolArrayDataPointNode => new BoolArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            SIntArrayDataPointNode => new SIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            IntArrayDataPointNode => new IntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            DIntArrayDataPointNode => new DIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            LIntArrayDataPointNode => new LIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            UsIntArrayDataPointNode => new USIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            UIntArrayDataPointNode => new UIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            UdIntArrayDataPointNode => new UDIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            UlIntArrayDataPointNode => new ULIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            RealArrayDataPointNode => new RealArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            LRealArrayDataPointNode => new LRealArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
             _ => throw UnsupportedNode(arrayDataPointNode),
         };
     }

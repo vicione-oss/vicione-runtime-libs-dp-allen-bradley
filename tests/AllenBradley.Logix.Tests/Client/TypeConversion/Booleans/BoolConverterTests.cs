@@ -11,7 +11,7 @@ public sealed class BoolConverterTests
 {
     private static readonly IDataPointConverter Converter = new BoolConverter();
 
-    private static readonly BoolDataPoint Flag = new(new TagName("boolValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly BoolDataPoint Flag = new(new TagAddress("boolValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagABool()

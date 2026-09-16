@@ -72,5 +72,5 @@ internal abstract class AtomicArrayDataPointConverter<TDataPoint, TElement>
     }
 
     // The type parameter is both a data point and an array data point, and each names the tag.
-    private static TagName TagNameOf(TDataPoint dataPoint) => ((ILogixDataPoint)dataPoint).TagName;
+    private static TagAddress TagNameOf(TDataPoint dataPoint) => ((ILogixDataPoint)dataPoint).TagAddress;
 }

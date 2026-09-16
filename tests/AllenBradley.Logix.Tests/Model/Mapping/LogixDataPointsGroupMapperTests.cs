@@ -7,6 +7,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -31,7 +32,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new DIntDataPoint(counter.TagName, counter.PollFrequency, counter.Channels);
+        var expected = new DIntDataPoint(counter.TagName.ToTagAddress(), counter.PollFrequency, counter.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -58,8 +59,8 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new TagName($"Program:{DefaultProgramName.Value}.{DefaultDIntTagName.Value}");
-        dataPoints.Should().ContainSingle().Which.TagName.Should().Be(expected);
+        var expected = new TagAddress($"Program:{DefaultProgramName.Value}.{DefaultDIntTagName.Value}");
+        dataPoints.Should().ContainSingle().Which.TagAddress.Should().Be(expected);
     }
 
     [Fact]
@@ -73,7 +74,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new IntDataPoint(setpoint.TagName, setpoint.PollFrequency, setpoint.Channels);
+        var expected = new IntDataPoint(setpoint.TagName.ToTagAddress(), setpoint.PollFrequency, setpoint.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -88,7 +89,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new SIntDataPoint(level.TagName, level.PollFrequency, level.Channels);
+        var expected = new SIntDataPoint(level.TagName.ToTagAddress(), level.PollFrequency, level.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -103,7 +104,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new LIntDataPoint(ticks.TagName, ticks.PollFrequency, ticks.Channels);
+        var expected = new LIntDataPoint(ticks.TagName.ToTagAddress(), ticks.PollFrequency, ticks.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -118,7 +119,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new USIntDataPoint(pressure.TagName, pressure.PollFrequency, pressure.Channels);
+        var expected = new USIntDataPoint(pressure.TagName.ToTagAddress(), pressure.PollFrequency, pressure.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -134,7 +135,7 @@ public sealed class LogixDataPointsGroupMapperTests
 
         // Assert
         var expected = new UIntDataPoint(
-            revolutions.TagName, revolutions.PollFrequency, revolutions.Channels);
+            revolutions.TagName.ToTagAddress(), revolutions.PollFrequency, revolutions.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -149,7 +150,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new UDIntDataPoint(runtime.TagName, runtime.PollFrequency, runtime.Channels);
+        var expected = new UDIntDataPoint(runtime.TagName.ToTagAddress(), runtime.PollFrequency, runtime.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -164,7 +165,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new ULIntDataPoint(cycles.TagName, cycles.PollFrequency, cycles.Channels);
+        var expected = new ULIntDataPoint(cycles.TagName.ToTagAddress(), cycles.PollFrequency, cycles.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -179,7 +180,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new RealDataPoint(flowRate.TagName, flowRate.PollFrequency, flowRate.Channels);
+        var expected = new RealDataPoint(flowRate.TagName.ToTagAddress(), flowRate.PollFrequency, flowRate.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -194,7 +195,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        var expected = new BoolDataPoint(running.TagName, running.PollFrequency, running.Channels);
+        var expected = new BoolDataPoint(running.TagName.ToTagAddress(), running.PollFrequency, running.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -214,7 +215,7 @@ public sealed class LogixDataPointsGroupMapperTests
 
         // Assert
         var expected = new StringDataPoint(
-            label.TagName, label.PollFrequency, label.Channels, label.MaxLength);
+            label.TagName.ToTagAddress(), label.PollFrequency, label.Channels, label.MaxLength);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -234,7 +235,7 @@ public sealed class LogixDataPointsGroupMapperTests
 
         // Assert
         var expected = new IntArrayDataPoint(
-            readings.TagName, readings.PollFrequency, readings.Channels, readings.ElementCount);
+            readings.TagName.ToTagAddress(), readings.PollFrequency, readings.Channels, readings.ElementCount);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
@@ -243,9 +244,12 @@ public sealed class LogixDataPointsGroupMapperTests
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
-            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayDataPointNode, DefaultSIntArrayDataPointNode,
-            DefaultDIntArrayDataPointNode, DefaultLIntArrayDataPointNode, DefaultUsIntArrayDataPointNode, DefaultUIntArrayDataPointNode,
-            DefaultUdIntArrayDataPointNode, DefaultUlIntArrayDataPointNode, DefaultRealArrayDataPointNode, DefaultLRealArrayDataPointNode);
+            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayDataPointNode,
+            DefaultSIntArrayDataPointNode,
+            DefaultDIntArrayDataPointNode, DefaultLIntArrayDataPointNode, DefaultUsIntArrayDataPointNode,
+            DefaultUIntArrayDataPointNode,
+            DefaultUdIntArrayDataPointNode, DefaultUlIntArrayDataPointNode, DefaultRealArrayDataPointNode,
+            DefaultLRealArrayDataPointNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);
@@ -280,7 +284,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        dataPoints.Select(static dataPoint => dataPoint.TagName.Value).Should()
+        dataPoints.Select(static dataPoint => dataPoint.TagAddress.Value).Should()
             .BeEquivalentTo("TagOne", "TagTwo", "TagThree");
     }
 
@@ -304,7 +308,7 @@ public sealed class LogixDataPointsGroupMapperTests
         var pollFrequency = PollFrequency.FromMilliseconds(250);
         IReadOnlyList<ILogixDataPoint> dataPoints =
         [
-            new DIntDataPoint(DefaultDIntTagName, DefaultPollFrequency, NoChannels),
+            new DIntDataPoint(DefaultDIntTagName.ToTagAddress(), DefaultPollFrequency, NoChannels),
         ];
 
         // Act

@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// </summary>
 public interface ILogixDataPoint : IPollingDataPoint
 {
-    TagName TagName { get; }
+    TagAddress TagAddress { get; }
 
     /// <summary>
     /// Turns an untyped engine value into one of this point's typed values, or says why it will not

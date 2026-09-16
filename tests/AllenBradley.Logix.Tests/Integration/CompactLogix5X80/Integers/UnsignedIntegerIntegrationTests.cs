@@ -23,7 +23,7 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
     public async Task AUSIntValueRoundTripsAndItsTagIsDeclaredUSInt(byte valueToWrite)
     {
         // Arrange
-        var dataPoint = new USIntDataPoint(new TagName(TagAddresses.USInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new USIntDataPoint(new TagAddress(TagAddresses.USInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -46,7 +46,7 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
     public async Task AUIntValueRoundTripsAndItsTagIsDeclaredUInt(ushort valueToWrite)
     {
         // Arrange
-        var dataPoint = new UIntDataPoint(new TagName(TagAddresses.UInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new UIntDataPoint(new TagAddress(TagAddresses.UInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -69,7 +69,7 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
     public async Task AUDIntValueRoundTripsAndItsTagIsDeclaredUDInt(uint valueToWrite)
     {
         // Arrange
-        var dataPoint = new UDIntDataPoint(new TagName(TagAddresses.UDInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new UDIntDataPoint(new TagAddress(TagAddresses.UDInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -92,7 +92,7 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
     public async Task AULIntValueRoundTripsAndItsTagIsDeclaredULInt(ulong valueToWrite)
     {
         // Arrange
-        var dataPoint = new ULIntDataPoint(new TagName(TagAddresses.ULInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new ULIntDataPoint(new TagAddress(TagAddresses.ULInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);

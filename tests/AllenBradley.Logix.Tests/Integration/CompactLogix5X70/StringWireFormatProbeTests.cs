@@ -19,7 +19,7 @@ public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : Logix
     {
         // Arrange
         var dataPoint = new StringDataPoint(
-            new TagName(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+            new TagAddress(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
         var tag = TagManager.TagFor(dataPoint);
 
         // Act

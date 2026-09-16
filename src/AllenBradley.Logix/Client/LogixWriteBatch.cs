@@ -62,7 +62,7 @@ internal sealed class LogixWriteBatch
         }
         catch (InvalidOperationException ex)
         {
-            return EncodeOutcome.Failed($"{dataPoint.TagName}: {ex.Message}");
+            return EncodeOutcome.Failed($"{dataPoint.TagAddress}: {ex.Message}");
         }
     }
 
@@ -88,7 +88,7 @@ internal sealed class LogixWriteBatch
     {
         var result = await entry.Tag.WriteAsync(entry.Buffer, cancellationToken).ConfigureAwait(false);
 
-        return new WriteOutcome(entry.DataPoint.TagName, result);
+        return new WriteOutcome(entry.DataPoint.TagAddress, result);
     }
 
     // ILogixWriteClient.WriteAsync hands the caller a bare ValueTask, so an exception is the only thing
@@ -102,7 +102,7 @@ internal sealed class LogixWriteBatch
         }
 
         // Non-null by construction: LogixTagWriteResult.Succeeded is defined as having no error.
-        var reasons = failures.Select(failure => $"{failure.TagName}: {failure.Result.Error}");
+        var reasons = failures.Select(failure => $"{failure.TagAddress}: {failure.Result.Error}");
         throw new LogixTagException($"Write failed for {string.Join("; ", reasons)}.");
     }
 
@@ -121,5 +121,5 @@ internal sealed class LogixWriteBatch
     }
 
     /// <summary>What the controller answered for one entry's write.</summary>
-    private readonly record struct WriteOutcome(TagName TagName, LogixTagWriteResult Result);
+    private readonly record struct WriteOutcome(TagAddress TagAddress, LogixTagWriteResult Result);
 }

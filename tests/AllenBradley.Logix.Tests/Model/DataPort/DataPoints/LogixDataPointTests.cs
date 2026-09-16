@@ -12,7 +12,7 @@ public sealed class LogixDataPointTests
     {
         // Arrange
         var dataPoint = new DIntDataPoint(
-            new TagName("Program:MainProgram.Counter.PRE"), DefaultPollFrequency, NoChannels);
+            new TagAddress("Program:MainProgram.Counter.PRE"), DefaultPollFrequency, NoChannels);
 
         // Act
         var identifier = dataPoint.Identifier;
@@ -25,7 +25,7 @@ public sealed class LogixDataPointTests
     public void AValueIsTheFrameworkViewOfItsPointAndPayload()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagName, DefaultPollFrequency, NoChannels);
+        var dataPoint = new DIntDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels);
 
         // Act
         var value = dataPoint.CreateTypedValue(42);

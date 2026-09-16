@@ -18,7 +18,7 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     {
         // Arrange
         USIntArrayDataPoint pressures = new(
-            new TagName(TagAddresses.USIntArray),
+            new TagAddress(TagAddresses.USIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -41,7 +41,7 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     {
         // Arrange
         UIntArrayDataPoint speeds = new(
-            new TagName(TagAddresses.UIntArray),
+            new TagAddress(TagAddresses.UIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -64,7 +64,7 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     {
         // Arrange
         UDIntArrayDataPoint runtimes = new(
-            new TagName(TagAddresses.UDIntArray),
+            new TagAddress(TagAddresses.UDIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -87,7 +87,7 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     {
         // Arrange
         ULIntArrayDataPoint cycleCounts = new(
-            new TagName(TagAddresses.ULIntArray),
+            new TagAddress(TagAddresses.ULIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);

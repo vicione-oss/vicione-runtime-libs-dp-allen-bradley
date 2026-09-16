@@ -12,7 +12,7 @@ public sealed class BoolArrayDataPointTests
     private const int DeclaredBitCount = 32;
 
     private static readonly BoolArrayDataPoint Flags =
-        new(DefaultTagName, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
+        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()
@@ -117,7 +117,7 @@ public sealed class BoolArrayDataPointTests
             .BeOfType<NotConvertedDataPointValue<ILogixDataPointValue>>().Subject.Failure;
         failure.DataPoint.Should().BeSameAs(Flags);
         failure.Reason.Should().Be(ValidationFailureReason.ConversionFailure);
-        failure.Details.Should().Contain(DefaultTagName.Value).And.Contain("BOOL[]");
+        failure.Details.Should().Contain(DefaultTagAddress.Value).And.Contain("BOOL[]");
     }
 
     [Theory]
