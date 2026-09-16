@@ -5,14 +5,14 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.LIntArray.Mapping;
 
-/// <summary>Maps a configured <c>LIntArray</c> node onto an <see cref="LIntArrayNode"/>.</summary>
-internal sealed class LIntArrayNodeMapper : LogixArrayNodeMapper<LIntArrayNode>
+/// <summary>Maps a configured <c>LIntArray</c> node onto an <see cref="LIntArrayDataPointNode"/>.</summary>
+internal sealed class LIntArrayNodeMapper : LogixArrayNodeMapper<LIntArrayDataPointNode>
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => LIntArrayNode.LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => LIntArrayDataPointNode.LinkedNodeTypeId;
 
     /// <inheritdoc />
-    protected override LIntArrayNode CreateNode(
+    protected override LIntArrayDataPointNode CreateNode(
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount) =>
         new(originalNode, tagName, pollFrequency, elementCount);
 }

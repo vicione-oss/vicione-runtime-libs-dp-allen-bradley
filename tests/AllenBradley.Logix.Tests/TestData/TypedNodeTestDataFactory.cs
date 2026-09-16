@@ -174,82 +174,82 @@ internal static class TypedNodeTestDataFactory
             DefaultRealTagName,
             DefaultPollFrequency);
 
-    internal static SIntArrayNode DefaultSIntArrayNode =>
+    internal static SIntArrayDataPointNode DefaultSIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                SIntArrayNode.LinkedNodeTypeId, DefaultSIntArrayTagName.Value, DefaultChannel),
+                SIntArrayDataPointNode.LinkedNodeTypeId, DefaultSIntArrayTagName.Value, DefaultChannel),
             DefaultSIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static IntArrayNode DefaultIntArrayNode =>
+    internal static IntArrayDataPointNode DefaultIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                IntArrayNode.LinkedNodeTypeId, DefaultIntArrayTagName.Value, DefaultChannel),
+                IntArrayDataPointNode.LinkedNodeTypeId, DefaultIntArrayTagName.Value, DefaultChannel),
             DefaultIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static DIntArrayNode DefaultDIntArrayNode =>
+    internal static DIntArrayDataPointNode DefaultDIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                DIntArrayNode.LinkedNodeTypeId, DefaultDIntArrayTagName.Value, DefaultChannel),
+                DIntArrayDataPointNode.LinkedNodeTypeId, DefaultDIntArrayTagName.Value, DefaultChannel),
             DefaultDIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static LIntArrayNode DefaultLIntArrayNode =>
+    internal static LIntArrayDataPointNode DefaultLIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                LIntArrayNode.LinkedNodeTypeId, DefaultLIntArrayTagName.Value, DefaultChannel),
+                LIntArrayDataPointNode.LinkedNodeTypeId, DefaultLIntArrayTagName.Value, DefaultChannel),
             DefaultLIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static USIntArrayNode DefaultUSIntArrayNode =>
+    internal static UsIntArrayDataPointNode DefaultUsIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                USIntArrayNode.LinkedNodeTypeId, DefaultUSIntArrayTagName.Value, DefaultChannel),
+                UsIntArrayDataPointNode.LinkedNodeTypeId, DefaultUSIntArrayTagName.Value, DefaultChannel),
             DefaultUSIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static UIntArrayNode DefaultUIntArrayNode =>
+    internal static UIntArrayDataPointNode DefaultUIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                UIntArrayNode.LinkedNodeTypeId, DefaultUIntArrayTagName.Value, DefaultChannel),
+                UIntArrayDataPointNode.LinkedNodeTypeId, DefaultUIntArrayTagName.Value, DefaultChannel),
             DefaultUIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static UDIntArrayNode DefaultUDIntArrayNode =>
+    internal static UdIntArrayDataPointNode DefaultUdIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                UDIntArrayNode.LinkedNodeTypeId, DefaultUDIntArrayTagName.Value, DefaultChannel),
+                UdIntArrayDataPointNode.LinkedNodeTypeId, DefaultUDIntArrayTagName.Value, DefaultChannel),
             DefaultUDIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static ULIntArrayNode DefaultULIntArrayNode =>
+    internal static UlIntArrayDataPointNode DefaultUlIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                ULIntArrayNode.LinkedNodeTypeId, DefaultULIntArrayTagName.Value, DefaultChannel),
+                UlIntArrayDataPointNode.LinkedNodeTypeId, DefaultULIntArrayTagName.Value, DefaultChannel),
             DefaultULIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static RealArrayNode DefaultRealArrayNode =>
+    internal static RealArrayDataPointNode DefaultRealArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                RealArrayNode.LinkedNodeTypeId, DefaultRealArrayTagName.Value, DefaultChannel),
+                RealArrayDataPointNode.LinkedNodeTypeId, DefaultRealArrayTagName.Value, DefaultChannel),
             DefaultRealArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
-    internal static LRealArrayNode DefaultLRealArrayNode =>
+    internal static LRealArrayDataPointNode DefaultLRealArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                LRealArrayNode.LinkedNodeTypeId, DefaultLRealArrayTagName.Value, DefaultChannel),
+                LRealArrayDataPointNode.LinkedNodeTypeId, DefaultLRealArrayTagName.Value, DefaultChannel),
             DefaultLRealArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);

@@ -60,7 +60,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         IConfigurationNode configurationNode, TagScope scope, List<ILogixDataPoint> dataPoints)
     {
         var logixDataPoints = configurationNode.DataPointNodes
-            .OfType<ILogixTagNode>()
+            .OfType<ILogixDataPointNode>()
             .Select(dataPointNode => ToDataPoint(dataPointNode, scope));
 
         dataPoints.AddRange(logixDataPoints);
@@ -76,7 +76,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     private static TagScope ScopeOf(IConfigurationNode configurationNode, TagScope enclosingScope) =>
         configurationNode is ITagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
 
-    private static ILogixDataPoint ToDataPoint(ILogixTagNode dataPointNode, TagScope scope)
+    private static ILogixDataPoint ToDataPoint(ILogixDataPointNode dataPointNode, TagScope scope)
     {
         var pollFrequency = dataPointNode.PollFrequency;
         var channels = dataPointNode.Channels;
@@ -96,36 +96,36 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
             RealNode => new RealDataPoint(tagName, pollFrequency, channels),
             LRealNode => new LRealDataPoint(tagName, pollFrequency, channels),
             StringNode stringNode => new StringDataPoint(tagName, pollFrequency, channels, stringNode.MaxLength),
-            LogixArrayNode arrayNode => ToArrayDataPoint(arrayNode, tagName),
+            LogixArrayDataPointNode arrayNode => ToArrayDataPoint(arrayNode, tagName),
             _ => throw UnsupportedNode(dataPointNode),
         };
     }
 
-    private static ILogixDataPoint ToArrayDataPoint(LogixArrayNode arrayNode, TagName tagName)
+    private static ILogixDataPoint ToArrayDataPoint(LogixArrayDataPointNode arrayDataPointNode, TagName tagName)
     {
-        var pollFrequency = arrayNode.PollFrequency;
-        var channels = arrayNode.Channels;
-        var elementCount = arrayNode.ElementCount;
+        var pollFrequency = arrayDataPointNode.PollFrequency;
+        var channels = arrayDataPointNode.Channels;
+        var elementCount = arrayDataPointNode.ElementCount;
 
-        return arrayNode switch
+        return arrayDataPointNode switch
         {
-            BoolArrayNode => new BoolArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            SIntArrayNode => new SIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            IntArrayNode => new IntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            DIntArrayNode => new DIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            LIntArrayNode => new LIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            USIntArrayNode => new USIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UIntArrayNode => new UIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            UDIntArrayNode => new UDIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            ULIntArrayNode => new ULIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            RealArrayNode => new RealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            LRealArrayNode => new LRealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
-            _ => throw UnsupportedNode(arrayNode),
+            BoolArrayDataPointNode => new BoolArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            SIntArrayDataPointNode => new SIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            IntArrayDataPointNode => new IntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            DIntArrayDataPointNode => new DIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            LIntArrayDataPointNode => new LIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UsIntArrayDataPointNode => new USIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UIntArrayDataPointNode => new UIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UdIntArrayDataPointNode => new UDIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            UlIntArrayDataPointNode => new ULIntArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            RealArrayDataPointNode => new RealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            LRealArrayDataPointNode => new LRealArrayDataPoint(tagName, pollFrequency, channels, elementCount),
+            _ => throw UnsupportedNode(arrayDataPointNode),
         };
     }
 
     // Unreachable from a manifest: a node the switches do not name has a node mapper and no data
     // point behind it, which only a half-finished type slice produces.
-    private static NotSupportedException UnsupportedNode(ILogixTagNode dataPointNode) =>
+    private static NotSupportedException UnsupportedNode(ILogixDataPointNode dataPointNode) =>
         new($"Unsupported Logix data point node type '{dataPointNode.GetType().Name}'.");
 }

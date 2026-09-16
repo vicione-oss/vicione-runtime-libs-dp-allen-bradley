@@ -47,8 +47,8 @@ internal static class TagNodeTestDataFactory
     {
         var properties = new Dictionary<string, Property>
         {
-            { ILogixTagNode.TagNamePropertyName, new Property { Value = tagName } },
-            { ILogixTagNode.PollFrequencyPropertyName, new Property { Value = pollFrequency } },
+            { ILogixDataPointNode.TagNamePropertyName, new Property { Value = tagName } },
+            { ILogixDataPointNode.PollFrequencyPropertyName, new Property { Value = pollFrequency } },
         };
 
         foreach (var (key, value) in extraProperties)

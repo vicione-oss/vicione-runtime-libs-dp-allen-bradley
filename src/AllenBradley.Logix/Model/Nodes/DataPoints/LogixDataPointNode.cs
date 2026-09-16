@@ -12,8 +12,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads it.</param>
-internal abstract record LogixTagNode(LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency)
-    : ILogixTagNode
+internal abstract record LogixDataPointNode(LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency)
+    : ILogixDataPointNode
 {
     /// <inheritdoc />
     public IConfigurationNode? Parent { get; set; }

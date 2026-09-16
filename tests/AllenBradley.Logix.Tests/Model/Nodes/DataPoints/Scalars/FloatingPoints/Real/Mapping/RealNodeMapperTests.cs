@@ -39,7 +39,7 @@ public sealed class RealNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixTagNode realNode = _mapper.Map(node);
+        ILogixDataPointNode realNode = _mapper.Map(node);
 
         // Assert
         realNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
@@ -90,7 +90,7 @@ public sealed class RealNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode RealNodeWith(params KeyValuePair<string, Property>[] properties) =>

@@ -18,7 +18,7 @@ public sealed class RealArrayNodeMapperTests
 
     private const string TagName = "MyRealArrayTag";
 
-    private readonly IDataPointNodeMapper<RealArrayNode> _mapper = new RealArrayNodeMapper();
+    private readonly IDataPointNodeMapper<RealArrayDataPointNode> _mapper = new RealArrayNodeMapper();
 
     [Fact]
     public void TheTagNameElementCountAndPollFrequencyAreReadOffTheConfiguredNode()
@@ -48,15 +48,15 @@ public sealed class RealArrayNodeMapperTests
             CreateElementCount(DeclaredElementCount));
 
         // Act
-        ILogixTagNode realArrayNode = _mapper.Map(node);
+        ILogixDataPointNode realArrayNode = _mapper.Map(node);
 
         // Assert
         realArrayNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
     [Theory]
-    [InlineData(RealArrayNode.LinkedNodeTypeId, true)]
-    [InlineData(IntArrayNode.LinkedNodeTypeId, false)]
+    [InlineData(RealArrayDataPointNode.LinkedNodeTypeId, true)]
+    [InlineData(IntArrayDataPointNode.LinkedNodeTypeId, false)]
     public void ItClaimsARealArrayNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
@@ -102,9 +102,9 @@ public sealed class RealArrayNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     private static LinkedNode RealArrayNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(RealArrayNode.LinkedNodeTypeId, TagName, properties);
+        CreateLinkedNode(RealArrayDataPointNode.LinkedNodeTypeId, TagName, properties);
 }

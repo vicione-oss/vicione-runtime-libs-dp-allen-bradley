@@ -39,7 +39,7 @@ public sealed class SIntNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixTagNode sIntNode = _mapper.Map(node);
+        ILogixDataPointNode sIntNode = _mapper.Map(node);
 
         // Assert
         sIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
@@ -90,7 +90,7 @@ public sealed class SIntNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode SIntNodeWith(params KeyValuePair<string, Property>[] properties) =>

@@ -7,13 +7,13 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Arrays.Mapping;
 
-public sealed class ArrayNodePropertyValidatorTests
+public sealed class ArrayDataPointNodePropertyValidatorTests
 {
     private const int DefaultPollFrequency = 100;
 
     private const uint DeclaredElementCount = 10;
 
-    private readonly ArrayNodePropertyValidator _validator = new();
+    private readonly ArrayDataPointNodePropertyValidator _validator = new();
 
     [Fact]
     public void AnArrayTagWithAllThreePropertiesWellFormedIsAccepted()
@@ -42,7 +42,7 @@ public sealed class ArrayNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     /// <summary>Values the manifest's UInt32 property cannot carry: text, and a signed integer.</summary>
@@ -61,7 +61,7 @@ public sealed class ArrayNodePropertyValidatorTests
 
         // Assert
         validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public sealed class ArrayNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse("a tag that holds nothing is not an array tag");
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public sealed class ArrayNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -108,11 +108,11 @@ public sealed class ArrayNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Select(static error => error.PropertyName).Should().BeEquivalentTo(
-            ILogixTagNode.TagNamePropertyName,
-            ILogixTagNode.PollFrequencyPropertyName,
-            LogixArrayNode.ElementCountPropertyName);
+            ILogixDataPointNode.TagNamePropertyName,
+            ILogixDataPointNode.PollFrequencyPropertyName,
+            LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     private static LinkedNode ArrayNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(IntArrayNode.LinkedNodeTypeId, "TestTag", properties);
+        CreateLinkedNode(IntArrayDataPointNode.LinkedNodeTypeId, "TestTag", properties);
 }

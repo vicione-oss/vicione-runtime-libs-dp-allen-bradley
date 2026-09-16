@@ -39,7 +39,7 @@ public sealed class BoolNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixTagNode boolNode = _mapper.Map(node);
+        ILogixDataPointNode boolNode = _mapper.Map(node);
 
         // Assert
         boolNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
@@ -90,7 +90,7 @@ public sealed class BoolNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode BoolNodeWith(params KeyValuePair<string, Property>[] properties) =>

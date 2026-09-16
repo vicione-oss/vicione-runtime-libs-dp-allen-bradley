@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 /// A configured tag: what every tag node carries whatever its type and shape, and the names the
 /// manifest declares them under.
 /// </summary>
-public interface ILogixTagNode : IDataPointNode
+public interface ILogixDataPointNode : IDataPointNode
 {
     /// <summary>The manifest property carrying <see cref="TagName"/>.</summary>
     const string TagNamePropertyName = nameof(TagName);

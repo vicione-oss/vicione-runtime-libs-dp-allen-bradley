@@ -12,7 +12,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads it.</param>
 internal sealed record ULIntNode(LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency)
-    : LogixTagNode(OriginalNode, TagName, PollFrequency), ILogixTagNode
+    : LogixDataPointNode(OriginalNode, TagName, PollFrequency), ILogixDataPointNode
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "ULInt";
@@ -21,5 +21,5 @@ internal sealed record ULIntNode(LinkedNode OriginalNode, TagName TagName, PollF
     /// The unsigned integers arrived with the 5X80 controllers. Implemented explicitly, because the YAML
     /// consistency test expects every public property of a data point node to be a manifest property.
     /// </summary>
-    LogixGeneration ILogixTagNode.MinimumGeneration => LogixGeneration.Logix5X80;
+    LogixGeneration ILogixDataPointNode.MinimumGeneration => LogixGeneration.Logix5X80;
 }

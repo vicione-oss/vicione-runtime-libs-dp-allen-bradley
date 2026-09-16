@@ -13,9 +13,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Array
 /// <param name="TagName">The symbolic tag address.</param>
 /// <param name="PollFrequency">How often an incoming port reads it.</param>
 /// <param name="ElementCount">The number of elements the tag is declared with in Studio 5000.</param>
-internal sealed record IntArrayNode(
+internal sealed record IntArrayDataPointNode(
     LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency, ElementCount ElementCount)
-    : LogixArrayNode(OriginalNode, TagName, PollFrequency, ElementCount)
+    : LogixArrayDataPointNode(OriginalNode, TagName, PollFrequency, ElementCount)
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "IntArray";

@@ -12,7 +12,7 @@ internal sealed class StringNodePropertyValidator : AbstractValidator<LinkedNode
 {
     public StringNodePropertyValidator()
     {
-        Include(new TagNodePropertyValidator());
+        Include(new DataPointNodePropertyValidator());
         MustHaveMaxLength();
         MustBePositiveMaxLength();
     }

@@ -5,14 +5,14 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray.Mapping;
 
-/// <summary>Maps a configured <c>RealArray</c> node onto a <see cref="RealArrayNode"/>.</summary>
-internal sealed class RealArrayNodeMapper : LogixArrayNodeMapper<RealArrayNode>
+/// <summary>Maps a configured <c>RealArray</c> node onto a <see cref="RealArrayDataPointNode"/>.</summary>
+internal sealed class RealArrayNodeMapper : LogixArrayNodeMapper<RealArrayDataPointNode>
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => RealArrayNode.LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => RealArrayDataPointNode.LinkedNodeTypeId;
 
     /// <inheritdoc />
-    protected override RealArrayNode CreateNode(
+    protected override RealArrayDataPointNode CreateNode(
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount) =>
         new(originalNode, tagName, pollFrequency, elementCount);
 }

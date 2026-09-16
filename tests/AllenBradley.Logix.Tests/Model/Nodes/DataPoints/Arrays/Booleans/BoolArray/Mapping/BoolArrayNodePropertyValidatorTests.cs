@@ -52,7 +52,7 @@ public sealed class BoolArrayNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse(invalidBecause);
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class BoolArrayNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public sealed class BoolArrayNodePropertyValidatorTests
 
         // Assert
         validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     [Fact]
@@ -96,9 +96,9 @@ public sealed class BoolArrayNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode BoolArrayNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(BoolArrayNode.LinkedNodeTypeId, "Flags", properties);
+        CreateLinkedNode(BoolArrayDataPointNode.LinkedNodeTypeId, "Flags", properties);
 }

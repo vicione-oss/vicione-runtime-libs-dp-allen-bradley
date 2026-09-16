@@ -5,15 +5,15 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray.Mapping;
 
-/// <summary>Maps a configured <c>BoolArray</c> node onto a <see cref="BoolArrayNode"/>.</summary>
-internal sealed class BoolArrayNodeMapper() : LogixArrayNodeMapper<BoolArrayNode>(
+/// <summary>Maps a configured <c>BoolArray</c> node onto a <see cref="BoolArrayDataPointNode"/>.</summary>
+internal sealed class BoolArrayNodeMapper() : LogixArrayNodeMapper<BoolArrayDataPointNode>(
     new BoolArrayNodePropertyValidator())
 {
     /// <inheritdoc />
-    public override string TargetLinkedNodeTypeId => BoolArrayNode.LinkedNodeTypeId;
+    public override string TargetLinkedNodeTypeId => BoolArrayDataPointNode.LinkedNodeTypeId;
 
     /// <inheritdoc />
-    protected override BoolArrayNode CreateNode(
+    protected override BoolArrayDataPointNode CreateNode(
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount) =>
         new(originalNode, tagName, pollFrequency, elementCount);
 }

@@ -18,7 +18,7 @@ public sealed class UIntArrayNodeMapperTests
 
     private const string TagName = "MyUIntArrayTag";
 
-    private readonly IDataPointNodeMapper<UIntArrayNode> _mapper = new UIntArrayNodeMapper();
+    private readonly IDataPointNodeMapper<UIntArrayDataPointNode> _mapper = new UIntArrayNodeMapper();
 
     [Fact]
     public void TheTagNameElementCountAndPollFrequencyAreReadOffTheConfiguredNode()
@@ -48,15 +48,15 @@ public sealed class UIntArrayNodeMapperTests
             CreateElementCount(DeclaredElementCount));
 
         // Act
-        ILogixTagNode uIntArrayNode = _mapper.Map(node);
+        ILogixDataPointNode uIntArrayNode = _mapper.Map(node);
 
         // Assert
         uIntArrayNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X80);
     }
 
     [Theory]
-    [InlineData(UIntArrayNode.LinkedNodeTypeId, true)]
-    [InlineData(IntArrayNode.LinkedNodeTypeId, false)]
+    [InlineData(UIntArrayDataPointNode.LinkedNodeTypeId, true)]
+    [InlineData(IntArrayDataPointNode.LinkedNodeTypeId, false)]
     public void ItClaimsAUIntArrayNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
         // Arrange
@@ -102,9 +102,9 @@ public sealed class UIntArrayNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     private static LinkedNode UIntArrayNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(UIntArrayNode.LinkedNodeTypeId, TagName, properties);
+        CreateLinkedNode(UIntArrayDataPointNode.LinkedNodeTypeId, TagName, properties);
 }

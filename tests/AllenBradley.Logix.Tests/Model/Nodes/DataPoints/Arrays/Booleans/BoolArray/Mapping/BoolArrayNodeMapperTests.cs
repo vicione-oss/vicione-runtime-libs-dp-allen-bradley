@@ -19,7 +19,7 @@ public sealed class BoolArrayNodeMapperTests
 
     private const string TagName = "MyBoolArrayTag";
 
-    private readonly IDataPointNodeMapper<BoolArrayNode> _mapper = new BoolArrayNodeMapper();
+    private readonly IDataPointNodeMapper<BoolArrayDataPointNode> _mapper = new BoolArrayNodeMapper();
 
     [Fact]
     public void TheTagNameElementCountAndPollFrequencyAreReadOffTheConfiguredNode()
@@ -49,14 +49,14 @@ public sealed class BoolArrayNodeMapperTests
             CreateElementCount(DeclaredBitCount));
 
         // Act
-        ILogixTagNode boolArrayNode = _mapper.Map(node);
+        ILogixDataPointNode boolArrayNode = _mapper.Map(node);
 
         // Assert
         boolArrayNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X70);
     }
 
     [Theory]
-    [InlineData(BoolArrayNode.LinkedNodeTypeId, true)]
+    [InlineData(BoolArrayDataPointNode.LinkedNodeTypeId, true)]
     [InlineData(BoolNode.LinkedNodeTypeId, false)]
     public void ItClaimsABoolArrayNodeAndNoOther(string linkedNodeTypeId, bool expectedIsTargetMapper)
     {
@@ -104,9 +104,9 @@ public sealed class BoolArrayNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(LogixArrayNode.ElementCountPropertyName);
+            .Which.PropertyName.Should().Be(LogixArrayDataPointNode.ElementCountPropertyName);
     }
 
     private static LinkedNode BoolArrayNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(BoolArrayNode.LinkedNodeTypeId, TagName, properties);
+        CreateLinkedNode(BoolArrayDataPointNode.LinkedNodeTypeId, TagName, properties);
 }

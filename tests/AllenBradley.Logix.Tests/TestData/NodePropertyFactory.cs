@@ -14,17 +14,17 @@ internal static class NodePropertyFactory
 {
     internal static KeyValuePair<string, Property> CreatePollFrequency(object pollFrequencyInMilliseconds) =>
         KeyValuePair.Create(
-            ILogixTagNode.PollFrequencyPropertyName,
+            ILogixDataPointNode.PollFrequencyPropertyName,
             new Property { Value = pollFrequencyInMilliseconds });
 
     internal static KeyValuePair<string, Property> CreateTagName(object tagName) =>
-        KeyValuePair.Create(ILogixTagNode.TagNamePropertyName, new Property { Value = tagName });
+        KeyValuePair.Create(ILogixDataPointNode.TagNamePropertyName, new Property { Value = tagName });
 
     internal static KeyValuePair<string, Property> CreateMaxLength(object maxLength) =>
         KeyValuePair.Create(StringNode.MaxLengthPropertyName, new Property { Value = maxLength });
 
     internal static KeyValuePair<string, Property> CreateElementCount(object elementCount) =>
-        KeyValuePair.Create(LogixArrayNode.ElementCountPropertyName, new Property { Value = elementCount });
+        KeyValuePair.Create(LogixArrayDataPointNode.ElementCountPropertyName, new Property { Value = elementCount });
 
     internal static KeyValuePair<string, Property> CreateProgramName(object programName) =>
         KeyValuePair.Create(ProgramTagsNode.ProgramNamePropertyName, new Property { Value = programName });

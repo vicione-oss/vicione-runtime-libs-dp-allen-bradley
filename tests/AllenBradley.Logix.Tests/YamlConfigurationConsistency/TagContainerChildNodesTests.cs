@@ -71,7 +71,7 @@ public sealed class TagContainerChildNodesTests
     private static Dictionary<string, LogixGeneration> MinimumGenerationsByNodeTypeId() =>
         TypedLogixNodeMapper.Instance().DataPointNodeMappers.ToDictionary(
             mapper => mapper.TargetLinkedNodeTypeId,
-            mapper => ((ILogixTagNode)mapper.Map(AnyTagNodeOfType(mapper.TargetLinkedNodeTypeId)))
+            mapper => ((ILogixDataPointNode)mapper.Map(AnyTagNodeOfType(mapper.TargetLinkedNodeTypeId)))
                 .MinimumGeneration);
 
     // A mapper reads only the properties its type needs, so one node carrying all of them serves all.

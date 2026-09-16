@@ -15,9 +15,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Array
 /// <param name="validator">The rules the configured node must satisfy before it is mapped.</param>
 internal abstract class LogixArrayNodeMapper<TNode>(AbstractValidator<LinkedNode> validator)
     : LogixTagNodeMapper<TNode>(validator)
-    where TNode : LogixArrayNode
+    where TNode : LogixArrayDataPointNode
 {
-    protected LogixArrayNodeMapper() : this(new ArrayNodePropertyValidator())
+    protected LogixArrayNodeMapper() : this(new ArrayDataPointNodePropertyValidator())
     {
     }
 
@@ -28,5 +28,5 @@ internal abstract class LogixArrayNodeMapper<TNode>(AbstractValidator<LinkedNode
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount);
 
     private static ElementCount GetElementCount(LinkedNode node) =>
-        new(node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName));
+        new(node.GetRequiredPropertyValue<uint>(LogixArrayDataPointNode.ElementCountPropertyName));
 }

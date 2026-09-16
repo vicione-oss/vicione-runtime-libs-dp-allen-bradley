@@ -222,7 +222,7 @@ public sealed class LogixDataPointsGroupMapperTests
     public void AConfiguredIntArrayTagBecomesAPointCarryingTheCountItWasDeclaredWith()
     {
         // Arrange
-        var readings = DefaultIntArrayNode with
+        var readings = DefaultIntArrayDataPointNode with
         {
             PollFrequency = PollFrequency.FromMilliseconds(500),
             ElementCount = new ElementCount(20),
@@ -243,9 +243,9 @@ public sealed class LogixDataPointsGroupMapperTests
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
-            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayNode, DefaultSIntArrayNode,
-            DefaultDIntArrayNode, DefaultLIntArrayNode, DefaultUSIntArrayNode, DefaultUIntArrayNode,
-            DefaultUDIntArrayNode, DefaultULIntArrayNode, DefaultRealArrayNode, DefaultLRealArrayNode);
+            DefaultDIntNode, DefaultIntNode, DefaultStringNode, DefaultIntArrayDataPointNode, DefaultSIntArrayDataPointNode,
+            DefaultDIntArrayDataPointNode, DefaultLIntArrayDataPointNode, DefaultUsIntArrayDataPointNode, DefaultUIntArrayDataPointNode,
+            DefaultUdIntArrayDataPointNode, DefaultUlIntArrayDataPointNode, DefaultRealArrayDataPointNode, DefaultLRealArrayDataPointNode);
 
         // Act
         var dataPoints = _mapper.ToDataPoints(deviceNode);

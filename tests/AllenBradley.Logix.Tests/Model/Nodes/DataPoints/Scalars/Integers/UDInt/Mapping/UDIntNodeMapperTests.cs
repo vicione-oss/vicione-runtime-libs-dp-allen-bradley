@@ -39,7 +39,7 @@ public sealed class UDIntNodeMapperTests
             CreateTagName(TagName), CreatePollFrequency(DefaultPollFrequency));
 
         // Act
-        ILogixTagNode uDIntNode = _mapper.Map(node);
+        ILogixDataPointNode uDIntNode = _mapper.Map(node);
 
         // Assert
         uDIntNode.MinimumGeneration.Should().Be(LogixGeneration.Logix5X80);
@@ -90,7 +90,7 @@ public sealed class UDIntNodeMapperTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode UDIntNodeWith(params KeyValuePair<string, Property>[] properties) =>

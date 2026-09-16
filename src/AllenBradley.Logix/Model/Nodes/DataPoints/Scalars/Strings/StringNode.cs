@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scala
 /// <param name="MaxLength">The character capacity the tag is declared with in Studio 5000.</param>
 internal sealed record StringNode(
     LinkedNode OriginalNode, TagName TagName, PollFrequency PollFrequency, StringMaxLength MaxLength)
-    : LogixTagNode(OriginalNode, TagName, PollFrequency)
+    : LogixDataPointNode(OriginalNode, TagName, PollFrequency)
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "String";

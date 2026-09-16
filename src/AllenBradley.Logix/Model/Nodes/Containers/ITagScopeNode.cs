@@ -30,7 +30,7 @@ public interface ITagScopeNode : IBranchConfigurationNode
     /// </summary>
     protected static bool CanHold(IDataPointNode dataPointNode, LogixGeneration generation)
     {
-        if (dataPointNode is ILogixTagNode tagNode && tagNode.MinimumGeneration > generation)
+        if (dataPointNode is ILogixDataPointNode tagNode && tagNode.MinimumGeneration > generation)
         {
             throw new InvalidConfigurationException(
                 $"'{dataPointNode.OriginalNode.DesignId}' is not a data type of a {generation} controller.");

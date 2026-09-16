@@ -90,7 +90,7 @@ public sealed class StringNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     [Fact]
@@ -104,8 +104,8 @@ public sealed class StringNodePropertyValidatorTests
 
         // Assert
         validation.Errors.Select(static error => error.PropertyName).Should().BeEquivalentTo(
-            ILogixTagNode.TagNamePropertyName,
-            ILogixTagNode.PollFrequencyPropertyName,
+            ILogixDataPointNode.TagNamePropertyName,
+            ILogixDataPointNode.PollFrequencyPropertyName,
             StringNode.MaxLengthPropertyName);
     }
 

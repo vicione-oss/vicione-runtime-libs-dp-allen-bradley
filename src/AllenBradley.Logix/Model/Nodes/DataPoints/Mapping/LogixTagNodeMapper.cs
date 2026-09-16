@@ -15,9 +15,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Mappi
 /// <param name="validator">The rules the configured node must satisfy before it is mapped.</param>
 internal abstract class LogixTagNodeMapper<TNode>(AbstractValidator<LinkedNode> validator)
     : IDataPointNodeMapper<TNode>
-    where TNode : LogixTagNode
+    where TNode : LogixDataPointNode
 {
-    protected LogixTagNodeMapper() : this(new TagNodePropertyValidator())
+    protected LogixTagNodeMapper() : this(new DataPointNodePropertyValidator())
     {
     }
 
@@ -33,9 +33,9 @@ internal abstract class LogixTagNodeMapper<TNode>(AbstractValidator<LinkedNode> 
     protected abstract TNode CreateNode(LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency);
 
     private static TagName GetTagName(LinkedNode node) =>
-        new(node.GetRequiredPropertyValue<string>(ILogixTagNode.TagNamePropertyName));
+        new(node.GetRequiredPropertyValue<string>(ILogixDataPointNode.TagNamePropertyName));
 
     private static PollFrequency GetPollFrequency(LinkedNode node) =>
         PollFrequency.FromMilliseconds(
-            node.GetRequiredPropertyValue<int>(ILogixTagNode.PollFrequencyPropertyName));
+            node.GetRequiredPropertyValue<int>(ILogixDataPointNode.PollFrequencyPropertyName));
 }

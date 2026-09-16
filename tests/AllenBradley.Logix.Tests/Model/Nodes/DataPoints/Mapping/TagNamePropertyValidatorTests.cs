@@ -6,12 +6,10 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.NodeProper
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.DataPoints.Mapping;
 
-/// <summary>The gate every configured tag passes before it is mapped, checked a case per boundary.</summary>
-public sealed class TagNodePropertyValidatorTests
+/// <summary>The tag-name gate every configured node passes, checked a case per boundary.</summary>
+public sealed class TagNamePropertyValidatorTests
 {
-    private const int DefaultPollFrequency = 100;
-
-    private readonly TagNodePropertyValidator _validator = new();
+    private readonly TagNamePropertyValidator _validator = new();
 
     [Theory]
     [InlineData("Motor", "the plain case")]
@@ -23,7 +21,7 @@ public sealed class TagNodePropertyValidatorTests
     public void ATagNameStudio5000WouldDeclareIsAccepted(string tagName, string validBecause)
     {
         // Arrange
-        var node = DIntNodeWith(CreateTagName(tagName), CreatePollFrequency(DefaultPollFrequency));
+        var node = DIntNodeWith(CreateTagName(tagName));
 
         // Act
         var validation = _validator.Validate(node);
@@ -43,7 +41,7 @@ public sealed class TagNodePropertyValidatorTests
     public void ATagNameStudio5000WouldNotDeclareIsRefusedOnTheTagNameProperty(string tagName, string invalidBecause)
     {
         // Arrange
-        var node = DIntNodeWith(CreateTagName(tagName), CreatePollFrequency(DefaultPollFrequency));
+        var node = DIntNodeWith(CreateTagName(tagName));
 
         // Act
         var validation = _validator.Validate(node);
@@ -51,7 +49,7 @@ public sealed class TagNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse(invalidBecause);
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     [Theory]
@@ -60,7 +58,7 @@ public sealed class TagNodePropertyValidatorTests
     public void AnAddressBeyondAControllerScopeScalarIsRefusedOnTheTagNameProperty(string tagName)
     {
         // Arrange
-        var node = DIntNodeWith(CreateTagName(tagName), CreatePollFrequency(DefaultPollFrequency));
+        var node = DIntNodeWith(CreateTagName(tagName));
 
         // Act
         var validation = _validator.Validate(node);
@@ -68,70 +66,11 @@ public sealed class TagNodePropertyValidatorTests
         // Assert
         validation.IsValid.Should().BeFalse();
         validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     [Fact]
     public void AMissingTagNameIsRefusedNamingTheProperty()
-    {
-        // Arrange
-        var node = DIntNodeWith(CreatePollFrequency(DefaultPollFrequency));
-
-        // Act
-        var validation = _validator.Validate(node);
-
-        // Assert
-        validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
-    }
-
-    [Fact]
-    public void ATagNameThatIsNotAStringIsRefusedInsteadOfThrowing()
-    {
-        // Arrange
-        var node = DIntNodeWith(CreateTagName(42), CreatePollFrequency(DefaultPollFrequency));
-
-        // Act
-        var validating = _validator.Invoking(validator => validator.Validate(node));
-
-        // Assert
-        validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.TagNamePropertyName);
-    }
-
-    [Fact]
-    public void AMissingPollFrequencyIsRefusedNamingTheProperty()
-    {
-        // Arrange
-        var node = DIntNodeWith(CreateTagName("Motor"));
-
-        // Act
-        var validation = _validator.Validate(node);
-
-        // Assert
-        validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.PollFrequencyPropertyName);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void APollFrequencyThatIsNotPositiveIsRefused(int pollFrequency)
-    {
-        // Arrange
-        var node = DIntNodeWith(CreateTagName("Motor"), CreatePollFrequency(pollFrequency));
-
-        // Act
-        var validation = _validator.Validate(node);
-
-        // Assert
-        validation.IsValid.Should().BeFalse();
-        validation.Errors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be(ILogixTagNode.PollFrequencyPropertyName);
-    }
-
-    [Fact]
-    public void ATagWithNothingConfiguredIsRefusedOnBothProperties()
     {
         // Arrange
         var node = DIntNodeWith();
@@ -140,9 +79,22 @@ public sealed class TagNodePropertyValidatorTests
         var validation = _validator.Validate(node);
 
         // Assert
-        validation.Errors.Select(static error => error.PropertyName).Should().BeEquivalentTo(
-            ILogixTagNode.TagNamePropertyName,
-            ILogixTagNode.PollFrequencyPropertyName);
+        validation.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
+    }
+
+    [Fact]
+    public void ATagNameThatIsNotAStringIsRefusedInsteadOfThrowing()
+    {
+        // Arrange
+        var node = DIntNodeWith(CreateTagName(42));
+
+        // Act
+        var validating = _validator.Invoking(validator => validator.Validate(node));
+
+        // Assert
+        validating.Should().NotThrow().Which.Errors.Should().ContainSingle()
+            .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
 
     private static LinkedNode DIntNodeWith(params KeyValuePair<string, Property>[] properties) =>

@@ -13,7 +13,7 @@ internal sealed class BoolArrayNodePropertyValidator : AbstractValidator<LinkedN
 {
     public BoolArrayNodePropertyValidator()
     {
-        Include(new ArrayNodePropertyValidator());
+        Include(new ArrayDataPointNodePropertyValidator());
         MustFillWholeWords();
     }
 
@@ -22,14 +22,14 @@ internal sealed class BoolArrayNodePropertyValidator : AbstractValidator<LinkedN
     private void MustFillWholeWords() =>
         RuleFor(static node => node)
             .Must(static node =>
-                node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName)
+                node.GetRequiredPropertyValue<uint>(LogixArrayDataPointNode.ElementCountPropertyName)
                 % BoolArrayDataPoint.BoolsPerWord == 0)
             .WithMessage(static node =>
                 $"Node '{node.Name}' ({node.DesignId}): property " +
-                $"'{LogixArrayNode.ElementCountPropertyName}' must be a multiple of " +
+                $"'{LogixArrayDataPointNode.ElementCountPropertyName}' must be a multiple of " +
                 $"{BoolArrayDataPoint.BoolsPerWord}, because a BOOL array is packed into 32-bit words.")
             .When(static node =>
-                node.HasPropertyOfType<uint>(LogixArrayNode.ElementCountPropertyName)
-                && node.GetRequiredPropertyValue<uint>(LogixArrayNode.ElementCountPropertyName) > 0)
-            .WithName(LogixArrayNode.ElementCountPropertyName);
+                node.HasPropertyOfType<uint>(LogixArrayDataPointNode.ElementCountPropertyName)
+                && node.GetRequiredPropertyValue<uint>(LogixArrayDataPointNode.ElementCountPropertyName) > 0)
+            .WithName(LogixArrayDataPointNode.ElementCountPropertyName);
 }
