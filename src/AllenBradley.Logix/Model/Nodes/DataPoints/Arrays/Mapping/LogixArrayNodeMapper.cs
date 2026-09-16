@@ -22,11 +22,8 @@ internal abstract class LogixArrayNodeMapper<TNode>(AbstractValidator<LinkedNode
     }
 
     protected sealed override TNode CreateNode(LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency) =>
-        CreateNode(originalNode, tagName, pollFrequency, GetElementCount(originalNode));
+        CreateNode(originalNode, tagName, pollFrequency, ElementCountPropertyExtractor.GetElementCount(originalNode));
 
     protected abstract TNode CreateNode(
         LinkedNode originalNode, TagName tagName, PollFrequency pollFrequency, ElementCount elementCount);
-
-    private static ElementCount GetElementCount(LinkedNode node) =>
-        new(node.GetRequiredPropertyValue<uint>(LogixArrayDataPointNode.ElementCountPropertyName));
 }

@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.LRealArray;
@@ -263,4 +264,25 @@ internal static class TypedNodeTestDataFactory
             DefaultStringTagName,
             DefaultPollFrequency,
             StringMaxLength.Standard);
+
+    /// <summary>An <c>INT</c> array opened for per-element access, holding no element yet.</summary>
+    internal static ArrayContainerNode DefaultIntArrayContainerNode =>
+        new(
+            CreateLinkedNode("IntArrayContainer", DefaultIntArrayTagName.Value),
+            DefaultIntArrayTagName,
+            AllenBradleyDataType.Int);
+
+    /// <summary>A <c>DINT</c> array opened for per-element access, holding no element yet.</summary>
+    internal static ArrayContainerNode DefaultDIntArrayContainerNode =>
+        new(
+            CreateLinkedNode("DIntArrayContainer", DefaultDIntArrayTagName.Value),
+            DefaultDIntArrayTagName,
+            AllenBradleyDataType.Dint);
+
+    /// <summary>An <c>LREAL</c> array opened for per-element access — a type a 5X70 has not got.</summary>
+    internal static ArrayContainerNode DefaultLRealArrayContainerNode =>
+        new(
+            CreateLinkedNode("LRealArrayContainer", DefaultLRealArrayTagName.Value),
+            DefaultLRealArrayTagName,
+            AllenBradleyDataType.Lreal);
 }

@@ -302,6 +302,11 @@ One axis of an array. A tag has at most three.
 One entry in an array, reached with brackets — `Arr[5]`. **Not a tag**, for the same reason a member
 is not.
 
+**Subscript**:
+The bracketed part that selects an element — `[5]`, or `[2,3]` across two dimensions. Rockwell's
+word, from 1756-PM004. It is not part of the tag name: `Arr` is the name, `[5]` addresses into it.
+_Avoid_: index (fine in prose, but the subscript is what the address carries)
+
 **Scalar**:
 A tag with no dimensions. Orthogonal to atomic/structure: a `DINT[10]` has an atomic data type and
 is not scalar; a `TIMER` is scalar and is not atomic.

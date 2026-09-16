@@ -12,6 +12,22 @@ internal static class LinkedNodesDataFactory
             Properties = properties.ToDictionary(),
         });
 
+    /// <summary>A linked node whose <c>Parent</c> is a fresh node of type <paramref name="parentDesignId"/>.</summary>
+    internal static LinkedNode CreateChildLinkedNode(
+        string parentDesignId, string designId, string name, params KeyValuePair<string, Property>[] properties)
+    {
+        var parent = new Node { DesignId = parentDesignId, Name = parentDesignId, Id = Guid.NewGuid() };
+        var child = new Node
+        {
+            DesignId = designId,
+            Name = name,
+            Id = Guid.NewGuid(),
+            ParentId = parent.Id,
+            Properties = properties.ToDictionary(),
+        };
+        return LinkedNodeFactory.Create([parent, child]).Single().Children.Single();
+    }
+
     /// <summary>
     /// A linked node routed to <paramref name="channel"/>, which is where a mapped tag node reads its
     /// <c>Channels</c> from.

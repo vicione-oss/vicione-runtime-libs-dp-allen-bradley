@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 
@@ -18,4 +20,24 @@ public readonly partial record struct TagName(string Value)
 
     [GeneratedRegex(@"\A(?=.{1,40}\z)[A-Za-z_](?:_?[A-Za-z0-9])*\z")]
     internal static partial Regex WellFormed();
+
+    /// <summary>
+    /// Whether <paramref name="name"/> is a one-dimensional subscript, <c>[n]</c> with n a non-negative
+    /// integer without leading zeros — what an element node under an array container carries instead
+    /// of a declared tag name.
+    /// </summary>
+    internal static bool IsWellFormedSubscript(string name) => WellFormedSubscript().IsMatch(name);
+
+    /// <summary>The element a subscript selects — <c>3</c> for <c>[3]</c>.</summary>
+    /// <exception cref="FormatException">The name is not a subscript.</exception>
+    internal ElementIndex ToElementIndex()
+    {
+        var match = WellFormedSubscript().Match(Value);
+        return match.Success
+            ? new ElementIndex(uint.Parse(match.Groups["index"].Value, CultureInfo.InvariantCulture))
+            : throw new FormatException($"'{Value}' is not an array subscript.");
+    }
+
+    [GeneratedRegex(@"\A\[(?<index>0|[1-9][0-9]*)\]\z")]
+    internal static partial Regex WellFormedSubscript();
 }

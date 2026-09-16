@@ -137,6 +137,12 @@ Nodes:
       - Id: DIntArray
       - Id: LIntArray
       - Id: RealArray
+      # Array containers — the same arrays, one data point per element
+      - Id: SIntArrayContainer
+      - Id: IntArrayContainer
+      - Id: DIntArrayContainer
+      - Id: LIntArrayContainer
+      - Id: RealArrayContainer
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -178,6 +184,19 @@ Nodes:
       - Id: RealArray
       # LREAL array — 5X80 only
       - Id: LRealArray
+      # Array containers
+      - Id: SIntArrayContainer
+      - Id: IntArrayContainer
+      - Id: DIntArrayContainer
+      - Id: LIntArrayContainer
+      # Unsigned integer array containers — 5X80 only
+      - Id: USIntArrayContainer
+      - Id: UIntArrayContainer
+      - Id: UDIntArrayContainer
+      - Id: ULIntArrayContainer
+      - Id: RealArrayContainer
+      # LREAL array container — 5X80 only
+      - Id: LRealArrayContainer
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -810,6 +829,128 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ==================== ARRAY CONTAINER NODES ==========================
+  # Per-element access: the array is a container whose children are scalar data points of the element
+  # type, one per element the user wants. The container holds the tag name; a child holds the subscript
+  # as its tag name, "[3]", so the address composes to "Name[3]". The container declares no element
+  # count: the controller does, and a subscript past it is reported at connect.
+  # Same element types and the same order as the whole-array nodes above, except BOOL: an element of a
+  # BOOL array is a bit inside a word, and writing one is a read-modify-write the port has not proved.
+
+  - Id: SIntArrayContainer
+    MappingId: SIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "SInt[i]"
+    Description: "Per-element access to a one-dimensional SINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: &array-container-properties
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+    ChildNodes:
+      - Id: SInt
+
+  - Id: IntArrayContainer
+    MappingId: IntArrayContainer
+    Type: DataPortTreeNode
+    Name: "Int[i]"
+    Description: "Per-element access to a one-dimensional INT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: Int
+
+  - Id: DIntArrayContainer
+    MappingId: DIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "DInt[i]"
+    Description: "Per-element access to a one-dimensional DINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: DInt
+
+  - Id: LIntArrayContainer
+    MappingId: LIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "LInt[i]"
+    Description: "Per-element access to a one-dimensional LINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: LInt
+
+  - Id: USIntArrayContainer
+    MappingId: USIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "USInt[i]"
+    Description: "Per-element access to a one-dimensional USINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: USInt
+
+  - Id: UIntArrayContainer
+    MappingId: UIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "UInt[i]"
+    Description: "Per-element access to a one-dimensional UINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: UInt
+
+  - Id: UDIntArrayContainer
+    MappingId: UDIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "UDInt[i]"
+    Description: "Per-element access to a one-dimensional UDINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: UDInt
+
+  - Id: ULIntArrayContainer
+    MappingId: ULIntArrayContainer
+    Type: DataPortTreeNode
+    Name: "ULInt[i]"
+    Description: "Per-element access to a one-dimensional ULINT array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: ULInt
+
+  - Id: RealArrayContainer
+    MappingId: RealArrayContainer
+    Type: DataPortTreeNode
+    Name: "Real[i]"
+    Description: "Per-element access to a one-dimensional REAL array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: Real
+
+  - Id: LRealArrayContainer
+    MappingId: LRealArrayContainer
+    Type: DataPortTreeNode
+    Name: "LReal[i]"
+    Description: "Per-element access to a one-dimensional LREAL array. Each element is a separate data point."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: LReal
+
 # ==================== PROPERTY CATEGORIES ===========================
 
 PropertyCategories:
@@ -896,7 +1037,7 @@ Properties:
 
   - Id: OperationTimeout
     Name: "Operation Timeout (ms)"
-    Description: "How long one tag read or write against this controller may take before it is aborted"
+    Description: "How long one request against this controller may take before it is aborted"
     DataType: Int32
     UiControl: NumericUpDown
     DefaultValue: 5000
@@ -928,11 +1069,14 @@ Properties:
   # The bare name, never an address: the tree walk composes the scope, so the rule is ProgramName's.
   - Id: TagName
     Name: "Tag name"
-    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\")"
+    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\"); under an array container, the element's subscript (e.g. \"[3]\")"
     DataType: String
     UiControl: TextBox
     DefaultValue: ""
-    Validations: *logix-identifier-validations
+    ## Currently not active as we use this also for array-elements where the patterns would not match.
+    ## tree-builder does not support conditional validations based on the parent node yet.
+    ## Validation is done in the c# code instead. The difference is the validation is not done during configuration time but during run-time
+    # Validations: *logix-identifier-validations
 
   # ---- TagDeclaration Properties ----
   - Id: MaxLength

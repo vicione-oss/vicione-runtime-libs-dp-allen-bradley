@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
@@ -28,6 +29,7 @@ public sealed class LogixYamlConsistencyTests :
     {
         [typeof(ControllerTagsNode)] = [nameof(ControllerTagsNode.Generation)],
         [typeof(ProgramTagsNode)] = [nameof(ProgramTagsNode.Generation)],
+        [typeof(ArrayContainerNode)] = [nameof(ArrayContainerNode.ArrayDataType)],
     };
 
     public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties =>

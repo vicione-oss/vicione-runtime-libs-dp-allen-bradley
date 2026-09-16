@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray.Mapping;
@@ -34,17 +35,32 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 /// Assembles every node mapper into the one the dataport base classes take. This list and the
 /// manifest's nodes are the same set: a configured node no mapper here claims is a configuration error.
 /// </summary>
-public static class TypedLogixNodeMapper
+internal static class TypedLogixNodeMapper
 {
     /// <summary>Builds the mapper for the tree <c>allen-bradley-logix.yaml</c> declares.</summary>
-    public static TypedNodeMapper<LogixCommunication, DeviceNode> Instance() =>
+    internal static TypedNodeMapper<LogixCommunication, DeviceNode> Instance() =>
         new(
             new DeviceNodeMapper(),
             [
                 new ControllerTags5X70NodeMapper(), new ControllerTags5X80NodeMapper(),
                 new ProgramTags5X70NodeMapper(), new ProgramTags5X80NodeMapper(),
+                .. ArrayContainerNodeMappers(),
             ],
             DataPointNodeMappers());
+
+    private static ArrayContainerNodeMapper[] ArrayContainerNodeMappers() =>
+        [
+            new("SIntArrayContainer", AllenBradleyDataType.Sint),
+            new("IntArrayContainer", AllenBradleyDataType.Int),
+            new("DIntArrayContainer", AllenBradleyDataType.Dint),
+            new("LIntArrayContainer", AllenBradleyDataType.Lint),
+            new("USIntArrayContainer", AllenBradleyDataType.Usint),
+            new("UIntArrayContainer", AllenBradleyDataType.Uint),
+            new("UDIntArrayContainer", AllenBradleyDataType.Udint),
+            new("ULIntArrayContainer", AllenBradleyDataType.Ulint),
+            new("RealArrayContainer", AllenBradleyDataType.Real),
+            new("LRealArrayContainer", AllenBradleyDataType.Lreal),
+        ];
 
     private static IDataPointNodeMapper<IDataPointNode>[] DataPointNodeMappers() =>
         [

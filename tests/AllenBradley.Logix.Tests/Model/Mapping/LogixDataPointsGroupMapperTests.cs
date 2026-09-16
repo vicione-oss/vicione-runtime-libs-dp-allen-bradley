@@ -289,7 +289,41 @@ public sealed class LogixDataPointsGroupMapperTests
             .BeEquivalentTo("TagOne", "TagTwo", "TagThree");
     }
 
+    [Fact]
+    public void AnElementUnderAnArrayContainerAddressesItsElementBehindTheArrayAndItsProgram()
+    {
+        // Arrange
+        var readings = DefaultIntArrayContainerNode;
+        var thirdReading = DefaultIntNode with { TagName = new TagName("[3]") };
+        readings.DataPointNodes.Add(thirdReading);
+        var deviceNode = DeviceNodeHoldingInProgramScope(readings);
 
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TagAddress($"Program:{DefaultProgramName.Value}.{DefaultIntArrayTagName.Value}[3]");
+        dataPoints.Should().ContainSingle().Which.TagAddress.Should().Be(expected);
+    }
+
+    [Fact]
+    public void OneArrayContainerHoldsSeveralElementsOfItsArray()
+    {
+        // Arrange
+        var readings = DefaultIntArrayContainerNode;
+        var thirdReading = DefaultIntNode with { TagName = new TagName("[3]") };
+        var seventhReading = DefaultIntNode with { TagName = new TagName("[7]") };
+        readings.DataPointNodes.AddRange([thirdReading, seventhReading]);
+        var deviceNode = DeviceNodeHoldingInProgramScope(readings);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var arrayAddress = $"Program:{DefaultProgramName.Value}.{DefaultIntArrayTagName.Value}";
+        dataPoints.Select(static dataPoint => dataPoint.TagAddress.Value).Should()
+            .BeEquivalentTo($"{arrayAddress}[3]", $"{arrayAddress}[7]");
+    }
 
     [Fact]
     public void AControllerWithNoTagsConfiguredHasNoPoints()
@@ -327,6 +361,16 @@ public sealed class LogixDataPointsGroupMapperTests
 
     private static DeviceNode DeviceNodeHoldingInProgramScope(params IDataPointNode[] dataPointNodes) =>
         DeviceNodeHolding(DefaultProgramTagsNode, dataPointNodes);
+
+    private static DeviceNode DeviceNodeHoldingInProgramScope(ILogixContainerNode childContainer)
+    {
+        var deviceNode = DefaultDeviceNode;
+        var programScope = DefaultProgramTagsNode;
+        deviceNode.ConfigurationNodes.Add(programScope);
+        programScope.ConfigurationNodes.Add(childContainer);
+
+        return deviceNode;
+    }
 
     private static DeviceNode DeviceNodeHolding(ILogixContainerNode tagScope, IDataPointNode[] dataPointNodes)
     {

@@ -78,8 +78,50 @@ public sealed class ProgramTagsNodeTests
         canBeAdded.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(LogixGeneration.Logix5X70)]
+    [InlineData(LogixGeneration.Logix5X80)]
+    public void AnArrayContainerOfTheOldestGenerationCanBeAddedWhateverTheControllersGeneration(
+        LogixGeneration generation)
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode with { Generation = generation };
+        var dIntArray = DefaultDIntArrayContainerNode;
 
+        // Act
+        var canBeAdded = program.CanBeAdded(dIntArray);
 
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnArrayContainerOfTheContainersOwnGenerationCanBeAdded()
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var lRealArray = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = program.CanBeAdded(lRealArray);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnArrayContainerRequiringALaterGenerationIsRefused()
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode with { Generation = LogixGeneration.Logix5X70 };
+        var lRealArray = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = program.CanBeAdded(lRealArray);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
 
     [Fact]
     public void NoProgramNestsInsideAProgram()

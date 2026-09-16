@@ -7,6 +7,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
@@ -49,15 +50,15 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     DeviceNode, LogixCommunication>
 {
     /// <summary>
-    /// The tree is two levels deep and no deeper: a scope container under the device, and tag nodes
-    /// under it. The walk names each level, and composes the <see cref="TagPath"/> where the parts are
-    /// in scope.
+    /// The tree is three levels deep and no deeper: a scope container under the device, an array
+    /// container under a scope, and tag nodes under either. The walk names each level, and composes
+    /// the <see cref="TagPath"/> where the parts are in scope.
     /// </summary>
     public IReadOnlyList<ILogixDataPoint> ToDataPoints(DeviceNode deviceNode) =>
     [
         .. from scope in deviceNode.ConfigurationNodes.OfType<ILogixContainerNode>()
         let program = ProgramOf(scope)
-        from dataPoint in ScopedTags(program, scope)
+        from dataPoint in ScopedTags(program, scope).Concat(ArrayElements(program, scope))
         select dataPoint,
     ];
 
@@ -75,6 +76,12 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     private static IEnumerable<ILogixDataPoint> ScopedTags(ProgramName? program, ILogixContainerNode scope) =>
         from tagNode in scope.DataPointNodes.OfType<ILogixDataPointNode>()
         select ToDataPoint(new TagPath(program, tagNode.TagName, Element: null), tagNode);
+
+    // Under an array container a node's tag name is the subscript, and the array's name is the tag.
+    private static IEnumerable<ILogixDataPoint> ArrayElements(ProgramName? program, ILogixContainerNode scope) =>
+        from array in scope.ConfigurationNodes.OfType<ArrayContainerNode>()
+        from elementNode in array.DataPointNodes.OfType<ILogixDataPointNode>()
+        select ToDataPoint(new TagPath(program, array.TagName, elementNode.TagName.ToElementIndex()), elementNode);
 
     private static ILogixDataPoint ToDataPoint(TagPath tagPath, ILogixDataPointNode dataPointNode)
     {

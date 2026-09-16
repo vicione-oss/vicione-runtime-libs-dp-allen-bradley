@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -58,8 +59,10 @@ internal sealed record ControllerTagsNode(
     /// <inheritdoc />
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
-    /// <summary>Nothing nests inside controller scope yet — structures are a later slice.</summary>
-    public bool CanBeAdded(IConfigurationNode configurationNode) => false;
+    /// <summary>An array container of a type this controller's generation has, and nothing else.</summary>
+    public bool CanBeAdded(IConfigurationNode configurationNode) =>
+        configurationNode is ArrayContainerNode arrayContainer
+        && arrayContainer.ArrayDataType.MinimumGeneration <= Generation;
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) =>

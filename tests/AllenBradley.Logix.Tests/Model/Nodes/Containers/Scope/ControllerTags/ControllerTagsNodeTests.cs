@@ -78,11 +78,53 @@ public sealed class ControllerTagsNodeTests
         canBeAdded.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(LogixGeneration.Logix5X70)]
+    [InlineData(LogixGeneration.Logix5X80)]
+    public void AnArrayContainerOfTheOldestGenerationCanBeAddedWhateverTheControllersGeneration(
+        LogixGeneration generation)
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode with { Generation = generation };
+        var dIntArray = DefaultDIntArrayContainerNode;
 
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(dIntArray);
 
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
 
     [Fact]
-    public void NothingNestsInsideControllerScope()
+    public void AnArrayContainerOfTheContainersOwnGenerationCanBeAdded()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var lRealArray = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(lRealArray);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnArrayContainerRequiringALaterGenerationIsRefused()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X70 };
+        var lRealArray = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(lRealArray);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NothingButAnArrayContainerNestsInsideControllerScope()
     {
         // Arrange
         var controllerTags = DefaultControllerTagsNode;
