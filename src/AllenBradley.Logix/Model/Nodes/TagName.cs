@@ -5,7 +5,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 
 public readonly partial record struct TagName(string Value)
 {
-    internal TagAddress ToTagAddress() => new(Value);
+    /// <summary>This name as a controller-scoped tag's path.</summary>
+    internal TagPath ToTagPath() => new(Program: null, this, Element: null);
 
     /// <summary>
     /// Whether <paramref name="name"/> is one Studio 5000 could have declared: 1 to 40 characters,

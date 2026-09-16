@@ -203,6 +203,13 @@ same string.
 _Avoid_: tag name (only the identifier), operand (Rockwell's word, but it names a slot in an
 instruction rather than the string in it)
 
+**Tag path**:
+The parts a tag address is composed from, held apart: the program that scopes the tag, if any; the
+tag's declared name; and the subscript, if the point is one element of an array. What a data point
+carries, filled in by the tree walk, and what the tag address is rendered from — one string for
+libplctag, and the declared tag's address for the symbol table.
+_Avoid_: tag address (the rendered string), symbol path
+
 **Scope**:
 Which part of a controller a tag is visible in — controller scope or program scope. Scope is part
 of a tag's identity, so two tags may share a name if they sit in different scopes.

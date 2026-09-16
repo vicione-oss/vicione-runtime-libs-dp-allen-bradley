@@ -307,7 +307,7 @@ public sealed class CachingLogixTagManagerTests
         new(factory, browser, NullLogger<CachingLogixTagManager>.Instance);
 
     private static DIntDataPoint DataPointNamed(TagAddress tagAddress) =>
-        new(tagAddress, DefaultPollFrequency, NoChannels);
+        new(TagPath.Parse(tagAddress.Value), DefaultPollFrequency, NoChannels);
 
     private sealed class FakeTagDefinitionsLoader : ITagDefinitionsLoader
     {

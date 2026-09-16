@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 public sealed class DIntDataPointTests
 {
     private static readonly DIntDataPoint Counter =
-        new(DefaultTagAddress, DefaultPollFrequency, NoChannels);
+        new(DefaultTagPath, DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()

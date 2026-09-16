@@ -20,7 +20,7 @@ public sealed class LIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new LIntArrayConverter();
 
     private static readonly LIntArrayDataPoint Timestamps = new(
-        new TagAddress("lintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        TagPath.Parse("lintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range and one value asymmetric in its bytes.
     private static readonly byte[] TenStoredLInts =

@@ -1,9 +1,10 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.LRealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
@@ -58,10 +59,10 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultIntTagName = new("Setpoint");
     internal static readonly TagName DefaultSIntTagName = new("Level");
     internal static readonly TagName DefaultLIntTagName = new("Ticks");
-    internal static readonly TagName DefaultUSIntTagName = new("Pressure");
+    internal static readonly TagName DefaultUsIntTagName = new("Pressure");
     internal static readonly TagName DefaultUIntTagName = new("Revolutions");
-    internal static readonly TagName DefaultUDIntTagName = new("Runtime");
-    internal static readonly TagName DefaultULIntTagName = new("Cycles");
+    internal static readonly TagName DefaultUdIntTagName = new("Runtime");
+    internal static readonly TagName DefaultUlIntTagName = new("Cycles");
     internal static readonly TagName DefaultBoolTagName = new("Running");
     internal static readonly TagName DefaultRealTagName = new("FlowRate");
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
@@ -70,10 +71,10 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultIntArrayTagName = new("Readings");
     internal static readonly TagName DefaultDIntArrayTagName = new("Totals");
     internal static readonly TagName DefaultLIntArrayTagName = new("Timestamps");
-    internal static readonly TagName DefaultUSIntArrayTagName = new("Pressures");
+    internal static readonly TagName DefaultUsIntArrayTagName = new("Pressures");
     internal static readonly TagName DefaultUIntArrayTagName = new("Speeds");
-    internal static readonly TagName DefaultUDIntArrayTagName = new("Runtimes");
-    internal static readonly TagName DefaultULIntArrayTagName = new("CycleCounts");
+    internal static readonly TagName DefaultUdIntArrayTagName = new("Runtimes");
+    internal static readonly TagName DefaultUlIntArrayTagName = new("CycleCounts");
     internal static readonly TagName DefaultRealArrayTagName = new("Temperatures");
     internal static readonly TagName DefaultLRealArrayTagName = new("Positions");
 
@@ -141,8 +142,8 @@ internal static class TypedNodeTestDataFactory
 
     internal static USIntNode DefaultUSIntNode =>
         new(
-            CreateChanneledLinkedNode(USIntNode.LinkedNodeTypeId, DefaultUSIntTagName.Value, DefaultChannel),
-            DefaultUSIntTagName,
+            CreateChanneledLinkedNode(USIntNode.LinkedNodeTypeId, DefaultUsIntTagName.Value, DefaultChannel),
+            DefaultUsIntTagName,
             DefaultPollFrequency);
 
     internal static UIntNode DefaultUIntNode =>
@@ -153,14 +154,14 @@ internal static class TypedNodeTestDataFactory
 
     internal static UDIntNode DefaultUDIntNode =>
         new(
-            CreateChanneledLinkedNode(UDIntNode.LinkedNodeTypeId, DefaultUDIntTagName.Value, DefaultChannel),
-            DefaultUDIntTagName,
+            CreateChanneledLinkedNode(UDIntNode.LinkedNodeTypeId, DefaultUdIntTagName.Value, DefaultChannel),
+            DefaultUdIntTagName,
             DefaultPollFrequency);
 
     internal static ULIntNode DefaultULIntNode =>
         new(
-            CreateChanneledLinkedNode(ULIntNode.LinkedNodeTypeId, DefaultULIntTagName.Value, DefaultChannel),
-            DefaultULIntTagName,
+            CreateChanneledLinkedNode(ULIntNode.LinkedNodeTypeId, DefaultUlIntTagName.Value, DefaultChannel),
+            DefaultUlIntTagName,
             DefaultPollFrequency);
 
     internal static BoolNode DefaultBoolNode =>
@@ -210,8 +211,8 @@ internal static class TypedNodeTestDataFactory
     internal static UsIntArrayDataPointNode DefaultUsIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                UsIntArrayDataPointNode.LinkedNodeTypeId, DefaultUSIntArrayTagName.Value, DefaultChannel),
-            DefaultUSIntArrayTagName,
+                UsIntArrayDataPointNode.LinkedNodeTypeId, DefaultUsIntArrayTagName.Value, DefaultChannel),
+            DefaultUsIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
@@ -226,16 +227,16 @@ internal static class TypedNodeTestDataFactory
     internal static UdIntArrayDataPointNode DefaultUdIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                UdIntArrayDataPointNode.LinkedNodeTypeId, DefaultUDIntArrayTagName.Value, DefaultChannel),
-            DefaultUDIntArrayTagName,
+                UdIntArrayDataPointNode.LinkedNodeTypeId, DefaultUdIntArrayTagName.Value, DefaultChannel),
+            DefaultUdIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 
     internal static UlIntArrayDataPointNode DefaultUlIntArrayDataPointNode =>
         new(
             CreateChanneledLinkedNode(
-                UlIntArrayDataPointNode.LinkedNodeTypeId, DefaultULIntArrayTagName.Value, DefaultChannel),
-            DefaultULIntArrayTagName,
+                UlIntArrayDataPointNode.LinkedNodeTypeId, DefaultUlIntArrayTagName.Value, DefaultChannel),
+            DefaultUlIntArrayTagName,
             DefaultPollFrequency,
             DefaultElementCount);
 

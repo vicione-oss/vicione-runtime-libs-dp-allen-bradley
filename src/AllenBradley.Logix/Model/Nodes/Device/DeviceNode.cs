@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -19,22 +20,22 @@ public sealed record DeviceNode(
     LogixControllerKind ControllerKind) : IRootConfigurationNode<LogixCommunication>
 {
     /// <summary>The manifest's node id for a ControlLogix 5550/5560/5570 in a 1756 chassis.</summary>
-    public const string ControlLogix5X70DesignId = "DeviceControlLogix5X70";
+    internal const string ControlLogix5X70DesignId = "DeviceControlLogix5X70";
 
     /// <summary>The manifest's node id for a ControlLogix 5580 in a 1756 chassis.</summary>
-    public const string ControlLogix5X80DesignId = "DeviceControlLogix5X80";
+    internal const string ControlLogix5X80DesignId = "DeviceControlLogix5X80";
 
     /// <summary>The manifest's node id for a CompactLogix 1769/5370 on a DIN rail.</summary>
-    public const string CompactLogix5X70DesignId = "DeviceCompactLogix5X70";
+    internal const string CompactLogix5X70DesignId = "DeviceCompactLogix5X70";
 
     /// <summary>The manifest's node id for a CompactLogix 5380/5480 on a DIN rail.</summary>
-    public const string CompactLogix5X80DesignId = "DeviceCompactLogix5X80";
+    internal const string CompactLogix5X80DesignId = "DeviceCompactLogix5X80";
 
     /// <summary>
     /// What the device node type <paramref name="designId"/> names stands for, or <c>null</c> for a node
     /// type this addon does not declare.
     /// </summary>
-    public static LogixControllerKind? KindOf(string designId) => designId switch
+    internal static LogixControllerKind? KindOf(string designId) => designId switch
     {
         ControlLogix5X70DesignId => LogixControllerKind.ControlLogix5X70,
         ControlLogix5X80DesignId => LogixControllerKind.ControlLogix5X80,
@@ -47,7 +48,7 @@ public sealed record DeviceNode(
     /// The node id a controller of <paramref name="controllerKind"/> is configured under —
     /// <see cref="KindOf"/> read the other way round.
     /// </summary>
-    public static string DesignIdFor(LogixControllerKind controllerKind) => controllerKind switch
+    internal static string DesignIdFor(LogixControllerKind controllerKind) => controllerKind switch
     {
         (LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X70) => ControlLogix5X70DesignId,
         (LogixControllerFamily.ControlLogix, LogixGeneration.Logix5X80) => ControlLogix5X80DesignId,
@@ -78,25 +79,14 @@ public sealed record DeviceNode(
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode)
     {
-        if (configurationNode is not ITagScopeNode tagScopeNode)
+        return configurationNode switch
         {
-            return false;
-        }
-
-        if (tagScopeNode.Generation != ControllerKind.Generation)
-        {
-            throw InvalidChildNodeException(tagScopeNode);
-        }
-
-        return true;
+            ControllerTagsNode controllerTagsNode => controllerTagsNode.Generation == ControllerKind.Generation,
+            ProgramTagsNode programTagsNode => programTagsNode.Generation == ControllerKind.Generation,
+            _ => false,
+        };
     }
 
-    private InvalidConfigurationException InvalidChildNodeException(ITagScopeNode tagScopeNode)
-    {
-        return new InvalidConfigurationException(
-            $"A '{tagScopeNode.OriginalNode.DesignId}' container cannot be added to "
-            + $"'{OriginalCommunication.DesignId}' device.");
-    }
 
     /// <summary>Tags hang off a scope container, never off the device itself.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) => false;

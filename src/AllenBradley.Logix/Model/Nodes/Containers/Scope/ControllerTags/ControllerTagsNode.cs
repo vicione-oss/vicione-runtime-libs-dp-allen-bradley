@@ -1,7 +1,10 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 
 /// <summary>
 /// The controller-scope tag container. It declares no properties, because controller scope contributes
@@ -13,20 +16,20 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Contr
 /// The generation of the controller these tags are configured against, which decides which types may
 /// hang off this container.
 /// </param>
-public sealed record ControllerTagsNode(
+internal sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
-    LogixGeneration Generation) : ITagScopeNode
+    LogixGeneration Generation) : ILogixContainerNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a 5X70 controller's tag container.</summary>
-    public const string Logix5X70LinkedNodeTypeId = "ControllerTags5X70";
+    internal const string Logix5X70LinkedNodeTypeId = "ControllerTags5X70";
 
     /// <summary>The manifest's <c>MappingId</c> for a 5X80 controller's tag container.</summary>
-    public const string Logix5X80LinkedNodeTypeId = "ControllerTags5X80";
+    internal const string Logix5X80LinkedNodeTypeId = "ControllerTags5X80";
 
     /// <summary>
     /// The generation the container node type <paramref name="linkedNodeTypeId"/> stands for.
     /// </summary>
-    public static LogixGeneration GenerationOf(string linkedNodeTypeId) => linkedNodeTypeId switch
+    internal static LogixGeneration GenerationOf(string linkedNodeTypeId) => linkedNodeTypeId switch
     {
         Logix5X70LinkedNodeTypeId => LogixGeneration.Logix5X70,
         Logix5X80LinkedNodeTypeId => LogixGeneration.Logix5X80,
@@ -38,7 +41,7 @@ public sealed record ControllerTagsNode(
     /// The container node type a <paramref name="generation"/> controller holds its controller-scope tags
     /// in — <see cref="GenerationOf"/> read the other way round.
     /// </summary>
-    public static string LinkedNodeTypeIdFor(LogixGeneration generation) => generation switch
+    internal static string LinkedNodeTypeIdFor(LogixGeneration generation) => generation switch
     {
         LogixGeneration.Logix5X70 => Logix5X70LinkedNodeTypeId,
         LogixGeneration.Logix5X80 => Logix5X80LinkedNodeTypeId,
@@ -59,8 +62,6 @@ public sealed record ControllerTagsNode(
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) => ITagScopeNode.CanHold(dataPointNode, Generation);
-
-    /// <inheritdoc />
-    public TagScope Scope() => TagScope.Controller;
+    public bool CanBeAdded(IDataPointNode dataPointNode) =>
+        dataPointNode is not ILogixDataPointNode tagNode || tagNode.MinimumGeneration <= Generation;
 }

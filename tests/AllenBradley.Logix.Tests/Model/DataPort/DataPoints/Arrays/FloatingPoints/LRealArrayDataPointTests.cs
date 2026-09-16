@@ -12,7 +12,7 @@ public sealed class LRealArrayDataPointTests
     private const int DeclaredElementCount = 10;
 
     private static readonly LRealArrayDataPoint Positions =
-        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new(DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()

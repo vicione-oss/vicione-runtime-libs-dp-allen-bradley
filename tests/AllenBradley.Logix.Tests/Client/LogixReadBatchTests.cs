@@ -18,12 +18,12 @@ public sealed class LogixReadBatchTests
 {
     private const string TagNotFound = "tag not found";
 
-    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Level = new(new TagAddress("Tank.Level"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Torque = new(new TagAddress("Motor.Torque"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(TagPath.Parse("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Torque = new(TagPath.Parse("Motor.Torque"), DefaultPollFrequency, NoChannels);
 
     private static readonly IntArrayDataPoint Readings = new(
-        new TagAddress("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
+        TagPath.Parse("Tank.Readings"), DefaultPollFrequency, NoChannels, new ElementCount(10));
 
     // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
@@ -347,7 +347,7 @@ public sealed class LogixReadBatchTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
-        : LogixDataPoint<int>(new TagAddress("Mystery.Tag"), DefaultPollFrequency, NoChannels)
+        : LogixDataPoint<int>(TagPath.Parse("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
         public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 

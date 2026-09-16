@@ -1,9 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TypedNodeTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.ProgramTags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers.Scope.ProgramTags;
 
 public sealed class ProgramTagsNodeTests
 {
@@ -46,10 +44,10 @@ public sealed class ProgramTagsNodeTests
         var lReal = DefaultLRealNode;
 
         // Act
-        var adding = program.Invoking(node => node.CanBeAdded(lReal));
+        var canBeAdded = program.CanBeAdded(lReal);
 
         // Assert
-        adding.Should().Throw<InvalidConfigurationException>();
+        canBeAdded.Should().BeFalse();
     }
 
     [Fact]
@@ -67,22 +65,24 @@ public sealed class ProgramTagsNodeTests
     }
 
     [Fact]
-    public void AUSIntUnderAProgramOfA5X70ControllerIsRefusedByName()
+    public void AUSIntUnderAProgramOfA5X70ControllerIsRefused()
     {
         // Arrange
         var program = DefaultProgramTagsNode with { Generation = LogixGeneration.Logix5X70 };
         var usInt = DefaultUSIntNode;
 
         // Act
-        var adding = program.Invoking(node => node.CanBeAdded(usInt));
+        var canBeAdded = program.CanBeAdded(usInt);
 
         // Assert
-        adding.Should().Throw<InvalidConfigurationException>()
-            .WithMessage($"*{USIntNode.LinkedNodeTypeId}*{LogixGeneration.Logix5X70}*");
+        canBeAdded.Should().BeFalse();
     }
 
+
+
+
     [Fact]
-    public void NothingNestsInsideAProgram()
+    public void NoProgramNestsInsideAProgram()
     {
         // Arrange
         var program = DefaultProgramTagsNode;

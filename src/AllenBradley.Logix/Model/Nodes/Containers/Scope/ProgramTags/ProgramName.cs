@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
 /// <summary>
 /// The name of a Logix program, as Studio 5000 declares it — <c>MainProgram</c>. The name alone, never

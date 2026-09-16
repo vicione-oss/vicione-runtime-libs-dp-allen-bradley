@@ -11,4 +11,7 @@ internal static class LogixDataPointTestDataFactory
     internal static Channels NoChannels { get; } = new([], []);
 
     internal static TagAddress DefaultTagAddress { get; } = new("AnyTag");
+
+    /// <summary>The controller-scoped tag <see cref="DefaultTagAddress"/> reaches, as a data point holds it.</summary>
+    internal static TagPath DefaultTagPath { get; } = TagPath.Parse(DefaultTagAddress.Value);
 }

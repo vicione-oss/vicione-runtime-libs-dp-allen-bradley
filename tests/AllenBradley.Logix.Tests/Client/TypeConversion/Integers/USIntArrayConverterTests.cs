@@ -19,7 +19,7 @@ public sealed class USIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new USIntArrayConverter();
 
     private static readonly USIntArrayDataPoint Pressures = new(
-        new TagAddress("usintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        TagPath.Parse("usintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Both ends of the range and two elements above the signed maximum, with no two elements sharing a bit
     // pattern, so neither an element read at the wrong offset nor one read as a SINT can agree.

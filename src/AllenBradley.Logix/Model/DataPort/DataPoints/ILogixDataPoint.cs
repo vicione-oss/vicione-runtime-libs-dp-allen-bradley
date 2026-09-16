@@ -8,6 +8,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// </summary>
 public interface ILogixDataPoint : IPollingDataPoint
 {
+    /// <summary>Where the value lives, in the parts an address is composed from.</summary>
+    TagPath TagPath { get; }
+
+    /// <summary>The address libplctag is handed, rendered from <see cref="TagPath"/>.</summary>
     TagAddress TagAddress { get; }
 
     /// <summary>

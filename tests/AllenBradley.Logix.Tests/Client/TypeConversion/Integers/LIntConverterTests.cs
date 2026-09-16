@@ -14,7 +14,7 @@ public sealed class LIntConverterTests
 
     private static readonly IDataPointConverter Converter = new LIntConverter();
 
-    private static readonly LIntDataPoint Ticks = new(new TagAddress("lintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly LIntDataPoint Ticks = new(TagPath.Parse("lintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagALInt()

@@ -1,7 +1,7 @@
 using FluentValidation;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags.Mapping;
 
 /// <summary>
 /// Checks the one thing a program container carries: a program name that is there, and that Studio 5000

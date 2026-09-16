@@ -1,7 +1,9 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
 /// <summary>
 /// A program-scope tag container: one program of the controller, and the tags configured inside it. A
@@ -14,24 +16,24 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Progr
 /// The generation of the controller these tags are configured against, which decides which types may
 /// hang off this container.
 /// </param>
-public sealed record ProgramTagsNode(
+internal sealed record ProgramTagsNode(
     LinkedNode OriginalNode,
     ProgramName ProgramName,
-    LogixGeneration Generation) : ITagScopeNode
+    LogixGeneration Generation) : ILogixContainerNode
 {
     /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5X70 controller.</summary>
-    public const string Logix5X70LinkedNodeTypeId = "ProgramTags5X70";
+    internal const string Logix5X70LinkedNodeTypeId = "ProgramTags5X70";
 
     /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5X80 controller.</summary>
-    public const string Logix5X80LinkedNodeTypeId = "ProgramTags5X80";
+    internal const string Logix5X80LinkedNodeTypeId = "ProgramTags5X80";
 
     /// <summary>The manifest property carrying <see cref="ProgramName"/>.</summary>
-    public const string ProgramNamePropertyName = nameof(ProgramName);
+    internal const string ProgramNamePropertyName = nameof(ProgramName);
 
     /// <summary>
     /// The generation the container node type <paramref name="linkedNodeTypeId"/> stands for.
     /// </summary>
-    public static LogixGeneration GenerationOf(string linkedNodeTypeId) => linkedNodeTypeId switch
+    internal static LogixGeneration GenerationOf(string linkedNodeTypeId) => linkedNodeTypeId switch
     {
         Logix5X70LinkedNodeTypeId => LogixGeneration.Logix5X70,
         Logix5X80LinkedNodeTypeId => LogixGeneration.Logix5X80,
@@ -43,7 +45,7 @@ public sealed record ProgramTagsNode(
     /// The container node type a <paramref name="generation"/> controller holds a program's tags in —
     /// <see cref="GenerationOf"/> read the other way round.
     /// </summary>
-    public static string LinkedNodeTypeIdFor(LogixGeneration generation) => generation switch
+    internal static string LinkedNodeTypeIdFor(LogixGeneration generation) => generation switch
     {
         LogixGeneration.Logix5X70 => Logix5X70LinkedNodeTypeId,
         LogixGeneration.Logix5X80 => Logix5X80LinkedNodeTypeId,
@@ -61,14 +63,12 @@ public sealed record ProgramTagsNode(
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
     /// <summary>
-    /// Nothing nests inside a program. Studio 5000 v32 and later let programs nest, but whether the
+    /// Nothing nests inside a program yet. Studio 5000 v32 and later let programs nest, but whether the
     /// resulting tags address as <c>Program:Parent.Child.Tag</c> is unconfirmed against hardware.
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => false;
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) => ITagScopeNode.CanHold(dataPointNode, Generation);
-
-    /// <inheritdoc />
-    public TagScope Scope() => TagScope.Program(ProgramName);
+    public bool CanBeAdded(IDataPointNode dataPointNode) =>
+        dataPointNode is not ILogixDataPointNode tagNode || tagNode.MinimumGeneration <= Generation;
 }

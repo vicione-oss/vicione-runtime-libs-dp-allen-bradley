@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags.Mapping;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags.Mapping;
 
 /// <summary>
 /// Maps a controller-scope container, which carries no property of its own. One subclass per container

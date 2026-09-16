@@ -11,7 +11,7 @@ public sealed class DIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new DIntConverter();
 
-    private static readonly DIntDataPoint Counter = new(new TagAddress("dintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Counter = new(TagPath.Parse("dintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagADint()

@@ -12,7 +12,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
 public sealed class LogixTagTests
 {
-    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
     private static readonly TagDefinition SpeedDefinition =
         DefaultAtomicTagDefinition() with { TagAddress = Speed.TagAddress };

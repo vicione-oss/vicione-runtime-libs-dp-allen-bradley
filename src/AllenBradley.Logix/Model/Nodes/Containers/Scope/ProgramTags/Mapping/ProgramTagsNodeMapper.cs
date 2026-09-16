@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags.Mapping;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags.Mapping;
 
 /// <summary>
 /// Maps a program-scope container, reading the one property it carries: the program whose tags are

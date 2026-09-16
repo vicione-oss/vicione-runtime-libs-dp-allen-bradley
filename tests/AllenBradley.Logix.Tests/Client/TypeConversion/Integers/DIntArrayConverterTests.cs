@@ -19,7 +19,7 @@ public sealed class DIntArrayConverterTests
     private static readonly IDataPointConverter Converter = new DIntArrayConverter();
 
     private static readonly DIntArrayDataPoint Totals = new(
-        new TagAddress("dintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        TagPath.Parse("dintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range and one value asymmetric in its bytes.
     private static readonly byte[] TenStoredDInts =

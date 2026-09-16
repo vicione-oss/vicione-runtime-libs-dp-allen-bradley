@@ -11,7 +11,7 @@ public sealed class USIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new USIntConverter();
 
-    private static readonly USIntDataPoint Level = new(new TagAddress("usintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly USIntDataPoint Level = new(TagPath.Parse("usintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagAUSInt()

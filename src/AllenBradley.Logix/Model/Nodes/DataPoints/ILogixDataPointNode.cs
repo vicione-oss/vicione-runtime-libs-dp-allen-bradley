@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 /// A configured tag: what every tag node carries whatever its type and shape, and the names the
 /// manifest declares them under.
 /// </summary>
-public interface ILogixDataPointNode : IDataPointNode
+public interface ILogixDataPointNode : IDataPointNode, ITypedLogixNode
 {
     /// <summary>The manifest property carrying <see cref="TagName"/>.</summary>
     const string TagNamePropertyName = nameof(TagName);
@@ -23,7 +23,7 @@ public interface ILogixDataPointNode : IDataPointNode
     /// </summary>
     LogixGeneration MinimumGeneration => DataType.MinimumGeneration;
 
-    /// <summary>The symbolic tag address this node configures.</summary>
+    /// <summary>The symbolic tag name this node configures.</summary>
     TagName TagName { get; }
 
     /// <summary>How often an incoming port reads it.</summary>

@@ -1,8 +1,9 @@
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 /// <summary>
-/// A Logix symbolic tag address — <c>Motor.Speed</c>, <c>Program:Main.Count</c>, <c>Arr[5]</c>. The
-/// identifier a data point is configured with and the controller's symbol table reports for a tag.
+/// A Logix symbolic tag address as one string — <c>Motor.Speed</c>, <c>Program:Main.Count</c>,
+/// <c>Arr[5]</c>. What libplctag is handed and what the controller's symbol table reports for a tag; a
+/// data point holds the parts instead, as a <see cref="TagPath"/>.
 /// </summary>
 /// <param name="Value">The address text.</param>
 public readonly record struct TagAddress(string Value)
@@ -12,7 +13,6 @@ public readonly record struct TagAddress(string Value)
     /// equality is case-sensitive.
     /// </summary>
     public static IEqualityComparer<TagAddress> CaseInsensitiveComparer { get; } = new CaseInsensitive();
-
 
     private sealed class CaseInsensitive : IEqualityComparer<TagAddress>
     {

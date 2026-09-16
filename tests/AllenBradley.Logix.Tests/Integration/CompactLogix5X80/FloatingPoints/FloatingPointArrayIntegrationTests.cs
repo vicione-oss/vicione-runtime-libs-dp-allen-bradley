@@ -18,7 +18,7 @@ public sealed class FloatingPointArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         RealArrayDataPoint temperatures = new(
-            new TagAddress(TagAddresses.RealArray),
+            TagPath.Parse(TagAddresses.RealArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -41,7 +41,7 @@ public sealed class FloatingPointArrayIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         LRealArrayDataPoint positions = new(
-            new TagAddress(TagAddresses.LRealArray),
+            TagPath.Parse(TagAddresses.LRealArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);

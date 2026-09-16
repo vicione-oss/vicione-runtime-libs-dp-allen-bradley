@@ -116,7 +116,7 @@ public sealed class LogixConfigurationVerifierTests
             DimensionCount = DimensionCount.OneDimensional,
         };
         var resolved = new ResolvedDataPoint(
-            new BoolDataPoint(new TagAddress("Flags"), DefaultPollFrequency, NoChannels), declaration);
+            new BoolDataPoint(TagPath.Parse("Flags"), DefaultPollFrequency, NoChannels), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -275,13 +275,13 @@ public sealed class LogixConfigurationVerifierTests
     }
 
     private static DIntDataPoint DIntPointNamed(string tagName) =>
-        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels);
+        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels);
 
     private static StringDataPoint StringPointNamed(string tagName) =>
-        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     private static IntArrayDataPoint IntArrayPointNamed(string tagName) =>
-        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, TenElements);
+        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels, TenElements);
 
     // A hand-built point could not disagree with the walk about a program prefix.
     private static IReadOnlyList<ILogixDataPoint> DataPointsOf(LogixCommunication communication) =>

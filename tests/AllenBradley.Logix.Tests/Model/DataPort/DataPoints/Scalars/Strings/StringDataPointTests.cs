@@ -12,7 +12,7 @@ public sealed class StringDataPointTests
     private const int DeclaredCapacity = 82;
 
     private static readonly StringDataPoint Label =
-        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
+        new(DefaultTagPath, DefaultPollFrequency, NoChannels, new StringMaxLength(DeclaredCapacity));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsIt()

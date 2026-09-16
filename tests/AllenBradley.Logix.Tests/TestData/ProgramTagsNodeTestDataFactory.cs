@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using static System.Guid;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;

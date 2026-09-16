@@ -87,62 +87,62 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
     // value. SINT-on-a-USINT is that with the width taken away: every byte pattern is legal for both.
     private static IReadOnlyList<ILogixDataPoint> TagsConfiguredAsTheWrongType() =>
     [
-        new SIntDataPoint(new TagAddress(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
-        new DIntDataPoint(new TagAddress(TagAddresses.Int), DefaultPollFrequency, NoChannels),
-        new IntDataPoint(new TagAddress(TagAddresses.Real), DefaultPollFrequency, NoChannels),
-        new RealDataPoint(new TagAddress(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
-        new DIntDataPoint(new TagAddress(TagAddresses.String), DefaultPollFrequency, NoChannels),
+        new SIntDataPoint(TagPath.Parse(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels),
+        new IntDataPoint(TagPath.Parse(TagAddresses.Real), DefaultPollFrequency, NoChannels),
+        new RealDataPoint(TagPath.Parse(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
-            new TagAddress(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
-        new IntDataPoint(new TagAddress(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
+            TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new IntDataPoint(TagPath.Parse(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
         new IntArrayDataPoint(
-            new TagAddress(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
+            TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
     ];
 
     private static IReadOnlyList<ILogixDataPoint> TheWholeVocabulary() =>
     [
-        new BoolDataPoint(new TagAddress(TagAddresses.Bool), DefaultPollFrequency, NoChannels),
-        new SIntDataPoint(new TagAddress(TagAddresses.SInt), DefaultPollFrequency, NoChannels),
-        new IntDataPoint(new TagAddress(TagAddresses.Int), DefaultPollFrequency, NoChannels),
-        new DIntDataPoint(new TagAddress(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
-        new LIntDataPoint(new TagAddress(TagAddresses.LInt), DefaultPollFrequency, NoChannels),
-        new USIntDataPoint(new TagAddress(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
-        new UIntDataPoint(new TagAddress(TagAddresses.UInt), DefaultPollFrequency, NoChannels),
-        new UDIntDataPoint(new TagAddress(TagAddresses.UDInt), DefaultPollFrequency, NoChannels),
-        new ULIntDataPoint(new TagAddress(TagAddresses.ULInt), DefaultPollFrequency, NoChannels),
-        new RealDataPoint(new TagAddress(TagAddresses.Real), DefaultPollFrequency, NoChannels),
-        new LRealDataPoint(new TagAddress(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
+        new BoolDataPoint(TagPath.Parse(TagAddresses.Bool), DefaultPollFrequency, NoChannels),
+        new SIntDataPoint(TagPath.Parse(TagAddresses.SInt), DefaultPollFrequency, NoChannels),
+        new IntDataPoint(TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
+        new LIntDataPoint(TagPath.Parse(TagAddresses.LInt), DefaultPollFrequency, NoChannels),
+        new USIntDataPoint(TagPath.Parse(TagAddresses.USInt), DefaultPollFrequency, NoChannels),
+        new UIntDataPoint(TagPath.Parse(TagAddresses.UInt), DefaultPollFrequency, NoChannels),
+        new UDIntDataPoint(TagPath.Parse(TagAddresses.UDInt), DefaultPollFrequency, NoChannels),
+        new ULIntDataPoint(TagPath.Parse(TagAddresses.ULInt), DefaultPollFrequency, NoChannels),
+        new RealDataPoint(TagPath.Parse(TagAddresses.Real), DefaultPollFrequency, NoChannels),
+        new LRealDataPoint(TagPath.Parse(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
-            new TagAddress(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+            TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
         new SIntArrayDataPoint(
-            new TagAddress(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new IntArrayDataPoint(
-            new TagAddress(TagAddresses.IntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.IntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new DIntArrayDataPoint(
-            new TagAddress(TagAddresses.DIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.DIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new LIntArrayDataPoint(
-            new TagAddress(TagAddresses.LIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.LIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new USIntArrayDataPoint(
-            new TagAddress(TagAddresses.USIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.USIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new UIntArrayDataPoint(
-            new TagAddress(TagAddresses.UIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.UIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new UDIntArrayDataPoint(
-            new TagAddress(TagAddresses.UDIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.UDIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new ULIntArrayDataPoint(
-            new TagAddress(TagAddresses.ULIntArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.ULIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new RealArrayDataPoint(
-            new TagAddress(TagAddresses.RealArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.RealArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
         new LRealArrayDataPoint(
-            new TagAddress(TagAddresses.LRealArray), DefaultPollFrequency, NoChannels,
+            TagPath.Parse(TagAddresses.LRealArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),
     ];
 

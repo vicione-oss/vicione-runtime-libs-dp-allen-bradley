@@ -12,7 +12,7 @@ public sealed class BoolArrayDataPointTests
     private const int DeclaredBitCount = 32;
 
     private static readonly BoolArrayDataPoint Flags =
-        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
+        new(DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()

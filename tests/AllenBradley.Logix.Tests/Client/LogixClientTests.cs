@@ -25,11 +25,11 @@ public sealed class LogixClientTests
     private const string TagNotFound = "tag not found";
     private const int StringStructureSize = 88;
 
-    private static readonly DIntDataPoint Speed = new(new TagAddress("Motor.Speed"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Level = new(new TagAddress("Tank.Level"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
+    private static readonly DIntDataPoint Level = new(TagPath.Parse("Tank.Level"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
-        new(new TagAddress("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(TagPath.Parse("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
     // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
     private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
@@ -536,7 +536,7 @@ public sealed class LogixClientTests
         new(DefaultPollFrequency, dataPoints);
 
     private static StringDataPoint ShortStringDataPoint(string tagName) =>
-        new(new TagAddress(tagName), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
+        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels, new StringMaxLength(4));
 
     private static TagDefinition AtomicMetadataFor(ILogixDataPoint dataPoint) =>
         DefaultAtomicTagDefinition() with { TagAddress = dataPoint.TagAddress };
@@ -565,7 +565,7 @@ public sealed class LogixClientTests
 
     // A data point shape deliberately absent from DataPointConverterRegistry.
     private sealed record UnregisteredDataPoint()
-        : LogixDataPoint<int>(new TagAddress("Mystery.Tag"), DefaultPollFrequency, NoChannels)
+        : LogixDataPoint<int>(TagPath.Parse("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
         public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 

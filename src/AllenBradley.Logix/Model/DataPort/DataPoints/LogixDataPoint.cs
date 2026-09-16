@@ -7,12 +7,30 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 /// the channels it feeds, and the .NET type it exchanges.
 /// </summary>
 /// <typeparam name="TDomain">The .NET type this point exchanges — <c>int</c> for a <c>DINT</c>.</typeparam>
-/// <param name="TagAddress">The symbolic tag address.</param>
+/// <param name="TagPath">Where the tag's value lives.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public abstract record LogixDataPoint<TDomain>(TagAddress TagAddress, PollFrequency PollFrequency, Channels Channels)
+public abstract record LogixDataPoint<TDomain>(TagPath TagPath, PollFrequency PollFrequency, Channels Channels)
     : ILogixDataPoint, ITypedDataPoint<TDomain>
 {
+    // Rendered once per path rather than per read: the init accessor is the one door both the
+    // constructor and a `with { TagPath = ... }` go through, so the cache cannot go stale.
+    private readonly TagAddress _tagAddress = TagPath.ToTagAddress();
+
+    /// <inheritdoc />
+    public TagPath TagPath
+    {
+        get;
+        init
+        {
+            field = value;
+            _tagAddress = value.ToTagAddress();
+        }
+    } = TagPath;
+
+    /// <inheritdoc />
+    public TagAddress TagAddress => _tagAddress;
+
     /// <inheritdoc />
     public DataPointIdentifier Identifier => new(TagAddress.Value);
 

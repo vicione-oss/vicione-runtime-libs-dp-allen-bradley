@@ -12,7 +12,7 @@ public sealed class UIntArrayDataPointTests
     private const int DeclaredElementCount = 10;
 
     private static readonly UIntArrayDataPoint Speeds =
-        new(DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        new(DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     [Fact]
     public void ItNamesItselfAsStudio5000SpellsItWithoutTheDeclaredLength()

@@ -69,5 +69,5 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
     }
 
     private static StringDataPoint StringTag() =>
-        new(new TagAddress(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
+        new(TagPath.Parse(BenchControllerTags.StrValue1), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 }

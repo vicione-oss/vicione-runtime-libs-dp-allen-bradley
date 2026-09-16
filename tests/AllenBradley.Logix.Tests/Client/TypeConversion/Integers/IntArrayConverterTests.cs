@@ -15,7 +15,7 @@ public sealed class IntArrayConverterTests
     private static readonly IDataPointConverter Converter = new IntArrayConverter();
 
     private static readonly IntArrayDataPoint Readings = new(
-        new TagAddress("intArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        TagPath.Parse("intArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range and one value asymmetric in its bytes.
     private static readonly byte[] TenStoredInts =

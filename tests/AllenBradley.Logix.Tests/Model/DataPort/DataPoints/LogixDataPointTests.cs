@@ -12,7 +12,7 @@ public sealed class LogixDataPointTests
     {
         // Arrange
         var dataPoint = new DIntDataPoint(
-            new TagAddress("Program:MainProgram.Counter.PRE"), DefaultPollFrequency, NoChannels);
+            TagPath.Parse("Program:MainProgram.Counter.PRE"), DefaultPollFrequency, NoChannels);
 
         // Act
         var identifier = dataPoint.Identifier;
@@ -22,10 +22,36 @@ public sealed class LogixDataPointTests
     }
 
     [Fact]
+    public void APointAddressesTheTagItsPathRenders()
+    {
+        // Arrange
+        var dataPoint = new DIntDataPoint(TagPath.Parse("Program:Main.Readings[3]"), DefaultPollFrequency, NoChannels);
+
+        // Act
+        var tagAddress = dataPoint.TagAddress;
+
+        // Assert
+        tagAddress.Should().Be(new TagAddress("Program:Main.Readings[3]"));
+    }
+
+    [Fact]
+    public void APointGivenAnotherPathAddressesThatPathsTag()
+    {
+        // Arrange
+        var dataPoint = new DIntDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels);
+
+        // Act
+        var moved = dataPoint with { TagPath = TagPath.Parse("Program:Main.Readings[3]") };
+
+        // Assert
+        moved.TagAddress.Should().Be(new TagAddress("Program:Main.Readings[3]"));
+    }
+
+    [Fact]
     public void AValueIsTheFrameworkViewOfItsPointAndPayload()
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels);
+        var dataPoint = new DIntDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels);
 
         // Act
         var value = dataPoint.CreateTypedValue(42);

@@ -14,16 +14,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ar
 /// a multiple of them, which is what keeps a whole-array write off its neighbours' bits.
 /// </para>
 /// </summary>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagPath">Where the tag's value lives.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
 /// <param name="ElementCount">The number of bits the tag is declared with in Studio 5000.</param>
 public sealed record BoolArrayDataPoint(
-    TagAddress TagName,
+    TagPath TagPath,
     PollFrequency PollFrequency,
     Channels Channels,
     ElementCount ElementCount)
-    : LogixArrayDataPoint<bool>(TagName, PollFrequency, Channels, ElementCount)
+    : LogixArrayDataPoint<bool>(TagPath, PollFrequency, Channels, ElementCount)
 {
     /// <summary>
     /// How many <c>BOOL</c>s the controller packs into one 32-bit word. Studio 5000 declares no

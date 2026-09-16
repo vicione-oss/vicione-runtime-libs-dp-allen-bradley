@@ -19,7 +19,7 @@ public sealed class BooleanIntegrationTests(ITestOutputHelper output)
     public async Task ABoolValueRoundTripsAndItsTagIsDeclaredBool(bool valueToWrite)
     {
         // Arrange
-        var dataPoint = new BoolDataPoint(new TagAddress(TagAddresses.Bool), DefaultPollFrequency, NoChannels);
+        var dataPoint = new BoolDataPoint(TagPath.Parse(TagAddresses.Bool), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);

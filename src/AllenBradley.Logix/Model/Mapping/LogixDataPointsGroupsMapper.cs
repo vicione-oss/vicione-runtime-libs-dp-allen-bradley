@@ -7,6 +7,8 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray;
@@ -46,62 +48,59 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogixDataPoint, LogixDataPointGroup,
     DeviceNode, LogixCommunication>
 {
-    /// <inheritdoc />
-    public IReadOnlyList<ILogixDataPoint> ToDataPoints(DeviceNode deviceNode)
-    {
-        return Collect(deviceNode, TagScope.Controller, []);
-    }
+    /// <summary>
+    /// The tree is two levels deep and no deeper: a scope container under the device, and tag nodes
+    /// under it. The walk names each level, and composes the <see cref="TagPath"/> where the parts are
+    /// in scope.
+    /// </summary>
+    public IReadOnlyList<ILogixDataPoint> ToDataPoints(DeviceNode deviceNode) =>
+    [
+        .. from scope in deviceNode.ConfigurationNodes.OfType<ILogixContainerNode>()
+        let program = ProgramOf(scope)
+        from dataPoint in ScopedTags(program, scope)
+        select dataPoint,
+    ];
 
     /// <inheritdoc />
     public LogixDataPointGroup CreateGroup(PollFrequency pollFrequency, IReadOnlyList<ILogixDataPoint> dataPoints) =>
         new(pollFrequency, dataPoints);
 
-    private static List<ILogixDataPoint> Collect(
-        IConfigurationNode configurationNode, TagScope scope, List<ILogixDataPoint> dataPoints)
+    private static ProgramName? ProgramOf(ILogixContainerNode scope) => scope switch
     {
-        var logixDataPoints = configurationNode.DataPointNodes
-            .OfType<ILogixDataPointNode>()
-            .Select(dataPointNode => ToDataPoint(dataPointNode, scope));
+        ProgramTagsNode program => program.ProgramName,
+        ControllerTagsNode => null,
+        _ => throw new NotSupportedException($"'{scope.GetType().Name}' is no tag scope."),
+    };
 
-        dataPoints.AddRange(logixDataPoints);
+    private static IEnumerable<ILogixDataPoint> ScopedTags(ProgramName? program, ILogixContainerNode scope) =>
+        from tagNode in scope.DataPointNodes.OfType<ILogixDataPointNode>()
+        select ToDataPoint(new TagPath(program, tagNode.TagName, Element: null), tagNode);
 
-        foreach (var childNode in configurationNode.ConfigurationNodes)
-        {
-            Collect(childNode, ScopeOf(childNode, scope), dataPoints);
-        }
-
-        return dataPoints;
-    }
-
-    private static TagScope ScopeOf(IConfigurationNode configurationNode, TagScope enclosingScope) =>
-        configurationNode is ITagScopeNode scopeNode ? scopeNode.Scope() : enclosingScope;
-
-    private static ILogixDataPoint ToDataPoint(ILogixDataPointNode dataPointNode, TagScope scope)
+    private static ILogixDataPoint ToDataPoint(TagPath tagPath, ILogixDataPointNode dataPointNode)
     {
         var pollFrequency = dataPointNode.PollFrequency;
         var channels = dataPointNode.Channels;
-        var tagName = scope.Qualify(dataPointNode.TagName);
 
         return dataPointNode switch
         {
-            BoolNode => new BoolDataPoint(tagName, pollFrequency, channels),
-            SIntNode => new SIntDataPoint(tagName, pollFrequency, channels),
-            IntNode => new IntDataPoint(tagName, pollFrequency, channels),
-            DIntNode => new DIntDataPoint(tagName, pollFrequency, channels),
-            LIntNode => new LIntDataPoint(tagName, pollFrequency, channels),
-            USIntNode => new USIntDataPoint(tagName, pollFrequency, channels),
-            UIntNode => new UIntDataPoint(tagName, pollFrequency, channels),
-            UDIntNode => new UDIntDataPoint(tagName, pollFrequency, channels),
-            ULIntNode => new ULIntDataPoint(tagName, pollFrequency, channels),
-            RealNode => new RealDataPoint(tagName, pollFrequency, channels),
-            LRealNode => new LRealDataPoint(tagName, pollFrequency, channels),
-            StringNode stringNode => new StringDataPoint(tagName, pollFrequency, channels, stringNode.MaxLength),
-            LogixArrayDataPointNode arrayNode => ToArrayDataPoint(arrayNode, tagName),
+            BoolNode => new BoolDataPoint(tagPath, pollFrequency, channels),
+            SIntNode => new SIntDataPoint(tagPath, pollFrequency, channels),
+            IntNode => new IntDataPoint(tagPath, pollFrequency, channels),
+            DIntNode => new DIntDataPoint(tagPath, pollFrequency, channels),
+            LIntNode => new LIntDataPoint(tagPath, pollFrequency, channels),
+            USIntNode => new USIntDataPoint(tagPath, pollFrequency, channels),
+            UIntNode => new UIntDataPoint(tagPath, pollFrequency, channels),
+            UDIntNode => new UDIntDataPoint(tagPath, pollFrequency, channels),
+            ULIntNode => new ULIntDataPoint(tagPath, pollFrequency, channels),
+            RealNode => new RealDataPoint(tagPath, pollFrequency, channels),
+            LRealNode => new LRealDataPoint(tagPath, pollFrequency, channels),
+            StringNode stringNode => new StringDataPoint(tagPath, pollFrequency, channels, stringNode.MaxLength),
+            LogixArrayDataPointNode arrayNode => ToArrayDataPoint(arrayNode, tagPath),
             _ => throw UnsupportedNode(dataPointNode),
         };
     }
 
-    private static ILogixDataPoint ToArrayDataPoint(LogixArrayDataPointNode arrayDataPointNode, TagAddress tagAddress)
+    private static ILogixDataPoint ToArrayDataPoint(LogixArrayDataPointNode arrayDataPointNode, TagPath tagPath)
     {
         var pollFrequency = arrayDataPointNode.PollFrequency;
         var channels = arrayDataPointNode.Channels;
@@ -109,17 +108,17 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
 
         return arrayDataPointNode switch
         {
-            BoolArrayDataPointNode => new BoolArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            SIntArrayDataPointNode => new SIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            IntArrayDataPointNode => new IntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            DIntArrayDataPointNode => new DIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            LIntArrayDataPointNode => new LIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            UsIntArrayDataPointNode => new USIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            UIntArrayDataPointNode => new UIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            UdIntArrayDataPointNode => new UDIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            UlIntArrayDataPointNode => new ULIntArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            RealArrayDataPointNode => new RealArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
-            LRealArrayDataPointNode => new LRealArrayDataPoint(tagAddress, pollFrequency, channels, elementCount),
+            BoolArrayDataPointNode => new BoolArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            SIntArrayDataPointNode => new SIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            IntArrayDataPointNode => new IntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            DIntArrayDataPointNode => new DIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            LIntArrayDataPointNode => new LIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            UsIntArrayDataPointNode => new USIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            UIntArrayDataPointNode => new UIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            UdIntArrayDataPointNode => new UDIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            UlIntArrayDataPointNode => new ULIntArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            RealArrayDataPointNode => new RealArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
+            LRealArrayDataPointNode => new LRealArrayDataPoint(tagPath, pollFrequency, channels, elementCount),
             _ => throw UnsupportedNode(arrayDataPointNode),
         };
     }

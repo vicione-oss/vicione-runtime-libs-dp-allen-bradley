@@ -4,11 +4,11 @@ using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 
 /// <summary>A Logix <c>BOOL</c> tag — the atomic one byte, carried as <see cref="bool"/>.</summary>
-/// <param name="TagName">The symbolic tag address.</param>
+/// <param name="TagPath">Where the tag's value lives.</param>
 /// <param name="PollFrequency">How often an incoming port reads this point.</param>
 /// <param name="Channels">The channels this point's value is routed to.</param>
-public sealed record BoolDataPoint(TagAddress TagName, PollFrequency PollFrequency, Channels Channels)
-    : LogixDataPoint<bool>(TagName, PollFrequency, Channels)
+public sealed record BoolDataPoint(TagPath TagPath, PollFrequency PollFrequency, Channels Channels)
+    : LogixDataPoint<bool>(TagPath, PollFrequency, Channels)
 {
     /// <inheritdoc />
     public override AllenBradleyDataType DataType => AllenBradleyDataType.Bool;

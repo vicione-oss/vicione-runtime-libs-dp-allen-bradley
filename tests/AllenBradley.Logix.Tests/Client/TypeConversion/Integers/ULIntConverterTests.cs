@@ -11,7 +11,7 @@ public sealed class ULIntConverterTests
 {
     private static readonly IDataPointConverter Converter = new ULIntConverter();
 
-    private static readonly ULIntDataPoint Cycles = new(new TagAddress("ulintValue1"), DefaultPollFrequency, NoChannels);
+    private static readonly ULIntDataPoint Cycles = new(TagPath.Parse("ulintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void TheConverterExpectsTheControllerToDeclareTheTagAULInt()

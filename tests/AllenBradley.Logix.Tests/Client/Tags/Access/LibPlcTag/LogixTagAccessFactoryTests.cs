@@ -25,7 +25,7 @@ public sealed class LogixTagAccessFactoryTests
     {
         // Arrange
         var readings = new IntArrayDataPoint(
-            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+            DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
         // Act
         using var tag = _factory.CreateTagFor(readings);
@@ -39,7 +39,7 @@ public sealed class LogixTagAccessFactoryTests
     {
         // Arrange
         var readings = new IntArrayDataPoint(
-            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+            DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
         var moreReadings = readings with { ElementCount = new ElementCount(DeclaredElementCount * 2) };
 
         // Act
@@ -58,7 +58,7 @@ public sealed class LogixTagAccessFactoryTests
         // libplctag puts the count on the request unchanged, and the controller counts a BOOL array in
         // the 32-bit words it allocated.
         var flags = new BoolArrayDataPoint(
-            DefaultTagAddress, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
+            DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
 
         // Act
         using var tag = _factory.CreateTagFor(flags);
@@ -70,8 +70,8 @@ public sealed class LogixTagAccessFactoryTests
     /// <summary>One data point per shape that configures no extent: an elementary type, and a STRING.</summary>
     public static TheoryData<ILogixDataPoint> ScalarDataPoints =>
     [
-        new IntDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels),
-        new StringDataPoint(DefaultTagAddress, DefaultPollFrequency, NoChannels, StringMaxLength.Standard),
+        new IntDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels),
+        new StringDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels, StringMaxLength.Standard),
     ];
 
     [Theory]

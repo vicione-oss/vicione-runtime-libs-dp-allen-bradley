@@ -19,7 +19,7 @@ public sealed class RealArrayConverterTests
     private static readonly IDataPointConverter Converter = new RealArrayConverter();
 
     private static readonly RealArrayDataPoint Temperatures = new(
-        new TagAddress("realArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
+        TagPath.Parse("realArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
     // Least significant byte first, holding both ends of the range, a negative, a fraction and values
     // whose four bytes differ, so a swapped element cannot agree with the one that belongs there.

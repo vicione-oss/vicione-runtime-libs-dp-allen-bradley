@@ -1,5 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.LogixControllerKind;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TypedNodeTestDataFactory;
 
@@ -49,10 +48,10 @@ public sealed class DeviceNodeTests
         var container = DefaultControllerTagsNode with { Generation = testCase.ContainerGenerationToAdd };
 
         // Act
-        var adding = deviceNode.Invoking(node => node.CanBeAdded(container));
+        var canBeAdded = deviceNode.CanBeAdded(container);
 
         // Assert
-        adding.Should().Throw<InvalidConfigurationException>();
+        canBeAdded.Should().BeFalse();
     }
 
     [Theory]
@@ -79,10 +78,10 @@ public sealed class DeviceNodeTests
         var container = DefaultProgramTagsNode with { Generation = testCase.ContainerGenerationToAdd };
 
         // Act
-        var adding = deviceNode.Invoking(node => node.CanBeAdded(container));
+        var canBeAdded = deviceNode.CanBeAdded(container);
 
         // Assert
-        adding.Should().Throw<InvalidConfigurationException>();
+        canBeAdded.Should().BeFalse();
     }
 
     [Fact]

@@ -22,7 +22,7 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
     public async Task ARealValueRoundTripsAndItsTagIsDeclaredReal(float valueToWrite)
     {
         // Arrange
-        var dataPoint = new RealDataPoint(new TagAddress(TagAddresses.Real), DefaultPollFrequency, NoChannels);
+        var dataPoint = new RealDataPoint(TagPath.Parse(TagAddresses.Real), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
@@ -46,7 +46,7 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
     {
         // Arrange
         // Math.PI is not representable in a REAL, so it catches an LREAL encoded through the narrower codec.
-        var dataPoint = new LRealDataPoint(new TagAddress(TagAddresses.LReal), DefaultPollFrequency, NoChannels);
+        var dataPoint = new LRealDataPoint(TagPath.Parse(TagAddresses.LReal), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
