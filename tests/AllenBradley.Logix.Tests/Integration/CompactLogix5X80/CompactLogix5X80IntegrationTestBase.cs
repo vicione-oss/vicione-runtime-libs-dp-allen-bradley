@@ -4,6 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
@@ -69,6 +70,25 @@ public abstract class CompactLogix5X80IntegrationTestBase : IAsyncLifetime
         var readResult = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
         return new RoundTripResult(resolved.Single(), readResult.Single());
+    }
+
+    /// <summary>
+    /// The one shape every per-element write has: zero the array whole, write one element through its own
+    /// data point, and read the array whole again. A round trip of the element alone cannot tell a write
+    /// that reached the right element from one that reached its neighbour; the whole array can.
+    /// </summary>
+    private protected async Task<TElement[]> WriteOneElementOfAZeroedArrayAsync<TElement>(
+        LogixArrayDataPoint<TElement> wholeArray, LogixDataPoint<TElement> element, TElement valueToWrite)
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var zeros = new TElement[wholeArray.ElementCount.Value];
+        var group = new LogixDataPointGroup(DefaultPollFrequency, [wholeArray]);
+
+        await Client.WriteAsync([wholeArray.CreateLogixValue(zeros)], cancellationToken);
+        await Client.WriteAsync([element.CreateLogixValue(valueToWrite)], cancellationToken);
+        var readResult = await Client.ReadAsync(group, cancellationToken);
+
+        return ((ILogixDataPointValue<TElement[]>)readResult.Single()).TypedValue;
     }
 
     /// <summary>

@@ -61,12 +61,6 @@ internal static class TagAddresses
     internal const string IntArray = $"{Program}.testIntArray";
 
     /// <summary>
-    /// Element <paramref name="index"/> of <see cref="IntArray"/>, addressed with a subscript. Not a tag
-    /// of its own: the controller declares the array, and the subscript reaches into it.
-    /// </summary>
-    internal static string IntArrayElement(int index) => $"{IntArray}[{index}]";
-
-    /// <summary>
     /// The one-dimensional <c>DINT</c> array test tag, to be declared <c>DINT[10]</c>.
     /// </summary>
     internal const string DIntArray = $"{Program}.testDintArray";
@@ -113,4 +107,11 @@ internal static class TagAddresses
     /// controller aborts a connect, because a read of the first ten elements would not show a resized tag.
     /// </summary>
     internal static ElementCount ArrayElementCount => new(10);
+
+    /// <summary>
+    /// Element <paramref name="index"/> of the array tag at <paramref name="arrayAddress"/>, addressed
+    /// with a subscript. Not a tag of its own: the controller declares the array, and the subscript
+    /// reaches into it.
+    /// </summary>
+    internal static string ArrayElement(string arrayAddress, int index) => $"{arrayAddress}[{index}]";
 }
