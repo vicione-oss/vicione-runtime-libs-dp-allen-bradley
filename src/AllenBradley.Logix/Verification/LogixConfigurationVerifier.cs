@@ -90,10 +90,26 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"{converter.ExpectedTypeName} holds {Describe(converter.ElementCountFor(dataPoint))} elements, " +
                     $"but the controller declares {Describe(device.ElementCount)}."),
             ],
+            LogixTypeMismatch.ElementIndexOutOfRange =>
+            [
+                new MismatchingConfiguration(
+                    $"Element index {Describe(dataPoint.TagPath.Element)} is out of range for tag " +
+                    $"'{dataPoint.TagPath.TagDefinitionAddress.Value}', which the controller declares with " +
+                    $"{Describe(device.ElementCount)} elements."),
+            ],
+            LogixTypeMismatch.ElementOfScalar =>
+            [
+                new MismatchingConfiguration(
+                    $"Tag '{dataPoint.TagPath.TagDefinitionAddress.Value}' is a scalar on the controller, " +
+                    "but an element of it is configured."),
+            ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(mismatch), mismatch, "Unhandled type mismatch kind."),
         };
     }
+
+    private static string Describe(ElementIndex? index) =>
+        index?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 
     private static string Describe(AllenBradleyDataType? dataType) => dataType switch
     {

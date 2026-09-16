@@ -140,6 +140,47 @@ public sealed class LogixConfigurationVerifierTests
     }
 
     [Fact]
+    public void AnElementOfAnArrayTheControllerDeclaresReportsNothing()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[3]"), DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AnElementPastTheDeclaredCountSaysWhichIndexAndWhichCount()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[10]"), DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle().Which.Value.Should().Be(
+            "Element index 10 is out of range for tag 'Readings', which the controller declares with 10 elements.");
+    }
+
+    [Fact]
+    public void AnElementOfATagDeclaredScalarSaysTheTagIsAScalar()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(IntPointNamed("Count[3]"), DefaultAtomicTagDefinition());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle().Which.Value.Should().Be(
+            "Tag 'Count' is a scalar on the controller, but an element of it is configured.");
+    }
+
+    [Fact]
     public void AnElementCountThatDiffersIsReportedInElements()
     {
         // Arrange
@@ -275,6 +316,9 @@ public sealed class LogixConfigurationVerifierTests
     }
 
     private static DIntDataPoint DIntPointNamed(string tagName) =>
+        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels);
+
+    private static IntDataPoint IntPointNamed(string tagName) =>
         new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels);
 
     private static StringDataPoint StringPointNamed(string tagName) =>

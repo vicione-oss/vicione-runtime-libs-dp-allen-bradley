@@ -19,6 +19,29 @@ internal static class LogixTypeComparison
             return LogixTypeMismatch.None;
         }
 
+        return resolved.DataPoint.TagPath.Element is { } index
+            ? CompareElement(converter, resolved.DataPoint, declaration, index)
+            : CompareDeclaration(converter, resolved.DataPoint, declaration);
+    }
+
+    // The listing never names an element, so the declaration is the array's; the subscript is read
+    // against it first, and the element itself is then compared as the scalar it is.
+    private static LogixTypeMismatch CompareElement(
+        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition arrayDeclaration, ElementIndex index)
+    {
+        if (arrayDeclaration.DimensionCount.IsScalar)
+        {
+            return LogixTypeMismatch.ElementOfScalar;
+        }
+
+        return index.IsWithin(arrayDeclaration.ElementCount)
+            ? CompareDeclaration(converter, dataPoint, arrayDeclaration.OfOneElement())
+            : LogixTypeMismatch.ElementIndexOutOfRange;
+    }
+
+    private static LogixTypeMismatch CompareDeclaration(
+        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition declaration)
+    {
         // Rank leads: a shape that disagrees makes every comparison after it meaningless either way.
         if (declaration.DimensionCount != converter.ExpectedDimensionCount)
         {
@@ -33,8 +56,8 @@ internal static class LogixTypeComparison
         }
 
         return declaration.Kind is LogixTypeKind.Atomic
-            ? CompareAtomicType(converter, resolved.DataPoint, declaration)
-            : CompareCapacity(converter, resolved.DataPoint, declaration);
+            ? CompareAtomicType(converter, dataPoint, declaration)
+            : CompareCapacity(converter, dataPoint, declaration);
     }
 
     private static LogixTypeMismatch CompareAtomicType(

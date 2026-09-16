@@ -29,6 +29,8 @@ public sealed class LogixTypeComparisonTests
 
     private static readonly IDataPointConverter BoolArrayCodec = new BoolArrayConverter();
 
+    private static readonly IDataPointConverter IntCodec = new IntConverter();
+
     private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
@@ -36,6 +38,12 @@ public sealed class LogixTypeComparisonTests
 
     private static readonly IntArrayDataPoint Readings =
         new(TagPath.Parse("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
+
+    private static readonly IntDataPoint ThirdReading =
+        new(TagPath.Parse("Tank.Readings[3]"), DefaultPollFrequency, NoChannels);
+
+    private static readonly IntDataPoint EleventhReading =
+        new(TagPath.Parse("Tank.Readings[10]"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
@@ -187,6 +195,63 @@ public sealed class LogixTypeComparisonTests
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
+    }
+
+    [Fact]
+    public void AnElementWithinTheDeclaredArrayIsComparedAsAScalarOfItsElementType()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(ThirdReading, DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.None);
+    }
+
+    [Fact]
+    public void AnElementOfAnotherTypeThanTheArrayIsAnAtomicTypeMismatch()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(ThirdReading, DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.AtomicType);
+    }
+
+    [Fact]
+    public void AnElementPastTheDeclaredCountIsOutOfRange()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(EleventhReading, DefaultIntArrayTagDefinition());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.ElementIndexOutOfRange);
+    }
+
+    [Fact]
+    public void AnElementOfATagDeclaredScalarIsAnElementOfScalarMismatch()
+    {
+        // Arrange
+        var declaration = DefaultIntArrayTagDefinition() with
+        {
+            DimensionCount = DimensionCount.Scalar,
+            ElementCount = OneElement,
+        };
+        var resolved = new ResolvedDataPoint(ThirdReading, declaration);
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.ElementOfScalar);
     }
 
     [Fact]

@@ -18,4 +18,12 @@ public readonly record struct TagDefinition(
     AllenBradleyDataType? DataType,
     StringMaxLength? MaxLength,
     DimensionCount DimensionCount,
-    ElementCount ElementCount);
+    ElementCount ElementCount)
+{
+    /// <summary>
+    /// What the controller would report for one element of this array, if the listing named elements:
+    /// the same type, a scalar, one element.
+    /// </summary>
+    internal TagDefinition OfOneElement() =>
+        this with { DimensionCount = DimensionCount.Scalar, ElementCount = ElementCount.Scalar };
+}

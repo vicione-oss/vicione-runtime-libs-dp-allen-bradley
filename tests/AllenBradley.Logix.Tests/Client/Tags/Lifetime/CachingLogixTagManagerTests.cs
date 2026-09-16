@@ -114,6 +114,22 @@ public sealed class CachingLogixTagManagerTests
     }
 
     [Fact]
+    public async Task AnElementCarriesTheControllersDefinitionForItsArray()
+    {
+        // Arrange
+        var readings = DefaultIntArrayTagDefinition() with { TagAddress = new TagAddress("Readings") };
+        var browser = new FakeTagDefinitionsLoader { [readings.TagAddress] = readings };
+        using var manager = CreateManager(new CountingAccessFactory(), browser);
+        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var tag = manager.TagFor(DataPointNamed(new TagAddress("Readings[3]")));
+
+        // Assert
+        tag.Metadata.Should().Be(readings);
+    }
+
+    [Fact]
     public async Task TwoEqualDataPointsShareOneTag()
     {
         // Arrange
