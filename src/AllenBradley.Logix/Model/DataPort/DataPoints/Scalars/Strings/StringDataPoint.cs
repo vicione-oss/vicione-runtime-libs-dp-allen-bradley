@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -18,7 +19,7 @@ public sealed record StringDataPoint(
     : LogixDataPoint<string>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.String;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.String;
 
     /// <inheritdoc />
     internal override ILogixDataPointValue<string> CreateLogixValue(string value) => new Value(this, value);

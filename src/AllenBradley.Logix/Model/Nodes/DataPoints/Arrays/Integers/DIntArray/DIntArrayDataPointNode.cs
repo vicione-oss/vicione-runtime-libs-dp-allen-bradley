@@ -19,4 +19,6 @@ internal sealed record DIntArrayDataPointNode(
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "DIntArray";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Dint;
 }

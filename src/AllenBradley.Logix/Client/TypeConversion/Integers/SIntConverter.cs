@@ -11,9 +11,7 @@ internal sealed class SIntConverter : AtomicDataPointConverter<SIntDataPoint, sb
 {
     internal const int ElementSize = sizeof(sbyte);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.SInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Sint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Sint;
 
     internal static sbyte DecodeElement(ReadOnlySpan<byte> buffer) => (sbyte)buffer[0];
 

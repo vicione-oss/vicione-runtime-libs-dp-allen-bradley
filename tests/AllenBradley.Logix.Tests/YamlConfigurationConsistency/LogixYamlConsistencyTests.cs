@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Mapper;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
@@ -29,5 +30,10 @@ public sealed class LogixYamlConsistencyTests :
         [typeof(ProgramTagsNode)] = [nameof(ProgramTagsNode.Generation)],
     };
 
-    public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties => [];
+    public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties =>
+        Mapper.DataPointNodeMappers
+            .Where(mapper => typeof(LogixDataPointNode).IsAssignableFrom(mapper.NodeType))
+            .ToDictionary(
+                mapper => mapper.NodeType,
+                _ => new HashSet<string> { nameof(ILogixDataPointNode.DataType) });
 }

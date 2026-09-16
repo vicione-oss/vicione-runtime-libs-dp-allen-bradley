@@ -35,7 +35,7 @@ public sealed class BoolArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Flags);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("BOOL[]");
+        converter.ExpectedTypeName.Should().Be("BOOL[]");
     }
 
     /// <summary>Each declared bit count with the number of 32-bit words the controller packs it into.</summary>

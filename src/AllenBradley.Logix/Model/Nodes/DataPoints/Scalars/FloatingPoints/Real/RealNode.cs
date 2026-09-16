@@ -15,4 +15,6 @@ internal sealed record RealNode(LinkedNode OriginalNode, TagName TagName, PollFr
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "Real";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Real;
 }

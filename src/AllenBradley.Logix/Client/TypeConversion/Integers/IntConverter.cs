@@ -12,9 +12,7 @@ internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, shor
 {
     internal const int ElementSize = sizeof(short);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.Int;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Int;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Int;
 
     internal static short DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt16LittleEndian(buffer);

@@ -32,7 +32,7 @@ public sealed class UDIntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Runtime);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("UDINT");
+        converter.ExpectedTypeName.Should().Be("UDINT");
     }
 
     [Fact]

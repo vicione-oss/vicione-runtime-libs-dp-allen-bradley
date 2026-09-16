@@ -9,9 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class USIntArrayConverter : AtomicArrayDataPointConverter<USIntArrayDataPoint, byte>
 {
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.USIntArray;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Usint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Usint;
 
     protected override int ElementSize => USIntConverter.ElementSize;
 

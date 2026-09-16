@@ -17,9 +17,5 @@ internal sealed record USIntNode(LinkedNode OriginalNode, TagName TagName, PollF
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "USInt";
 
-    /// <summary>
-    /// The unsigned integers arrived with the 5X80 controllers. Implemented explicitly, because the YAML
-    /// consistency test expects every public property of a data point node to be a manifest property.
-    /// </summary>
-    LogixGeneration ILogixDataPointNode.MinimumGeneration => LogixGeneration.Logix5X80;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Usint;
 }

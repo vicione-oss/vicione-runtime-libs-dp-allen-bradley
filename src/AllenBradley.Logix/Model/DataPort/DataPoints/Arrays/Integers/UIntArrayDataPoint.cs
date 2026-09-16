@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -19,5 +20,5 @@ public sealed record UIntArrayDataPoint(
     : LogixArrayDataPoint<ushort>(TagName, PollFrequency, Channels, ElementCount)
 {
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.UIntArray;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Uint;
 }

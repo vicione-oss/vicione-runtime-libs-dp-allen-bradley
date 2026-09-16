@@ -35,7 +35,7 @@ public sealed class LRealArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Positions);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("LREAL[]");
+        converter.ExpectedTypeName.Should().Be("LREAL[]");
     }
 
     [Fact]

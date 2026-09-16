@@ -35,7 +35,7 @@ public sealed class UDIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Runtimes);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("UDINT[]");
+        converter.ExpectedTypeName.Should().Be("UDINT[]");
     }
 
     [Fact]

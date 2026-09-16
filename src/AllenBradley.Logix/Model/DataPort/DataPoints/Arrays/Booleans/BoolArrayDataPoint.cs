@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -31,7 +32,7 @@ public sealed record BoolArrayDataPoint(
     public const int BoolsPerWord = 32;
 
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.BoolArray;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Bool;
 
     /// <summary>
     /// How many 32-bit words the declared bits are packed into — the count the controller knows the tag

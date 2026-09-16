@@ -12,9 +12,7 @@ internal sealed class ULIntConverter : AtomicDataPointConverter<ULIntDataPoint, 
 {
     internal const int ElementSize = sizeof(ulong);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.ULInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Ulint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Ulint;
 
     internal static ulong DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt64LittleEndian(buffer);

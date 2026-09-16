@@ -11,17 +11,19 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 /// </summary>
 internal interface IDataPointConverter
 {
-    /// <summary>
-    /// The expected type in the spelling Studio 5000 uses — DINT, REAL, STRING. Display, never identity: it
-    /// names the type in a verification message and in a rejected write, and nothing is decided by it.
-    /// </summary>
-    LogixDataTypeName ExpectedTypeName { get; }
-
     LogixTypeKind ExpectedKind { get; }
 
-    AllenBradleyDataType? ExpectedDataType { get; }
+    /// <summary>The type this converter decodes; for an array converter, the element type.</summary>
+    AllenBradleyDataType ExpectedDataType { get; }
 
     DimensionCount ExpectedDimensionCount { get; }
+
+    /// <summary>
+    /// The expected type in the spelling Studio 5000 uses — DINT, REAL[], STRING. Display, never identity:
+    /// it names the type in a verification message, and nothing is decided by it.
+    /// </summary>
+    string ExpectedTypeName =>
+        ExpectedDimensionCount.IsScalar ? ExpectedDataType.Name : $"{ExpectedDataType.Name}[]";
 
     /// <summary>
     /// The character capacity the controller must declare for <paramref name="dataPoint"/>, or null for a

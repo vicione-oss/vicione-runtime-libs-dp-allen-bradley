@@ -35,7 +35,7 @@ public sealed class SIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Samples);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("SINT[]");
+        converter.ExpectedTypeName.Should().Be("SINT[]");
     }
 
     [Fact]

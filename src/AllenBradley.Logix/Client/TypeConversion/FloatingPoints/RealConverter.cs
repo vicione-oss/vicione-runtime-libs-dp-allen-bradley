@@ -11,9 +11,7 @@ internal sealed class RealConverter : AtomicDataPointConverter<RealDataPoint, fl
 {
     internal const int ElementSize = sizeof(float);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.Real;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Real;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Real;
 
     internal static float DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadSingleLittleEndian(buffer);

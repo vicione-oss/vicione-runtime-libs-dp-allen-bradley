@@ -32,7 +32,7 @@ public sealed class LIntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Ticks);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("LINT");
+        converter.ExpectedTypeName.Should().Be("LINT");
     }
 
     [Fact]

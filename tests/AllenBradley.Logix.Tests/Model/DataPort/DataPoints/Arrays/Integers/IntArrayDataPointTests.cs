@@ -35,7 +35,7 @@ public sealed class IntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Readings);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("INT[]");
+        converter.ExpectedTypeName.Should().Be("INT[]");
     }
 
     [Fact]

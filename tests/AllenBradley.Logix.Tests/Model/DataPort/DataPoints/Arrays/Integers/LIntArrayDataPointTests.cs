@@ -35,7 +35,7 @@ public sealed class LIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Timestamps);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("LINT[]");
+        converter.ExpectedTypeName.Should().Be("LINT[]");
     }
 
     [Fact]

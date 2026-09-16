@@ -61,7 +61,7 @@ public sealed class LogixConfigurationVerifierTests
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Contain("DINT").And.Contain("Real");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("DINT").And.Contain("REAL");
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public sealed class LogixConfigurationVerifierTests
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Contain("STRING").And.Contain("Dint");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("STRING").And.Contain("DINT");
     }
 
     [Fact]

@@ -9,9 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class DIntArrayConverter : AtomicArrayDataPointConverter<DIntArrayDataPoint, int>
 {
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.DIntArray;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Dint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Dint;
 
     protected override int ElementSize => DIntConverter.ElementSize;
 

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -10,7 +11,7 @@ public sealed record UIntDataPoint(TagName TagName, PollFrequency PollFrequency,
     : LogixDataPoint<ushort>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.UInt;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Uint;
 
     /// <inheritdoc />
     internal override ILogixDataPointValue<ushort> CreateLogixValue(ushort value) => new Value(this, value);

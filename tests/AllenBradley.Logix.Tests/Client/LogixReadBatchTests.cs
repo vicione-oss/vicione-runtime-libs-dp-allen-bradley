@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
@@ -348,7 +349,7 @@ public sealed class LogixReadBatchTests
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
-        protected override LogixDataTypeName TypeName => new("MYSTERY");
+        public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
@@ -388,11 +389,9 @@ public sealed class LogixReadBatchTests
 
         public Func<ILogixDataPointValue>? OnDecode { get; init; }
 
-        public LogixDataTypeName ExpectedTypeName => new("DINT");
-
         public LogixTypeKind ExpectedKind => LogixTypeKind.Atomic;
 
-        public AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Dint;
+        public AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Dint;
 
         public DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
 

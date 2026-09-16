@@ -22,4 +22,6 @@ internal abstract record LogixDataPointNode(LinkedNode OriginalNode, TagName Tag
     public Channels Channels { get; } = new(
         [.. OriginalNode.AffectedChannels.Select(static channel => new AffectedChannel(channel))],
         [.. OriginalNode.TransferredChannels.Select(static channel => new TransferredChannel(channel))]);
+
+    public abstract AllenBradleyDataType DataType { get; }
 }

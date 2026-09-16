@@ -32,7 +32,7 @@ public sealed class USIntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Level);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("USINT");
+        converter.ExpectedTypeName.Should().Be("USINT");
     }
 
     [Fact]

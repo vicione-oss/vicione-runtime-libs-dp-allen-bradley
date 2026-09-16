@@ -5,8 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ar
 
 /// <summary>
 /// What every one-dimensional Logix array tag carries whatever its element type: the declared length, and
-/// the value record that judges a value against it. A concrete point adds only the type name Studio 5000
-/// spells it with.
+/// the value record that judges a value against it. A concrete point adds only its element type.
 /// </summary>
 /// <typeparam name="TElement">The .NET type of one element — <c>int</c> for a <c>DINT[n]</c>.</typeparam>
 /// <param name="TagName">The symbolic tag address.</param>
@@ -20,6 +19,12 @@ public abstract record LogixArrayDataPoint<TElement>(
     ElementCount ElementCount)
     : LogixDataPoint<TElement[]>(TagName, PollFrequency, Channels), ILogixArrayDataPoint
 {
+    /// <summary>
+    /// The length is per declaration rather than per type, so the name does not carry it: Studio 5000
+    /// would say <c>DINT[10]</c>.
+    /// </summary>
+    protected sealed override string TypeName => $"{DataType.Name}[]";
+
     /// <inheritdoc />
     internal sealed override ILogixDataPointValue<TElement[]> CreateLogixValue(TElement[] value) =>
         new Value(this, value);

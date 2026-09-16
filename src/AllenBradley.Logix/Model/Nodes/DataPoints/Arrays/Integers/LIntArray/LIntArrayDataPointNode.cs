@@ -19,4 +19,6 @@ internal sealed record LIntArrayDataPointNode(
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "LIntArray";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Lint;
 }

@@ -12,9 +12,7 @@ internal sealed class BoolConverter : AtomicDataPointConverter<BoolDataPoint, bo
     private const byte True = 0xFF;
     private const byte False = 0x00;
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.Bool;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Bool;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Bool;
 
     protected override bool DecodeValue(BoolDataPoint dataPoint, ReadOnlySpan<byte> buffer) => buffer[0] != 0;
 

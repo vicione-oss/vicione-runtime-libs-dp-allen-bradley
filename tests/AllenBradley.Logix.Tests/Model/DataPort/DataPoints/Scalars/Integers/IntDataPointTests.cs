@@ -32,7 +32,7 @@ public sealed class IntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Counter);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("INT");
+        converter.ExpectedTypeName.Should().Be("INT");
     }
 
     [Fact]

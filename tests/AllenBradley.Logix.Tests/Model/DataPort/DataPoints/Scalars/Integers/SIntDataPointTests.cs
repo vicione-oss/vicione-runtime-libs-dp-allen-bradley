@@ -32,7 +32,7 @@ public sealed class SIntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Level);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("SINT");
+        converter.ExpectedTypeName.Should().Be("SINT");
     }
 
     [Fact]

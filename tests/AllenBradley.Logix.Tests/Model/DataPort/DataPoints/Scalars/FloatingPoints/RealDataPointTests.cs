@@ -32,7 +32,7 @@ public sealed class RealDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Measurement);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("REAL");
+        converter.ExpectedTypeName.Should().Be("REAL");
     }
 
     [Fact]

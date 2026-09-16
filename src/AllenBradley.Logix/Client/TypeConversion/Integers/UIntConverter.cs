@@ -12,9 +12,7 @@ internal sealed class UIntConverter : AtomicDataPointConverter<UIntDataPoint, us
 {
     internal const int ElementSize = sizeof(ushort);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.UInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Uint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Uint;
 
     internal static ushort DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt16LittleEndian(buffer);

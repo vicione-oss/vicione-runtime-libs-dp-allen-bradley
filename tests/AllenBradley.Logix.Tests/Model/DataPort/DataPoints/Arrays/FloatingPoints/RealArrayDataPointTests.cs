@@ -35,7 +35,7 @@ public sealed class RealArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Temperatures);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("REAL[]");
+        converter.ExpectedTypeName.Should().Be("REAL[]");
     }
 
     [Fact]

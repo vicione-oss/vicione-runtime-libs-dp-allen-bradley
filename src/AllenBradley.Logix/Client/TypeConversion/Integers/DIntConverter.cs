@@ -12,9 +12,7 @@ internal sealed class DIntConverter : AtomicDataPointConverter<DIntDataPoint, in
 {
     internal const int ElementSize = sizeof(int);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.DInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Dint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Dint;
 
     internal static int DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt32LittleEndian(buffer);

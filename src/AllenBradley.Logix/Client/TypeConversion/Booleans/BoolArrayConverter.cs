@@ -15,9 +15,7 @@ internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDat
 
     private const uint BytesPerWord = BoolArrayDataPoint.BoolsPerWord / BitsPerByte;
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.BoolArray;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Bool;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Bool;
 
     public override DimensionCount ExpectedDimensionCount => DimensionCount.OneDimensional;
 

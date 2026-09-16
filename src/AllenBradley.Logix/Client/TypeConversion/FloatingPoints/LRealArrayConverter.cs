@@ -9,9 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class LRealArrayConverter : AtomicArrayDataPointConverter<LRealArrayDataPoint, double>
 {
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LRealArray;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Lreal;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Lreal;
 
     protected override int ElementSize => LRealConverter.ElementSize;
 

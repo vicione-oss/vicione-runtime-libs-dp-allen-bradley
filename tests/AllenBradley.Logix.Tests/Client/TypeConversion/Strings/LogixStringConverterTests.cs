@@ -268,7 +268,7 @@ public sealed class LogixStringConverterTests
         var typeName = Converter.ExpectedTypeName;
 
         // Assert
-        typeName.Should().Be(new LogixDataTypeName("STRING"));
+        typeName.Should().Be("STRING");
     }
 
     [Fact]

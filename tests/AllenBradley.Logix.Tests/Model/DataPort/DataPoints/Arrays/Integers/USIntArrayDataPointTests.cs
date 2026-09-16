@@ -35,7 +35,7 @@ public sealed class USIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Pressures);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("USINT[]");
+        converter.ExpectedTypeName.Should().Be("USINT[]");
     }
 
     [Fact]

@@ -32,7 +32,7 @@ public sealed class BoolDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Flag);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("BOOL");
+        converter.ExpectedTypeName.Should().Be("BOOL");
     }
 
     [Fact]

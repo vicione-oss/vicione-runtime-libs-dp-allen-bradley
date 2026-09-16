@@ -19,4 +19,6 @@ internal sealed record BoolArrayDataPointNode(
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "BoolArray";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Bool;
 }

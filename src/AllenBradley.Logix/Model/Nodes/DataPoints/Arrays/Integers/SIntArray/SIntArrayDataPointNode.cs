@@ -19,4 +19,6 @@ internal sealed record SIntArrayDataPointNode(
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "SIntArray";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Sint;
 }

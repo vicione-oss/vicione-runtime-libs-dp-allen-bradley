@@ -12,11 +12,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : LogixDataPoint<TDomain>
 {
-    public abstract LogixDataTypeName ExpectedTypeName { get; }
-
     public abstract LogixTypeKind ExpectedKind { get; }
 
-    public abstract AllenBradleyDataType? ExpectedDataType { get; }
+    public abstract AllenBradleyDataType ExpectedDataType { get; }
 
     public virtual DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
 

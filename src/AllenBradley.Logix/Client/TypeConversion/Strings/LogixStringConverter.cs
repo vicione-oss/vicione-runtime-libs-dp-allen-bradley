@@ -19,11 +19,9 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
     // back the same through the other. One byte per character, so anything outside Latin-1 encodes as '?'.
     private static readonly Encoding Latin1 = Encoding.Latin1;
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.String;
-
     public override LogixTypeKind ExpectedKind => LogixTypeKind.Structure;
 
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.String;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.String;
 
     protected override StringMaxLength? MaxLengthOf(StringDataPoint dataPoint) => dataPoint.MaxLength;
 

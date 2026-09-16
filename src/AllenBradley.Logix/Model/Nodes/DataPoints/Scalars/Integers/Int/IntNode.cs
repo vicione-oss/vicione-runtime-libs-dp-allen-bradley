@@ -15,4 +15,6 @@ internal sealed record IntNode(LinkedNode OriginalNode, TagName TagName, PollFre
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "Int";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Int;
 }

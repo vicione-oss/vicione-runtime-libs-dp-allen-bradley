@@ -32,7 +32,7 @@ public sealed class DIntDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Counter);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("DINT");
+        converter.ExpectedTypeName.Should().Be("DINT");
     }
 
     [Fact]

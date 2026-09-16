@@ -35,7 +35,7 @@ public sealed class StringDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Label);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("STRING");
+        converter.ExpectedTypeName.Should().Be("STRING");
     }
 
     [Fact]

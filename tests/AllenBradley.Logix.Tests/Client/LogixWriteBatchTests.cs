@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
@@ -245,7 +246,7 @@ public sealed class LogixWriteBatchTests
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(new TagName("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
-        protected override LogixDataTypeName TypeName => new("MYSTERY");
+        public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => new Value(this, value);
 

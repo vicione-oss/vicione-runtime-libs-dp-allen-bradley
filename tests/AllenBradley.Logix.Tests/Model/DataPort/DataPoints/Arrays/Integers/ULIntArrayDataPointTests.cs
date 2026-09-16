@@ -35,7 +35,7 @@ public sealed class ULIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(CycleCounts);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("ULINT[]");
+        converter.ExpectedTypeName.Should().Be("ULINT[]");
     }
 
     [Fact]

@@ -19,6 +19,8 @@ internal sealed record StringNode(
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "String";
 
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.String;
+
     /// <summary>The manifest property carrying <see cref="MaxLength"/>.</summary>
     public const string MaxLengthPropertyName = nameof(MaxLength);
 }

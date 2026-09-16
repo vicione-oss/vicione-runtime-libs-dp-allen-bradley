@@ -21,10 +21,5 @@ internal sealed record UsIntArrayDataPointNode(
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "USIntArray";
 
-    /// <summary>
-    /// An array of a type the controller has not got is not a different question from the scalar, so this
-    /// carries what <c>USIntNode</c> carries. Implemented explicitly, because the YAML consistency test
-    /// expects every public property of a data point node to be a manifest property.
-    /// </summary>
-    LogixGeneration ILogixDataPointNode.MinimumGeneration => LogixGeneration.Logix5X80;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Usint;
 }

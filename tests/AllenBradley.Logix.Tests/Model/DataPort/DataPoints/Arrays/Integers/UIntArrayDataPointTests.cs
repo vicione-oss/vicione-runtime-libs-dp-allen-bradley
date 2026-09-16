@@ -35,7 +35,7 @@ public sealed class UIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Speeds);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("UINT[]");
+        converter.ExpectedTypeName.Should().Be("UINT[]");
     }
 
     [Fact]

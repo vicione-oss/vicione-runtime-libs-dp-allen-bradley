@@ -12,9 +12,7 @@ internal sealed class LIntConverter : AtomicDataPointConverter<LIntDataPoint, lo
 {
     internal const int ElementSize = sizeof(long);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Lint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Lint;
 
     internal static long DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt64LittleEndian(buffer);

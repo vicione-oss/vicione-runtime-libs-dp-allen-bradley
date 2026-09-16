@@ -17,12 +17,13 @@ public abstract record LogixDataPoint<TDomain>(TagName TagName, PollFrequency Po
     public DataPointIdentifier Identifier => new(TagName.Value);
 
     /// <inheritdoc />
-    public DataTypeName DataTypeName => new(TypeName.Value);
+    public DataTypeName DataTypeName => new(TypeName);
 
-    /// <summary>
-    /// This point's type name, shared with the converter that decodes it so a type has one spelling.
-    /// </summary>
-    protected abstract LogixDataTypeName TypeName { get; }
+    /// <summary>The type this point holds; for an array, the element type.</summary>
+    public abstract AllenBradleyDataType DataType { get; }
+
+    /// <summary>This point's type as Studio 5000 spells it, with the shape a scalar does not have.</summary>
+    protected virtual string TypeName => DataType.Name;
 
     /// <inheritdoc />
     public ITypedDataPointValue<TDomain> CreateTypedValue(TDomain value) => CreateLogixValue(value);

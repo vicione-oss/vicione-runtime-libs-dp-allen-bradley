@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
@@ -10,7 +11,7 @@ public sealed record RealDataPoint(TagName TagName, PollFrequency PollFrequency,
     : LogixDataPoint<float>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.Real;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Real;
 
     /// <inheritdoc />
     internal override ILogixDataPointValue<float> CreateLogixValue(float value) => new Value(this, value);

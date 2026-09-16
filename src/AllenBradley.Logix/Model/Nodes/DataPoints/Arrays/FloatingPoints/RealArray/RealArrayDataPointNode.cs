@@ -19,4 +19,6 @@ internal sealed record RealArrayDataPointNode(
 {
     /// <summary>The manifest's <c>MappingId</c> for this node.</summary>
     public const string LinkedNodeTypeId = "RealArray";
+
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Real;
 }

@@ -35,7 +35,7 @@ public sealed class DIntArrayDataPointTests
         var converter = DataPointConverterRegistry.GetConverter(Totals);
 
         // Assert
-        converter.ExpectedTypeName.Value.Should().Be("DINT[]");
+        converter.ExpectedTypeName.Should().Be("DINT[]");
     }
 
     [Fact]

@@ -98,7 +98,7 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     private static string Describe(AllenBradleyDataType? dataType) => dataType switch
     {
         null => "a structure",
-        AllenBradleyDataType.Unknown => "a type this addon does not model",
+        { } type when type == AllenBradleyDataType.Unknown => "a type this addon does not model",
         { } type => type.ToString(),
     };
 

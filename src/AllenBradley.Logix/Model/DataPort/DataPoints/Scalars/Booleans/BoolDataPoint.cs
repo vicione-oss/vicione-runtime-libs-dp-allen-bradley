@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
@@ -10,7 +11,7 @@ public sealed record BoolDataPoint(TagName TagName, PollFrequency PollFrequency,
     : LogixDataPoint<bool>(TagName, PollFrequency, Channels)
 {
     /// <inheritdoc />
-    protected override LogixDataTypeName TypeName => LogixDataTypeName.Bool;
+    public override AllenBradleyDataType DataType => AllenBradleyDataType.Bool;
 
     /// <inheritdoc />
     internal override ILogixDataPointValue<bool> CreateLogixValue(bool value) => new Value(this, value);

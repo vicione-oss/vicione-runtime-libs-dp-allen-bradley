@@ -11,9 +11,7 @@ internal sealed class USIntConverter : AtomicDataPointConverter<USIntDataPoint, 
 {
     internal const int ElementSize = sizeof(byte);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.USInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Usint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Usint;
 
     internal static byte DecodeElement(ReadOnlySpan<byte> buffer) => buffer[0];
 

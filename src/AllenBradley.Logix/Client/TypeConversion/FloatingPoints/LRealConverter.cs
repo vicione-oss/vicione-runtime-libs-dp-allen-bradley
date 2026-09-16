@@ -11,9 +11,7 @@ internal sealed class LRealConverter : AtomicDataPointConverter<LRealDataPoint, 
 {
     internal const int ElementSize = sizeof(double);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.LReal;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Lreal;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Lreal;
 
     internal static double DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadDoubleLittleEndian(buffer);

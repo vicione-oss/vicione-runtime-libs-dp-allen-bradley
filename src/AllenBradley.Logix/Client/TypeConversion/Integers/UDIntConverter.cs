@@ -12,9 +12,7 @@ internal sealed class UDIntConverter : AtomicDataPointConverter<UDIntDataPoint, 
 {
     internal const int ElementSize = sizeof(uint);
 
-    public override LogixDataTypeName ExpectedTypeName => LogixDataTypeName.UDInt;
-
-    public override AllenBradleyDataType? ExpectedDataType => AllenBradleyDataType.Udint;
+    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Udint;
 
     internal static uint DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt32LittleEndian(buffer);
