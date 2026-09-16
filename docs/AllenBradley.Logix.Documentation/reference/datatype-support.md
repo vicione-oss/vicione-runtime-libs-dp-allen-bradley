@@ -30,17 +30,17 @@ the wire layout of each type is in the
 | **String**            |                  |                       |            |           |                        |             |
 | `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
 | **Arrays**            |                  |                       |            |           |                        |             |
-| `BOOL[n]`             | `BoolArrayNode`  | `BoolArrayDataPoint`  | `bool[]`   | 4 × n/32  | `BoolArrayConverter`   | all         |
-| `SINT[n]`             | `SIntArrayNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
-| `INT[n]`              | `IntArrayNode`   | `IntArrayDataPoint`   | `short[]`  | 2 × n     | `IntArrayConverter`    | all         |
-| `DINT[n]`             | `DIntArrayNode`  | `DIntArrayDataPoint`  | `int[]`    | 4 × n     | `DIntArrayConverter`   | all         |
-| `LINT[n]`             | `LIntArrayNode`  | `LIntArrayDataPoint`  | `long[]`   | 8 × n     | `LIntArrayConverter`   | all         |
-| `USINT[n]`            | `USIntArrayNode` | `USIntArrayDataPoint` | `byte[]`   | n         | `USIntArrayConverter`  | 5X80 only   |
-| `UINT[n]`             | `UIntArrayNode`  | `UIntArrayDataPoint`  | `ushort[]` | 2 × n     | `UIntArrayConverter`   | 5X80 only   |
-| `UDINT[n]`            | `UDIntArrayNode` | `UDIntArrayDataPoint` | `uint[]`   | 4 × n     | `UDIntArrayConverter`  | 5X80 only   |
-| `ULINT[n]`            | `ULIntArrayNode` | `ULIntArrayDataPoint` | `ulong[]`  | 8 × n     | `ULIntArrayConverter`  | 5X80 only   |
-| `REAL[n]`             | `RealArrayNode`  | `RealArrayDataPoint`  | `float[]`  | 4 × n     | `RealArrayConverter`   | all         |
-| `LREAL[n]`            | `LRealArrayNode` | `LRealArrayDataPoint` | `double[]` | 8 × n     | `LRealArrayConverter`  | 5X80 only   |
+| `BOOL[n]`             | `BoolArrayDataPointNode`  | `BoolArrayDataPoint`  | `bool[]`   | 4 × n/32  | `BoolArrayConverter`   | all         |
+| `SINT[n]`             | `SIntArrayDataPointNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
+| `INT[n]`              | `IntArrayDataPointNode`   | `IntArrayDataPoint`   | `short[]`  | 2 × n     | `IntArrayConverter`    | all         |
+| `DINT[n]`             | `DIntArrayDataPointNode`  | `DIntArrayDataPoint`  | `int[]`    | 4 × n     | `DIntArrayConverter`   | all         |
+| `LINT[n]`             | `LIntArrayDataPointNode`  | `LIntArrayDataPoint`  | `long[]`   | 8 × n     | `LIntArrayConverter`   | all         |
+| `USINT[n]`            | `USIntArrayDataPointNode` | `USIntArrayDataPoint` | `byte[]`   | n         | `USIntArrayConverter`  | 5X80 only   |
+| `UINT[n]`             | `UIntArrayDataPointNode`  | `UIntArrayDataPoint`  | `ushort[]` | 2 × n     | `UIntArrayConverter`   | 5X80 only   |
+| `UDINT[n]`            | `UDIntArrayDataPointNode` | `UDIntArrayDataPoint` | `uint[]`   | 4 × n     | `UDIntArrayConverter`  | 5X80 only   |
+| `ULINT[n]`            | `ULIntArrayDataPointNode` | `ULIntArrayDataPoint` | `ulong[]`  | 8 × n     | `ULIntArrayConverter`  | 5X80 only   |
+| `REAL[n]`             | `RealArrayDataPointNode`  | `RealArrayDataPoint`  | `float[]`  | 4 × n     | `RealArrayConverter`   | all         |
+| `LREAL[n]`            | `LRealArrayDataPointNode` | `LRealArrayDataPoint` | `double[]` | 8 × n     | `LRealArrayConverter`  | 5X80 only   |
 
 A supported type is supported end to end: the manifest declares the node, a node mapper claims it,
 `LogixDataPointsGroupsMapper` turns it into the data point, and `DataPointConverterRegistry` holds a
@@ -60,14 +60,14 @@ addresses a type the controller cannot resolve.
 
 The device node type is what decides. A 5X80 device node's controller-scope container is
 `ControllerTags5X80`, which lists those types among its children; the 5X70 container does not,
-so the editor never offers them. `ITagScopeNode.CanBeAdded` is the guard behind that for a configuration
+so the editor never offers them. The container's `CanBeAdded` is the guard behind that for a configuration
 the editor did not build, and `DeviceNode.CanBeAdded` refuses a container whose generation is not its
 device's — the pairing the first guard rests on. See
 [Splitting the device node by family and generation](../ADR/2026-08-31-splitting-the-device-node-by-family-and-generation.md).
 
-The node states the rule itself, as `ILogixTagNode.MinimumGeneration`: the oldest generation whose
-vocabulary has the type. `ITagScopeNode` compares it against the container's own generation and
-implements `CanBeAdded` for every scope from that, so a type that arrives with a later generation is
+The node states the rule itself, as `ILogixDataPointNode.MinimumGeneration`: the oldest generation whose
+vocabulary has the type. `ControllerTagsNode` and `ProgramTagsNode` compare it against their own
+generation in `CanBeAdded`, and an array container is gated the same way by its element type, so a type that arrives with a later generation is
 one line on the node and no edit to a container. The default is the oldest generation the addon
 addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode`, `RealNode`,
 `StringNode`, and the array nodes of `BOOL`, the signed integers and `REAL`, say nothing. The comparison reads
@@ -79,7 +79,7 @@ could as well have been a special case. The four unsigned integers are the check
 declares the same one line, and both tag-scope containers turn it away on a 5X70 with nothing added to
 either — no container gained a rule for any of them.
 
-The five arrays of those types say what the rule is *about*. `USIntArrayNode` carries what
+The five arrays of those types say what the rule is *about*. `USIntArrayDataPointNode` carries what
 `USIntNode` carries, because an array of a type the controller cannot resolve is not a different
 question from a scalar of it: the generation follows the element type, and the shape has nothing to do
 with it.
@@ -129,10 +129,11 @@ Verification checks the declared capacity as well as the shape, because a round 
 
 ### Arrays
 
-One shape, and its boundaries are worth stating exactly: a **one-dimensional array of an elementary
-type, transferred whole**. An `ARRAY[0..9] OF INT` is configured as one node carrying a tag name, an
-element count and a poll frequency; a poll delivers one `short[10]` with the elements in index order,
-and a write sends a `short[10]` back the same way. Ten more element types are that sentence with the
+Two shapes. The first, and the one this section is about, is a **one-dimensional array of an
+elementary type, transferred whole**. An `ARRAY[0..9] OF INT` is configured as one node carrying a
+tag name, an element count and a poll frequency; a poll delivers one `short[10]` with the elements in
+index order, and a write sends a `short[10]` back the same way. The second is the same array opened
+up as a container with one data point per element; see [Array elements](#array-elements). Ten more element types are that sentence with the
 element type swapped — every atomic type the port has. `BOOL[n]` is the same sentence too, but it
 reaches it differently; see [`BOOL[n]`](#booln).
 
@@ -171,15 +172,39 @@ rule costs the eleven scalar types nothing.
 
 What this shape is not:
 
-- **Not written in part.** A write is every element or none. Writing a range of elements is
-  per-element addressing under another name, and waits on it.
-- **Not per element.** `myArray[3]` is not an address the port takes. Whole-array access is one
-  handle, one CIP request and one value; indexed access is a container node with a child per element,
-  each with a symbolic path of its own.
+- **Not written in part.** A write is every element or none. To write one element and leave the
+  rest alone, configure that element under an array container instead.
+- **Not per element.** Whole-array access is one handle, one CIP request and one value. `myArray[3]`
+  as a data point of its own is the other shape, below.
 - **Not rank 2 or 3.** Both exist on Logix and both are rejected at connect. `TagsDecoder` folds the
   dimension words into their product, so `INT[2,3]` and `INT[3,2]` are one thing in this model;
   supporting them means keeping the dimensions rather than the product, and nothing new comes off the
   wire.
+
+### Array elements
+
+An `ARRAY[0..9] OF INT` can also be configured as an **array container** — `IntArrayContainer`,
+carrying the tag name — with an `IntNode` under it for each element the configuration wants. The
+element node's tag name is the subscript, `[3]`, and nothing else; the tree walk composes
+`Program:MainProgram.testIntArray[3]` from the program, the container and the subscript, the way it
+composes a program-scoped tag's address from the program and the tag. From there down the element is
+a scalar `INT` in every respect: a one-element handle, `IntConverter`, a `short` in and out, and a
+write that touches that element and no other. Every element type but `BOOL` has a container; a
+`BOOL` element is a bit inside a word, and writing one is a read-modify-write the port has not proved.
+
+Each element is a data point of its own, with its own poll frequency and its own channels. Element 3
+at 100 ms and element 7 at 5 s fall into two poll groups of the same array. The cost is one libplctag
+handle and one CIP request per element where a whole-array read is one of each; `AllowPacking` is set
+on every handle, so the library packs them into as few packets as it can, but a configuration that
+wants all ten elements at one frequency should be a whole-array node instead.
+
+The container declares no element count. The controller does, and verification reads every subscript
+against it: the flat `@tags` listing never names an element, so `testIntArray[3]` resolves to the
+declaration of `testIntArray`, and `LogixTypeComparison` then compares the element as a scalar of
+the array's element type. Three things are reported at connect that a whole-array node cannot run
+into: a subscript on a tag the controller declares as a scalar, a subscript at or past the declared
+count, and — the ordinary type mismatch, read the other way — an element configured as a `DINT` on
+an `INT[10]`.
 
 ### `BOOL[n]`
 
@@ -223,7 +248,7 @@ layer, which holds one whole operation per member and nothing smaller.
 
 | Logix type                      | Notes                                                                                            |
 |---------------------------------|--------------------------------------------------------------------------------------------------|
-| Writing part of an array        | A write is the whole array; a range of elements is per-element addressing under another name     |
+| A range of elements as one value | `myArray[2..8]` as a single `short[7]` is neither whole-array nor per-element; needs its own shape |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
 | Arrays of `STRING` or of a UDT  | Need `TagsEntryHeader.ElementLength`, which is kept only for structures, as `MaxLength`          |
 | `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                                                    |
@@ -236,8 +261,8 @@ A shape, a type or a capacity that disagrees with the controller is reported at 
 
 A tag address may reach into a structure — `Program:MainProgram.Counter.PRE` is a `DINT` inside a
 `COUNTER`, and the client reads it correctly — but **it cannot be configured today**.
-`TagNodePropertyValidator` accepts only a plain tag name, so a dotted address fails validation
-before anything reaches the controller.
+`TagNamePropertyValidator` accepts only a plain tag name — or, under an array container, a subscript
+— so a dotted address fails validation before anything reaches the controller.
 
 That rule is about the *configured* name, and it does not stand in the way of program scope: a tag
 inside a program is configured as `Count` under a `ProgramTags` container, and

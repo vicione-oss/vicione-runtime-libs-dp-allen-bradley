@@ -19,10 +19,11 @@ These pages cover only what the Logix port adds on top.
 > slice — so these pages describe a moving target. `reference/` and `ADR/` track what has landed;
 > `how-to/` is still scaffolding.
 >
-> **Addressing is a plain tag name today.** A configuration node carries the symbolic address the
-> controller knows, and `TagNodePropertyValidator` accepts nothing more elaborate: no dotted
-> structure members, no array subscripts. What that rules out, and why it is a validation rule rather
-> than a parser, is in [`reference/datatype-support.md`](reference/datatype-support.md).
+> **Addressing is a plain tag name today.** A configuration node carries the tag name the controller
+> knows, and `TagNamePropertyValidator` accepts nothing more elaborate: no dotted structure members.
+> The one exception is an element node under an array container, whose tag name is the subscript,
+> `[3]`. What that rules out, and why it is a validation rule rather than a parser, is in
+> [`reference/datatype-support.md`](reference/datatype-support.md).
 
 ## New here?
 

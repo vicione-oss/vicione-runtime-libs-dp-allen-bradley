@@ -79,10 +79,15 @@ configured under it addresses itself. `ProgramTagsNode` is the one that prefixes
 `ProgramName` is what it prefixes with. UDT members, by contrast, are never configured as containers:
 their path comes from the tag's own type declaration, read from the controller.
 
-The prefix is composed while the tree is walked into data points, never stored on the leaf. Each
-container answers with a `TagScope` — empty for controller scope, `Program:MainProgram` for a program
-— and the walk joins it to the configured tag name. So a tag is configured as `Count` wherever it
-sits, and the address `Program:MainProgram.Count` exists only from the data point outwards.
+The prefix is composed while the tree is walked into data points, never stored on the leaf. The
+tree is three levels deep and no deeper — a scope container, an array container under it, tag nodes
+under either — so `LogixDataPointsGroupsMapper` walks those three levels by name and builds a
+`TagPath` for each leaf: the program from the scope (none for controller scope), the tag, and the
+subscript. The data point carries that path and renders `Program:MainProgram.Count` from it when
+libplctag asks. So a tag is configured as `Count` wherever it sits, and the address exists only from
+the data point outwards. An element under an array container is the same walk with the third slot
+filled: its tag name is the subscript, the array's name is the tag, and
+`Program:MainProgram.Readings[3]` renders from the three.
 
 The ordering consequence for verification is worth stating plainly. A program's tag listing cannot be
 read until its name is known, so `ProgramName` is validated as a well-formed name during mapping, and
