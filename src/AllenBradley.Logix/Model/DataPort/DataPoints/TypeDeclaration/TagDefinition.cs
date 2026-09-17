@@ -1,3 +1,5 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
+
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 /// <summary>
@@ -7,7 +9,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// <param name="TagAddress">The name as the controller reports it, program-qualified for a program tag.</param>
 /// <param name="DataType">
 /// The data type the controller declares. The listing names a structure only by its template id, so every
-/// structure is a <see cref="AllenBradleyDataType.String"/> until templates are read.
+/// structure is a <see cref="AllenBradleyDataType.String"/> here; the template behind
+/// <paramref name="TemplateId"/> is what says whether it is one.
+/// </param>
+/// <param name="TemplateId">
+/// The template that lays out a structured tag's members, looked up in the definitions the browse built;
+/// <c>null</c> for an atomic tag, and for a system tag, whose template the controller does not serve.
 /// </param>
 /// <param name="MaxLength">The declared capacity of a string tag; <c>null</c> for every other type.</param>
 /// <param name="DimensionCount">The array rank: scalar, or up to <c>3</c>.</param>
@@ -15,6 +22,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 public readonly record struct TagDefinition(
     TagAddress TagAddress,
     AllenBradleyDataType DataType,
+    TemplateId? TemplateId,
     StringMaxLength? MaxLength,
     DimensionCount DimensionCount,
     ElementCount ElementCount)

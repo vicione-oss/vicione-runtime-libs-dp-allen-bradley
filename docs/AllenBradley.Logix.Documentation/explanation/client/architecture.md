@@ -147,9 +147,11 @@ having a `Drain` next to its `Dispose`.
 ## Tag definitions and verification
 
 - **`TagDefinitionsLoader`** (`ITagDefinitionsLoader`) reads the controller's symbol table once at
-  connect through the same exchange seam, decodes each entry with `TagsDecoder`, and **builds** a
-  `TagDefinitions` — the tag-name → `TagDefinition` map, matched case-insensitively, that the manager
-  joins onto every access.
+  connect through the same exchange seam, decodes each entry with `TagsDecoder`, reads every template
+  the entries name — one `@udt/<id>` per distinct id, nested structures included — and decodes each
+  with `TemplateDecoder`. It **builds** a `TagDefinitions` from both: the tag-name → `TagDefinition`
+  map, matched case-insensitively, that the manager joins onto every access, and the template-id →
+  `TemplateDefinition` map behind `LookupTemplate`.
 - **`LogixConfigurationVerifier`** (`IDataPointConfigurationVerifier<ILogixDataPoint>`) reports the
   tags whose declared type, shape, or existence disagrees with the configuration. It holds an
   `ILogixClient` and gets its metadata from `ResolveDataPoints`, which is a *projection* of the tags the

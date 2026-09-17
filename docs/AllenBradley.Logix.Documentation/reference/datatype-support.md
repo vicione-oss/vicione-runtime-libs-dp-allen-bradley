@@ -252,10 +252,28 @@ layer, which holds one whole operation per member and nothing smaller.
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
 | Arrays of `STRING` or of a UDT  | Need `TagsEntryHeader.ElementLength`, which is kept only for structures, as `MaxLength`          |
 | `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                                                    |
-| UDTs                            | Need the `@udt/<id>` template read to learn the member layout                                    |
+| UDTs                            | The member layout is browsed at connect (see [Templates](#templates)); a UDT data point, its converter and the member-level comparison are not built yet |
 
 A shape, a type or a capacity that disagrees with the controller is reported at connect by
 `LogixConfigurationVerifier`, not misread at poll time.
+
+### Templates
+
+The `@tags` listing names a structure only by its **template id**, so a tag's `TagDefinition` carries
+that id and nothing about the members. The browse then reads every template the listing names —
+`@udt/<id>` per distinct id, and again for any member that is itself a structure — and holds each as
+a `TemplateDefinition` under `TagDefinitions.LookupTemplate`. A template says what the structure is
+called, how many bytes an instance occupies, and for every member its name, byte offset, atomic type
+or child template, array length, and the bit position of a packed `BOOL`. The wire layout of the two
+reads is in [reading a UDT definition](../../AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md);
+the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
+
+Nothing consumes the templates yet. A structured tag's `DataType` is still `String` and its capacity is
+still read back from the element length, so verification of a `STRING` is unchanged, and a `TIMER`
+configured as a `STRING` is still caught by its capacity rather than by its template's name. A system
+structure — one whose symbol type has bit `0x1000` set — names no template, because the controller
+serves none for it. A template the controller will not serve, or one that does not decode, fails the
+connect the way a listing that will not read does: the browse is what connect is.
 
 ## Structure members
 

@@ -341,6 +341,18 @@ The layout of a structure data type, held by the controller as an instance of th
 class `0x6C`, and referenced by id from a structure's Symbol Type. It is what turns a structure from
 a byte count into named members.
 
+**Template id**:
+The instance number of a template in the Template object — the low twelve bits of a structure's
+Symbol Type, so `0` to `4095`. What a tag definition carries for a structured tag, and the key a
+template is held under once read.
+_Avoid_: UDT id (libplctag's word, and a predefined `STRING` has one too), type id
+
+**Structure handle**:
+The 16-bit value a read reply of a structured tag carries behind the abbreviated-structure marker: a
+CRC of the template's type encoding, and Template attribute 1. It says which template a reply's bytes
+follow, and it is not unique across differently ordered structures, so it is a check and not a key.
+_Avoid_: template handle, tag handle (libplctag's `Tag` object — see above)
+
 **Type code**:
 The one-byte CIP code identifying an atomic type on the wire — `0xC4` for `DINT`, `0xCA` for `REAL`.
 Structures have no type code; they carry a template id instead.

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -88,6 +89,25 @@ public sealed class TagsDecoderTests
         {
             TagAddress = new TagAddress("Line.Code"),
             MaxLength = new StringMaxLength(20),
+        };
+        decoded.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ASystemStructureEntryNamesNoTemplate()
+    {
+        // Arrange
+        var listing = Listing(
+            new TagEntry("Map:Local", SystemStructureSymbolType) { ElementLength = StringElementLength });
+
+        // Act
+        var decoded = TagsDecoder.Decode(listing);
+
+        // Assert
+        var expected = DefaultStringTagDefinition() with
+        {
+            TagAddress = new TagAddress("Map:Local"),
+            TemplateId = null,
         };
         decoded.Should().ContainSingle().Which.Should().Be(expected);
     }

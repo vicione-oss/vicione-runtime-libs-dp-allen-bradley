@@ -363,7 +363,8 @@ the status is `0x06`, advancing the offset. The payload, concatenated:
 
 A member whose type has bit 15 set is itself a structure, and its `0x0FFF` bits name the child
 template — another template read. Members named `ZZZZZZZZZZ…` or `__…` are the hidden host bytes
-that back packed `BOOL`s ([§8](#8-bool-handling)).
+that back packed `BOOL`s ([§8](#8-bool-handling)). The production decoder of the payload is
+[`TemplateDecoder.cs`](../../../../src/AllenBradley.Logix/Client/Tags/Definitions/Templates/TemplateDecoder.cs).
 
 ### The browse flow
 

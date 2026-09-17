@@ -1,17 +1,16 @@
 using System.Text;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 
 /// <summary>
 /// Decodes the raw bytes of an <c>@tags</c> (or <c>Program:&lt;name&gt;.@tags</c>) read into one
-/// <see cref="TagDefinition"/> per tag. The listing names only a structure's template id, so it cannot
-/// tell a <c>STRING</c> from a <c>TIMER</c>: every structure's element length leaves here as a
-/// <see cref="StringMaxLength"/>, and a 12-byte <c>TIMER</c> decodes as a string of capacity 8 until
-/// templates are read.
+/// <see cref="TagDefinition"/> per tag. The listing names a structure only by its template id, so it
+/// cannot tell a <c>STRING</c> from a <c>TIMER</c>: every structure's element length leaves here as a
+/// <see cref="StringMaxLength"/>, and a 12-byte <c>TIMER</c> decodes as a string of capacity 8. The
+/// template id it does carry is the key the <see cref="TemplateDecoder"/>'s output is filed under.
 /// </summary>
 internal static class TagsDecoder
 {
@@ -50,22 +49,10 @@ internal static class TagsDecoder
         return new TagDefinition(
             TagAddress: new TagAddress(Encoding.ASCII.GetString(tagAddress)),
             DataType: isStruct ? AllenBradleyDataType.String : SymbolType.AtomicType(header.SymbolType),
+            TemplateId: SymbolType.TemplateId(header.SymbolType),
             MaxLength: isStruct ? StringMaxLength.OfStructure(header.ElementLength) : null,
             DimensionCount: new DimensionCount(dimensionCount),
-            ElementCount: GetElementCount(header, dimensionCount));
-    }
-
-    // A BOOL array's dimensions count the DWORDs its bits are packed into, because that is the array the
-    // controller allocated; every other type counts what it declares. Converting here keeps the two
-    // halves of a TagDefinition in one vocabulary, the way a structure's element length leaves as a
-    // character capacity rather than as bytes.
-    private static ElementCount GetElementCount(in TagsEntryHeader header, int dimensionCount)
-    {
-        var declaredCount = GetDeclaredCount(header, dimensionCount);
-
-        return SymbolType.IsPackedBoolArray(header.SymbolType)
-            ? BoolArrayDataPoint.ElementCountOfPackedWords(declaredCount)
-            : new ElementCount(declaredCount);
+            ElementCount: SymbolType.ToElementCount(header.SymbolType, GetDeclaredCount(header, dimensionCount)));
     }
 
     // Dimensions past the declared rank hold whatever the controller left there, so only the ones the

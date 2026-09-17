@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -49,7 +50,7 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
     }
 
     [Fact]
-    public void TheControllerDeclaresTheStringTagAsAScalarStructureOfEightyTwoCharacters()
+    public void TheControllerDeclaresTheStringTagAsAScalarOfTheStringTemplateHoldingEightyTwoCharacters()
     {
         // Arrange
         var dataPoint = StringTag();
@@ -61,6 +62,7 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
         var expected = new TagDefinition(
             new TagAddress(BenchControllerTags.StrValue1),
             AllenBradleyDataType.String,
+            PredefinedTemplates.String,
             StringMaxLength.Standard,
             DimensionCount.Scalar,
             new ElementCount(1));

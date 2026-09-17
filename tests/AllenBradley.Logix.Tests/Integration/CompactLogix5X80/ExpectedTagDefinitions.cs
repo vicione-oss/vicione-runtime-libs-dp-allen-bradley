@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -15,6 +16,7 @@ internal static class ExpectedTagDefinitions
         new(
             new TagAddress(tagName),
             dataType,
+            TemplateId: null,
             MaxLength: null,
             DimensionCount.Scalar,
             new ElementCount(1));
@@ -28,6 +30,7 @@ internal static class ExpectedTagDefinitions
         new(
             new TagAddress(tagName),
             dataType,
+            TemplateId: null,
             MaxLength: null,
             DimensionCount.OneDimensional,
             elementCount);
@@ -40,6 +43,7 @@ internal static class ExpectedTagDefinitions
         new(
             new TagAddress(tagName),
             AllenBradleyDataType.String,
+            PredefinedTemplates.String,
             maxLength,
             DimensionCount.Scalar,
             new ElementCount(1));

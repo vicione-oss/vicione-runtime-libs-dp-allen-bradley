@@ -1,3 +1,5 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
+using System.Collections.Immutable;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
@@ -345,7 +347,7 @@ public sealed class CachingLogixTagManagerTests
             BrowseCount++;
             BrowseStarted.TrySetResult();
             await OnBrowse().ConfigureAwait(false);
-            return new TagDefinitions(_definitions);
+            return new TagDefinitions(_definitions, ImmutableDictionary<TemplateId, TemplateDefinition>.Empty);
         }
     }
 

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -16,17 +17,20 @@ internal static class TagDefinitionTestDataFactory
 
     internal static readonly ElementCount TenElements = new(10);
 
+    /// <summary>The template a STRING tag names — the id in <c>TagsListingTestDataFactory.StructureSymbolType</c>.</summary>
+    internal static readonly TemplateId DefaultTemplateId = new(0x123);
+
     /// <summary>What the controller reports for a DINT tag.</summary>
     internal static TagDefinition DefaultAtomicTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.Dint, MaxLength: null, Scalar, OneElement);
+        new(DefaultTagAddress, AllenBradleyDataType.Dint, TemplateId: null, MaxLength: null, Scalar, OneElement);
 
     /// <summary>What the controller reports for a built-in STRING tag: a scalar structure of 82 characters.</summary>
     internal static TagDefinition DefaultStringTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.String, StringMaxLength.Standard, Scalar,
+        new(DefaultTagAddress, AllenBradleyDataType.String, DefaultTemplateId, StringMaxLength.Standard, Scalar,
             OneElement);
 
     /// <summary>What the controller reports for a ten-element one-dimensional INT array tag.</summary>
     internal static TagDefinition DefaultIntArrayTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.Int, MaxLength: null,
+        new(DefaultTagAddress, AllenBradleyDataType.Int, TemplateId: null, MaxLength: null,
             DimensionCount.OneDimensional, TenElements);
 }

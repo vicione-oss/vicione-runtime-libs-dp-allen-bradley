@@ -179,11 +179,12 @@ detect a wrong data type at all, only a wrong size. That is strictly less inform
 
 Open questions:
 
-- Nested programs and UDT recursion. This version browses controller tags plus one level of program tags.
-  Programs nested inside programs, and the field-level `@udt/<id>` layout, arrive with structured
-  data-point support.
-- The `@udt` string layout that the wrapper's string accessor currently hides, needed once structures are
-  modelled and compared field by field.
+- Nested programs. This version browses controller tags plus one level of program tags. Programs nested
+  inside programs arrive with structured data-point support.
+- ~~UDT recursion and the field-level `@udt/<id>` layout.~~ Closed 2026-09-17: the browse now reads every
+  template the listing names, nested ones included, and `TemplateDecoder` decodes the raw bytes — the
+  zero-terminated name run the wrapper's string accessor used to hide is read directly off the span. What
+  a template says is in [data type support](../reference/datatype-support.md#templates).
 
 References:
 

@@ -20,8 +20,14 @@ internal static class TagsListingTestDataFactory
     /// </summary>
     internal const ushort DwordSymbolType = 0x00D3;
 
-    /// <summary>The structure bit set, with a template id in the low bits.</summary>
+    /// <summary>The structure bit set, with template id <c>0x123</c> in the low bits.</summary>
     internal const ushort StructureSymbolType = 0x8123;
+
+    /// <summary>
+    /// The structure bit and the system bit set: a structure the controller keeps for itself, whose low
+    /// bits name no template a client can read.
+    /// </summary>
+    internal const ushort SystemStructureSymbolType = 0x9123;
 
     /// <summary>The bits an array of rank one sets in the symbol type.</summary>
     internal const ushort OneDimensionSymbolType = 0x2000;

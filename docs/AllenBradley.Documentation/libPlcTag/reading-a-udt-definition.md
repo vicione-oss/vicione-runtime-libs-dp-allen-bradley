@@ -101,6 +101,12 @@ another `@udt/` read. Discovery is therefore a graph walk, not a single pass;
 of both halves: `process_tag_entry()` (line 510) decodes a listing entry, `get_udt_definition()`
 (line 704) decodes a template and queues the nested ids it finds.
 
+In this tree the same two halves are
+[`TagsDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/TagsDecoder.cs) and
+[`TemplateDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/Templates/TemplateDecoder.cs),
+both pure functions over the buffer, and the worklist walk is in
+[`TagDefinitionsLoader.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/TagDefinitionsLoader.cs).
+
 ## Source references
 
 | Location | Role |
