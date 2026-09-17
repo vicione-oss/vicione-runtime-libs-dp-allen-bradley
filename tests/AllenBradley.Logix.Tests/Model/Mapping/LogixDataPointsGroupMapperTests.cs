@@ -356,6 +356,21 @@ public sealed class LogixDataPointsGroupMapperTests
         group.DataPoints.Should().BeSameAs(dataPoints);
     }
 
+    [Fact]
+    public void AConfiguredUdtIsRefusedRatherThanLeftOutOfThePoll()
+    {
+        // Arrange
+        var structure = DefaultUdtContainerNode;
+        structure.DataPointNodes.Add(DefaultIntNode);
+        var deviceNode = DeviceNodeHoldingInProgramScope(structure);
+
+        // Act
+        var mapping = _mapper.Invoking(mapper => mapper.ToDataPoints(deviceNode));
+
+        // Assert
+        mapping.Should().Throw<NotSupportedException>();
+    }
+
     private static DeviceNode DeviceNodeHoldingInControllerScope(params IDataPointNode[] dataPointNodes) =>
         DeviceNodeHolding(DefaultControllerTagsNode, dataPointNodes);
 

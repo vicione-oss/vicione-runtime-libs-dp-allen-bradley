@@ -143,6 +143,8 @@ Nodes:
       - Id: DIntArrayContainer
       - Id: LIntArrayContainer
       - Id: RealArrayContainer
+      # UDT — a user-defined data type, one data point per member
+      - Id: Udt5X70
 
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
@@ -197,6 +199,8 @@ Nodes:
       - Id: RealArrayContainer
       # LREAL array container — 5X80 only
       - Id: LRealArrayContainer
+      # UDT — a user-defined data type, one data point per member
+      - Id: Udt5X80
 
   # A peer of controller scope under the device rather than a child of it, the way Studio 5000's own
   # tree puts them, and uncapped — a controller has as many programs as it has.
@@ -829,6 +833,77 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ==================== UDT CONTAINER NODES ============================
+  # A UDT tag opened into its members: the container holds the tag name, and each child holds a member
+  # name, so the address composes to "Name.Member". A member that is itself a UDT is the same container
+  # nested, with the member name as its tag name. The container declares no type: the controller's
+  # template says what the members are, and a member that is not there, or not of the configured type,
+  # is reported at connect. One per generation, like the scopes, so the child list withholds the
+  # 5X80-only types on a 5X70 and the mapped node gates them again. Whether TIMER, COUNTER, STRING or
+  # an AOI instance is opened the same way is not decided, so this node names UDTs only.
+
+  - Id: Udt5X70
+    MappingId: Udt5X70
+    Type: DataPortTreeNode
+    Name: "UDT"
+    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: &udt-container-properties
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+    ChildNodes:
+      - Id: Bool
+      - Id: SInt
+      - Id: Int
+      - Id: DInt
+      - Id: LInt
+      - Id: Real
+      - Id: String
+      - Id: BoolArray
+      - Id: SIntArray
+      - Id: IntArray
+      - Id: DIntArray
+      - Id: LIntArray
+      - Id: RealArray
+      - Id: Udt5X70
+
+  - Id: Udt5X80
+    MappingId: Udt5X80
+    Type: DataPortTreeNode
+    Name: "UDT"
+    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT."
+    Icon: folder
+    TransferModes: [ None ]
+    PropertyCategories: *udt-container-properties
+    ChildNodes:
+      - Id: Bool
+      - Id: SInt
+      - Id: Int
+      - Id: DInt
+      - Id: LInt
+      - Id: USInt
+      - Id: UInt
+      - Id: UDInt
+      - Id: ULInt
+      - Id: Real
+      - Id: LReal
+      - Id: String
+      - Id: BoolArray
+      - Id: SIntArray
+      - Id: IntArray
+      - Id: DIntArray
+      - Id: LIntArray
+      - Id: USIntArray
+      - Id: UIntArray
+      - Id: UDIntArray
+      - Id: ULIntArray
+      - Id: RealArray
+      - Id: LRealArray
+      - Id: Udt5X80
+
   # ==================== ARRAY CONTAINER NODES ==========================
   # Per-element access: the array is a container whose children are scalar data points of the element
   # type, one per element the user wants. The container holds the tag name; a child holds the subscript
@@ -1069,7 +1144,7 @@ Properties:
   # The bare name, never an address: the tree walk composes the scope, so the rule is ProgramName's.
   - Id: TagName
     Name: "Tag name"
-    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\"); under an array container, the element's subscript (e.g. \"[3]\")"
+    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\"); under an array container, the element's subscript (e.g. \"[3]\"); under a UDT, the member's name (e.g. \"Speed\")"
     DataType: String
     UiControl: TextBox
     DefaultValue: ""

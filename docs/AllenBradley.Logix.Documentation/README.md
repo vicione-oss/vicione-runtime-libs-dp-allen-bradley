@@ -21,8 +21,10 @@ These pages cover only what the Logix port adds on top.
 >
 > **Addressing is a plain tag name today.** A configuration node carries the tag name the controller
 > knows, and `TagNamePropertyValidator` accepts nothing more elaborate: no dotted structure members.
-> The one exception is an element node under an array container, whose tag name is the subscript,
-> `[3]`. What that rules out, and why it is a validation rule rather than a parser, is in
+> Two container nodes compose an address from more than one node instead: an element node under an
+> array container carries the subscript, `[3]`, and a member node under a UDT container carries the
+> member name. The UDT container is not walked into data points yet. What that rules out,
+> and why it is a validation rule rather than a parser, is in
 > [`reference/datatype-support.md`](reference/datatype-support.md).
 
 ## New here?

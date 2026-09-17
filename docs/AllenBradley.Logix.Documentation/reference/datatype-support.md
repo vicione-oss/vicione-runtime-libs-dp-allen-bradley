@@ -278,20 +278,31 @@ connect the way a listing that will not read does: the browse is what connect is
 ## Structure members
 
 A tag address may reach into a structure — `Program:MainProgram.Counter.PRE` is a `DINT` inside a
-`COUNTER`, and the client reads it correctly — but **it cannot be configured today**.
-`TagNamePropertyValidator` accepts only a plain tag name — or, under an array container, a subscript
-— so a dotted address fails validation before anything reaches the controller.
+`COUNTER`, and the client reads it correctly — but **it cannot be polled today**. The tree has a node
+for a UDT's members and the walk into data points does not, so a configured UDT is refused at mapping
+time with a `NotSupportedException` rather than silently left out of the poll.
 
-That rule is about the *configured* name, and it does not stand in the way of program scope: a tag
-inside a program is configured as `Count` under a `ProgramTags` container, and
-`Program:MainProgram.Count` is composed from the container's `ProgramName` while the tree is walked
-into data points. See [tag scoping](../explanation/tag-scoping.md).
+The node is the **UDT container**, `UDT` in the editor, one per generation like the scopes. It is the
+array container's pattern for members: the container carries the tag name, each child carries a member
+name as its tag name, and a member that is itself a UDT is the same container nested with the member
+name as its own. `TagNamePropertyValidator` accepts a plain name at every level and refuses a dotted
+one, because a dotted name is two nodes. The container states no type: the controller's template says
+what the members are, and each child is gated by the generation the container carries down from its
+scope, so an `LREAL` member is refused on a 5X70 the way an `LREAL` tag is. Not accepted under it yet:
+an array container, because an element behind a member path (`MyMotor.Readings[3]`) is an address the
+port has not proved.
 
-One thing would still stand in the way if that gate opened. A member is **absent from the flat
-`@tags` listing**, so the tag definitions hold nothing for it and `LogixConfigurationVerifier` reports
-it as *not found on the controller*, which fails the connect. Since the poll trusts what verification
-checked, a member that cannot be verified is a member nothing checks at all. That is why structure
-members arrive with the structured-data-point slice rather than by relaxing the tag-name rule.
+The node names UDTs only. Whether the predefined structures — `TIMER`, `COUNTER`, `STRING` — and
+Add-On Instruction instances are opened the same way, or get a node of their own, is **not decided**.
+Nothing in the container refuses one today, because the container states no type; the decision lands
+with the member resolution, which is where a template's name first becomes visible.
+
+What the walk still needs is a member path on the data point. A member is **absent from the flat
+`@tags` listing**, so the lookup must find the tag, follow its template to the member, and hand the
+member's declaration to `LogixTypeComparison` — the templates are already browsed at connect (see
+[Templates](#templates)). Until that lands, the tag definitions hold nothing for a member and
+`LogixConfigurationVerifier` would report it as *not found on the controller*, which is why the walk
+refuses the node instead of mapping it.
 
 ## Related
 

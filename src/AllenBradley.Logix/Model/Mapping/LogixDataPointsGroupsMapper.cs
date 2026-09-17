@@ -10,6 +10,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray;
@@ -58,7 +59,9 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     [
         .. from scope in deviceNode.ConfigurationNodes.OfType<ILogixContainerNode>()
         let program = ProgramOf(scope)
-        from dataPoint in ScopedTags(program, scope).Concat(ArrayElements(program, scope))
+        from dataPoint in ScopedTags(program, scope)
+            .Concat(ArrayElements(program, scope))
+            .Concat(UdtMembers(scope))
         select dataPoint,
     ];
 
@@ -82,6 +85,18 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
         from array in scope.ConfigurationNodes.OfType<ArrayContainerNode>()
         from elementNode in array.DataPointNodes.OfType<ILogixDataPointNode>()
         select ToDataPoint(new TagPath(program, array.TagName, elementNode.TagName.ToElementIndex()), elementNode);
+
+    // A UDT's members need a member path the data point does not carry yet, so a configured UDT is
+    // refused here rather than silently left out of the poll.
+    private static IEnumerable<ILogixDataPoint> UdtMembers(ILogixContainerNode scope)
+    {
+        var udt = scope.ConfigurationNodes.OfType<UdtContainerNode>().FirstOrDefault();
+
+        return udt is null
+            ? []
+            : throw new NotSupportedException(
+                $"The UDT '{udt.TagName.Value}' cannot be mapped to data points: UDT members are not supported yet.");
+    }
 
     private static ILogixDataPoint ToDataPoint(TagPath tagPath, ILogixDataPointNode dataPointNode)
     {

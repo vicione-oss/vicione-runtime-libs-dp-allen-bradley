@@ -76,8 +76,10 @@ Each scope is a container hanging off the device, and the two are peers — the 
 tree puts them, and not a program folder nested inside controller scope. `ControllerTagsNode` carries
 no property that reaches an address, because controller scope contributes no segment: a tag
 configured under it addresses itself. `ProgramTagsNode` is the one that prefixes, and its
-`ProgramName` is what it prefixes with. UDT members, by contrast, are never configured as containers:
-their path comes from the tag's own type declaration, read from the controller.
+`ProgramName` is what it prefixes with. A UDT container is the other kind of prefix: it carries a tag
+name, and a member node under it carries the member's name, so `MyMotor.Speed` is two nodes. What the
+members *are* is not configured anywhere; it comes from the tag's own template, read from the
+controller.
 
 The prefix is composed while the tree is walked into data points, never stored on the leaf. The
 tree is three levels deep and no deeper — a scope container, an array container under it, tag nodes

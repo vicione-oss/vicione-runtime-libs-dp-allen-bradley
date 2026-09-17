@@ -136,4 +136,33 @@ public sealed class ControllerTagsNodeTests
         // Assert
         canBeAdded.Should().BeFalse();
     }
+
+    [Fact]
+    public void AUdtOfTheContainersOwnGenerationCanBeAdded()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var udt = DefaultUdtContainerNode with { Generation = LogixGeneration.Logix5X80 };
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(udt);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AUdtOfAnotherGenerationIsRefused()
+    {
+        // Arrange
+        // A UDT carries the generation down to its members, so it must be its scope's own.
+        var controllerTags = DefaultControllerTagsNode with { Generation = LogixGeneration.Logix5X80 };
+        var udt = DefaultUdtContainerNode with { Generation = LogixGeneration.Logix5X70 };
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(udt);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
 }

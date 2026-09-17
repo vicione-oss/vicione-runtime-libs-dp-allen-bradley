@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.LRealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.FloatingPoints.RealArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.DIntArray;
@@ -78,6 +79,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultUlIntArrayTagName = new("CycleCounts");
     internal static readonly TagName DefaultRealArrayTagName = new("Temperatures");
     internal static readonly TagName DefaultLRealArrayTagName = new("Positions");
+    internal static readonly TagName DefaultUdtTagName = new("Motor");
 
     internal static readonly ElementCount DefaultElementCount = new(10);
 
@@ -278,6 +280,16 @@ internal static class TypedNodeTestDataFactory
             CreateLinkedNode(ArrayContainerNode.DIntLinkedNodeTypeId, DefaultDIntArrayTagName.Value),
             DefaultDIntArrayTagName,
             AllenBradleyDataType.Dint);
+
+    /// <summary>
+    /// A UDT tag on a <see cref="DefaultGeneration"/> controller, opened into its members and
+    /// holding none yet.
+    /// </summary>
+    internal static UdtContainerNode DefaultUdtContainerNode =>
+        new(
+            CreateLinkedNode(UdtContainerNode.LinkedNodeTypeIdFor(DefaultGeneration), DefaultUdtTagName.Value),
+            DefaultUdtTagName,
+            DefaultGeneration);
 
     /// <summary>An <c>LREAL</c> array opened for per-element access — a type a 5X70 has not got.</summary>
     internal static ArrayContainerNode DefaultLRealArrayContainerNode =>

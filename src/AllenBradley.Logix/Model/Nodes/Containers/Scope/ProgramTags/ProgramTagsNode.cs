@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
@@ -64,13 +65,16 @@ internal sealed record ProgramTagsNode(
     public List<IDataPointNode> DataPointNodes { get; } = [];
 
     /// <summary>
-    /// An array container of a type this controller's generation has, and nothing else. No program nests
-    /// inside a program: Studio 5000 v32 and later let programs nest, but whether the resulting tags
+    /// An array container of a type this controller's generation has, or a UDT container of this
+    /// controller's generation, and nothing else. No program nests inside a program: Studio 5000 v32 and later let programs nest, but whether the resulting tags
     /// address as <c>Program:Parent.Child.Tag</c> is unconfirmed against hardware.
     /// </summary>
-    public bool CanBeAdded(IConfigurationNode configurationNode) =>
-        configurationNode is ArrayContainerNode arrayContainer
-        && arrayContainer.ArrayDataType.MinimumGeneration <= Generation;
+    public bool CanBeAdded(IConfigurationNode configurationNode) => configurationNode switch
+    {
+        ArrayContainerNode arrayContainer => arrayContainer.ArrayDataType.MinimumGeneration <= Generation,
+        UdtContainerNode udtContainer => udtContainer.Generation == Generation,
+        _ => false,
+    };
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
     public bool CanBeAdded(IDataPointNode dataPointNode) =>
