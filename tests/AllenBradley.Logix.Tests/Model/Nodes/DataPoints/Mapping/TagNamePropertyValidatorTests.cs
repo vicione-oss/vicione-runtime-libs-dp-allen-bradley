@@ -189,5 +189,5 @@ public sealed class TagNamePropertyValidatorTests
 
     private static LinkedNode ArrayElementNodeWith(params KeyValuePair<string, Property>[] properties) =>
         CreateChildLinkedNode(
-            "DInt" + ArrayContainerNode.LinkedNodeTypeIdSuffix, DIntNode.LinkedNodeTypeId, "Element", properties);
+            ArrayContainerNode.DIntLinkedNodeTypeId, DIntNode.LinkedNodeTypeId, "Element", properties);
 }

@@ -44,23 +44,9 @@ internal static class TypedLogixNodeMapper
             [
                 new ControllerTags5X70NodeMapper(), new ControllerTags5X80NodeMapper(),
                 new ProgramTags5X70NodeMapper(), new ProgramTags5X80NodeMapper(),
-                .. ArrayContainerNodeMappers(),
+                .. ArrayContainerNodeMapper.All(),
             ],
             DataPointNodeMappers());
-
-    private static ArrayContainerNodeMapper[] ArrayContainerNodeMappers() =>
-        [
-            new("SIntArrayContainer", AllenBradleyDataType.Sint),
-            new("IntArrayContainer", AllenBradleyDataType.Int),
-            new("DIntArrayContainer", AllenBradleyDataType.Dint),
-            new("LIntArrayContainer", AllenBradleyDataType.Lint),
-            new("USIntArrayContainer", AllenBradleyDataType.Usint),
-            new("UIntArrayContainer", AllenBradleyDataType.Uint),
-            new("UDIntArrayContainer", AllenBradleyDataType.Udint),
-            new("ULIntArrayContainer", AllenBradleyDataType.Ulint),
-            new("RealArrayContainer", AllenBradleyDataType.Real),
-            new("LRealArrayContainer", AllenBradleyDataType.Lreal),
-        ];
 
     private static IDataPointNodeMapper<IDataPointNode>[] DataPointNodeMappers() =>
         [

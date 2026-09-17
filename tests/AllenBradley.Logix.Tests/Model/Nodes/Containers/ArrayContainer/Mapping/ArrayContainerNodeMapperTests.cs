@@ -1,5 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer.Mapping;
@@ -12,63 +11,74 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.Nodes.Containers
 
 public sealed class ArrayContainerNodeMapperTests
 {
-    private const string IntArrayContainerTypeId = "IntArrayContainer";
+    private const string TagName = "myTag";
 
-    private const string DIntArrayContainerTypeId = "DIntArrayContainer";
+    private readonly IBranchConfigurationNodeMapper<ArrayContainerNode> _mapper = ArrayContainerNodeMapper.Int();
 
-    private const string TagName = "Readings";
+    /// <summary>Each container type id with the element type the one factory that claims it declares.</summary>
+    public static TheoryData<string, AllenBradleyDataType> NodeIdsAndTheirElementTypes =>
+        new()
+        {
+            { ArrayContainerNode.SIntLinkedNodeTypeId, AllenBradleyDataType.Sint },
+            { ArrayContainerNode.IntLinkedNodeTypeId, AllenBradleyDataType.Int },
+            { ArrayContainerNode.DIntLinkedNodeTypeId, AllenBradleyDataType.Dint },
+            { ArrayContainerNode.LIntLinkedNodeTypeId, AllenBradleyDataType.Lint },
+            { ArrayContainerNode.USIntLinkedNodeTypeId, AllenBradleyDataType.Usint },
+            { ArrayContainerNode.UIntLinkedNodeTypeId, AllenBradleyDataType.Uint },
+            { ArrayContainerNode.UDIntLinkedNodeTypeId, AllenBradleyDataType.Udint },
+            { ArrayContainerNode.ULIntLinkedNodeTypeId, AllenBradleyDataType.Ulint },
+            { ArrayContainerNode.RealLinkedNodeTypeId, AllenBradleyDataType.Real },
+            { ArrayContainerNode.LRealLinkedNodeTypeId, AllenBradleyDataType.Lreal },
+        };
 
-    private static readonly LinkedNode IntArrayNode = IntArrayContainerNodeWith(CreateTagName(TagName));
-
-    private readonly IBranchConfigurationNodeMapper<ArrayContainerNode> _mapper =
-        new ArrayContainerNodeMapper(IntArrayContainerTypeId, AllenBradleyDataType.Int);
-
-    [Fact]
-    public void AMappedContainerCarriesItsNodeAndWhatTheNodeAndTheMapperDeclare()
+    [Theory]
+    [MemberData(nameof(NodeIdsAndTheirElementTypes))]
+    public void NodeIdsAndDataTypesAreConfiguredCorrectly(string linkedNodeTypeId, AllenBradleyDataType expectedElementDataType)
     {
         // Arrange
+        var linkedNode = CreateLinkedNode(linkedNodeTypeId, TagName, CreateTagName(TagName));
+        IEnumerable<IBranchConfigurationNodeMapper<ArrayContainerNode>> all = ArrayContainerNodeMapper.All();
+        var mapper = all.Single(candidate => candidate.IsTargetMapperFor(linkedNode));
 
         // Act
-        var arrayContainerNode = _mapper.Map(IntArrayNode);
+        var arrayContainerNode = mapper.Map(linkedNode);
 
         // Assert
-        var expected = new ArrayContainerNode(IntArrayNode, new TagName(TagName), AllenBradleyDataType.Int);
+        arrayContainerNode.ArrayDataType.Should().Be(expectedElementDataType);
+    }
+
+    [Fact]
+    public void OriginalNodeTagNameAndDataTypeAreMapped()
+    {
+        // Arrange
+        var linkedNode = CreateLinkedNode(ArrayContainerNode.IntLinkedNodeTypeId, TagName, CreateTagName(TagName));
+
+        // Act
+        var arrayContainerNode = _mapper.Map(linkedNode);
+
+        // Assert
+        var expected = new ArrayContainerNode(linkedNode, new TagName(TagName), AllenBradleyDataType.Int);
         arrayContainerNode.Should().BeEquivalentTo(expected);
     }
 
-    [Theory]
-    [InlineData(IntArrayContainerTypeId, true)]
-    [InlineData(DIntArrayContainerTypeId, false)]
-    public void TheMapperClaimsTheContainerTypeItWasBuiltForAndNoOther(
-        string linkedNodeTypeId, bool expectedIsTargetMapper)
-    {
-        // Arrange
-        var node = CreateLinkedNode(linkedNodeTypeId, TagName, CreateTagName(TagName));
-
-        // Act
-        var isTargetMapper = _mapper.IsTargetMapperFor(node);
-
-        // Assert
-        isTargetMapper.Should().Be(expectedIsTargetMapper);
-    }
-
     [Fact]
-    public void AContainerNodeCarryingATagNameIsValid()
+    public void LinkedNodeWithValidTagNameIsAccepted()
     {
         // Arrange
+        var linkedNode = CreateLinkedNode(ArrayContainerNode.IntLinkedNodeTypeId, TagName, CreateTagName(TagName));
 
         // Act
-        var validation = _mapper.Validate(IntArrayNode);
+        var validation = _mapper.Validate(linkedNode);
 
         // Assert
         validation.IsValid.Should().BeTrue();
     }
 
     [Fact]
-    public void AContainerNodeWithoutATagNameIsRefusedOnTheTagNameProperty()
+    public void ALinkedNodeWithoutATagNameIsRefused()
     {
         // Arrange
-        var node = IntArrayContainerNodeWith();
+        var node = CreateLinkedNode(ArrayContainerNode.IntLinkedNodeTypeId, TagName);
 
         // Act
         var validation = _mapper.Validate(node);
@@ -77,7 +87,4 @@ public sealed class ArrayContainerNodeMapperTests
         validation.Errors.Should().ContainSingle()
             .Which.PropertyName.Should().Be(ILogixDataPointNode.TagNamePropertyName);
     }
-
-    private static LinkedNode IntArrayContainerNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode(IntArrayContainerTypeId, TagName, properties);
 }

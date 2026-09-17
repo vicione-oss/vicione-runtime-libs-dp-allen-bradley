@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
@@ -69,5 +70,5 @@ public sealed class ArrayContainerNodePropertyValidatorTests
     }
 
     private static LinkedNode ArrayContainerNodeWith(params KeyValuePair<string, Property>[] properties) =>
-        CreateLinkedNode("IntArrayContainer", "Readings", properties);
+        CreateLinkedNode(ArrayContainerNode.IntLinkedNodeTypeId, "Readings", properties);
 }

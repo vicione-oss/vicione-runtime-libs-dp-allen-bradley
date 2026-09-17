@@ -268,21 +268,21 @@ internal static class TypedNodeTestDataFactory
     /// <summary>An <c>INT</c> array opened for per-element access, holding no element yet.</summary>
     internal static ArrayContainerNode DefaultIntArrayContainerNode =>
         new(
-            CreateLinkedNode("IntArrayContainer", DefaultIntArrayTagName.Value),
+            CreateLinkedNode(ArrayContainerNode.IntLinkedNodeTypeId, DefaultIntArrayTagName.Value),
             DefaultIntArrayTagName,
             AllenBradleyDataType.Int);
 
     /// <summary>A <c>DINT</c> array opened for per-element access, holding no element yet.</summary>
     internal static ArrayContainerNode DefaultDIntArrayContainerNode =>
         new(
-            CreateLinkedNode("DIntArrayContainer", DefaultDIntArrayTagName.Value),
+            CreateLinkedNode(ArrayContainerNode.DIntLinkedNodeTypeId, DefaultDIntArrayTagName.Value),
             DefaultDIntArrayTagName,
             AllenBradleyDataType.Dint);
 
     /// <summary>An <c>LREAL</c> array opened for per-element access — a type a 5X70 has not got.</summary>
     internal static ArrayContainerNode DefaultLRealArrayContainerNode =>
         new(
-            CreateLinkedNode("LRealArrayContainer", DefaultLRealArrayTagName.Value),
+            CreateLinkedNode(ArrayContainerNode.LRealLinkedNodeTypeId, DefaultLRealArrayTagName.Value),
             DefaultLRealArrayTagName,
             AllenBradleyDataType.Lreal);
 }
