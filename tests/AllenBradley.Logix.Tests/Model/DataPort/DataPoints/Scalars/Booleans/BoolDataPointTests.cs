@@ -24,18 +24,6 @@ public sealed class BoolDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Flag);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("BOOL");
-    }
-
-    [Fact]
     public void ABoolEngineValueIsCarriedThrough()
     {
         // Arrange

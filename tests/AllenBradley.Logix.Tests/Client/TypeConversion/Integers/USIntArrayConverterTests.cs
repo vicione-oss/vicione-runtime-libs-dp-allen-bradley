@@ -30,18 +30,6 @@ public sealed class USIntArrayConverterTests
         [0, 1, 42, 128, 200, byte.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsUSInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Usint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfBytesInIndexOrder()
     {
         // Arrange

@@ -27,18 +27,6 @@ public sealed class USIntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Pressures);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("USINT[]");
-    }
-
-    [Fact]
     public void AByteArrayEngineValueIsCarriedThrough()
     {
         // Arrange

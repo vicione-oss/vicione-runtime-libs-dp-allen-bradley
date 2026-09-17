@@ -14,7 +14,6 @@ internal static class ExpectedTagDefinitions
     internal static TagDefinition AtomicScalar(string tagName, AllenBradleyDataType dataType) =>
         new(
             new TagAddress(tagName),
-            LogixTypeKind.Atomic,
             dataType,
             MaxLength: null,
             DimensionCount.Scalar,
@@ -28,7 +27,6 @@ internal static class ExpectedTagDefinitions
         string tagName, AllenBradleyDataType dataType, ElementCount elementCount) =>
         new(
             new TagAddress(tagName),
-            LogixTypeKind.Atomic,
             dataType,
             MaxLength: null,
             DimensionCount.OneDimensional,
@@ -41,7 +39,6 @@ internal static class ExpectedTagDefinitions
     internal static TagDefinition StringScalar(string tagName, StringMaxLength maxLength) =>
         new(
             new TagAddress(tagName),
-            LogixTypeKind.Structure,
             AllenBradleyDataType.String,
             maxLength,
             DimensionCount.Scalar,

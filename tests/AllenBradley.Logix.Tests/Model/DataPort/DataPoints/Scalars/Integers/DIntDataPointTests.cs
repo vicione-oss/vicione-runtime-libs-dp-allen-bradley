@@ -24,18 +24,6 @@ public sealed class DIntDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Counter);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("DINT");
-    }
-
-    [Fact]
     public void AnIntegerEngineValueIsCarriedThrough()
     {
         // Arrange

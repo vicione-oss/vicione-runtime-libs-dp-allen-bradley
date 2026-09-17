@@ -30,18 +30,6 @@ public sealed class SIntArrayConverterTests
         [0, 1, -1, 42, sbyte.MinValue, sbyte.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsSInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Sint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfSBytesInIndexOrder()
     {
         // Arrange

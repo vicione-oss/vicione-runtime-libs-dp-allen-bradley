@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
@@ -27,15 +28,16 @@ public sealed class BoolArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
+    public void ItIsConfiguredAsAOneDimensionalArrayOfBools()
     {
         // Arrange
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(Flags);
+        var (dataType, dimensionCount) = (Flags.DataType, Flags.DimensionCount);
 
         // Assert
-        converter.ExpectedTypeName.Should().Be("BOOL[]");
+        dataType.Should().Be(AllenBradleyDataType.Bool);
+        dimensionCount.Should().Be(DimensionCount.OneDimensional);
     }
 
     /// <summary>Each declared bit count with the number of 32-bit words the controller packs it into.</summary>

@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -7,11 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// USINT (0xC6): 8-bit unsigned integer — the same byte as a SINT, told apart only by the declared type,
 /// since nothing on the wire records what the top bit means.
 /// </summary>
-internal sealed class USIntConverter : AtomicDataPointConverter<USIntDataPoint, byte>
+internal sealed class USIntConverter : DataPointConverter<USIntDataPoint, byte>
 {
     internal const int ElementSize = sizeof(byte);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Usint;
 
     internal static byte DecodeElement(ReadOnlySpan<byte> buffer) => buffer[0];
 

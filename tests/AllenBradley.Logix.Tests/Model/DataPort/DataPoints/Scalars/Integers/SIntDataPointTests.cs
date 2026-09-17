@@ -24,18 +24,6 @@ public sealed class SIntDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Level);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("SINT");
-    }
-
-    [Fact]
     public void AnSByteEngineValueIsCarriedThrough()
     {
         // Arrange

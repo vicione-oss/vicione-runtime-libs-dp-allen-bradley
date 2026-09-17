@@ -17,18 +17,6 @@ public sealed class LIntConverterTests
     private static readonly LIntDataPoint Ticks = new(TagPath.Parse("lintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagALInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Lint);
-    }
-
-    [Fact]
     public void EightStoredBytesDecodeToTheSignedLongTheyHoldLeastSignificantFirst()
     {
         // Arrange

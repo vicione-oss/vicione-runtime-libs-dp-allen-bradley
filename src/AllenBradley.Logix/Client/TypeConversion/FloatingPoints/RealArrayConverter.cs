@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
@@ -9,8 +8,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class RealArrayConverter : AtomicArrayDataPointConverter<RealArrayDataPoint, float>
 {
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Real;
-
     protected override int ElementSize => RealConverter.ElementSize;
 
     protected override float DecodeElement(ReadOnlySpan<byte> buffer) => RealConverter.DecodeElement(buffer);

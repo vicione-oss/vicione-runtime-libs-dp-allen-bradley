@@ -39,18 +39,6 @@ public sealed class ULIntArrayConverterTests
     ];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsULInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Ulint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfULongsInIndexOrder()
     {
         // Arrange

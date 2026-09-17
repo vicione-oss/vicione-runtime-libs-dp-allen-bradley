@@ -34,18 +34,6 @@ public sealed class RealArrayConverterTests
         [0f, 1f, -1f, 3.14159f, float.MinValue, float.MaxValue, 10.5f, -20.25f, 30.75f, 40f];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsReals()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Real);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfFloatsInIndexOrder()
     {
         // Arrange

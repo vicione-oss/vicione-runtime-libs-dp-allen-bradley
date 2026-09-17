@@ -1,8 +1,9 @@
 using System.Globalization;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Verification;
 
@@ -41,13 +42,18 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
 
         if (resolved.TagDefinition is not { } device)
         {
-            return [new MismatchingConfiguration($"Tag '{dataPoint.TagAddress.Value}' was not found on the controller.")];
+            return
+            [
+                new MismatchingConfiguration($"Tag '{dataPoint.TagAddress.Value}' was not found on the controller.")
+            ];
         }
 
         // The only place a configured type is read against the controller's declaration; the poll trusts
         // the verdict (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md).
-        var converter = DataPointConverterRegistry.GetConverter(dataPoint);
-        var mismatch = LogixTypeComparison.Compare(converter, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
+
+        // A capacity or an element count is reported only for the shape that configures one, so the casts
+        // in those two branches cannot fail.
         return mismatch switch
         {
             LogixTypeMismatch.None => [],
@@ -55,39 +61,27 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
             [
                 new MismatchingConfiguration(
                     $"Shape mismatch for tag '{dataPoint.TagAddress.Value}': " +
-                    $"configured {Describe(converter.ExpectedDimensionCount)}, " +
+                    $"configured {Describe(dataPoint.DimensionCount)}, " +
                     $"controller reports {Describe(device.DimensionCount)}."),
             ],
-            LogixTypeMismatch.Structure =>
+            LogixTypeMismatch.DataType =>
             [
                 new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagAddress.Value}' is a structure on the controller, " +
-                    $"but a scalar of type {converter.ExpectedTypeName} is configured."),
-            ],
-            LogixTypeMismatch.AtomicType =>
-            [
-                new MismatchingConfiguration(
-                    $"Data type mismatch for tag '{dataPoint.TagAddress.Value}': configured {converter.ExpectedTypeName}, " +
+                    $"Data type mismatch for tag '{dataPoint.TagAddress.Value}': configured {dataPoint.DataTypeName.Value}, " +
                     $"controller reports {Describe(device.DataType)}."),
-            ],
-            LogixTypeMismatch.Atomic =>
-            [
-                new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagAddress.Value}' is an elementary {Describe(device.DataType)} on the controller, " +
-                    $"but the structured type {converter.ExpectedTypeName} is configured."),
             ],
             LogixTypeMismatch.StringCapacity =>
             [
                 new MismatchingConfiguration(
-                    $"Capacity mismatch for tag '{dataPoint.TagAddress.Value}': the configured {converter.ExpectedTypeName} " +
-                    $"holds {Describe(converter.MaxLengthFor(dataPoint))} characters, " +
+                    $"Capacity mismatch for tag '{dataPoint.TagAddress.Value}': the configured {dataPoint.DataTypeName.Value} " +
+                    $"holds {Describe(((StringDataPoint)dataPoint).MaxLength)} characters, " +
                     $"but the controller declares {Describe(device.MaxLength)}."),
             ],
             LogixTypeMismatch.ElementCount =>
             [
                 new MismatchingConfiguration(
                     $"Element count mismatch for tag '{dataPoint.TagAddress.Value}': the configured " +
-                    $"{converter.ExpectedTypeName} holds {Describe(converter.ElementCountFor(dataPoint))} elements, " +
+                    $"{dataPoint.DataTypeName.Value} holds {Describe(((ILogixArrayDataPoint)dataPoint).ElementCount)} elements, " +
                     $"but the controller declares {Describe(device.ElementCount)}."),
             ],
             LogixTypeMismatch.ElementIndexOutOfRange =>
@@ -111,12 +105,8 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     private static string Describe(ElementIndex? index) =>
         index?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 
-    private static string Describe(AllenBradleyDataType? dataType) => dataType switch
-    {
-        null => "a structure",
-        { } type when type == AllenBradleyDataType.Unknown => "a type this addon does not model",
-        { } type => type.ToString(),
-    };
+    private static string Describe(AllenBradleyDataType dataType) =>
+        dataType == AllenBradleyDataType.Unknown ? "a type this addon does not model" : dataType.Name.Value;
 
     private static string Describe(StringMaxLength? maxLength) =>
         maxLength?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";

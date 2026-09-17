@@ -9,6 +9,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
+using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -567,7 +568,7 @@ public sealed class LogixClientTests
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(TagPath.Parse("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
-        public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
+        public override AllenBradleyDataType DataType => new(new DataTypeName("MYSTERY"), LogixGeneration.Logix5X70);
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }

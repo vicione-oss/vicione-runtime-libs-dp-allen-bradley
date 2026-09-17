@@ -27,18 +27,6 @@ public sealed class SIntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Samples);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("SINT[]");
-    }
-
-    [Fact]
     public void AnSByteArrayEngineValueIsCarriedThrough()
     {
         // Arrange

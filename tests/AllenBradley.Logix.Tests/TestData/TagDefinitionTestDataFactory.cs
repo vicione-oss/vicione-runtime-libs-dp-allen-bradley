@@ -18,15 +18,15 @@ internal static class TagDefinitionTestDataFactory
 
     /// <summary>What the controller reports for a DINT tag.</summary>
     internal static TagDefinition DefaultAtomicTagDefinition() =>
-        new(DefaultTagAddress, LogixTypeKind.Atomic, AllenBradleyDataType.Dint, MaxLength: null, Scalar, OneElement);
+        new(DefaultTagAddress, AllenBradleyDataType.Dint, MaxLength: null, Scalar, OneElement);
 
     /// <summary>What the controller reports for a built-in STRING tag: a scalar structure of 82 characters.</summary>
     internal static TagDefinition DefaultStringTagDefinition() =>
-        new(DefaultTagAddress, LogixTypeKind.Structure, AllenBradleyDataType.String, StringMaxLength.Standard, Scalar,
+        new(DefaultTagAddress, AllenBradleyDataType.String, StringMaxLength.Standard, Scalar,
             OneElement);
 
     /// <summary>What the controller reports for a ten-element one-dimensional INT array tag.</summary>
     internal static TagDefinition DefaultIntArrayTagDefinition() =>
-        new(DefaultTagAddress, LogixTypeKind.Atomic, AllenBradleyDataType.Int, MaxLength: null,
+        new(DefaultTagAddress, AllenBradleyDataType.Int, MaxLength: null,
             DimensionCount.OneDimensional, TenElements);
 }

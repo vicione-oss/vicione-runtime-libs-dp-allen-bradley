@@ -1,6 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
@@ -12,28 +10,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
     where TDataPoint : LogixDataPoint<TDomain>
 {
-    public abstract LogixTypeKind ExpectedKind { get; }
-
-    public abstract AllenBradleyDataType ExpectedDataType { get; }
-
-    public virtual DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
-
-    StringMaxLength? IDataPointConverter.MaxLengthFor(ILogixDataPoint dataPoint) =>
-        MaxLengthOf(Cast(dataPoint));
-
-    ElementCount? IDataPointConverter.ElementCountFor(ILogixDataPoint dataPoint) =>
-        ElementCountOf(Cast(dataPoint));
-
-    /// <summary>
-    /// The character capacity the controller must declare, or null when the type fixes its own size.
-    /// </summary>
-    protected abstract StringMaxLength? MaxLengthOf(TDataPoint dataPoint);
-
-    /// <summary>
-    /// How many elements the controller must declare, or null when the shape holds a single value.
-    /// </summary>
-    protected virtual ElementCount? ElementCountOf(TDataPoint dataPoint) => null;
-
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
 
     /// <summary>

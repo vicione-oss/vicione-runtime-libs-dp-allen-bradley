@@ -1,6 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
@@ -10,18 +9,14 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 /// to write it — which keeps that beside the scalar converter for the same type.
 /// </summary>
 internal abstract class AtomicArrayDataPointConverter<TDataPoint, TElement>
-    : AtomicDataPointConverter<TDataPoint, TElement[]>
+    : DataPointConverter<TDataPoint, TElement[]>
     where TDataPoint : LogixDataPoint<TElement[]>, ILogixArrayDataPoint
 {
-    public override DimensionCount ExpectedDimensionCount => DimensionCount.OneDimensional;
-
     protected abstract int ElementSize { get; }
 
     protected abstract TElement DecodeElement(ReadOnlySpan<byte> buffer);
 
     protected abstract byte[] EncodeElement(TElement element);
-
-    protected sealed override ElementCount? ElementCountOf(TDataPoint dataPoint) => dataPoint.ElementCount;
 
     protected sealed override TElement[] DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {

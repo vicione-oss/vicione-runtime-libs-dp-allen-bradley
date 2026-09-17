@@ -14,18 +14,6 @@ public sealed class UDIntConverterTests
     private static readonly UDIntDataPoint Runtime = new(TagPath.Parse("udintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAUDInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Udint);
-    }
-
-    [Fact]
     public void FourStoredBytesDecodeToTheUnsignedIntegerTheyHoldLeastSignificantFirst()
     {
         // Arrange

@@ -14,18 +14,6 @@ public sealed class ULIntConverterTests
     private static readonly ULIntDataPoint Cycles = new(TagPath.Parse("ulintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAULInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Ulint);
-    }
-
-    [Fact]
     public void EightStoredBytesDecodeToTheUnsignedLongTheyHoldLeastSignificantFirst()
     {
         // Arrange

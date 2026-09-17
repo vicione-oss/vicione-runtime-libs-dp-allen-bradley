@@ -27,18 +27,6 @@ public sealed class UIntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Speeds);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("UINT[]");
-    }
-
-    [Fact]
     public void AUShortArrayEngineValueIsCarriedThrough()
     {
         // Arrange

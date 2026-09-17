@@ -10,6 +10,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client;
@@ -349,7 +350,7 @@ public sealed class LogixReadBatchTests
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(TagPath.Parse("Mystery.Tag"), DefaultPollFrequency, NoChannels)
     {
-        public override AllenBradleyDataType DataType => new("MYSTERY", LogixGeneration.Logix5X70);
+        public override AllenBradleyDataType DataType => new AllenBradleyDataType(new DataTypeName("MYSTERY"), LogixGeneration.Logix5X70);
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
@@ -388,16 +389,6 @@ public sealed class LogixReadBatchTests
         public int Decodes { get; private set; }
 
         public Func<ILogixDataPointValue>? OnDecode { get; init; }
-
-        public LogixTypeKind ExpectedKind => LogixTypeKind.Atomic;
-
-        public AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Dint;
-
-        public DimensionCount ExpectedDimensionCount => DimensionCount.Scalar;
-
-        public StringMaxLength? MaxLengthFor(ILogixDataPoint dataPoint) => null;
-
-        public ElementCount? ElementCountFor(ILogixDataPoint dataPoint) => null;
 
         public ILogixDataPointValue Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
         {

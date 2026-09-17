@@ -25,18 +25,6 @@ public sealed class IntArrayConverterTests
     ];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Int);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfShortsInIndexOrder()
     {
         // Arrange

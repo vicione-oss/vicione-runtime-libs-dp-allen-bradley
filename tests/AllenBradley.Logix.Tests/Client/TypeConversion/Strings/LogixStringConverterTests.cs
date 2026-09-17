@@ -260,18 +260,6 @@ public sealed class LogixStringConverterTests
     }
 
     [Fact]
-    public void TheConverterExpectsTheStudio5000SpellingOfTheTypeName()
-    {
-        // Arrange
-
-        // Act
-        var typeName = Converter.ExpectedTypeName;
-
-        // Assert
-        typeName.Should().Be("STRING");
-    }
-
-    [Fact]
     public void DecodingForANonStringDataPointSaysTheRegistryRoutedTheWrongConverter()
     {
         // Arrange

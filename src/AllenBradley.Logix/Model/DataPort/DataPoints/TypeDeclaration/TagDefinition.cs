@@ -5,17 +5,16 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// device truth a configured <see cref="ILogixDataPoint"/> is verified against.
 /// </summary>
 /// <param name="TagAddress">The name as the controller reports it, program-qualified for a program tag.</param>
-/// <param name="Kind">Whether the tag is an atomic type or a structure.</param>
 /// <param name="DataType">
-/// The data type the controller declares, or <c>null</c> for a structure this addon does not model.
+/// The data type the controller declares. The listing names a structure only by its template id, so every
+/// structure is a <see cref="AllenBradleyDataType.String"/> until templates are read.
 /// </param>
 /// <param name="MaxLength">The declared capacity of a string tag; <c>null</c> for every other type.</param>
 /// <param name="DimensionCount">The array rank: scalar, or up to <c>3</c>.</param>
 /// <param name="ElementCount">The number of elements: the product of the dimensions, or <c>1</c> for a scalar.</param>
 public readonly record struct TagDefinition(
     TagAddress TagAddress,
-    LogixTypeKind Kind,
-    AllenBradleyDataType? DataType,
+    AllenBradleyDataType DataType,
     StringMaxLength? MaxLength,
     DimensionCount DimensionCount,
     ElementCount ElementCount)

@@ -1,7 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
@@ -16,21 +12,11 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinit
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
-/// The rule read against real converters rather than a stand-in: an elementary type and a structure are
-/// the two sets of constants it has to serve.
+/// The rule read against real data points rather than a stand-in: a scalar, a string, an array and an
+/// element are the four shapes it has to serve.
 /// </summary>
 public sealed class LogixTypeComparisonTests
 {
-    private static readonly IDataPointConverter DIntCodec = new DIntConverter();
-
-    private static readonly IDataPointConverter StringCodec = new LogixStringConverter();
-
-    private static readonly IDataPointConverter IntArrayCodec = new IntArrayConverter();
-
-    private static readonly IDataPointConverter BoolArrayCodec = new BoolArrayConverter();
-
-    private static readonly IDataPointConverter IntCodec = new IntConverter();
-
     private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
@@ -45,6 +31,9 @@ public sealed class LogixTypeComparisonTests
     private static readonly IntDataPoint EleventhReading =
         new(TagPath.Parse("Tank.Readings[10]"), DefaultPollFrequency, NoChannels);
 
+    private static readonly DIntDataPoint ThirdReadingAsDInt =
+        new(TagPath.Parse("Tank.Readings[3]"), DefaultPollFrequency, NoChannels);
+
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
     {
@@ -52,7 +41,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Speed, TagDefinition: null);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
@@ -65,50 +54,50 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Speed, DefaultAtomicTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
     }
 
     [Fact]
-    public void AnElementaryTagOfAnotherTypeIsAnAtomicTypeMismatch()
+    public void AnElementaryTagOfAnotherTypeIsADataTypeMismatch()
     {
         // Arrange
         var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.AtomicType);
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
     }
 
     [Fact]
-    public void AStructureWhereAnElementaryTypeWasConfiguredIsAStructureMismatch()
+    public void AStructureWhereAnElementaryTypeWasConfiguredIsADataTypeMismatch()
     {
         // Arrange
         var resolved = new ResolvedDataPoint(Speed, DefaultStringTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.Structure);
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
     }
 
     [Fact]
-    public void AnElementaryTypeWhereAStructureWasConfiguredIsAnAtomicMismatch()
+    public void AnElementaryTypeWhereAStructureWasConfiguredIsADataTypeMismatch()
     {
         // Arrange
         var resolved = new ResolvedDataPoint(Label, DefaultAtomicTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.Atomic);
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
     }
 
     [Fact]
@@ -118,7 +107,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Label, DefaultStringTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
@@ -132,7 +121,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.StringCapacity);
@@ -146,7 +135,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.StringCapacity);
@@ -160,7 +149,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Rank);
@@ -178,7 +167,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(StringCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Rank);
@@ -191,7 +180,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Readings, DefaultIntArrayTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
@@ -204,23 +193,23 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(ThirdReading, DefaultIntArrayTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
     }
 
     [Fact]
-    public void AnElementOfAnotherTypeThanTheArrayIsAnAtomicTypeMismatch()
+    public void AnElementOfAnotherTypeThanTheArrayIsADataTypeMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(ThirdReading, DefaultIntArrayTagDefinition());
+        var resolved = new ResolvedDataPoint(ThirdReadingAsDInt, DefaultIntArrayTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(DIntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.AtomicType);
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
     }
 
     [Fact]
@@ -230,7 +219,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(EleventhReading, DefaultIntArrayTagDefinition());
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementIndexOutOfRange);
@@ -248,7 +237,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(ThirdReading, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementOfScalar);
@@ -266,14 +255,14 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Readings, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.Rank);
     }
 
     [Fact]
-    public void AnArrayOfAnotherElementTypeIsAnAtomicTypeMismatchBeforeItsCount()
+    public void AnArrayOfAnotherElementTypeIsADataTypeMismatchBeforeItsCount()
     {
         // Arrange
         var declaration = DefaultIntArrayTagDefinition() with
@@ -284,10 +273,10 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Readings, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
-        mismatch.Should().Be(LogixTypeMismatch.AtomicType);
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
     }
 
     [Theory]
@@ -303,7 +292,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(Readings, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(IntArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementCount);
@@ -326,7 +315,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(flags, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(BoolArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
@@ -347,7 +336,7 @@ public sealed class LogixTypeComparisonTests
         var resolved = new ResolvedDataPoint(flags, declaration);
 
         // Act
-        var mismatch = LogixTypeComparison.Compare(BoolArrayCodec, resolved);
+        var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementCount);

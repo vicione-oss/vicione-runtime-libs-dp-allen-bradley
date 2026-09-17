@@ -13,18 +13,6 @@ public sealed class SIntConverterTests
 
     private static readonly SIntDataPoint Level = new(TagPath.Parse("sintValue1"), DefaultPollFrequency, NoChannels);
 
-    [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagASInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Sint);
-    }
-
     [Theory]
     [InlineData(0x00, (sbyte)0)]
     [InlineData(0x2A, (sbyte)42)]

@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -8,11 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// UDINT (0xC8): 32-bit little-endian unsigned integer — the same four bytes as a DINT, told apart only by
 /// the declared type, since nothing on the wire records what the top bit means.
 /// </summary>
-internal sealed class UDIntConverter : AtomicDataPointConverter<UDIntDataPoint, uint>
+internal sealed class UDIntConverter : DataPointConverter<UDIntDataPoint, uint>
 {
     internal const int ElementSize = sizeof(uint);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Udint;
 
     internal static uint DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt32LittleEndian(buffer);

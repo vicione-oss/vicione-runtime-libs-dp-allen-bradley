@@ -27,18 +27,6 @@ public sealed class RealArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Temperatures);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("REAL[]");
-    }
-
-    [Fact]
     public void AFloatArrayEngineValueIsCarriedThrough()
     {
         // Arrange

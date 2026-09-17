@@ -15,18 +15,6 @@ public sealed class RealConverterTests
         new(TagPath.Parse("realValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAReal()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Real);
-    }
-
-    [Fact]
     public void FourStoredBytesDecodeToTheIeee754SingleTheyHoldLeastSignificantFirst()
     {
         // Arrange

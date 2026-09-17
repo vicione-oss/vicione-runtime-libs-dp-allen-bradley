@@ -14,18 +14,6 @@ public sealed class DIntConverterTests
     private static readonly DIntDataPoint Counter = new(TagPath.Parse("dintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagADint()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Dint);
-    }
-
-    [Fact]
     public void FourStoredBytesDecodeToTheSignedIntegerTheyHoldLeastSignificantFirst()
     {
         // Arrange

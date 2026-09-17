@@ -14,18 +14,6 @@ public sealed class IntConverterTests
     private static readonly IntDataPoint Counter = new(TagPath.Parse("intValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAnInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Int);
-    }
-
-    [Fact]
     public void TwoStoredBytesDecodeToTheSignedShortTheyHoldLeastSignificantFirst()
     {
         // Arrange

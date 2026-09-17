@@ -27,18 +27,6 @@ public sealed class LIntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Timestamps);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("LINT[]");
-    }
-
-    [Fact]
     public void ALongArrayEngineValueIsCarriedThrough()
     {
         // Arrange

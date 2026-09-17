@@ -60,7 +60,6 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
         // Assert
         var expected = new TagDefinition(
             new TagAddress(BenchControllerTags.StrValue1),
-            LogixTypeKind.Structure,
             AllenBradleyDataType.String,
             StringMaxLength.Standard,
             DimensionCount.Scalar,

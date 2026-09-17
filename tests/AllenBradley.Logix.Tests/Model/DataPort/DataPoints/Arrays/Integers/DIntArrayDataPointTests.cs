@@ -27,18 +27,6 @@ public sealed class DIntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Totals);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("DINT[]");
-    }
-
-    [Fact]
     public void AnIntArrayEngineValueIsCarriedThrough()
     {
         // Arrange

@@ -27,15 +27,15 @@ public sealed class IntArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
+    public void ItIsConfiguredAsAOneDimensionalArray()
     {
         // Arrange
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(Readings);
+        var dimensionCount = Readings.DimensionCount;
 
         // Assert
-        converter.ExpectedTypeName.Should().Be("INT[]");
+        dimensionCount.Should().Be(DimensionCount.OneDimensional);
     }
 
     [Fact]

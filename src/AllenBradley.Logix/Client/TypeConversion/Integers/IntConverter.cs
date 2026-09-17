@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -8,11 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// INT (0xC3): 16-bit little-endian signed integer. CIP and .NET are both little-endian, so this is a
 /// direct read/write with no byte swap.
 /// </summary>
-internal sealed class IntConverter : AtomicDataPointConverter<IntDataPoint, short>
+internal sealed class IntConverter : DataPointConverter<IntDataPoint, short>
 {
     internal const int ElementSize = sizeof(short);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Int;
 
     internal static short DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadInt16LittleEndian(buffer);

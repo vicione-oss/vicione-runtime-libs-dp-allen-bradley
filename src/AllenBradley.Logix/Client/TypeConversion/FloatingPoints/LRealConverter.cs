@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
@@ -7,11 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// <summary>
 /// LREAL (0xCB): IEEE-754 double-precision, little-endian — a direct read/write with no byte swap.
 /// </summary>
-internal sealed class LRealConverter : AtomicDataPointConverter<LRealDataPoint, double>
+internal sealed class LRealConverter : DataPointConverter<LRealDataPoint, double>
 {
     internal const int ElementSize = sizeof(double);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Lreal;
 
     internal static double DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadDoubleLittleEndian(buffer);

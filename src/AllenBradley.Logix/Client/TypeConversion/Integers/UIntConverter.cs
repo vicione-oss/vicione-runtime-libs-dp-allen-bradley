@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -8,11 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// UINT (0xC7): 16-bit little-endian unsigned integer — the same two bytes as an INT, told apart only by
 /// the declared type, since nothing on the wire records what the top bit means.
 /// </summary>
-internal sealed class UIntConverter : AtomicDataPointConverter<UIntDataPoint, ushort>
+internal sealed class UIntConverter : DataPointConverter<UIntDataPoint, ushort>
 {
     internal const int ElementSize = sizeof(ushort);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Uint;
 
     internal static ushort DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadUInt16LittleEndian(buffer);

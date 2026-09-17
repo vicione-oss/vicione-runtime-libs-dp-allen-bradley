@@ -33,18 +33,6 @@ public sealed class UIntArrayConverterTests
         [0, 1, 4242, 32768, 50000, ushort.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsUInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Uint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfUShortsInIndexOrder()
     {
         // Arrange

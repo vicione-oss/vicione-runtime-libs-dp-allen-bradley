@@ -24,18 +24,6 @@ public sealed class ULIntDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Cycles);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("ULINT");
-    }
-
-    [Fact]
     public void AULongEngineValueIsCarriedThrough()
     {
         // Arrange

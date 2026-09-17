@@ -24,18 +24,6 @@ public sealed class LIntDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Ticks);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("LINT");
-    }
-
-    [Fact]
     public void ALongEngineValueIsCarriedThrough()
     {
         // Arrange

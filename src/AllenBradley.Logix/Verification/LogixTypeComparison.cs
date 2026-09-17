@@ -1,17 +1,18 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 /// <summary>
-/// The whole type rule in one function: the controller's <c>TagDefinition</c> read against what a
-/// converter expects the tag to be, once per connect
+/// The whole type rule in one function: the controller's <c>TagDefinition</c> read against what the
+/// configured data point says the tag is, once per connect
 /// (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md).
 /// </summary>
 internal static class LogixTypeComparison
 {
-    internal static LogixTypeMismatch Compare(IDataPointConverter converter, ResolvedDataPoint resolved)
+    internal static LogixTypeMismatch Compare(ResolvedDataPoint resolved)
     {
         // An absent declaration has nothing to contradict; the verifier reports that tag as missing.
         if (resolved.TagDefinition is not { } declaration)
@@ -20,14 +21,14 @@ internal static class LogixTypeComparison
         }
 
         return resolved.DataPoint.TagPath.Element is { } index
-            ? CompareElement(converter, resolved.DataPoint, declaration, index)
-            : CompareDeclaration(converter, resolved.DataPoint, declaration);
+            ? CompareElement(resolved.DataPoint, declaration, index)
+            : CompareDeclaration(resolved.DataPoint, declaration);
     }
 
     // The listing never names an element, so the declaration is the array's; the subscript is read
     // against it first, and the element itself is then compared as the scalar it is.
     private static LogixTypeMismatch CompareElement(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition arrayDeclaration, ElementIndex index)
+        ILogixDataPoint dataPoint, TagDefinition arrayDeclaration, ElementIndex index)
     {
         if (arrayDeclaration.DimensionCount.IsScalar)
         {
@@ -35,51 +36,38 @@ internal static class LogixTypeComparison
         }
 
         return index.IsWithin(arrayDeclaration.ElementCount)
-            ? CompareDeclaration(converter, dataPoint, arrayDeclaration.OfOneElement())
+            ? CompareDeclaration(dataPoint, arrayDeclaration.OfOneElement())
             : LogixTypeMismatch.ElementIndexOutOfRange;
     }
 
-    private static LogixTypeMismatch CompareDeclaration(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition declaration)
+    private static LogixTypeMismatch CompareDeclaration(ILogixDataPoint dataPoint, TagDefinition declaration)
     {
         // Rank leads: a shape that disagrees makes every comparison after it meaningless either way.
-        if (declaration.DimensionCount != converter.ExpectedDimensionCount)
+        if (declaration.DimensionCount != dataPoint.DimensionCount)
         {
             return LogixTypeMismatch.Rank;
         }
 
-        if (declaration.Kind != converter.ExpectedKind)
+        if (declaration.DataType != dataPoint.DataType)
         {
-            return declaration.Kind is LogixTypeKind.Structure
-                ? LogixTypeMismatch.Structure
-                : LogixTypeMismatch.Atomic;
+            return LogixTypeMismatch.DataType;
         }
 
-        return declaration.Kind is LogixTypeKind.Atomic
-            ? CompareAtomicType(converter, dataPoint, declaration)
-            : CompareCapacity(converter, dataPoint, declaration);
+        return dataPoint switch
+        {
+            StringDataPoint stringDataPoint => CompareCapacity(stringDataPoint, declaration),
+            ILogixArrayDataPoint arrayDataPoint => CompareElementCount(arrayDataPoint, declaration),
+            _ => LogixTypeMismatch.None,
+        };
     }
 
-    private static LogixTypeMismatch CompareAtomicType(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition declaration) =>
-        declaration.DataType == converter.ExpectedDataType
-            ? CompareElementCount(converter, dataPoint, declaration)
-            : LogixTypeMismatch.AtomicType;
-
-    // A scalar configures no extent and answers null, and the count of one the controller reports for it
-    // is nothing to hold that against.
-    private static LogixTypeMismatch CompareElementCount(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition declaration) =>
-        converter.ElementCountFor(dataPoint) is not { } elementCount
-        || declaration.ElementCount == elementCount
-            ? LogixTypeMismatch.None
-            : LogixTypeMismatch.ElementCount;
-
-    // No data type is compared alongside the capacity: every structure decodes as a String (see
-    // TagsDecoder), so within this branch both sides always agree on it.
-    private static LogixTypeMismatch CompareCapacity(
-        IDataPointConverter converter, ILogixDataPoint dataPoint, TagDefinition declaration) =>
-        declaration.MaxLength == converter.MaxLengthFor(dataPoint)
+    private static LogixTypeMismatch CompareCapacity(StringDataPoint dataPoint, TagDefinition declaration) =>
+        declaration.MaxLength == dataPoint.MaxLength
             ? LogixTypeMismatch.None
             : LogixTypeMismatch.StringCapacity;
+
+    private static LogixTypeMismatch CompareElementCount(ILogixArrayDataPoint dataPoint, TagDefinition declaration) =>
+        declaration.ElementCount == dataPoint.ElementCount
+            ? LogixTypeMismatch.None
+            : LogixTypeMismatch.ElementCount;
 }

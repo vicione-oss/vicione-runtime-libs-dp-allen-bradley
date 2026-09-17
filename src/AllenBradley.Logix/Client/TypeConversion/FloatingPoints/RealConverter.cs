@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
@@ -7,11 +6,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// <summary>
 /// REAL (0xCA): IEEE-754 single-precision, little-endian — a direct read/write with no byte swap.
 /// </summary>
-internal sealed class RealConverter : AtomicDataPointConverter<RealDataPoint, float>
+internal sealed class RealConverter : DataPointConverter<RealDataPoint, float>
 {
     internal const int ElementSize = sizeof(float);
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Real;
 
     internal static float DecodeElement(ReadOnlySpan<byte> buffer) =>
         BinaryPrimitives.ReadSingleLittleEndian(buffer);

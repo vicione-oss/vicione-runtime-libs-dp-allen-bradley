@@ -27,18 +27,6 @@ public sealed class LRealArrayDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Positions);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("LREAL[]");
-    }
-
-    [Fact]
     public void ADoubleArrayEngineValueIsCarriedThrough()
     {
         // Arrange

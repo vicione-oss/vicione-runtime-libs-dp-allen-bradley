@@ -1,6 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 
@@ -9,17 +7,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Boolea
 /// base array-convert but is handled separately.
 /// The buffer is n words into which the bits/bools are packed into, and element i is a bit of one rather than a slice of bytes.
 /// </summary>
-internal sealed class BoolArrayConverter : AtomicDataPointConverter<BoolArrayDataPoint, bool[]>
+internal sealed class BoolArrayConverter : DataPointConverter<BoolArrayDataPoint, bool[]>
 {
     private const int BitsPerByte = 8;
 
     private const uint BytesPerWord = BoolArrayDataPoint.BoolsPerWord / BitsPerByte;
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Bool;
-
-    public override DimensionCount ExpectedDimensionCount => DimensionCount.OneDimensional;
-
-    protected override ElementCount? ElementCountOf(BoolArrayDataPoint dataPoint) => dataPoint.ElementCount;
 
     protected override bool[] DecodeValue(BoolArrayDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {

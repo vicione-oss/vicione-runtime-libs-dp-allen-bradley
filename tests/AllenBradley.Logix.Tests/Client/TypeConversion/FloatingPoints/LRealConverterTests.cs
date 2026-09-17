@@ -15,18 +15,6 @@ public sealed class LRealConverterTests
         new(TagPath.Parse("PrecisionValue"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagALReal()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Lreal);
-    }
-
-    [Fact]
     public void EightStoredBytesDecodeToTheIeee754DoubleTheyHoldLeastSignificantFirst()
     {
         // Arrange

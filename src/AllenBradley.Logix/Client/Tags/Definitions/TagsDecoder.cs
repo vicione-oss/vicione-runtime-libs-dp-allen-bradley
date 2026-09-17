@@ -42,14 +42,13 @@ internal static class TagsDecoder
         return behindHeader[..Math.Min(header.NameLength, behindHeader.Length)];
     }
 
-    private static TagDefinition ToTagDefinition(in TagsEntryHeader header, ReadOnlySpan<byte> tagName)
+    private static TagDefinition ToTagDefinition(in TagsEntryHeader header, ReadOnlySpan<byte> tagAddress)
     {
         var isStruct = SymbolType.IsStruct(header.SymbolType);
         var dimensionCount = SymbolType.DimensionCount(header.SymbolType);
 
         return new TagDefinition(
-            TagAddress: new TagAddress(Encoding.ASCII.GetString(tagName)),
-            Kind: isStruct ? LogixTypeKind.Structure : LogixTypeKind.Atomic,
+            TagAddress: new TagAddress(Encoding.ASCII.GetString(tagAddress)),
             DataType: isStruct ? AllenBradleyDataType.String : SymbolType.AtomicType(header.SymbolType),
             MaxLength: isStruct ? StringMaxLength.OfStructure(header.ElementLength) : null,
             DimensionCount: new DimensionCount(dimensionCount),

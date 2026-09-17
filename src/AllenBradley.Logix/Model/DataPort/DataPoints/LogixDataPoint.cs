@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -35,13 +36,13 @@ public abstract record LogixDataPoint<TDomain>(TagPath TagPath, PollFrequency Po
     public DataPointIdentifier Identifier => new(TagAddress.Value);
 
     /// <inheritdoc />
-    public DataTypeName DataTypeName => new(TypeName);
+    public virtual DataTypeName DataTypeName => DataType.Name;
 
-    /// <summary>The type this point holds; for an array, the element type.</summary>
+    /// <inheritdoc />
     public abstract AllenBradleyDataType DataType { get; }
 
-    /// <summary>This point's type as Studio 5000 spells it, with the shape a scalar does not have.</summary>
-    protected virtual string TypeName => DataType.Name;
+    /// <inheritdoc />
+    public virtual DimensionCount DimensionCount => DimensionCount.Scalar;
 
     /// <inheritdoc />
     public ITypedDataPointValue<TDomain> CreateTypedValue(TDomain value) => CreateLogixValue(value);

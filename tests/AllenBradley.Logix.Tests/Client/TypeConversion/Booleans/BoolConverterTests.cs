@@ -13,18 +13,6 @@ public sealed class BoolConverterTests
 
     private static readonly BoolDataPoint Flag = new(TagPath.Parse("boolValue1"), DefaultPollFrequency, NoChannels);
 
-    [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagABool()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Bool);
-    }
-
     [Theory]
     [InlineData(0xFF)]
     [InlineData(0x01)]

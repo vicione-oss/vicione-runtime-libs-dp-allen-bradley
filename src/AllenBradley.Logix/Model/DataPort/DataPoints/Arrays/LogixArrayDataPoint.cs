@@ -19,11 +19,10 @@ public abstract record LogixArrayDataPoint<TElement>(
     ElementCount ElementCount)
     : LogixDataPoint<TElement[]>(TagPath, PollFrequency, Channels), ILogixArrayDataPoint
 {
-    /// <summary>
-    /// The length is per declaration rather than per type, so the name does not carry it: Studio 5000
-    /// would say <c>DINT[10]</c>.
-    /// </summary>
-    protected sealed override string TypeName => $"{DataType.Name}[]";
+    public override DataTypeName DataTypeName => new(DataType.Name.Value + "[]");
+
+    /// <inheritdoc />
+    public sealed override DimensionCount DimensionCount => DimensionCount.OneDimensional;
 
     /// <inheritdoc />
     internal sealed override ILogixDataPointValue<TElement[]> CreateLogixValue(TElement[] value) =>

@@ -13,18 +13,6 @@ public sealed class USIntConverterTests
 
     private static readonly USIntDataPoint Level = new(TagPath.Parse("usintValue1"), DefaultPollFrequency, NoChannels);
 
-    [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAUSInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Usint);
-    }
-
     [Theory]
     [InlineData(0x00, (byte)0)]
     [InlineData(0x2A, (byte)42)]

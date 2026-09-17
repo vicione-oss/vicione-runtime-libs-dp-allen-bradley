@@ -24,42 +24,6 @@ public sealed class BoolArrayConverterTests
     private static readonly int[] SetBitsOfOneStoredWord = [0, 7, 9, 31];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsBools()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Bool);
-    }
-
-    [Fact]
-    public void TheConverterExpectsAOneDimensionalTag()
-    {
-        // Arrange
-
-        // Act
-        var expectedDimensionCount = Converter.ExpectedDimensionCount;
-
-        // Assert
-        expectedDimensionCount.Should().Be(DimensionCount.OneDimensional);
-    }
-
-    [Fact]
-    public void TheControllerMustDeclareAsManyElementsAsTheTagIsConfiguredWithBits()
-    {
-        // Arrange
-
-        // Act
-        var elementCount = Converter.ElementCountFor(Flags);
-
-        // Assert
-        elementCount.Should().Be(new ElementCount(DeclaredBitCount));
-    }
-
-    [Fact]
     public void ThePackedWordDecodesToOneBoolPerBitInIndexOrder()
     {
         // Arrange

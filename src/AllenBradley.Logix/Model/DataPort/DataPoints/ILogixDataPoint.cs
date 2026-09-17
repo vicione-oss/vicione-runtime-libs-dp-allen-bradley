@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -13,6 +14,12 @@ public interface ILogixDataPoint : IPollingDataPoint
 
     /// <summary>The address libplctag is handed, rendered from <see cref="TagPath"/>.</summary>
     TagAddress TagAddress { get; }
+
+    /// <summary>The type this point holds; for an array, the element type.</summary>
+    AllenBradleyDataType DataType { get; }
+
+    /// <summary>The shape this point is configured with: a scalar, or a one-dimensional array.</summary>
+    DimensionCount DimensionCount { get; }
 
     /// <summary>
     /// Turns an untyped engine value into one of this point's typed values, or says why it will not

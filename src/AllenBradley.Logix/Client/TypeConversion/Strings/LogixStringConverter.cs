@@ -1,7 +1,5 @@
 using System.Text;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 
@@ -18,12 +16,6 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
     // Matches the sibling S7 addon's StringAccessBufferSetter, so a value written through one port reads
     // back the same through the other. One byte per character, so anything outside Latin-1 encodes as '?'.
     private static readonly Encoding Latin1 = Encoding.Latin1;
-
-    public override LogixTypeKind ExpectedKind => LogixTypeKind.Structure;
-
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.String;
-
-    protected override StringMaxLength? MaxLengthOf(StringDataPoint dataPoint) => dataPoint.MaxLength;
 
     protected override string DecodeValue(StringDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {

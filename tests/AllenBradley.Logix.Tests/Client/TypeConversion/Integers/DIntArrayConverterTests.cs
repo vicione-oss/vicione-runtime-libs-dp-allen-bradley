@@ -33,18 +33,6 @@ public sealed class DIntArrayConverterTests
         [0, 1, -1, 123456, int.MinValue, int.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsDInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Dint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfIntsInIndexOrder()
     {
         // Arrange

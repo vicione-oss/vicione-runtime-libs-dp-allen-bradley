@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -24,18 +23,6 @@ public sealed class StringDataPointTests
 
         // Assert
         dataTypeName.Should().Be(new DataTypeName("STRING"));
-    }
-
-    [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Label);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("STRING");
     }
 
     [Fact]

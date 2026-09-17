@@ -14,18 +14,6 @@ public sealed class UIntConverterTests
     private static readonly UIntDataPoint Setpoint = new(TagPath.Parse("uintValue1"), DefaultPollFrequency, NoChannels);
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheTagAUInt()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Uint);
-    }
-
-    [Fact]
     public void TwoStoredBytesDecodeToTheUnsignedShortTheyHoldLeastSignificantFirst()
     {
         // Arrange

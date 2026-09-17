@@ -1,6 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
@@ -24,15 +25,15 @@ public sealed class IntDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
+    public void ItIsConfiguredAsAScalar()
     {
         // Arrange
 
         // Act
-        var converter = DataPointConverterRegistry.GetConverter(Counter);
+        var dimensionCount = Counter.DimensionCount;
 
         // Assert
-        converter.ExpectedTypeName.Should().Be("INT");
+        dimensionCount.Should().Be(DimensionCount.Scalar);
     }
 
     [Fact]

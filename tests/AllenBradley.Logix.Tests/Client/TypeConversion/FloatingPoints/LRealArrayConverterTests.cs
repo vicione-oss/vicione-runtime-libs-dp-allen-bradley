@@ -38,18 +38,6 @@ public sealed class LRealArrayConverterTests
     ];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsLReals()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Lreal);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfDoublesInIndexOrder()
     {
         // Arrange

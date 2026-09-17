@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -9,8 +8,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class UIntArrayConverter : AtomicArrayDataPointConverter<UIntArrayDataPoint, ushort>
 {
-    public override AllenBradleyDataType ExpectedDataType => AllenBradleyDataType.Uint;
-
     protected override int ElementSize => UIntConverter.ElementSize;
 
     protected override ushort DecodeElement(ReadOnlySpan<byte> buffer) => UIntConverter.DecodeElement(buffer);

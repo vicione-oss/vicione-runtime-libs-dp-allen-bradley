@@ -34,18 +34,6 @@ public sealed class UDIntArrayConverterTests
         [0, 1, 123456, 2147483648, 4000000000, uint.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsUDInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Udint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfUIntsInIndexOrder()
     {
         // Arrange

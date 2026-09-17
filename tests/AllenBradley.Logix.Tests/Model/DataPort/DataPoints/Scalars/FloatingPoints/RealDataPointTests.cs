@@ -24,18 +24,6 @@ public sealed class RealDataPointTests
     }
 
     [Fact]
-    public void ItAndItsConverterNameTheSameType()
-    {
-        // Arrange
-
-        // Act
-        var converter = DataPointConverterRegistry.GetConverter(Measurement);
-
-        // Assert
-        converter.ExpectedTypeName.Should().Be("REAL");
-    }
-
-    [Fact]
     public void AFloatEngineValueIsCarriedThrough()
     {
         // Arrange

@@ -36,18 +36,6 @@ public sealed class LIntArrayConverterTests
         [0, 1, -1, 1234567890123, long.MinValue, long.MaxValue, 10, 20, 30, 40];
 
     [Fact]
-    public void TheConverterExpectsTheControllerToDeclareTheElementsLInts()
-    {
-        // Arrange
-
-        // Act
-        var expectedDataType = Converter.ExpectedDataType;
-
-        // Assert
-        expectedDataType.Should().Be(AllenBradleyDataType.Lint);
-    }
-
-    [Fact]
     public void TheStoredBytesDecodeToTheDeclaredNumberOfLongsInIndexOrder()
     {
         // Arrange

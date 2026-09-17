@@ -61,11 +61,12 @@ public sealed class LogixConfigurationVerifierTests
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Contain("DINT").And.Contain("REAL");
+        mismatches.Should().ContainSingle().Which.Value.Should().Be(
+            "Data type mismatch for tag 'Motor.Speed': configured DINT, controller reports REAL.");
     }
 
     [Fact]
-    public void AStructureWhereAnElementaryTypeWasConfiguredIsReportedAsAStructure()
+    public void AStringWhereAnElementaryTypeWasConfiguredIsReportedWithBothTypesNamed()
     {
         // Arrange
         var resolved = new ResolvedDataPoint(DIntPointNamed("Motor"), DefaultStringTagDefinition());
@@ -74,7 +75,7 @@ public sealed class LogixConfigurationVerifierTests
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Contain("structure");
+        mismatches.Should().ContainSingle().Which.Value.Should().Contain("DINT").And.Contain("STRING");
     }
 
     [Fact]
