@@ -1,8 +1,10 @@
 # CIP / EtherNet/IP Networking Overview
 
-Background on the networking stack that Allen-Bradley PLCs use over Ethernet. **This document
-is client-agnostic** — it describes the protocol on the wire, not how any specific library
-implements it.
+Background on the networking stack that EtherNet/IP devices share, as ODVA specifies it.
+**This document is client-agnostic and vendor-agnostic** — it describes the standard protocol on
+the wire, not how any specific library implements it and not what Rockwell adds on top. The
+Rockwell additions (tag objects, the PCCC tunnel, chassis routing conventions) are in
+[`../allen-bradley-extension/`](../allen-bradley-extension/).
 
 > **Naming.** In "EtherNet/IP", the **IP stands for *Industrial Protocol***, not Internet
 > Protocol. EtherNet/IP is the Ethernet adaptation of **CIP** (the Common Industrial Protocol).
@@ -11,22 +13,15 @@ implements it.
 
 ## Protocol landscape
 
-Allen-Bradley controllers speak one of two application-layer protocols over Ethernet,
-depending on generation:
+CIP is the application layer. EtherNet/IP is one of several adaptations that carry it: the
+others are **DeviceNet** (CIP over CAN), **ControlNet** (CIP over a dedicated token network), and
+**CompoNet**. This document covers only the **EtherNet/IP** adaptation.
 
-| Protocol           | Era     | Auth / Crypto                            | Specification                        | Used by                                      |
-|--------------------|---------|------------------------------------------|--------------------------------------|----------------------------------------------|
-| **CIP** (EtherNet/IP) | ~2001+ | None by default (CIP Security is opt-in) | Open standard (ODVA CIP Networks Library) | Logix (ControlLogix/CompactLogix/GuardLogix/SoftLogix), Micro800 |
-| **PCCC** (over EtherNet/IP) | ~1990s | None | Rockwell DF1/PCCC command set (pub. 1770-6.5.16), tunneled in CIP | PLC-5, SLC-500, MicroLogix (legacy, file-based) |
-
-Both reach the controller through the **same EtherNet/IP encapsulation layer** on TCP port
-44818. The difference is the application payload: modern controllers use native CIP tag
-services; legacy controllers use PCCC commands wrapped in a CIP "Execute PCCC" service (see
-[Legacy PCCC tunneling](#legacy-pccc-tunneling)).
-
-CIP is also carried over other physical layers by ODVA's sibling networks — **DeviceNet** (CIP
-over CAN), **ControlNet** (CIP over a dedicated token network), and **CompoNet**. This document
-covers only the **EtherNet/IP** adaptation.
+Everything an EtherNet/IP device exchanges goes through the same encapsulation layer on TCP port
+44818, whatever the application payload is. A vendor may carry an older protocol inside a CIP
+service — Rockwell does this for its legacy controllers — but that is an extension, not part of the
+standard. Which Allen-Bradley line uses which payload is in
+[Controller families](../allen-bradley-extension/controller-families-and-routing.md#which-service-carries-the-request).
 
 ### CIP vs. proprietary protocols
 
@@ -169,11 +164,19 @@ CIP is **object-oriented**. A device is a collection of **objects**; you act on 
 Class  →  Instance  →  Attribute        acted on by a Service
 ```
 
-- **Class** — a kind of object (Identity, Message Router, a tag Symbol, …).
+- **Class** — a kind of object (Identity, Message Router, Connection Manager, …).
 - **Instance** — a specific object of that class (instance 0 = the class itself; instance ≥ 1 =
   an actual object).
 - **Attribute** — a data field of an instance.
-- **Service** — an operation (read attribute, write attribute, read tag, …).
+- **Service** — an operation (read attribute, write attribute, …).
+
+Class IDs are partitioned between ODVA and the vendors:
+
+| Class ID range | Defined by                                                        |
+|----------------|-------------------------------------------------------------------|
+| `0x00`–`0x63`  | CIP itself — the same object on every conformant device            |
+| `0x64`–`0xC7`  | The vendor — meaning depends on who built the device               |
+| `0xF0`–`0x2FF` | CIP again — the network-specific objects (TCP/IP Interface, …)     |
 
 ### Standard object classes
 
@@ -183,14 +186,45 @@ Class  →  Instance  →  Attribute        acted on by a Service
 | `0x02`   | Message Router        | Routes explicit messages to target objects (required)           |
 | `0x04`   | Assembly              | Groups I/O data for implicit messaging                          |
 | `0x06`   | Connection Manager    | Forward Open / Forward Close / Unconnected Send (required)      |
-| `0x6B`   | Symbol Object         | Logix **tags** (tag name in attribute 1) — Rockwell vendor-specific |
-| `0x6C`   | Template Object       | Logix **UDT / structure** layout definitions — Rockwell vendor-specific |
-| `0x67`   | PCCC Object           | Tunnels legacy PCCC commands (see below) — Rockwell vendor-specific |
 | `0xF5`   | TCP/IP Interface      | IP configuration                                                |
 | `0xF6`   | Ethernet Link         | Per-port link status and counters                               |
 
 > **Note:** the Message Router is class `0x02`. Some third-party summaries mislabel it `0x03` —
 > that code is DeviceNet-specific.
+
+The Rockwell classes a tag client meets — Symbol `0x6B`, Template `0x6C`, PCCC `0x67` — sit in
+the vendor range and are documented with the
+[extension](../allen-bradley-extension/symbolic-tag-data-types.md#9-discovering-what-a-controller-has).
+
+### Services
+
+A service is an operation invoked on an object, comparable to a method call or an RPC opcode. The
+word comes from OSI terminology, where a layer offers "services" through request/response
+primitives; UDS, CANopen SDO, MMS / IEC 61850 and OPC UA use it the same way. It does not mean a
+long-running process. Do not confuse it with the encapsulation command `ListServices` above, which
+lists encapsulation-layer capabilities, not object services.
+
+Service codes are partitioned like class IDs:
+
+| Service code range | Meaning                                                        |
+|--------------------|----------------------------------------------------------------|
+| `0x00`–`0x31`      | Common services — the same meaning on every object             |
+| `0x32`–`0x4A`      | Vendor-specific                                                |
+| `0x4B`–`0x63`      | Object-class-specific — meaning depends on the target class    |
+
+The common services a client uses most:
+
+| Code   | Name                       | Purpose                                            |
+|--------|----------------------------|----------------------------------------------------|
+| `0x01` | Get_Attributes_All         | Dump every attribute of an instance; layout must be known |
+| `0x03` | Get_Attribute_List         | Read several attributes of one instance in one request |
+| `0x0E` | Get_Attribute_Single       | Read one attribute                                 |
+| `0x10` | Set_Attribute_Single       | Write one attribute                                |
+| `0x11` | Find_Next_Object_Instance  | Instance IDs of a class; optional and rare         |
+
+A reply carries the request's service code with bit 7 set: `0x0E` is answered by `0x8E`. The
+request and reply layouts are in the
+[message-router format](#cip-message-router-requestreply-format) below.
 
 ### EPATH — how a request addresses an object
 
@@ -208,17 +242,39 @@ logical segment is one type byte plus its value. The type byte is
 Example — Identity object, attribute 7 (product name): `20 01 24 01 30 07` = Class `0x01`,
 Instance `1`, Attribute `7`.
 
-For **named tags**, Logix controllers use the **ANSI Extended Symbol Segment** (`0x91`): the
-byte `0x91`, a length (character count), the ASCII name, and a `0x00` pad byte if the length is
-odd. So the tag `MyTag` becomes `91 05 4D 79 54 61 67 00`. Members (`Motor.Speed`) chain
-symbol segments; array elements (`Arr[5]`) append a member/element segment (`28 05`).
+The 16-bit form carries a pad byte before the value: `21 00 6B 00` is class `0x006B`.
+
+CIP also defines the **ANSI Extended Symbol Segment** (`0x91`): the byte `0x91`, a length
+(character count), the ASCII name, and a `0x00` pad byte if the length is odd. So the name `MyTag`
+becomes `91 05 4D 79 54 61 67 00`. CIP defines only the encoding; what a name resolves to is up to
+the vendor. Rockwell resolves it to a tag — see
+[the extension](../allen-bradley-extension/symbolic-tag-data-types.md#7-how-logix-reads-and-writes-a-tag-on-the-wire).
+
+### Discovery in standard CIP
+
+Standard CIP has no online browse. A device is meant to describe itself offline, through its
+**EDS file** (Electronic Data Sheet), which the client selects from the Identity object. What
+exists online is limited:
+
+| Mechanism                                                              | Purpose                          | Note                                  |
+|------------------------------------------------------------------------|----------------------------------|---------------------------------------|
+| Identity object (`0x01`)                                               | Vendor, product code, revision   | Used to pick the EDS file             |
+| Message Router (`0x02`), attribute 1 `Object_list`                     | Implemented class IDs            | Optional, often missing               |
+| Class attributes (instance 0): 2 `Max Instance`, 3 `Number of Instances` | Instance count per class       |                                       |
+| `Find_Next_Object_Instance` (`0x11`)                                   | Instance IDs of a class          | Optional, rare                        |
+| `Get_Attributes_All` (`0x01`)                                          | Dump attributes                  | Layout must be known in advance       |
+| Encapsulation `ListIdentity`, `ListServices`                           | Find devices on the network      | Not the objects inside a device       |
+
+Browsing the tags of a controller by name is therefore a vendor extension. Rockwell's is the
+Symbol object and its `Get Instance Attribute List` service, documented with the
+[extension](../allen-bradley-extension/symbolic-tag-data-types.md#9-discovering-what-a-controller-has).
 
 ## Connection setup sequence
 
 A client establishes explicit messaging in two or three phases:
 
 ```text
-Client                                           Controller (ControlLogix / CompactLogix / …)
+Client                                           Target device
       │                                                  │
       │─── TCP SYN ─────────────────────────────────────►│
       │◄── TCP SYN-ACK ──────────────────────────────────│
@@ -236,7 +292,7 @@ Client                                           Controller (ControlLogix / Comp
       │                                                  │
       │  Phase 3: CIP connection established              │
       │                                                  │
-      │─── Read/Write Tag requests ─────────────────────►│
+      │─── explicit requests ───────────────────────────►│
       │◄── replies ──────────────────────────────────────│
 ```
 
@@ -261,7 +317,7 @@ limits how many concurrent UCMM requests it will service.
 For repeated tag access, the client first opens a **CIP connection** with a **Forward Open**,
 then sends every request with `SendUnitData` (Connected Address + Connected Data items), keyed
 by the Connection ID and a sequence count. Lower per-message overhead, guaranteed controller
-resources, and connection-timeout monitoring. Rockwell recommends connected messaging for
+resources, and connection-timeout monitoring. Vendors recommend connected messaging for
 sustained data access.
 
 ### Connection Manager, Forward Open, and route paths
@@ -272,17 +328,18 @@ connection lifecycle:
 | Service            | Code   | Purpose                                                             |
 |--------------------|--------|---------------------------------------------------------------------|
 | Forward Open       | `0x54` | Open a connection (connection size ≤ 511 bytes)                     |
-| Large Forward Open | `0x5B` | Open a connection with 32-bit parameters (size > 511 bytes, up to ~4000 on Logix) |
+| Large Forward Open | `0x5B` | Open a connection with 32-bit parameters (size > 511 bytes; the ceiling is the device's) |
 | Forward Close      | `0x4E` | Tear down a connection                                              |
 | Unconnected Send   | `0x52` | Wrap and route an embedded request through the backplane / network |
 
-> **Service codes are object-dependent.** The same numeric code means different things on
-> different object classes. On the **Connection Manager**, `0x52` = Unconnected Send and `0x4E`
-> = Forward Close; on the **Symbol (tag) object**, `0x52` = Read Tag Fragmented and `0x4E` =
+> **Service codes are object-dependent.** All four codes above sit in the object-class-specific
+> range (`0x4B`–`0x63`, see [Services](#services)), so the same number means something else on
+> another class. On the **Connection Manager**, `0x52` = Unconnected Send and `0x4E` = Forward
+> Close; on Rockwell's Symbol object, `0x52` = Read Tag Fragmented and `0x4E` =
 > Read-Modify-Write. Always resolve a service code against its target object class.
 
 **Route path (backplane routing).** The module that terminates the EtherNet/IP session is not
-necessarily the controller — in a ControlLogix chassis the Ethernet module and the controller sit
+necessarily the controller — in a modular chassis the Ethernet module and the controller may sit
 in different slots — so a request carries a **route path** telling each device it reaches how to
 forward it onward. Each hop is a **port segment**: a port number naming the network to leave by,
 followed by a link address on that network.
@@ -291,10 +348,10 @@ followed by a link address on that network.
 - Multi-hop routes chain port segments (out an Ethernet port, across a backplane, to another
   module). Each device consumes the hop that names it and forwards the remainder.
 
-This is exactly the `Path = "1,0"` seen in libplctag-style client configuration. What the port
-numbers and link addresses mean physically, and which path each controller family conventionally
-takes, is in
-[Controller families, chassis, and route paths](controller-families-and-routing.md).
+This is the `Path = "1,0"` seen in client configuration. What the port numbers and link addresses
+mean physically on Rockwell hardware, and which path each controller family conventionally takes,
+is in
+[Controller families, chassis, and route paths](../allen-bradley-extension/controller-families-and-routing.md).
 
 ## CIP message-router request/reply format
 
@@ -316,7 +373,7 @@ Reply:
 
 - **Path Size** is measured in **16-bit words**.
 - The **reply service** byte is the request service **OR `0x80`** (the reply bit). A reply to
-  Read Tag (`0x4C`) is `0xCC`.
+  Get_Attribute_Single (`0x0E`) is `0x8E`.
 
 ### General status codes
 
@@ -338,27 +395,7 @@ Appendix B). The most common:
 > **`0x05` vs. `0x14`.** `0x05` means the target class/instance itself is missing (e.g. a tag
 > name that does not exist); `0x14` means the object exists but the requested attribute does
 > not. And **`0x06` is not an error** for large reads — it means "more data remains", which is
-> how a client learns to continue with a fragmented read.
-
-## Legacy PCCC tunneling
-
-PLC-5, SLC-500, and MicroLogix controllers do not speak native CIP tag services. Their
-application layer is **PCCC** (Programmable Controller Communication Commands) — the same
-command set used over DF1 serial links. Over EtherNet/IP, a PCCC command is tunneled inside a
-CIP explicit message:
-
-- Sent to the **PCCC Object** — class **`0x67`** (Rockwell vendor-specific), instance `1`
-  (path `20 67 24 01`).
-- Using the **Execute PCCC** service — **`0x4B`**.
-- The service data carries a *requestor ID* header followed by the PCCC command bytes
-  (a **CMD**/**FNC** pair, e.g. CMD `0x0F` / FNC `0xA2` = "protected typed logical read", FNC
-  `0xAA`/`0xAB` = write), which address a data file by **file number, element, sub-element**
-  (`N7:0`, `T4:0.PRE`, …).
-
-Controllers without native Ethernet (older PLC-5, SLC 5/03·5/04, MicroLogix 1000/1200/1500)
-reach EtherNet/IP through a bridge — a 1756-ENxT + 1756-DHRIO ControlLogix gateway, or a
-1761-NET-ENI serial converter — and the CIP route path hops through the bridge to the target
-node.
+> how a client learns to continue with a fragmented read or a paged listing.
 
 ## Security considerations
 
@@ -374,10 +411,9 @@ practice.
 - **Message integrity** (HMAC) and **optional confidentiality** (AES); a NULL-cipher mode
   allows authentication-only (still packet-capture-decodable).
 
-CIP Security is supported on newer Logix controllers (e.g. ControlLogix/CompactLogix 5580/5380
-with recent firmware, or older Logix retrofitted with a 1756-EN4TR module). Legacy PLC-5 /
-SLC-500 / MicroLogix / Micro800 controllers do **not** support it. Adoption is still recent and
-optional — most deployed EtherNet/IP networks run unauthenticated.
+Adoption is still recent and optional — most deployed EtherNet/IP networks run unauthenticated.
+Which Allen-Bradley lines support it is in
+[Controller families](../allen-bradley-extension/controller-families-and-routing.md#the-lines).
 
 Mitigations for the classic (unsecured) case mirror those for any legacy PLC protocol:
 
@@ -396,15 +432,6 @@ Mitigations for the classic (unsecured) case mirror those for any legacy PLC pro
   <https://www.odva.org/wp-content/uploads/2020/06/PUB00123R1_Common-Industrial_Protocol_and_Family_of_CIP_Networks.pdf>
 - ODVA — *CIP Security* overview: <https://www.odva.org/technology-standards/distinct-cip-services/cip-security/>
 
-### Rockwell publications
-
-- Rockwell Automation — *Logix 5000 Controllers Data Access* (1756-PM020) — Symbol object
-  `0x6B`, Template object `0x6C`, Read/Write Tag services:
-  <https://literature.rockwellautomation.com/idc/groups/literature/documents/pm/1756-pm020_-en-p.pdf>
-- Rockwell Automation — *DF1 Protocol and Command Set Reference Manual* (1770-6.5.16) — PCCC
-  command set:
-  <https://literature.rockwellautomation.com/idc/groups/literature/documents/rm/1770-rm516_-en-p.pdf>
-
 ### Reference implementations and tooling
 
 - Wireshark ENIP/CIP dissector (`packet-enip.c` / `packet-cip.c`) — encapsulation commands, CPF
@@ -419,6 +446,5 @@ Mitigations for the classic (unsecured) case mirror those for any legacy PLC pro
 ### Related in-tree docs
 
 - [`cip-datatypes-reference.md`](cip-datatypes-reference.md) — CIP type codes and wire formats
-- [`symbolic-tag-data-types.md`](symbolic-tag-data-types.md) — the types the tag-addressed families
-  expose, and the symbol table that names them
-- [`pccc-data-file-types.md`](pccc-data-file-types.md) — the data-file types of the legacy families
+- [`../allen-bradley-extension/`](../allen-bradley-extension/) — what Rockwell builds on this:
+  the Symbol and Template objects, the tag services, the PCCC tunnel, and chassis routing

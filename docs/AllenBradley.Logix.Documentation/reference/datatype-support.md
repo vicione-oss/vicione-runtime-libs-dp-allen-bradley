@@ -4,9 +4,9 @@ Which Logix data types this port implements, what each one carries in .NET, and 
 
 This is the *port's* status. Which types a given controller family exposes at all is a separate
 question, answered by the cross-port
-[symbolic tag data types](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md);
+[symbolic tag data types](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md);
 the wire layout of each type is in the
-[CIP data types reference](../../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md).
+[CIP data types reference](../../AllenBradley.Documentation/protocol/cip/cip-datatypes-reference.md).
 
 ## Supported
 
@@ -96,8 +96,8 @@ the `USINT` codec hands back `200` where the controller holds `-56`; an `INT` re
 back `65535` where it holds `-1`; and so on up to a `LINT` read as a `ULINT`.
 
 Verification catches that the way it catches every other type mismatch — `LogixTypeComparison` compares
-the converter's `ExpectedDataType` against the controller's declaration, and `Sint != Usint` is the
-same comparison as `Int != Dint`. There is nothing special about the unsigned types there.
+the data point's `DataType` against the controller's declaration, and `Sint != Usint` is the same
+comparison as `Int != Dint`. There is nothing special about the unsigned types there.
 
 What is different is how little else there is. A type configured *wider* than its tag has a second tell
 even if verification never ran: the decode runs out of buffer and `LogixReadBatch` reports it as that

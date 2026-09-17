@@ -54,7 +54,7 @@ themselves are discovered from the controller listing:
 
 1. Read `@tags`. Entries whose name begins `Program:` are programs, not tags. They also carry the
    system bit (`0x1000`) in their
-   [symbol type](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md#the-logix-symbol-type-bitfield),
+   [symbol type](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md#the-logix-symbol-type-bitfield),
    but the name prefix is the discriminator worth relying on.
 2. For each of those, read `Program:<name>.@tags` to get that program's tags.
 

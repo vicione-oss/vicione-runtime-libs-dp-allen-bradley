@@ -36,7 +36,7 @@ representation:
   accessors (`plc_tag_get_uint32` and friends), not by the raw copy, so a raw buffer is unswapped.
 
 The layouts themselves — `STRING`, `TIMER`, BOOL packing, the structure marker — are documented once
-in [symbolic tag data types](../cip-protocol/symbolic-tag-data-types.md), which this does not repeat.
+in [symbolic tag data types](../protocol/allen-bradley-extension/symbolic-tag-data-types.md), which this does not repeat.
 
 ## The `@` tags are the deliberate exception
 

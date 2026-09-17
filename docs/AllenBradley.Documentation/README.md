@@ -17,7 +17,7 @@ docs live in the sibling **AllenBradley.Logix.Documentation** and **AllenBradley
 projects, each organised into `explanation/`, `how-to/`, and `reference/`.
 
 > **Status.** The Allen-Bradley DataPort implementation is not built yet. The protocol background
-> (`cip-protocol/`), the addressing grammars, and the test-device setup are complete; the per-port
+> (`protocol/`), the addressing grammars, and the test-device setup are complete; the per-port
 > `explanation/`/`how-to/`/`reference/` docs are scaffolded and fill in as the implementation lands.
 
 ## The two ports
@@ -37,24 +37,25 @@ protocol is documented once, below, and shared by both ports.
 not a Legacy controller, but it has no program scope and no tag listing, so it is not a drop-in Logix
 device either. Whether it lands in the Logix port as a device family or in a port of its own is an open
 decision, taken once Logix is done. The controller lines and what separates them are covered in
-[controller families and routing](cip-protocol/controller-families-and-routing.md).
+[controller families and routing](protocol/allen-bradley-extension/controller-families-and-routing.md).
 
 ## Cross-port material (this project)
 
-### CIP / EtherNet/IP protocol background — `cip-protocol/`
+### Protocol background — `protocol/`
 
 PLC and protocol knowledge needed to understand the implementations. These docs are
-**client-agnostic** — they describe CIP and its EtherNet/IP adaptation as administered by
-[ODVA](https://www.odva.org/), not how this codebase implements it.
+**client-agnostic** — they describe what is on the wire, not how this codebase implements it. The
+folder is split by who defines the mechanism: `cip/` is the [ODVA](https://www.odva.org/) standard,
+`allen-bradley-extension/` is what Rockwell builds on it.
 
 | Document | Description |
 |----------|-------------|
-| [cip-protocol/](cip-protocol/README.md) | Index of all CIP background docs |
-| [cip-protocol/cip-networking-overview.md](cip-protocol/cip-networking-overview.md) | Protocol landscape, encapsulation wire stack (TCP 44818 / UDP 2222), session registration, the CIP object model and EPATH, connected vs. unconnected messaging, Forward Open and backplane routing, PCCC tunneling, security |
-| [cip-protocol/cip-datatypes-reference.md](cip-protocol/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, byte layout, ranges, and .NET equivalents |
-| [cip-protocol/symbolic-tag-data-types.md](cip-protocol/symbolic-tag-data-types.md) | The types the tag-addressed families expose (Logix, Micro800), the Logix `STRING`/`TIMER` structures, BOOL packing, the symbol-type bitfield, and the `@tags` listing entry |
-| [cip-protocol/pccc-data-file-types.md](cip-protocol/pccc-data-file-types.md) | The data-file types of the file-addressed families (MicroLogix, SLC 500, PLC-5): file letters, element layouts, and what these families lack |
-| [cip-protocol/controller-families-and-routing.md](cip-protocol/controller-families-and-routing.md) | The controller lines and their two form factors, chassis / slot / backplane, the backplane as a CIP network, building a route path hop by hop, and the conventional path per family |
+| [protocol/](protocol/README.md) | Index, and the rule for what goes on which side of the split |
+| [protocol/cip/cip-networking-overview.md](protocol/cip/cip-networking-overview.md) | Encapsulation wire stack (TCP 44818 / UDP 2222), session registration, the object model, services, EPATH, standard discovery, connected vs. unconnected messaging, Forward Open and route paths, security |
+| [protocol/cip/cip-datatypes-reference.md](protocol/cip/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, byte layout, ranges, and .NET equivalents |
+| [protocol/allen-bradley-extension/symbolic-tag-data-types.md](protocol/allen-bradley-extension/symbolic-tag-data-types.md) | The types the tag-addressed families expose (Logix, Micro800), the Logix `STRING`/`TIMER` structures, BOOL packing, the tag services, and the Symbol and Template objects that list and describe every tag |
+| [protocol/allen-bradley-extension/pccc-data-file-types.md](protocol/allen-bradley-extension/pccc-data-file-types.md) | The data-file types of the file-addressed families (MicroLogix, SLC 500, PLC-5): file letters, element layouts, what these families lack, and the PCCC tunnel |
+| [protocol/allen-bradley-extension/controller-families-and-routing.md](protocol/allen-bradley-extension/controller-families-and-routing.md) | The controller lines and their two form factors, chassis / slot / backplane, the backplane as a CIP network, building a route path hop by hop, and the conventional path per family |
 
 ### libplctag behaviour — `libPlcTag/`
 

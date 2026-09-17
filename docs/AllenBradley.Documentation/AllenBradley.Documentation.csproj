@@ -45,7 +45,7 @@
   -->
   <ItemGroup>
     <None Include="*.md" />
-    <None Include="cip-protocol/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="protocol/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="libPlcTag/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="context/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="process/**" Exclude="**/bin/**;**/obj/**" />

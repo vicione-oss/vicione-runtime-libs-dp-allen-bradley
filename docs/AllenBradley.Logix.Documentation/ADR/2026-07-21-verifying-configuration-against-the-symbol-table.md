@@ -82,7 +82,8 @@ Verification implements the framework's contract directly. It reports the framew
 and mismatch types instead of result types of ours behind an adapter. That is the shape the sibling S7
 addon has over its client, with nothing in between.
 
-The diff delegates to the converter's comparison, and it is the only place that comparison runs. Reads and
+The diff reads the configured data point against the declaration, and it is the only place that comparison
+runs. Reads and
 writes do not repeat it ([decode ADR](2026-07-16-decoding-tag-bytes-into-typed-values.md)). The metadata
 cannot change while the connection lives, so a poll-time gate would re-reach the verdict connect already
 reached, and it would report a configuration error as a bad value or a failed write rather than as the
@@ -187,7 +188,7 @@ Open questions:
 References:
 
 - Wire format:
-  [Symbolic tag data types](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  [Symbolic tag data types](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md)
   (the Logix symbol-type bitfield, the `@tags` entry layout)
 - libplctag behaviour:
   [the shared session](../../AllenBradley.Documentation/libPlcTag/the-shared-session.md) ·

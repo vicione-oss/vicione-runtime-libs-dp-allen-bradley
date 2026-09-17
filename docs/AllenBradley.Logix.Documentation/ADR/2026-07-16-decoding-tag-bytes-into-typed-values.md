@@ -39,9 +39,9 @@ bytes keep the codecs testable against a byte array and independent of the wrapp
 removed. The type-code check supplies the run-time half of "type-safe", and it is paid once per connection
 rather than once per read.
 
-A converter is one type's codec together with its expectation about the tag it reads. It states what shape
-it expects (elementary or structure) and what CIP type, plus a character capacity for the types that have
-one. It decodes a raw span into the data point's value, and encodes a value back into a buffer.
+A converter is one type's codec. It decodes a raw span into the data point's value, and encodes a value
+back into a buffer. What the tag is expected to be — its CIP type, its shape, a character capacity or an
+element count for the types that have one — is the data point's to state, not the converter's.
 
 - A converter is looked up by the data point's concrete type, and registration derives that key from the
   converter's own type parameter rather than taking it from the caller. Filing a converter under a data
@@ -55,13 +55,12 @@ one. It decodes a raw span into the data point's value, and encodes a value back
   point, so the point owns its value record instead of a converter inventing one. Encoding demands the
   point's own typed value, which is what stops a failed read, carrying no payload, from being written back
   to the controller.
-- The expectation is stated as data, in the same fields the controller's declaration reports its side in.
-  One comparison then holds the whole rule for every converter at once, shape first, then type, then
-  capacity. An elementary type and a `STRING` differ in the constants they supply rather than in a
-  comparison each writes for itself. The elementary base fixes the shape and has no capacity to state, and
-  the `STRING` is the one case whose expected capacity comes from the data point's configuration. The
-  Studio 5000 spelling a converter carries decides nothing. It only names the type in a misconfiguration
-  message and in a rejected write.
+- The expectation is stated as data on the data point, in the same fields the controller's declaration
+  reports its side in. One comparison then holds the whole rule for every type at once, shape first, then
+  type, then the capacity or the element count the shape configures. A converter states none of it: the
+  data type it decodes is the data point's, and a converter that repeated it could only agree or drift.
+  The Studio 5000 spelling a data point carries decides nothing. It only names the type in a
+  misconfiguration message and in a rejected write.
 - Every converter decodes a `ReadOnlySpan<byte>`. CIP transmits scalars little-endian and .NET is
   little-endian too, so a scalar is a direct `BinaryPrimitives` read with no byte swap. The structural
   cases are the Logix `STRING` and packed BOOL arrays. The `STRING` is a structure holding a `DINT` length
@@ -76,7 +75,7 @@ one. It decodes a raw span into the data point's value, and encodes a value back
   A `STRING` and a `STRING_20` are one converter and two widths, and the controller owns which, so the
   bytes go to libplctag's handle as they are: the handle is the controller's width, takes a shorter
   payload from the start, and refuses a longer one before sending.
-- The type check runs at connect, not on every read. What a converter expects the tag to be is compared
+- The type check runs at connect, not on every read. What the data point says the tag is gets compared
   with the controller's declaration once, by
   [configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md), which is
   the comparison's only caller, and a mismatch aborts the connect. Decoding then reads the type the data
@@ -161,8 +160,8 @@ bringing the exhaustive dictionary and the single boundary cast with it.
 Raw bytes are only half of "type-safe" on their own. The check needs a source for the controller's actual
 type, and supplying it is a decision of its own. [Verifying configuration against the controller symbol
 table](2026-07-21-verifying-configuration-against-the-symbol-table.md) reads that type from the symbol
-table at connect and owns the comparison. Without that browse there is nothing for a converter's
-expectation to be checked against.
+table at connect and owns the comparison. Without that browse there is nothing for the configured type
+to be checked against.
 
 The byte layout also becomes ours to be right about. Nothing in a decode reports a wrong offset. It
 reports a plausible wrong value. That is why the `STRING` offsets, taken from libplctag's documented
@@ -198,9 +197,9 @@ This record names roles rather than types. The folder is the entry point, and th
 the source and its comments. A rename should not oblige anyone to revisit a decision that has not changed.
 
 - Wire formats:
-  [CIP data types reference](../../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
+  [CIP data types reference](../../AllenBradley.Documentation/protocol/cip/cip-datatypes-reference.md)
   (little-endian scalars) ·
-  [Symbolic tag data types](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  [Symbolic tag data types](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md)
   (the Logix `STRING` structure, BOOL packing, the symbol-type bitfield)
 - Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Reading and writing a group of tags](2026-07-16-reading-and-writing-a-group-of-tags.md)

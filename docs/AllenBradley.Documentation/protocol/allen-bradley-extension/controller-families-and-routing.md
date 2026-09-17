@@ -30,7 +30,7 @@ How much else is integrated varies *within* that shape, and the CompactLogix lin
 5370, 5380 or 5480 takes its 24V DC on the controller, so controller, power input and Ethernet really
 are one unit. A 1769 does not: it needs a separate 1769-PA2/PB2 supply on the rail, and the
 controller must sit within four modules of it. That is the shape of the
-[L32E on the test bench](../context/TEST-DEVICE-SETUP.md). What the whole line does share is the
+[L32E on the test bench](../../context/TEST-DEVICE-SETUP.md). What the whole line does share is the
 absence of a communications bus — no CompactLogix can be given a second Ethernet port by adding a
 module, because there is no slot to add one to.
 
@@ -63,14 +63,18 @@ to integration testing without a physical controller.
 
 | Access mechanism | Logix | Micro800 | MicroLogix | SLC 500 | PLC-5 |
 |------------------|-------|----------|------------|---------|-------|
-| CIP symbolic tag services (`0x4C` read, `0x4D` write, and their fragmented variants) | native | native | ❌ | ❌ | ❌ |
-| PCCC over EtherNet/IP (PCCC object, class `0x67`, service `0x4B`) | ❌ | ❌ | native | native (5/05) | native (`/xxE`) |
+| [CIP symbolic tag services](symbolic-tag-data-types.md#7-how-logix-reads-and-writes-a-tag-on-the-wire) (`0x4C` read, `0x4D` write, and their fragmented variants) | native | native | ❌ | ❌ | ❌ |
+| [PCCC over EtherNet/IP](pccc-data-file-types.md#the-pccc-tunnel) (PCCC object, class `0x67`, service `0x4B`) | ❌ | ❌ | native | native (5/05) | native (`/xxE`) |
 | Reached through a bridge when there is no native Ethernet | — | — | 1000, 1200, 1500 | 5/01–5/04 | non-`E` models |
 
 Micro800 speaks the same tag services as Logix, but not all of them. It has no Symbol Instance
 Addressing and no Multiple Service Packet, so a client that batches requests falls back to one
 service per packet. Value encoding is little-endian in CIP and PCCC alike. What changes across the
 table is the addressing model and the service, never the byte order.
+
+**CIP Security** (ODVA Vol. 8, see [the networking overview](../cip/cip-networking-overview.md#security-considerations))
+is supported on the 5580 and 5380 with recent firmware, and on older Logix retrofitted with a
+1756-EN4TR module. PLC-5, SLC 500, MicroLogix and Micro800 do not support it.
 
 ## Chassis, slot, and backplane
 
@@ -120,7 +124,7 @@ leaves over an Ethernet port.
 
 So `1,0` reads as "leave by port 1 onto the backplane, to node 0", meaning the controller in slot 0.
 On the wire this is a port segment, `01 00`. The
-[encoding is in the networking overview](cip-networking-overview.md#connection-manager-forward-open-and-route-paths).
+[encoding is in the networking overview](../cip/cip-networking-overview.md#connection-manager-forward-open-and-route-paths).
 
 The gateway address and the route path answer two different questions. **The gateway picks the module
 that terminates the EtherNet/IP session**, and the path says how that module forwards the request
@@ -166,7 +170,7 @@ They are reached through a ControlLogix gateway (an ENxT plus a 1756-DHRIO or 17
 DH+, the last hop names a channel and a node rather than a slot.
 
 Once the request arrives, the addressing is PCCC data files rather than tags. That layer is covered
-in [Legacy PCCC tunneling](cip-networking-overview.md#legacy-pccc-tunneling).
+in [the PCCC tunnel](pccc-data-file-types.md#the-pccc-tunnel).
 
 ## References
 
@@ -190,10 +194,10 @@ in [Legacy PCCC tunneling](cip-networking-overview.md#legacy-pccc-tunneling).
 
 ### Related in-tree docs
 
-- [`cip-networking-overview.md`](cip-networking-overview.md) covers the wire stack, the Connection
-  Manager, and how a route path is encoded in an Unconnected Send
+- [`../cip/cip-networking-overview.md`](../cip/cip-networking-overview.md) covers the wire stack, the
+  Connection Manager, and how a route path is encoded in an Unconnected Send
 - [`symbolic-tag-data-types.md`](symbolic-tag-data-types.md) lists the types the tag-addressed
   families expose, and the symbol table that names them
 - [`pccc-data-file-types.md`](pccc-data-file-types.md) does the same for the legacy families
-- [`../context/TEST-DEVICE-SETUP.md`](../context/TEST-DEVICE-SETUP.md) describes the CompactLogix
+- [`../../context/TEST-DEVICE-SETUP.md`](../../context/TEST-DEVICE-SETUP.md) describes the CompactLogix
   L32E used for integration testing, and its `1,0`

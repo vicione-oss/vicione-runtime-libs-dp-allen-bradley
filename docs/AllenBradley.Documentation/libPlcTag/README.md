@@ -2,7 +2,7 @@
 
 How the [libplctag](https://github.com/libplctag/libplctag) native library and its
 [.NET wrapper](https://github.com/libplctag/libplctag.NET) actually behave. These are the facts
-about our dependency that shape the client design. Where [`cip-protocol/`](../cip-protocol/README.md)
+about our dependency that shape the client design. Where [`protocol/`](../protocol/README.md)
 documents CIP and EtherNet/IP as ODVA defines them on the wire, this folder documents the *library
 we drive that wire through*. It records what the library does that the CIP spec does not dictate, and
 the quirks that have cost us debugging time.

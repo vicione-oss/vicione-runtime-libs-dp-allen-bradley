@@ -1,15 +1,15 @@
 # CIP Data Types Reference
 
 How CIP data types are **encoded**: type codes, wire format, byte layout, value ranges, and .NET
-equivalents. **Client-agnostic** — this describes the protocol, not how any specific library handles
-it.
+equivalents. **Client-agnostic and vendor-agnostic** — this describes the ODVA standard, not how any
+specific library handles it and not which controller exposes which type.
 
 This document deliberately says nothing about which controller has which type. That question is
 answered per **addressing mode**, because the addressing mode decides the type vocabulary:
 
-- [Symbolic Tag Data Types](symbolic-tag-data-types.md) — Logix and Micro800, which name tags and
+- [Symbolic Tag Data Types](../allen-bradley-extension/symbolic-tag-data-types.md) — Logix and Micro800, which name tags and
   report a type code with the data.
-- [PCCC Data-File Types](pccc-data-file-types.md) — MicroLogix, SLC 500, and PLC-5, where a file's type
+- [PCCC Data-File Types](../allen-bradley-extension/pccc-data-file-types.md) — MicroLogix, SLC 500, and PLC-5, where a file's type
   letter fixes the type and no code crosses the wire.
 
 Both link back here for encoding rather than restating it. Note that CIP defines many more type codes
@@ -27,7 +27,7 @@ some controller will report it.
 - On Logix, `STRING`, `TIMER`, `COUNTER`, and every UDT are constructed types, so the elementary
   `STRING` codes (`0xD0` / `0xDA`) below describe the generic CIP string forms and **not** a Logix
   `STRING` tag. Its structure is documented with
-  [the symbolic types](symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0).
+  [the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0).
 
 ---
 
@@ -53,7 +53,7 @@ some controller will report it.
 - **Wire representation:** a single byte. Writers send `0xFF` for true and `0x00` for false; readers
   should treat **any nonzero byte** as true (do not test `== 0x01`).
 - BOOL arrays and BOOL-in-UDT pack differently on Logix — see
-  [BOOL handling](symbolic-tag-data-types.md#8-bool-handling).
+  [BOOL handling](../allen-bradley-extension/symbolic-tag-data-types.md#8-bool-handling).
 
 ---
 
@@ -133,8 +133,8 @@ CIP defines several string forms that differ in their length prefix and per-char
 - `STRINGI` (`0xDE`) is defined by ODVA but not implemented by every stack (OpENer, for instance, does
   not assign it).
 - Neither form is how a controller in this repo stores a string. A Logix `STRING` is a
-  [structure](symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0); a legacy
-  `ST` file element is [42 words with swapped character pairs](pccc-data-file-types.md#string-elements).
+  [structure](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0); a legacy
+  `ST` file element is [42 words with swapped character pairs](../allen-bradley-extension/pccc-data-file-types.md#string-elements).
 
 ---
 
@@ -153,7 +153,7 @@ Per the CIP rule that a data-type descriptor starting `0xA0`–`0xA3` is *struct
 `0xA0` is the one an Allen-Bradley client meets constantly: every structured Logix tag read begins with
 it, followed by the template handle. That exchange, the handle's meaning, and the template read that
 resolves it are documented with
-[the symbolic types](symbolic-tag-data-types.md#7-how-logix-reports-a-structure-on-the-wire).
+[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#the-structure-reply).
 
 ---
 
@@ -253,7 +253,7 @@ Offset  Hex   Meaning
 ```
 
 A structured example — the 88-byte Logix `STRING` read reply — is with
-[the symbolic types](symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0),
+[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0),
 because its layout is a controller fact rather than a CIP encoding rule.
 
 ---
@@ -287,7 +287,7 @@ because its layout is a controller fact rather than a CIP encoding rule.
 
 ### Related in-tree docs
 
-- [`symbolic-tag-data-types.md`](symbolic-tag-data-types.md) — which of these types Logix and Micro800
+- [`symbolic-tag-data-types.md`](../allen-bradley-extension/symbolic-tag-data-types.md) — which of these types Logix and Micro800
   expose, plus structures, arrays, and the symbol table
-- [`pccc-data-file-types.md`](pccc-data-file-types.md) — the file-addressed legacy families
-- [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, tag services
+- [`pccc-data-file-types.md`](../allen-bradley-extension/pccc-data-file-types.md) — the file-addressed legacy families
+- [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, services

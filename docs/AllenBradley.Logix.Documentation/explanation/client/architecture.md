@@ -75,18 +75,18 @@ other tag. The elementary scalars are exactly their .NET types and answer `true`
 
 `DataPointConverter<TDataPoint, TDomain>` holds the one boundary cast from `ILogixDataPoint`, and it is
 constrained to `LogixDataPoint<TDomain>` so the compiler checks that a converter and the .NET type it
-decodes were paired correctly. Decoding stops at the `TDomain`; the data point wraps it. Below the base
-the converters split by how the controller reports their type:
+decodes were paired correctly. Decoding stops at the `TDomain`; the data point wraps it. A converter
+states nothing about the tag it expects: the data type, the shape, a string's capacity and an array's
+element count are the data point's, and verification reads them there. Below the base the converters
+split by how the bytes are laid out:
 
-- **`AtomicDataPointConverter<,>`** covers the elementary types — the ones the controller names with
-  a one-byte CIP code and that occupy a fixed number of bytes. It supplies the comparison they all
-  share: a matching atomic code, neither an array nor a structure, and no capacity to agree on.
-  `DIntConverter` and `RealConverter` name their code, and nothing else about matching is their
-  business.
-- **`LogixStringConverter`** derives from the base directly, because a Logix `STRING` is a structure
-  on the wire and its comparison is the inverse: it *requires* a structure, and reports the new
-  `Atomic` mismatch when the controller hands back an elementary type instead. Splitting the two lets
-  each state what it expects rather than phrasing itself as an exception to the other.
+- **`AtomicArrayDataPointConverter<,>`** covers an array of an elementary type — *n* contiguous,
+  unpadded elements, transferred whole. A subclass supplies the element format alone, and takes it from
+  the scalar converter for the same type, so `DIntConverter` and `DIntArrayConverter` cannot disagree
+  about how wide a `DINT` is.
+- **`LogixStringConverter`** and **`BoolArrayConverter`** derive from the base directly, because
+  neither is elements side by side: a `STRING` is a `.LEN` header before `.DATA`, and a `BOOL[n]` is
+  bits packed into words.
 
 Two consequences follow. No converter states how wide a tag is. `Encode` returns the bytes the value
 occupies, sized from the type or from the point's configuration: four for a `DINT`, `.LEN` plus `.DATA`

@@ -3,7 +3,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.LibPlcTag.
 /// <summary>
 /// Decodes the 16-bit Logix symbol-type value carried by every tag returned from the
 /// Symbol object (class 0x6B). Bit layout per
-/// docs/AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md,
+/// docs/AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md,
 /// section "The Logix symbol-type bitfield".
 /// </summary>
 public static class SymbolType

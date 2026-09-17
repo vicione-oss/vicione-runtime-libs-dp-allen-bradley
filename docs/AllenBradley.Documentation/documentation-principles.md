@@ -33,7 +33,7 @@ The documentation is split across sibling projects that mirror the eventual `src
 
 | Project                                                                          | Holds                                                                       |
 |----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| **AllenBradley.Documentation** (this project)                                    | Cross-port material: the hub, these principles, `cip-protocol/`, `context/`, and process docs |
+| **AllenBradley.Documentation** (this project)                                    | Cross-port material: the hub, these principles, `protocol/`, `context/`, and process docs |
 | [**AllenBradley.Logix.Documentation**](../AllenBradley.Logix.Documentation/README.md)  | The Logix port — symbolic tag addressing (ControlLogix, CompactLogix, GuardLogix, SoftLogix) |
 | [**AllenBradley.Legacy.Documentation**](../AllenBradley.Legacy.Documentation/README.md) | The Legacy port — file/data-table addressing over PCCC (PLC-5, SLC 500, MicroLogix) |
 
@@ -50,12 +50,15 @@ When adding content, identify which question it answers and place it in the matc
 existing file fits, create one. Cross-port material belongs in this project under one of its top-level
 folders:
 
-- [`cip-protocol/`](cip-protocol/) — **client-agnostic** CIP / EtherNet/IP background: wire formats,
+- [`protocol/`](protocol/) — **client-agnostic** CIP / EtherNet/IP background: wire formats,
   the object model, networking, per-family type differences. Nothing here is specific to this codebase.
+  Split by who defines the mechanism: `protocol/cip/` is the ODVA standard and never names a Rockwell
+  object; `protocol/allen-bradley-extension/` is what Rockwell adds, with the standard pieces it
+  reuses marked *(std)*.
 - [`libPlcTag/`](libPlcTag/) — **library-specific** behaviour of the `libplctag` dependency: what it
   does that the CIP spec does not dictate (request packing and its timing, connection sharing,
   concurrency and disposal quirks). Facts about the dependency, consumed by the client ADRs — one
-  layer above `cip-protocol/`, one below the decisions in `ADR/`.
+  layer above `protocol/`, one below the decisions in `ADR/`.
 - [`context/`](context/) — the test-device inventory and other material needed to run and understand
   the implementation.
 
@@ -76,7 +79,7 @@ cover only:
 - what is **specific to the Allen-Bradley implementation** — the CIP/EtherNet-IP client, tag vs.
   data-file addressing, the CIP data types and their wire layouts, symbol/UDT discovery, PCCC
   tunneling for the legacy families — and
-- the **context** required to understand it (the protocol and PLC background in `cip-protocol/`).
+- the **context** required to understand it (the protocol and PLC background in `protocol/`).
 
 If a sentence would be equally true of an OPC-UA or MQTT data-port, it almost certainly belongs in the
 extensions docs, not here.

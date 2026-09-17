@@ -4,13 +4,15 @@ Which data types exist on the controllers that address data by **numbered data f
 elements are laid out, and what these families do not have. **Client-agnostic** — this describes the
 controllers and the wire, not how any specific library handles them.
 
-Where the values overlap with CIP types — a 16-bit integer is a 16-bit integer — the encoding is in the
-[CIP Data Types Reference](cip-datatypes-reference.md) and is not repeated here. The counterpart for
-the tag-addressed families is [Symbolic Tag Data Types](symbolic-tag-data-types.md).
+PCCC is a **Rockwell protocol**, older than CIP, that Rockwell carries inside a CIP service; nothing
+in it is ODVA-defined. Where the values overlap with CIP types — a 16-bit integer is a 16-bit
+integer — the encoding is in the [CIP Data Types Reference](../cip/cip-datatypes-reference.md) and is
+not repeated here. The counterpart for the tag-addressed families is
+[Symbolic Tag Data Types](symbolic-tag-data-types.md).
 
 **Who addresses by file:** MicroLogix 1000/1100/1200/1400 and SLC 500 (RSLogix 500), and PLC-5
 (RSLogix 5). All three speak **PCCC**, tunneled inside EtherNet/IP where they have Ethernet at all —
-see [Legacy PCCC tunneling](cip-networking-overview.md#legacy-pccc-tunneling) and
+see [§6](#6-byte-order-and-transport) and
 [Controller families](controller-families-and-routing.md#the-lines).
 
 ---
@@ -166,10 +168,28 @@ Values in PCCC payloads are **little-endian**, like CIP — the `ST` character s
 endianness for the value.
 
 Access is by **typed read/write services** naming a file, element, and word count (the SLC protected
-typed logical read/write family). Over Ethernet these are carried by the PCCC object, class `0x67`,
-service `0x4B`; controllers without native Ethernet are reached through a bridge, and the route path
-hops through it. Both are covered in
-[Legacy PCCC tunneling](cip-networking-overview.md#legacy-pccc-tunneling) and
+typed logical read/write family).
+
+### The PCCC tunnel
+
+These controllers do not speak the CIP tag services of
+[symbolic-tag-data-types.md](symbolic-tag-data-types.md#7-how-logix-reads-and-writes-a-tag-on-the-wire).
+Their application layer is **PCCC** (Programmable Controller Communication Commands), the same
+command set used over DF1 serial links. Over EtherNet/IP, a PCCC command is tunneled inside an
+ordinary CIP explicit message *(std, see
+[the message-router format](../cip/cip-networking-overview.md#cip-message-router-requestreply-format))*:
+
+- Sent to the **PCCC object** — class **`0x67`**, in the vendor range, instance `1`
+  (path `20 67 24 01`).
+- Using the **Execute PCCC** service — **`0x4B`**, the first code of the object-class-specific range.
+- The service data carries a *requestor ID* header followed by the PCCC command bytes
+  (a **CMD**/**FNC** pair, e.g. CMD `0x0F` / FNC `0xA2` = "protected typed logical read", FNC
+  `0xAA`/`0xAB` = write), which address a data file by **file number, element, sub-element**
+  (`N7:0`, `T4:0.PRE`, …).
+
+Controllers without native Ethernet (older PLC-5, SLC 5/03·5/04, MicroLogix 1000/1200/1500) reach
+EtherNet/IP through a bridge — a 1756-ENxT + 1756-DHRIO ControlLogix gateway, or a 1761-NET-ENI
+serial converter — and the CIP route path hops through the bridge to the target node; see
 [Reaching a legacy controller through a bridge](controller-families-and-routing.md#reaching-a-legacy-controller-through-a-bridge).
 
 ---
@@ -198,7 +218,9 @@ hops through it. Both are covered in
 ### Related in-tree docs
 
 - [`symbolic-tag-data-types.md`](symbolic-tag-data-types.md) — the tag-addressed families
-- [`cip-datatypes-reference.md`](cip-datatypes-reference.md) — how each type is encoded on the wire
+- [`../cip/cip-datatypes-reference.md`](../cip/cip-datatypes-reference.md) — how each type is encoded
+  on the wire
 - [`controller-families-and-routing.md`](controller-families-and-routing.md) — which controller is
   which line, its programming tool, and its route path
-- [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, PCCC tunneling
+- [`../cip/cip-networking-overview.md`](../cip/cip-networking-overview.md) — the standard wire stack
+  and message format the tunnel rides on

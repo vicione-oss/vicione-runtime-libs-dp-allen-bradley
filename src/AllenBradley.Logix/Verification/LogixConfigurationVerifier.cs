@@ -47,9 +47,6 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                 new MismatchingConfiguration($"Tag '{dataPoint.TagAddress.Value}' was not found on the controller.")
             ];
         }
-
-        // The only place a configured type is read against the controller's declaration; the poll trusts
-        // the verdict (ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md).
         var mismatch = LogixTypeComparison.Compare(resolved);
 
         // A capacity or an element count is reported only for the shape that configures one, so the casts

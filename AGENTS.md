@@ -103,7 +103,7 @@ Comprehensive documentation ships inside the NuGet packages themselves.
 | Documentation index        | [docs/AllenBradley.Documentation/README.md](docs/AllenBradley.Documentation/README.md)                                       |
 | Documentation principles   | [docs/AllenBradley.Documentation/documentation-principles.md](docs/AllenBradley.Documentation/documentation-principles.md)   |
 | Modelling conventions      | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)         |
-| CIP protocol               | [docs/AllenBradley.Documentation/cip-protocol/README.md](docs/AllenBradley.Documentation/cip-protocol/README.md)             |
+| CIP protocol               | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)             |
 | Test device setup          | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) |
 | Logix addon                | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                           |
 | Legacy addon               | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                         |

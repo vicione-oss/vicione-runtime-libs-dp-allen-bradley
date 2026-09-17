@@ -23,7 +23,7 @@ a question with one legal answer, and an invitation to get it wrong.
 The **atomic type vocabulary** differs by generation. The 5X70 controllers and everything before them
 have `BOOL`, `SINT`, `INT`, `DINT`, `LINT` and `REAL`. The 5X80 controllers add the unsigned integers
 and `LREAL`. See
-[symbolic-tag-data-types.md §2](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md#2-what-logix-exposes).
+[symbolic-tag-data-types.md §2](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md#2-what-logix-exposes).
 Nothing stopped a 5X70 from being configured with a type it has not got, and the failure would have
 surfaced as a tag the controller could not resolve.
 
@@ -167,9 +167,9 @@ part number Rockwell ships. The catalog number is narrower than anything the add
 
 ## More Information
 
-- [`controller-families-and-routing.md`](../../AllenBradley.Documentation/cip-protocol/controller-families-and-routing.md)
+- [`controller-families-and-routing.md`](../../AllenBradley.Documentation/protocol/allen-bradley-extension/controller-families-and-routing.md)
   — the two form factors, the lines, and why a chassis controller's path is not guessable
-- [`symbolic-tag-data-types.md`](../../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+- [`symbolic-tag-data-types.md`](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md)
   — the two generations' type sets
 - [Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md)
   — why the family stays off `LogixClientInformation`

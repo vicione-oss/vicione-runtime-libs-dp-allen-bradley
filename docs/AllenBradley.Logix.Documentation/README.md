@@ -28,14 +28,14 @@ These pages cover only what the Logix port adds on top.
 ## New here?
 
 - **Protocol background** — start with the
-  [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/cip-protocol/cip-networking-overview.md)
+  [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/protocol/cip/cip-networking-overview.md)
   for the wire stack, session registration, the CIP object model and EPATH, and how a Logix tag read
   becomes a message-router request.
 - **Data types** —
-  [Symbolic tag data types](../AllenBradley.Documentation/cip-protocol/symbolic-tag-data-types.md)
+  [Symbolic tag data types](../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md)
   covers what Logix exposes, the `STRING`/`TIMER` structures, BOOL packing, and the symbol-type
   bitfield used when enumerating tags; the
-  [CIP data types reference](../AllenBradley.Documentation/cip-protocol/cip-datatypes-reference.md)
+  [CIP data types reference](../AllenBradley.Documentation/protocol/cip/cip-datatypes-reference.md)
   has the wire encoding of each type.
 - **Test devices** — a borrowed CompactLogix L32E, and our own CompactLogix 5069-L306ER once it is
   commissioned; see [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
