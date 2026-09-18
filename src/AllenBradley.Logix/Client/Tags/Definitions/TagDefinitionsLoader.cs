@@ -23,17 +23,15 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
     /// <inheritdoc />
     public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
     {
-        // The controller listing holds every controller-scoped tag, complete, plus one entry per program.
-        // A program's own tags are not in it: each program has a listing of its own.
         var controllerListing = await ReadListingAsync(ControllerListing, cancellationToken).ConfigureAwait(false);
 
+        // The controller listing names each program but holds none of its tags.
         var tags = new List<TagDefinition>(controllerListing);
         foreach (var program in controllerListing.Where(IsProgram))
         {
             tags.AddRange(await ReadProgramTagsAsync(program, cancellationToken).ConfigureAwait(false));
         }
 
-        // A listing names a structure only by its template id; the template itself is one more read.
         var templates = await ReadTemplatesAsync(tags, cancellationToken).ConfigureAwait(false);
 
         return new TagDefinitions(ByTagAddress(tags), templates);
@@ -42,7 +40,6 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
     private static bool IsProgram(TagDefinition entry) =>
         entry.TagAddress.Value.StartsWith(ProgramPrefix, StringComparison.Ordinal);
 
-    // A program tag is configured and looked up as Program:Main.Count, so that is the name it leaves with.
     private async Task<IEnumerable<TagDefinition>> ReadProgramTagsAsync(
         TagDefinition program, CancellationToken cancellationToken)
     {
@@ -53,17 +50,16 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
             tag with { TagAddress = new TagAddress($"{program.TagAddress.Value}.{tag.TagAddress.Value}") });
     }
 
-    // An entry without a name is a truncated final entry, not a tag.
     private async Task<IReadOnlyList<TagDefinition>> ReadListingAsync(
         TagAddress listingAddress, CancellationToken cancellationToken)
     {
         var listing = await ReadSchemaTagAsync(listingAddress, cancellationToken).ConfigureAwait(false);
 
-        return TagsDecoder.Decode(listing.Span).Where(entry => entry.TagAddress.Value.Length > 0).ToList();
+        return TagsDecoder.Decode(listing.Span).Where(IsNotTruncatedFinalEntry).ToList();
     }
 
-    // Logix resolves tag names case-insensitively, so the lookup does too; of two entries with one name,
-    // the first one listed is kept.
+    private static bool IsNotTruncatedFinalEntry(TagDefinition entry) => entry.TagAddress.Value.Length > 0;
+
     private static Dictionary<TagAddress, TagDefinition> ByTagAddress(IEnumerable<TagDefinition> tags)
     {
         var tagsByAddress = new Dictionary<TagAddress, TagDefinition>(TagAddress.CaseInsensitiveComparer);
@@ -88,9 +84,7 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
         return templatesById;
     }
 
-    // A member can be a structure itself, so its template is read as well. A template already read is
-    // skipped, which is what keeps a template two tags share at one read and a self-referencing one
-    // from recursing forever.
+    // The already-read check also stops a self-referencing template from recursing forever.
     private async Task ReadTemplateWithNestedTemplatesAsync(
         TemplateId templateId,
         Dictionary<TemplateId, TemplateDefinition> templatesById,
@@ -132,7 +126,6 @@ internal sealed class TagDefinitionsLoader(ILogixTagAccessFactory accessFactory)
         }
     }
 
-    // Every browse read is the same read of a schema tag; only the decoding of what comes back differs.
     private async Task<ReadOnlyMemory<byte>> ReadSchemaTagAsync(
         TagAddress schemaTagAddress, CancellationToken cancellationToken)
     {

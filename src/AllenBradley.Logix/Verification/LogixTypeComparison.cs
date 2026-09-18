@@ -20,7 +20,7 @@ internal static class LogixTypeComparison
             return LogixTypeMismatch.None;
         }
 
-        return resolved.DataPoint.TagPath.Element is { } index
+        return resolved.DataPoint.TagPath.ArrayElementIndex is { } index
             ? CompareElement(resolved.DataPoint, declaration, index)
             : CompareDeclaration(resolved.DataPoint, declaration);
     }

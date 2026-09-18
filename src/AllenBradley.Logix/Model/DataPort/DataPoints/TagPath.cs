@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
@@ -8,34 +9,42 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 /// <summary>
 /// Where a data point's value lives, in the parts Logix composes an address from: the program that
-/// scopes the tag, if any; the tag's declared name; and the element reached into, if any. The tree walk
-/// fills the three slots, and the address is rendered from them on demand (CONTEXT.md, "Tag path").
+/// scopes the tag, if any; the tag's declared name; the members reached through, if any; and the
+/// element reached into, if any. The first two say where the declaration is, the last two where inside
+/// it the value is. The tree walk fills the slots, and the address is rendered from them on demand
+/// (CONTEXT.md, "Tag path").
 /// </summary>
 /// <param name="Program">The program the tag is scoped to, or <c>null</c> for controller scope.</param>
 /// <param name="Tag">The tag's declared name — what the symbol table lists.</param>
-/// <param name="Element">The subscript, when the point is one element of an array.</param>
-public readonly partial record struct TagPath(ProgramName? Program, TagName Tag, ElementIndex? Element)
+/// <param name="UdtMemberPath">The members reached through, from the tag inwards, or <c>null</c> for a tag addressed whole.</param>
+/// <param name="ArrayElementIndex">The subscript, when the point is one element of an array.</param>
+public readonly partial record struct TagPath(
+    ProgramName? Program,
+    TagName Tag,
+    UdtMemberPath? UdtMemberPath,
+    ElementIndex? ArrayElementIndex)
 {
     private const string ProgramPrefix = "Program:";
 
-    /// <summary>The address libplctag is handed — <c>Program:MainProgram.Readings[3]</c>.</summary>
+    /// <summary>The address libplctag is handed — <c>Program:MainProgram.Motor.Readings[3]</c>.</summary>
     public TagAddress ToTagAddress()
     {
         var program = Program is { } name ? $"{ProgramPrefix}{name.Value}." : "";
-        var element = Element is { } index ? $"[{index.Value.ToString(CultureInfo.InvariantCulture)}]" : "";
-        return new TagAddress($"{program}{Tag.Value}{element}");
+        var members = UdtMemberPath is { } path ? $".{path}" : "";
+        var element = ArrayElementIndex is { } index ? $"[{index.Value.ToString(CultureInfo.InvariantCulture)}]" : "";
+        return new TagAddress($"{program}{Tag.Value}{members}{element}");
     }
 
     /// <summary>
-    /// The address the symbol table declares: the array for an element, because the listing names no
-    /// element; the tag's own address for anything else.
+    /// The address of the tag the symbol table lists: the program and the tag, without the members and
+    /// the element, because the listing names neither. Every lookup starts here, whatever lies inside.
     /// </summary>
-    public TagAddress TagDefinitionAddress => (this with { Element = null }).ToTagAddress();
+    public TagAddress TagDefinitionAddress => (this with { UdtMemberPath = null, ArrayElementIndex = null }).ToTagAddress();
 
     /// <summary>
-    /// Reads an address back into its parts — the inverse of <see cref="ToTagAddress"/>. The tag part
-    /// takes anything without brackets, so a member address such as <c>Motor.Speed</c> parses as a tag
-    /// named that; whether the name is one Studio 5000 declares is the node validator's question.
+    /// Reads an address back into its parts — the inverse of <see cref="ToTagAddress"/>. Each dotted part
+    /// behind the tag is a member; whether the tag has one is the symbol table's question, not the
+    /// parser's. An element is taken at the end only: <c>Motors[2].Speed</c> is not a path this port has.
     /// </summary>
     /// <exception cref="FormatException"><paramref name="address"/> is not a Logix tag address.</exception>
     public static TagPath Parse(string address)
@@ -49,6 +58,9 @@ public readonly partial record struct TagPath(ProgramName? Program, TagName Tag,
         return new TagPath(
             match.Groups["program"].Success ? new ProgramName(match.Groups["program"].Value) : null,
             new TagName(match.Groups["tag"].Value),
+            match.Groups["member"].Success
+                ? DataPoints.UdtMemberPath.Of([.. match.Groups["member"].Captures.Select(capture => new UdtMemberName(capture.Value))])
+                : null,
             match.Groups["index"].Success
                 ? new ElementIndex(uint.Parse(match.Groups["index"].Value, CultureInfo.InvariantCulture))
                 : null);
@@ -57,6 +69,6 @@ public readonly partial record struct TagPath(ProgramName? Program, TagName Tag,
     /// <summary>The address, so a path interpolates and logs as what it reaches.</summary>
     public override string ToString() => ToTagAddress().Value;
 
-    [GeneratedRegex(@"\A(?:Program:(?<program>[^.\[\]]+)\.)?(?<tag>[^\[\]]+)(?:\[(?<index>0|[1-9][0-9]*)\])?\z")]
+    [GeneratedRegex(@"\A(?:Program:(?<program>[^.\[\]]+)\.)?(?<tag>[^.\[\]]+)(?:\.(?<member>[^.\[\]]+))*(?:\[(?<index>0|[1-9][0-9]*)\])?\z")]
     private static partial Regex Address();
 }

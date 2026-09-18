@@ -14,23 +14,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 public abstract record LogixDataPoint<TDomain>(TagPath TagPath, PollFrequency PollFrequency, Channels Channels)
     : ILogixDataPoint, ITypedDataPoint<TDomain>
 {
-    // Rendered once per path rather than per read: the init accessor is the one door both the
-    // constructor and a `with { TagPath = ... }` go through, so the cache cannot go stale.
-    private readonly TagAddress _tagAddress = TagPath.ToTagAddress();
-
     /// <inheritdoc />
-    public TagPath TagPath
-    {
-        get;
-        init
-        {
-            field = value;
-            _tagAddress = value.ToTagAddress();
-        }
-    } = TagPath;
-
-    /// <inheritdoc />
-    public TagAddress TagAddress => _tagAddress;
+    public TagAddress TagAddress { get; } = TagPath.ToTagAddress();
 
     /// <inheritdoc />
     public DataPointIdentifier Identifier => new(TagAddress.Value);

@@ -34,7 +34,8 @@ public interface ILogixClient : ILogixReadClient, ILogixWriteClient, IDisposable
     /// <summary>
     /// Pairs every data point with what the controller's symbol table reports for its tag, in the order
     /// they were asked for. Resolves in memory against the browsed schema; a tag the controller does not
-    /// have gets a <c>null</c> <see cref="ResolvedDataPoint.TagDefinition"/> rather than being left out.
+    /// have comes back with where the lookup stopped, as its <see cref="ResolvedDataPoint.Declaration"/>, rather
+    /// than being left out.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// The client is not connected, so there is no symbol table to resolve against.

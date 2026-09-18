@@ -5,7 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 
 /// <summary>
 /// One data point and everything known about it: the configured <see cref="DataPoint"/>, the controller's
-/// <see cref="Metadata"/> for its tag, and the read/write handle. The batches, decode and verification
+/// <see cref="Metadata"/> for its path, and the read/write handle. The batches, decode and verification
 /// all project off this one object.
 /// </summary>
 internal interface ILogixTag : IDisposable
@@ -14,7 +14,7 @@ internal interface ILogixTag : IDisposable
     ILogixDataPoint DataPoint { get; init; }
 
     /// <summary>
-    /// What the controller's symbol table reports for the tag, or <c>null</c> when the tag is absent from
+    /// What the controller's symbol table reports for the path, or <c>null</c> when the path is absent from
     /// it — the "not on the controller" signal verification reports.
     /// </summary>
     TagDefinition? Metadata { get; init; }

@@ -1,5 +1,4 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions.Templates;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TemplateTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions.Templates;

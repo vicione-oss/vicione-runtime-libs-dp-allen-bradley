@@ -83,10 +83,9 @@ internal sealed class CachingLogixTagManager(
                 return cached;
             }
 
-            // The listing never names an element, so an element resolves to its array's declaration.
-            var metadata = schema.Lookup(dataPoint.TagPath.TagDefinitionAddress);
+            var declaration = schema.Lookup(dataPoint.TagPath);
             var access = factory.Create(dataPoint);
-            var tag = new LogixTag(dataPoint, metadata, access);
+            var tag = new LogixTag(dataPoint, declaration, access);
             _tagByDataPoint.Add(dataPoint, tag);
             return tag;
         }

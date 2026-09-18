@@ -15,4 +15,34 @@ public readonly record struct TemplateDefinition(
     TemplateName Name,
     StructureHandle Handle,
     StructureSize Size,
-    IReadOnlyList<TemplateMember> Members);
+    IReadOnlyList<TemplateMember> Members)
+{
+    private static readonly UdtMemberName StringDataMember = new("DATA");
+
+    /// <summary>
+    /// The member <paramref name="name"/> spells, matched the way the controller matches names —
+    /// ordinal, case-insensitive — or <c>null</c> when this structure has no such member.
+    /// </summary>
+    public TemplateMember? FindMember(UdtMemberName name)
+    {
+        foreach (var member in Members)
+        {
+            if (string.Equals(member.Name.Value, name.Value, StringComparison.OrdinalIgnoreCase))
+            {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The characters this structure holds when it is a string type — the <c>n</c> of its
+    /// <c>.DATA : SINT[n]</c> member — or <c>null</c> when it has no such member and is no string.
+    /// </summary>
+    public StringMaxLength? StringCapacity =>
+        FindMember(StringDataMember) is { DataType: var type, DimensionCount.IsScalar: false } data
+        && type == AllenBradleyDataType.Sint
+            ? new StringMaxLength((int)data.ElementCount.Value)
+            : null;
+}

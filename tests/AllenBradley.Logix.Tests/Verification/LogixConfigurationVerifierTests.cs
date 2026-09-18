@@ -117,7 +117,8 @@ public sealed class LogixConfigurationVerifierTests
             DimensionCount = DimensionCount.OneDimensional,
         };
         var resolved = new ResolvedDataPoint(
-            new BoolDataPoint(TagPath.Parse("Flags"), DefaultPollFrequency, NoChannels), declaration);
+            new BoolDataPoint(TagPath.Parse("Flags"), DefaultPollFrequency, NoChannels),
+            declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -157,7 +158,8 @@ public sealed class LogixConfigurationVerifierTests
     public void AnElementPastTheDeclaredCountSaysWhichIndexAndWhichCount()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[10]"), DefaultIntArrayTagDefinition());
+        var declaration = DefaultIntArrayTagDefinition() with { TagAddress = new TagAddress("Readings") };
+        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[10]"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -171,7 +173,8 @@ public sealed class LogixConfigurationVerifierTests
     public void AnElementOfATagDeclaredScalarSaysTheTagIsAScalar()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(IntPointNamed("Count[3]"), DefaultAtomicTagDefinition());
+        var declaration = DefaultAtomicTagDefinition() with { TagAddress = new TagAddress("Count") };
+        var resolved = new ResolvedDataPoint(IntPointNamed("Count[3]"), declaration);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);

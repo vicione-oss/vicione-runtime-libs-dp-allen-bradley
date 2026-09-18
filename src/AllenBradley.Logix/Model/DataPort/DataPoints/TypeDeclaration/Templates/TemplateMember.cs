@@ -18,7 +18,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// <param name="ElementCount">The number of elements: the declared length of an array member, or <c>1</c> for a scalar.</param>
 /// <param name="BitPosition">Which bit of the host byte at <paramref name="Offset"/> a <c>BOOL</c> member is; <c>null</c> for every other member.</param>
 public readonly record struct TemplateMember(
-    MemberName Name,
+    UdtMemberName Name,
     MemberOffset Offset,
     AllenBradleyDataType DataType,
     TemplateId? TemplateId,

@@ -205,10 +205,24 @@ instruction rather than the string in it)
 
 **Tag path**:
 The parts a tag address is composed from, held apart: the program that scopes the tag, if any; the
-tag's declared name; and the subscript, if the point is one element of an array. What a data point
-carries, filled in by the tree walk, and what the tag address is rendered from — one string for
-libplctag, and the declared tag's address for the symbol table.
+tag's declared name; the members reached through, if any; and the subscript, if the point is one
+element of an array. The first two say where the declaration is, the last two where inside it the
+value is. What a data point carries, filled in by the tree walk, and what the tag address is rendered
+from — one string for libplctag, and the declared tag's address for the symbol table.
 _Avoid_: tag address (the rendered string), symbol path
+
+**Member path**:
+The members part of a tag path on its own — `Ramp` then `Target` for `Motor.Ramp.Target` — in the order
+they are reached, from the tag inwards. A tag addressed whole has none, the way it has no subscript.
+_Avoid_: member name (one member), dotted name (the rendered text)
+
+**Container path**:
+The containers the tree walk has passed through on its way down to a data point node, each as the
+segment it contributes — a program, a UDT, an array container, a subscript. The walk appends what each
+node is; which name is the tag and which are members is decided when the path is read back into a tag
+path. Lives in the mapper only: no data point carries one.
+_Avoid_: symbolic path (the CIP address segment in the protocol pages, which is not this), tag path (the four
+parts, what the data point carries), node path
 
 **Scope**:
 Which part of a controller a tag is visible in — controller scope or program scope. Scope is part

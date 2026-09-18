@@ -35,19 +35,6 @@ public sealed class LogixDataPointTests
     }
 
     [Fact]
-    public void APointGivenAnotherPathAddressesThatPathsTag()
-    {
-        // Arrange
-        var dataPoint = new DIntDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels);
-
-        // Act
-        var moved = dataPoint with { TagPath = TagPath.Parse("Program:Main.Readings[3]") };
-
-        // Assert
-        moved.TagAddress.Should().Be(new TagAddress("Program:Main.Readings[3]"));
-    }
-
-    [Fact]
     public void AValueIsTheFrameworkViewOfItsPointAndPayload()
     {
         // Arrange

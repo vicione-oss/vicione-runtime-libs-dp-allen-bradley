@@ -23,8 +23,8 @@ These pages cover only what the Logix port adds on top.
 > knows, and `TagNamePropertyValidator` accepts nothing more elaborate: no dotted structure members.
 > Two container nodes compose an address from more than one node instead: an element node under an
 > array container carries the subscript, `[3]`, and a member node under a UDT container carries the
-> member name. The UDT container is not walked into data points yet. What that rules out,
-> and why it is a validation rule rather than a parser, is in
+> member name, and the lookup verifies the member against the tag's template at connect. What that
+> rules out, and why it is a validation rule rather than a parser, is in
 > [`reference/datatype-support.md`](reference/datatype-support.md).
 
 ## New here?

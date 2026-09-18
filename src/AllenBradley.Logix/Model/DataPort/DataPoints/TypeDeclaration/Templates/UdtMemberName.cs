@@ -6,4 +6,4 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// packs a structure's <c>BOOL</c>s into, which Studio 5000 never shows.
 /// </summary>
 /// <param name="Value">The name text.</param>
-public readonly record struct MemberName(string Value);
+public readonly record struct UdtMemberName(string Value);

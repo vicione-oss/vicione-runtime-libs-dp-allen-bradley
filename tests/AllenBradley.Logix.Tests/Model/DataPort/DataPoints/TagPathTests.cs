@@ -1,5 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
@@ -7,14 +8,20 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.DataPoi
 
 public sealed class TagPathTests
 {
-    private static readonly TagPath ThirdReadingInMain =
-        new(new ProgramName("Main"), new TagName("Readings"), new ElementIndex(3));
+    private static readonly TagPath MyValuesAtIndexThree =
+        new(new ProgramName("Main"), new TagName("MyValues"), UdtMemberPath: null, new ElementIndex(3));
+
+    private static readonly TagPath RampTargetOfMotorInMain = new(
+        new ProgramName("Main"),
+        new TagName("Motor"),
+        UdtMemberPath.Of(new UdtMemberName("Ramp"), new UdtMemberName("Target")),
+        ArrayElementIndex: null);
 
     [Fact]
     public void AControllerScopedTagAddressesItselfByName()
     {
         // Arrange
-        var path = new TagPath(Program: null, new TagName("Count"), Element: null);
+        var path = new TagPath(Program: null, new TagName("Count"), UdtMemberPath: null, ArrayElementIndex: null);
 
         // Act
         var tagAddress = path.ToTagAddress();
@@ -29,10 +36,22 @@ public sealed class TagPathTests
         // Arrange
 
         // Act
-        var tagAddress = ThirdReadingInMain.ToTagAddress();
+        var tagAddress = MyValuesAtIndexThree.ToTagAddress();
 
         // Assert
-        tagAddress.Should().Be(new TagAddress("Program:Main.Readings[3]"));
+        tagAddress.Should().Be(new TagAddress("Program:Main.MyValues[3]"));
+    }
+
+    [Fact]
+    public void AMemberAddressesItselfBehindEveryMemberAboveIt()
+    {
+        // Arrange
+
+        // Act
+        var tagAddress = RampTargetOfMotorInMain.ToTagAddress();
+
+        // Assert
+        tagAddress.Should().Be(new TagAddress("Program:Main.Motor.Ramp.Target"));
     }
 
     [Fact]
@@ -41,17 +60,17 @@ public sealed class TagPathTests
         // Arrange
 
         // Act
-        var declaredTagAddress = ThirdReadingInMain.TagDefinitionAddress;
+        var declaredTagAddress = MyValuesAtIndexThree.TagDefinitionAddress;
 
         // Assert
-        declaredTagAddress.Should().Be(new TagAddress("Program:Main.Readings"));
+        declaredTagAddress.Should().Be(new TagAddress("Program:Main.MyValues"));
     }
 
     [Fact]
     public void ATagThatIsNoElementIsDeclaredAsItself()
     {
         // Arrange
-        var path = ThirdReadingInMain with { Element = null };
+        var path = MyValuesAtIndexThree with { ArrayElementIndex = null };
 
         // Act
         var declaredTagAddress = path.TagDefinitionAddress;
@@ -60,12 +79,26 @@ public sealed class TagPathTests
         declaredTagAddress.Should().Be(path.ToTagAddress());
     }
 
+    [Fact]
+    public void AMemberIsDeclaredAsItsTag()
+    {
+        // Arrange
+
+        // Act
+        var declaredTagAddress = RampTargetOfMotorInMain.TagDefinitionAddress;
+
+        // Assert
+        declaredTagAddress.Should().Be(new TagAddress("Program:Main.Motor"));
+    }
+
     [Theory]
     [InlineData("Count")]
     [InlineData("Program:Main.Count")]
-    [InlineData("Readings[3]")]
-    [InlineData("Program:Main.Readings[3]")]
+    [InlineData("MyValues[3]")]
+    [InlineData("Program:Main.MyValues[3]")]
     [InlineData("Motor.Speed")]
+    [InlineData("Program:Main.Motor.Ramp.Target")]
+    [InlineData("Motor.MyValues[3]")]
     public void AnAddressParsesBackIntoThePathThatRendersIt(string address)
     {
         // Arrange
@@ -78,24 +111,50 @@ public sealed class TagPathTests
     }
 
     [Fact]
-    public void ParsingFillsEveryPart()
+    public void ParsingFillsEveryPartOfAnElementAddress()
     {
         // Arrange
 
         // Act
-        var path = TagPath.Parse("Program:Main.Readings[3]");
+        var path = TagPath.Parse("Program:Main.MyValues[3]");
 
         // Assert
-        path.Should().Be(ThirdReadingInMain);
+        path.Should().Be(MyValuesAtIndexThree);
+    }
+
+    [Fact]
+    public void ParsingSplitsADottedAddressIntoTheTagAndItsMembers()
+    {
+        // Arrange
+
+        // Act
+        var path = TagPath.Parse("Program:Main.Motor.Ramp.Target");
+
+        // Assert
+        path.Should().Be(RampTargetOfMotorInMain);
+    }
+
+    [Fact]
+    public void TwoPathsToTheSameMemberAreEqual()
+    {
+        // Arrange
+        var parsed = TagPath.Parse("Program:Main.Motor.Ramp.Target");
+
+        // Act
+        var equal = parsed == RampTargetOfMotorInMain;
+
+        // Assert
+        equal.Should().BeTrue();
     }
 
     [Theory]
-    [InlineData("Readings[05]", "a leading zero")]
-    [InlineData("Readings[-1]", "a negative index")]
-    [InlineData("Readings[1,2]", "two dimensions")]
-    [InlineData("Readings[5].Value", "a member behind the subscript")]
+    [InlineData("MyValues[05]", "a leading zero")]
+    [InlineData("MyValues[-1]", "a negative index")]
+    [InlineData("MyValues[1,2]", "two dimensions")]
+    [InlineData("MyValues[5].Value", "a member behind the subscript")]
+    [InlineData("Motor..Speed", "an empty member")]
     [InlineData("", "nothing")]
-    public void AnAddressThatIsNotATagOrOneElementOfOneIsRefused(string address, string because)
+    public void AnAddressThatIsNotATagAMemberOrOneElementIsRefused(string address, string because)
     {
         // Arrange
 

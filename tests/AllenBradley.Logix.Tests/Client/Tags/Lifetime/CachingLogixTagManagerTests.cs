@@ -1,4 +1,3 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using System.Collections.Immutable;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -9,6 +8,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
@@ -19,8 +19,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 // ReSharper disable AccessToDisposedClosure
 public sealed class CachingLogixTagManagerTests
 {
-    private static readonly TagAddress SpeedTagAddress = new("Motor.Speed");
-    private static readonly TagAddress LevelTagAddress = new("Tank.Level");
+    private static readonly TagAddress SpeedTagAddress = new("Speed");
+    private static readonly TagAddress LevelTagAddress = new("Level");
     private static readonly TagAddress GhostTagAddress = new("Ghost");
 
     private static readonly TagDefinition SpeedDefinition =

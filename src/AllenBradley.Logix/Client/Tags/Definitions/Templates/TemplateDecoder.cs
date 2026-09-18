@@ -74,7 +74,7 @@ internal static class TemplateDecoder
         var isScalarBool = !isStruct && dimensionCount == 0 && dataType == AllenBradleyDataType.Bool;
 
         return new TemplateMember(
-            Name: new MemberName(name),
+            Name: new UdtMemberName(name),
             Offset: new MemberOffset(descriptor.Offset),
             DataType: dataType,
             TemplateId: SymbolType.TemplateId(symbolType),

@@ -6,10 +6,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
@@ -23,7 +23,7 @@ public sealed class LogixDataPointsGroupMapperTests
     private readonly LogixDataPointsGroupsMapper _mapper = new();
 
     [Fact]
-    public void AConfiguredTagBecomesAPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void ADIntTagBecomesADIntPoint()
     {
         // Arrange
         var counter = DefaultDIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -38,7 +38,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void ATagInControllerScopeAddressesItselfWithoutAPrefix()
+    public void AControllerTagIsAddressedByItsName()
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(DefaultDIntNode);
@@ -51,7 +51,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void ATagInAProgramAddressesItselfBehindItsProgram()
+    public void AProgramTagIsAddressedBehindItsProgram()
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInProgramScope(DefaultDIntNode);
@@ -65,7 +65,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredIntTagBecomesAnIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void AnIntTagBecomesAnIntPoint()
     {
         // Arrange
         var setpoint = DefaultIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -80,7 +80,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredSIntTagBecomesASIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void ASIntTagBecomesASIntPoint()
     {
         // Arrange
         var level = DefaultSIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -95,7 +95,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredLIntTagBecomesALIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void ALIntTagBecomesALIntPoint()
     {
         // Arrange
         var ticks = DefaultLIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -110,7 +110,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredUSIntTagBecomesAUSIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void AUSIntTagBecomesAUSIntPoint()
     {
         // Arrange
         var pressure = DefaultUSIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -125,7 +125,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredUIntTagBecomesAUIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void AUIntTagBecomesAUIntPoint()
     {
         // Arrange
         var revolutions = DefaultUIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -141,7 +141,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredUDIntTagBecomesAUDIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void AUDIntTagBecomesAUDIntPoint()
     {
         // Arrange
         var runtime = DefaultUDIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -156,7 +156,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredULIntTagBecomesAULIntPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void AULIntTagBecomesAULIntPoint()
     {
         // Arrange
         var cycles = DefaultULIntNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -171,7 +171,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredRealTagBecomesARealPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void ARealTagBecomesARealPoint()
     {
         // Arrange
         var flowRate = DefaultRealNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -186,7 +186,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredBoolTagBecomesABoolPointCarryingItsTagNamePollFrequencyAndChannels()
+    public void ABoolTagBecomesABoolPoint()
     {
         // Arrange
         var running = DefaultBoolNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
@@ -201,7 +201,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredStringTagBecomesAPointCarryingTheCapacityItWasDeclaredWith()
+    public void AStringPointKeepsTheDeclaredMaxLength()
     {
         // Arrange
         var label = DefaultStringNode with
@@ -221,7 +221,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredIntArrayTagBecomesAPointCarryingTheCountItWasDeclaredWith()
+    public void AnArrayPointKeepsTheDeclaredElementCount()
     {
         // Arrange
         var readings = DefaultIntArrayDataPointNode with
@@ -241,7 +241,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void EachTagBecomesThePointItsOwnTypeMapsTo()
+    public void EachTagBecomesThePointOfItsType()
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
@@ -273,7 +273,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void EveryConfiguredTagBecomesOnePointOfItsOwn()
+    public void EachTagBecomesOnePoint()
     {
         // Arrange
         var deviceNode = DeviceNodeHoldingInControllerScope(
@@ -290,7 +290,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AnElementUnderAnArrayContainerAddressesItsElementBehindTheArrayAndItsProgram()
+    public void AnArrayElementIsAddressedBehindItsArrayAndProgram()
     {
         // Arrange
         var readings = DefaultIntArrayContainerNode;
@@ -307,7 +307,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void OneArrayContainerHoldsSeveralElementsOfItsArray()
+    public void AnArrayContainerCanHoldSeveralElements()
     {
         // Arrange
         var readings = DefaultIntArrayContainerNode;
@@ -326,7 +326,29 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AControllerWithNoTagsConfiguredHasNoPoints()
+    public void AScopeGivesThePointsOfItsTagsAndItsContainers()
+    {
+        // Arrange
+        var readings = DefaultIntArrayContainerNode;
+        readings.DataPointNodes.Add(DefaultIntNode with { TagName = new TagName("[3]") });
+        var motor = DefaultUdtContainerNode;
+        motor.DataPointNodes.Add(DefaultIntNode with { TagName = new TagName("Speed") });
+        var scope = DefaultControllerTagsNode;
+        scope.DataPointNodes.Add(DefaultIntNode);
+        scope.ConfigurationNodes.AddRange([readings, motor]);
+        var deviceNode = DefaultDeviceNode;
+        deviceNode.ConfigurationNodes.Add(scope);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        dataPoints.Select(static dataPoint => dataPoint.TagAddress.Value).Should().BeEquivalentTo(
+            DefaultIntTagName.Value, $"{DefaultIntArrayTagName.Value}[3]", $"{DefaultUdtTagName.Value}.Speed");
+    }
+
+    [Fact]
+    public void AControllerWithoutTagsHasNoPoints()
     {
         // Arrange
         var deviceNode = DefaultDeviceNode;
@@ -339,7 +361,7 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AGroupHoldsThePointsAtTheFrequencyItWasGiven()
+    public void AGroupHoldsItsPointsAndItsPollFrequency()
     {
         // Arrange
         var pollFrequency = PollFrequency.FromMilliseconds(250);
@@ -357,18 +379,81 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void AConfiguredUdtIsRefusedRatherThanLeftOutOfThePoll()
+    public void AUdtMemberIsAddressedBehindItsTagAndProgram()
     {
         // Arrange
-        var structure = DefaultUdtContainerNode;
-        structure.DataPointNodes.Add(DefaultIntNode);
-        var deviceNode = DeviceNodeHoldingInProgramScope(structure);
+        var motor = DefaultUdtContainerNode;
+        var speed = DefaultIntNode with { TagName = new TagName("Speed") };
+        motor.DataPointNodes.Add(speed);
+        var deviceNode = DeviceNodeHoldingInProgramScope(motor);
 
         // Act
-        var mapping = _mapper.Invoking(mapper => mapper.ToDataPoints(deviceNode));
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
 
         // Assert
-        mapping.Should().Throw<NotSupportedException>();
+        var expected = new TagAddress($"Program:{DefaultProgramName.Value}.{DefaultUdtTagName.Value}.Speed");
+        dataPoints.Should().ContainSingle().Which.TagAddress.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AUdtMemberKeepsTagNameAndMemberNameApart()
+    {
+        // Arrange
+        var motor = DefaultUdtContainerNode;
+        var speed = DefaultIntNode with { TagName = new TagName("Speed") };
+        motor.DataPointNodes.Add(speed);
+        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TagPath(
+            Program: null, DefaultUdtTagName, UdtMemberPath.Of(new UdtMemberName("Speed")), ArrayElementIndex: null);
+        dataPoints.Should().ContainSingle().Which.TagPath.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ANestedUdtMemberIsAddressedThroughEveryContainerAboveIt()
+    {
+        // Arrange
+        var motor = DefaultUdtContainerNode;
+        var ramp = DefaultUdtContainerNode with { TagName = new TagName("Ramp") };
+        var target = DefaultRealNode with { TagName = new TagName("Target") };
+        ramp.DataPointNodes.Add(target);
+        motor.ConfigurationNodes.Add(ramp);
+        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        dataPoints.Should().ContainSingle().Which.TagAddress.Should().Be(new TagAddress("Motor.Ramp.Target"));
+    }
+
+    [Fact]
+    public void EachUdtMemberBecomesThePointOfItsType()
+    {
+        // Arrange
+        var motor = DefaultUdtContainerNode;
+        motor.DataPointNodes.AddRange(
+        [
+            DefaultIntNode with { TagName = new TagName("Speed") },
+            DefaultRealNode with { TagName = new TagName("Temperature") },
+            DefaultStringNode with { TagName = new TagName("Label") },
+            DefaultIntArrayDataPointNode with { TagName = new TagName("Readings") },
+        ]);
+        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        dataPoints.Should().SatisfyRespectively(
+            static dataPoint => dataPoint.Should().BeOfType<IntDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<RealDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<StringDataPoint>(),
+            static dataPoint => dataPoint.Should().BeOfType<IntArrayDataPoint>());
     }
 
     private static DeviceNode DeviceNodeHoldingInControllerScope(params IDataPointNode[] dataPointNodes) =>
@@ -377,12 +462,17 @@ public sealed class LogixDataPointsGroupMapperTests
     private static DeviceNode DeviceNodeHoldingInProgramScope(params IDataPointNode[] dataPointNodes) =>
         DeviceNodeHolding(DefaultProgramTagsNode, dataPointNodes);
 
-    private static DeviceNode DeviceNodeHoldingInProgramScope(ILogixContainerNode childContainer)
+    private static DeviceNode DeviceNodeHoldingInProgramScope(ILogixContainerNode childContainer) =>
+        DeviceNodeHolding(DefaultProgramTagsNode, childContainer);
+
+    private static DeviceNode DeviceNodeHoldingInControllerScope(ILogixContainerNode childContainer) =>
+        DeviceNodeHolding(DefaultControllerTagsNode, childContainer);
+
+    private static DeviceNode DeviceNodeHolding(ILogixContainerNode tagScope, ILogixContainerNode childContainer)
     {
         var deviceNode = DefaultDeviceNode;
-        var programScope = DefaultProgramTagsNode;
-        deviceNode.ConfigurationNodes.Add(programScope);
-        programScope.ConfigurationNodes.Add(childContainer);
+        deviceNode.ConfigurationNodes.Add(tagScope);
+        tagScope.ConfigurationNodes.Add(childContainer);
 
         return deviceNode;
     }

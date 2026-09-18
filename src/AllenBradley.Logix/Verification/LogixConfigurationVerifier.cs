@@ -84,14 +84,14 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
             LogixTypeMismatch.ElementIndexOutOfRange =>
             [
                 new MismatchingConfiguration(
-                    $"Element index {Describe(dataPoint.TagPath.Element)} is out of range for tag " +
-                    $"'{dataPoint.TagPath.TagDefinitionAddress.Value}', which the controller declares with " +
+                    $"Element index {Describe(dataPoint.TagPath.ArrayElementIndex)} is out of range for tag " +
+                    $"'{device.TagAddress.Value}', which the controller declares with " +
                     $"{Describe(device.ElementCount)} elements."),
             ],
             LogixTypeMismatch.ElementOfScalar =>
             [
                 new MismatchingConfiguration(
-                    $"Tag '{dataPoint.TagPath.TagDefinitionAddress.Value}' is a scalar on the controller, " +
+                    $"Tag '{device.TagAddress.Value}' is a scalar on the controller, " +
                     "but an element of it is configured."),
             ],
             _ => throw new ArgumentOutOfRangeException(

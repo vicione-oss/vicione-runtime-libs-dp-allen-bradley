@@ -1,8 +1,7 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions.Templates;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TemplateTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Definitions.Templates;
@@ -212,7 +211,7 @@ public sealed class TemplateDecoderTests
 
     private static TemplateMember AtomicScalar(string name, AllenBradleyDataType dataType, uint offset) =>
         new(
-            new MemberName(name),
+            new UdtMemberName(name),
             new MemberOffset(offset),
             dataType,
             TemplateId: null,

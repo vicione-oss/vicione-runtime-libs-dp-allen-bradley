@@ -7,10 +7,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Booleans.BoolArray;
@@ -39,7 +35,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.S
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.Mapping;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 
@@ -51,17 +46,14 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     DeviceNode, LogixCommunication>
 {
     /// <summary>
-    /// The tree is three levels deep and no deeper: a scope container under the device, an array
-    /// container under a scope, and tag nodes under either. The walk names each level, and composes
-    /// the <see cref="TagPath"/> where the parts are in scope.
+    /// Walks every container under the device, appending the segment each one contributes to a
+    /// <see cref="ContainerPath"/>, and turns each data point node met on the way into the point at
+    /// the path the walk has reached.
     /// </summary>
     public IReadOnlyList<ILogixDataPoint> ToDataPoints(DeviceNode deviceNode) =>
     [
         .. from scope in deviceNode.ConfigurationNodes.OfType<ILogixContainerNode>()
-        let program = ProgramOf(scope)
-        from dataPoint in ScopedTags(program, scope)
-            .Concat(ArrayElements(program, scope))
-            .Concat(UdtMembers(scope))
+        from dataPoint in DataPointsUnder(scope, ContainerPath.Root)
         select dataPoint,
     ];
 
@@ -69,37 +61,25 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
     public LogixDataPointGroup CreateGroup(PollFrequency pollFrequency, IReadOnlyList<ILogixDataPoint> dataPoints) =>
         new(pollFrequency, dataPoints);
 
-    private static ProgramName? ProgramOf(ILogixContainerNode scope) => scope switch
+    private static IEnumerable<ILogixDataPoint> DataPointsUnder(ILogixContainerNode container, ContainerPath parentPath)
     {
-        ProgramTagsNode program => program.ProgramName,
-        ControllerTagsNode => null,
-        _ => throw new NotSupportedException($"'{scope.GetType().Name}' is no tag scope."),
-    };
+        var currentPath = parentPath.Append(container);
 
-    private static IEnumerable<ILogixDataPoint> ScopedTags(ProgramName? program, ILogixContainerNode scope) =>
-        from tagNode in scope.DataPointNodes.OfType<ILogixDataPointNode>()
-        select ToDataPoint(new TagPath(program, tagNode.TagName, Element: null), tagNode);
+        var ownDataPoints = container.DataPointNodes
+            .OfType<ILogixDataPointNode>()
+            .Select(dataPointNode => ToDataPoint(container, currentPath, dataPointNode));
 
-    // Under an array container a node's tag name is the subscript, and the array's name is the tag.
-    private static IEnumerable<ILogixDataPoint> ArrayElements(ProgramName? program, ILogixContainerNode scope) =>
-        from array in scope.ConfigurationNodes.OfType<ArrayContainerNode>()
-        from elementNode in array.DataPointNodes.OfType<ILogixDataPointNode>()
-        select ToDataPoint(new TagPath(program, array.TagName, elementNode.TagName.ToElementIndex()), elementNode);
+        var nestedDataPoints = container.ConfigurationNodes
+            .OfType<ILogixContainerNode>()
+            .SelectMany(nested => DataPointsUnder(nested, currentPath));
 
-    // A UDT's members need a member path the data point does not carry yet, so a configured UDT is
-    // refused here rather than silently left out of the poll.
-    private static IEnumerable<ILogixDataPoint> UdtMembers(ILogixContainerNode scope)
-    {
-        var udt = scope.ConfigurationNodes.OfType<UdtContainerNode>().FirstOrDefault();
-
-        return udt is null
-            ? []
-            : throw new NotSupportedException(
-                $"The UDT '{udt.TagName.Value}' cannot be mapped to data points: UDT members are not supported yet.");
+        return ownDataPoints.Concat(nestedDataPoints);
     }
 
-    private static ILogixDataPoint ToDataPoint(TagPath tagPath, ILogixDataPointNode dataPointNode)
+    private static ILogixDataPoint ToDataPoint(ILogixContainerNode container, ContainerPath parentPath, ILogixDataPointNode dataPointNode)
     {
+        var currentPath = parentPath.Append(dataPointNode, container);
+        var tagPath = currentPath.ToTagPath();
         var pollFrequency = dataPointNode.PollFrequency;
         var channels = dataPointNode.Channels;
 
