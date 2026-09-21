@@ -35,9 +35,9 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity);
+        var expectedDeclaredType = ExpectedDeclaredTypes.StringScalar(dataPoint, TagAddresses.StringCapacity);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(expectedValue));
 
         roundTripResult.Should().Be(expectedResult);
@@ -54,9 +54,9 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.StringScalar(TagAddresses.String, TagAddresses.StringCapacity);
+        var expectedDeclaredType = ExpectedDeclaredTypes.StringScalar(dataPoint, TagAddresses.StringCapacity);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);

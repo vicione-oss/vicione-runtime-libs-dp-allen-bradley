@@ -25,16 +25,16 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
-    public ILogixTagAccess Create(ILogixDataPoint dataPoint) => CreateSynchronizedLogixTagFrom(CreateTagFor(dataPoint));
+    public ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint) => CreateSynchronizedLogixTagFrom(CreateTagForDataPoint(dataPoint));
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateForSchemaTag(TagAddress tagAddress) => CreateSynchronizedLogixTagFrom(CreateTag(tagAddress));
+    public ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress) => CreateSynchronizedLogixTagFrom(CreateTagForAddress(tagAddress));
 
     // Internal rather than private because nothing above the factory exposes a handle's attributes, and
     // the element count is the difference between reading an array and reading its first element.
-    internal Tag CreateTagFor(ILogixDataPoint dataPoint)
+    internal Tag CreateTagForDataPoint(ILogixDataPoint dataPoint)
     {
-        var tag = CreateTag(dataPoint.TagAddress);
+        var tag = CreateTagForAddress(dataPoint.TagAddress);
         tag.ElementCount = (int)GetElementCount(dataPoint).Value;
         return tag;
     }
@@ -53,7 +53,7 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
 
     // A schema name needs no special binding: libplctag resolves @tags and @udt/<id> itself, so the
     // attribute string is the same either way.
-    internal Tag CreateTag(TagAddress tagAddress) =>
+    internal Tag CreateTagForAddress(TagAddress tagAddress) =>
         new()
         {
             Gateway = _gateway,

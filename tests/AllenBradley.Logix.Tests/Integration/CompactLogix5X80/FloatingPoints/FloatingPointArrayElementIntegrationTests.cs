@@ -42,7 +42,7 @@ public sealed class FloatingPointArrayElementIntegrationTests(ITestOutputHelper 
         NoChannels);
 
     [Fact]
-    public async Task ARealArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task ARealArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -50,10 +50,9 @@ public sealed class FloatingPointArrayElementIntegrationTests(ITestOutputHelper 
         var roundTripResult = await RoundTripAsync(RealElement, RealElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.RealArray, AllenBradleyDataType.Real, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(RealElement, AllenBradleyDataType.Real);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(RealElement, expectedDefinition),
+            new ResolvedDataPoint(RealElement, expectedDeclaredType),
             RealElement.CreateLogixValue(RealElementValue));
 
         roundTripResult.Should().Be(expected);
@@ -74,7 +73,7 @@ public sealed class FloatingPointArrayElementIntegrationTests(ITestOutputHelper 
     }
 
     [Fact]
-    public async Task AnLRealArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task AnLRealArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -82,10 +81,9 @@ public sealed class FloatingPointArrayElementIntegrationTests(ITestOutputHelper 
         var roundTripResult = await RoundTripAsync(LRealElement, LRealElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.LRealArray, AllenBradleyDataType.Lreal, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(LRealElement, AllenBradleyDataType.Lreal);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(LRealElement, expectedDefinition),
+            new ResolvedDataPoint(LRealElement, expectedDeclaredType),
             LRealElement.CreateLogixValue(LRealElementValue));
 
         roundTripResult.Should().Be(expected);

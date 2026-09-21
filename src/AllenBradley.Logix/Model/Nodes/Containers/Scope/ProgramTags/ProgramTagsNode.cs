@@ -67,7 +67,7 @@ internal sealed record ProgramTagsNode(
     /// <summary>
     /// An array container of a type this controller's generation has, or a UDT container of this
     /// controller's generation, and nothing else. No program nests inside a program: Studio 5000 v32 and later let programs nest, but whether the resulting tags
-    /// address as <c>Program:Parent.Child.Tag</c> is unconfirmed against hardware.
+    /// address as <c>Program:Parent.Child.RootTagName</c> is unconfirmed against hardware.
     /// </summary>
     public bool CanBeAdded(IConfigurationNode configurationNode) => configurationNode switch
     {

@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// access the factory built, with every read and write delegated to that access — still a
 /// <see cref="SynchronizedLogixTagAccess"/>, so its gating is preserved.
 /// </summary>
-internal sealed record LogixTag(ILogixDataPoint DataPoint, TagDefinition? Metadata, ILogixTagAccess Access)
+internal sealed record LogixTag(ILogixDataPoint DataPoint, DeclaredType? DeclaredType, ILogixTagAccess Access)
     : ILogixTag
 {
     /// <inheritdoc />

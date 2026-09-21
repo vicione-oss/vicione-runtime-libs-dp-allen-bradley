@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 
@@ -10,9 +9,6 @@ public readonly partial record struct TagName(string Value)
 {
     /// <summary>This name as a controller-scoped tag's path.</summary>
     internal TagPath ToTagPath() => new(Program: null, this, UdtMemberPath: null, ArrayElementIndex: null);
-
-    /// <summary>This name as the member it names under a UDT container.</summary>
-    internal UdtMemberName ToMemberName() => new(Value);
 
     /// <summary>
     /// Whether <paramref name="name"/> is one Studio 5000 could have declared: 1 to 40 characters,

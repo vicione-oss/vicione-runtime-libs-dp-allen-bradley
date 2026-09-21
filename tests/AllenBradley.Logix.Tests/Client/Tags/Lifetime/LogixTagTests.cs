@@ -6,7 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
@@ -14,8 +14,7 @@ public sealed class LogixTagTests
 {
     private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
 
-    private static readonly TagDefinition SpeedDefinition =
-        DefaultAtomicTagDefinition() with { TagAddress = Speed.TagAddress };
+    private static readonly DeclaredType SpeedDeclaredType = DefaultAtomicDeclaredType();
 
     private readonly ILogixTagAccess _handle = Substitute.For<ILogixTagAccess>();
 
@@ -25,23 +24,23 @@ public sealed class LogixTagTests
         // Arrange
 
         // Act
-        using var tag = new LogixTag(Speed, SpeedDefinition, _handle);
+        using var tag = new LogixTag(Speed, SpeedDeclaredType, _handle);
 
         // Assert
         tag.DataPoint.Should().Be(Speed);
-        tag.Metadata.Should().Be(SpeedDefinition);
+        tag.DeclaredType.Should().Be(SpeedDeclaredType);
     }
 
     [Fact]
-    public void ATagAbsentFromTheControllerCarriesNoDefinition()
+    public void ATagAbsentFromTheControllerCarriesNoDeclaredType()
     {
         // Arrange
 
         // Act
-        using var tag = new LogixTag(Speed, Metadata: null, _handle);
+        using var tag = new LogixTag(Speed, DeclaredType: null, _handle);
 
         // Assert
-        tag.Metadata.Should().BeNull();
+        tag.DeclaredType.Should().BeNull();
     }
 
     [Fact]
@@ -49,7 +48,7 @@ public sealed class LogixTagTests
     {
         // Arrange
         _handle.ReadAsync(Arg.Any<CancellationToken>()).Returns(LogixTagReadResult.Ok(new byte[] { 42, 0, 0, 0 }));
-        using var tag = new LogixTag(Speed, SpeedDefinition, _handle);
+        using var tag = new LogixTag(Speed, SpeedDeclaredType, _handle);
 
         // Act
         var read = await tag.ReadAsync(CancellationToken.None);
@@ -62,7 +61,7 @@ public sealed class LogixTagTests
     public async Task AWriteHandsTheHandleTheBufferItWasGiven()
     {
         // Arrange
-        using var tag = new LogixTag(Speed, SpeedDefinition, _handle);
+        using var tag = new LogixTag(Speed, SpeedDeclaredType, _handle);
 
         // Act
         await tag.WriteAsync([1, 2, 3, 4], CancellationToken.None);
@@ -77,7 +76,7 @@ public sealed class LogixTagTests
     public void DisposingATagFreesTheHandleItWraps()
     {
         // Arrange
-        var tag = new LogixTag(Speed, SpeedDefinition, _handle);
+        var tag = new LogixTag(Speed, SpeedDeclaredType, _handle);
 
         // Act
         tag.Dispose();

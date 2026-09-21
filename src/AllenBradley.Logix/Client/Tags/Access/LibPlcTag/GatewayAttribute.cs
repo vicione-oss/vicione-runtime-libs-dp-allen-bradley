@@ -3,7 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
 /// <summary>
-/// What goes onto <c>Tag.Gateway</c>: the connection endpoint and the TCP port as one
+/// What goes onto <c>RootTagName.Gateway</c>: the connection endpoint and the TCP port as one
 /// <c>"10.0.0.1:44818"</c> string.
 /// </summary>
 internal readonly record struct GatewayAttribute(string Value)

@@ -43,7 +43,7 @@ public sealed class PlcTagListingTests(ITestOutputHelper output) : LibPlcTagInte
             foreach (var field in udt.Fields)
             {
                 output.WriteLine(
-                    $"    Name={field.Name}  Offset={field.Offset}  Metadata={field.Metadata}  " +
+                    $"    Name={field.Name}  Offset={field.Offset}  DeclaredType={field.Metadata}  " +
                     $"Type=0x{field.Type:X4}");
             }
         }

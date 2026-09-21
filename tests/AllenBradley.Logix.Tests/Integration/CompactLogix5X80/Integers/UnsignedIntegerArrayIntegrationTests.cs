@@ -28,9 +28,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(pressures, tenPressures);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.USIntArray, AllenBradleyDataType.Usint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(pressures, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(pressures, AllenBradleyDataType.Usint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(pressures, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<byte[]>().Which.Should().Equal(tenPressures);
@@ -51,9 +50,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(speeds, tenSpeeds);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.UIntArray, AllenBradleyDataType.Uint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(speeds, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(speeds, AllenBradleyDataType.Uint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(speeds, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<ushort[]>().Which.Should().Equal(tenSpeeds);
@@ -74,9 +72,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(runtimes, tenRuntimes);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.UDIntArray, AllenBradleyDataType.Udint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(runtimes, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(runtimes, AllenBradleyDataType.Udint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(runtimes, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<uint[]>().Which.Should().Equal(tenRuntimes);
@@ -98,9 +95,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(cycleCounts, tenCycleCounts);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.ULIntArray, AllenBradleyDataType.Ulint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(cycleCounts, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(cycleCounts, AllenBradleyDataType.Ulint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(cycleCounts, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<ulong[]>().Which.Should().Equal(tenCycleCounts);

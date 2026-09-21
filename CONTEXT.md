@@ -287,6 +287,34 @@ library's object standing in for it
 What a tag stores — either an atomic type or a structure. Declared per tag and reported by the
 controller.
 
+**Symbol table**:
+The collection of a controller's symbols as the client holds it: every listed tag by address —
+controller tags and program tags together — and every template a structured tag names, by id. Read
+once at connect and asked by tag path; the lookup walks the templates for what the path reaches.
+Rockwell names the Symbol object but never the set, and Studio 5000 shows it as two collections
+(Controller Tags and Program Tags), so this is our name for the one the client keeps.
+_Avoid_: tag definitions (its old class name — it holds tag definitions, but it is not one of them),
+schema, tag listing (the per-scope `@tags` read the table is built from, not the table), `@tags`
+(libplctag's token, no standing here)
+
+**Declared type**:
+What the controller declares the value at one address to be: its data type, a string's capacity, its
+rank and its element count, at the address a tag path renders to. The symbol table hands one
+back for whatever a path reaches — a tag, a member inside it, or one element of an array — and
+verification compares a data point against it. A member has no declared type of its own in the
+listing; the one it gets is read off its template and carries the tag's address with the member path
+behind it.
+_Avoid_: metadata (the client's old word for it), tag definition (the lookup's own walk node, below,
+which nothing outside the symbol-table lookup sees)
+
+**Tag definition**:
+One node of the symbol-table walk: what the controller declares a value to be, and the template to
+walk into when the value is a structure. A listed tag and a template member both hold one, so a
+member and a tag of the same type read alike. It carries no address, because a member has none of
+its own; the walk puts the address on when it hands the node out as a declared type.
+_Avoid_: declared type (the addressed shape above, the one the outside sees), listed tag (the
+listing's entry — an address and a tag definition — which a member never has)
+
 **Atomic data type**:
 A data type holding a single value: `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`,
 `ULINT`, `REAL`, `LREAL`.
@@ -383,9 +411,5 @@ to redefine, and they must not be used for Allen-Bradley concepts:
 
 ## Open
 
-Terms we still need and Rockwell does not supply, recorded so nobody invents a third word for them:
-
-- **The collection of a controller's symbols.** Rockwell names the Symbol object and enumerates its
-  instances per scope, but never names the set. Studio 5000 has two named collections — Controller
-  Tags and Program Tags — not one. Candidates: symbol table, tag listing.
-  Note `@tags` is libplctag's own token and has no standing here.
+Terms we still need and Rockwell does not supply, recorded so nobody invents a third word for them.
+None at the moment; the last one, the collection of a controller's symbols, became "Symbol table" above.

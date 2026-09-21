@@ -51,8 +51,8 @@ internal sealed class LogixClient(
 
         try
         {
-            logger.LoadingTagDefinitions(_connectionEndpoint, _cipRoutePath);
-            await tagManager.LoadTagDefinitionsAsync(cancellationToken).ConfigureAwait(false);
+            logger.LoadingSymbolTable(_connectionEndpoint, _cipRoutePath);
+            await tagManager.LoadSymbolTableAsync(cancellationToken).ConfigureAwait(false);
         }
         // Every way a browse can fail means the same thing to a connect, so it arrives as the one
         // exception the framework expects from an acquire. The exclusions are not answers about the

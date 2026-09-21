@@ -15,7 +15,7 @@ using ViciOne.Suite.DataPort.Extensions.Testing.Assertions;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ControllerTagsNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommunicationTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagNodeTestDataFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 using static ViciOne.Suite.DataPort.Extensions.Testing.Assertions.EventualAssertions;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Outgoing;
@@ -45,7 +45,7 @@ public sealed class OutgoingDataPortTests : IDisposable
         _client.DisconnectAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         _client.WriteAsync(Arg.Any<IReadOnlyList<ILogixDataPointValue>>(), Arg.Any<CancellationToken>())
             .Returns(ValueTask.CompletedTask);
-        ResolveEveryTagAs(dataPoint => DefaultAtomicTagDefinition() with { TagAddress = dataPoint.TagAddress });
+        ResolveEveryTagAs(_ => DefaultAtomicDeclaredType());
 
         _lifecycleManager
             .AcquireConnectedAsync(Arg.Any<LogixClientInformation>(), Arg.Any<CancellationToken>())
@@ -282,7 +282,7 @@ public sealed class OutgoingDataPortTests : IDisposable
                     ? throw new LogixTagException("The controller will not take this one.")
                     : ValueTask.CompletedTask);
 
-    private void ResolveEveryTagAs(Func<ILogixDataPoint, TagDefinition?> definitionOf) =>
+    private void ResolveEveryTagAs(Func<ILogixDataPoint, DeclaredType?> definitionOf) =>
         _client.ResolveDataPoints(Arg.Any<IReadOnlyList<ILogixDataPoint>>(), Arg.Any<CancellationToken>())
             .Returns(callInfo => Task.FromResult<IReadOnlyList<ResolvedDataPoint>>(
             [

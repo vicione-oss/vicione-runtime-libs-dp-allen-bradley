@@ -1,5 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -14,49 +14,60 @@ public sealed class StringTemplateIntegrationTests(ITestOutputHelper output)
     : CompactLogix5X80IntegrationTestBase(output)
 {
     [Fact]
-    public async Task TheStringTagNamesTheBuiltInStringTemplate()
+    public async Task TheStringTagIsDeclaredAStringOfItsTemplatesCapacity()
     {
         // Arrange
         // The client exposes no lookup, so the browse it ran at connect is run once more here.
-        var loader = new TagDefinitionsLoader(new LogixTagAccessFactory(TestController.ClientInformation));
+        var loader = new SymbolTableLoader(new LogixTagAccessFactory(TestController.ClientInformation));
 
         // Act
-        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
+        var symbolTable = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        definitions.Lookup(TagPath.Parse(TagAddresses.String))!.Value.TemplateId
-            .Should().Be(PredefinedTemplates.String);
+        var expected = new DeclaredType(
+            new TagAddress(TagAddresses.String),
+            AllenBradleyDataType.String,
+            TagAddresses.StringCapacity,
+            DimensionCount.Scalar,
+            ElementCount.Scalar);
+        symbolTable.GetDeclaredTypeAtPath(TagPath.Parse(TagAddresses.String)).Should().Be(expected);
     }
 
     [Fact]
     public async Task TheLengthMemberOfTheStringTagIsADintAtTheFront()
     {
         // Arrange
-        var loader = new TagDefinitionsLoader(new LogixTagAccessFactory(TestController.ClientInformation));
+        var loader = new SymbolTableLoader(new LogixTagAccessFactory(TestController.ClientInformation));
 
         // Act
-        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
+        var symbolTable = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        var expected = new TagDefinition(
-            new TagAddress($"{TagAddresses.String}.LEN"), AllenBradleyDataType.Dint, TemplateId: null,
-            MaxLength: null, DimensionCount.Scalar, ElementCount.Scalar);
-        definitions.Lookup(TagPath.Parse($"{TagAddresses.String}.LEN")).Should().Be(expected);
+        var expected = new DeclaredType(
+            new TagAddress($"{TagAddresses.String}.LEN"),
+            AllenBradleyDataType.Dint,
+            MaxLength: null,
+            DimensionCount.Scalar,
+            ElementCount.Scalar);
+        symbolTable.GetDeclaredTypeAtPath(TagPath.Parse($"{TagAddresses.String}.LEN")).Should().Be(expected);
     }
 
     [Fact]
     public async Task TheDataMemberOfTheStringTagIsEightyTwoSints()
     {
         // Arrange
-        var loader = new TagDefinitionsLoader(new LogixTagAccessFactory(TestController.ClientInformation));
+        var loader = new SymbolTableLoader(new LogixTagAccessFactory(TestController.ClientInformation));
 
         // Act
-        var definitions = await loader.LoadAsync(TestContext.Current.CancellationToken);
+        var symbolTable = await loader.LoadAsync(TestContext.Current.CancellationToken);
 
         // Assert
-        var expected = new TagDefinition(
-            new TagAddress($"{TagAddresses.String}.DATA"), AllenBradleyDataType.Sint, TemplateId: null,
-            MaxLength: null, DimensionCount.OneDimensional, new ElementCount(82));
-        definitions.Lookup(TagPath.Parse($"{TagAddresses.String}.DATA")).Should().Be(expected);
+        var expected = new DeclaredType(
+            new TagAddress($"{TagAddresses.String}.DATA"),
+            AllenBradleyDataType.Sint,
+            MaxLength: null,
+            DimensionCount.OneDimensional,
+            new ElementCount(82));
+        symbolTable.GetDeclaredTypeAtPath(TagPath.Parse($"{TagAddresses.String}.DATA")).Should().Be(expected);
     }
 }

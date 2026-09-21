@@ -59,7 +59,7 @@ public sealed class ContainerPathTests
         var expected = new TagPath(
             Program: null,
             Motor.TagName,
-            UdtMemberPath.Of(Ramp.TagName.ToMemberName(), Speed.TagName.ToMemberName()),
+            UdtMemberPath.Of(new(Ramp.TagName.Value), new(Speed.TagName.Value)),
             ArrayElementIndex: null);
         tagPath.Should().Be(expected);
     }
@@ -89,7 +89,7 @@ public sealed class ContainerPathTests
 
         // Assert
         var expected = new TagPath(
-            Program: null, Motor.TagName, UdtMemberPath.Of(Readings.TagName.ToMemberName()), Third.Index);
+            Program: null, Motor.TagName, UdtMemberPath.Of((UdtMemberName)new(Readings.TagName.Value)), Third.Index);
         tagPath.Should().Be(expected);
     }
 

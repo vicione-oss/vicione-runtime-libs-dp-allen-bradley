@@ -29,9 +29,9 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.USInt, AllenBradleyDataType.Usint);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Usint);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
@@ -52,9 +52,9 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.UInt, AllenBradleyDataType.Uint);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Uint);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
@@ -75,9 +75,9 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.UDInt, AllenBradleyDataType.Udint);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Udint);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
@@ -98,9 +98,9 @@ public sealed class UnsignedIntegerIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.ULInt, AllenBradleyDataType.Ulint);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Ulint);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);

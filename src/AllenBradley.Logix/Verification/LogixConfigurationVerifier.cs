@@ -11,7 +11,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 
 /// <summary>
 /// Reports the configured data points whose declared type, shape or very existence disagrees with the
-/// controller's own tag definitions.
+/// controller's own declared types.
 /// </summary>
 internal sealed class LogixConfigurationVerifier(ILogixClient client)
     : IDataPointConfigurationVerifier<ILogixDataPoint>
@@ -40,13 +40,14 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     {
         var dataPoint = resolved.DataPoint;
 
-        if (resolved.TagDefinition is not { } device)
+        if (resolved.DeclaredType is not { } device)
         {
             return
             [
-                new MismatchingConfiguration($"Tag '{dataPoint.TagAddress.Value}' was not found on the controller.")
+                new MismatchingConfiguration($"RootTagName '{dataPoint.TagAddress.Value}' was not found on the controller.")
             ];
         }
+
         var mismatch = LogixTypeComparison.Compare(resolved);
 
         // A capacity or an element count is reported only for the shape that configures one, so the casts
@@ -81,26 +82,10 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
                     $"{dataPoint.DataTypeName.Value} holds {Describe(((ILogixArrayDataPoint)dataPoint).ElementCount)} elements, " +
                     $"but the controller declares {Describe(device.ElementCount)}."),
             ],
-            LogixTypeMismatch.ElementIndexOutOfRange =>
-            [
-                new MismatchingConfiguration(
-                    $"Element index {Describe(dataPoint.TagPath.ArrayElementIndex)} is out of range for tag " +
-                    $"'{device.TagAddress.Value}', which the controller declares with " +
-                    $"{Describe(device.ElementCount)} elements."),
-            ],
-            LogixTypeMismatch.ElementOfScalar =>
-            [
-                new MismatchingConfiguration(
-                    $"Tag '{device.TagAddress.Value}' is a scalar on the controller, " +
-                    "but an element of it is configured."),
-            ],
             _ => throw new ArgumentOutOfRangeException(
                 nameof(mismatch), mismatch, "Unhandled type mismatch kind."),
         };
     }
-
-    private static string Describe(ElementIndex? index) =>
-        index?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";
 
     private static string Describe(AllenBradleyDataType dataType) =>
         dataType == AllenBradleyDataType.Unknown ? "a type this addon does not model" : dataType.Name.Value;

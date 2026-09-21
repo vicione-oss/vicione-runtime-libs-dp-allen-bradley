@@ -102,10 +102,10 @@ of both halves: `process_tag_entry()` (line 510) decodes a listing entry, `get_u
 (line 704) decodes a template and queues the nested ids it finds.
 
 In this tree the same two halves are
-[`TagsDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/TagsDecoder.cs) and
-[`TemplateDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/Templates/TemplateDecoder.cs),
+[`TagsDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Symbols/TagsListing/TagsDecoder.cs) and
+[`TemplateDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Symbols/Templates/TemplateDecoder.cs),
 both pure functions over the buffer, and the worklist walk is in
-[`TagDefinitionsLoader.cs`](../../../src/AllenBradley.Logix/Client/Tags/Definitions/TagDefinitionsLoader.cs).
+[`SymbolTableLoader.cs`](../../../src/AllenBradley.Logix/Client/Tags/Symbols/SymbolTableLoader.cs).
 
 ## Source references
 

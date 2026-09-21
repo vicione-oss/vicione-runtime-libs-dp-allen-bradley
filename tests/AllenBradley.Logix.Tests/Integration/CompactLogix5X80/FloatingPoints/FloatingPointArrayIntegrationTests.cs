@@ -28,9 +28,8 @@ public sealed class FloatingPointArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(temperatures, tenTemperatures);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.RealArray, AllenBradleyDataType.Real, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(temperatures, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(temperatures, AllenBradleyDataType.Real, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(temperatures, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<float[]>().Which.Should().Equal(tenTemperatures);
@@ -52,9 +51,8 @@ public sealed class FloatingPointArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(positions, tenPositions);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.LRealArray, AllenBradleyDataType.Lreal, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(positions, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(positions, AllenBradleyDataType.Lreal, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(positions, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<double[]>().Which.Should().Equal(tenPositions);

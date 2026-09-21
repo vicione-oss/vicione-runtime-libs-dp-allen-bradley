@@ -4,8 +4,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 
 internal static partial class LogixClientLogs
 {
-    [LoggerMessage(200, LogLevel.Debug, "Loading the tag-definitions (@tags) of the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
-    internal static partial void LoadingTagDefinitions(this ILogger<LogixClient> logger, string connectionEndpoint, string cipRoutePath);
+    [LoggerMessage(200, LogLevel.Debug, "Loading the symbol table of the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void LoadingSymbolTable(this ILogger<LogixClient> logger, string connectionEndpoint, string cipRoutePath);
 
     [LoggerMessage(201, LogLevel.Information, "Connected to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void Connected(this ILogger<LogixClient> logger, string connectionEndpoint, string cipRoutePath);

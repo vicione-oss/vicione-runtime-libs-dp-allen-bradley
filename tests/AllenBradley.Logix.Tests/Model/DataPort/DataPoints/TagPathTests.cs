@@ -1,6 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
@@ -60,7 +59,7 @@ public sealed class TagPathTests
         // Arrange
 
         // Act
-        var declaredTagAddress = MyValuesAtIndexThree.TagDefinitionAddress;
+        var declaredTagAddress = MyValuesAtIndexThree.RootTagAddress;
 
         // Assert
         declaredTagAddress.Should().Be(new TagAddress("Program:Main.MyValues"));
@@ -73,7 +72,7 @@ public sealed class TagPathTests
         var path = MyValuesAtIndexThree with { ArrayElementIndex = null };
 
         // Act
-        var declaredTagAddress = path.TagDefinitionAddress;
+        var declaredTagAddress = path.RootTagAddress;
 
         // Assert
         declaredTagAddress.Should().Be(path.ToTagAddress());
@@ -85,7 +84,7 @@ public sealed class TagPathTests
         // Arrange
 
         // Act
-        var declaredTagAddress = RampTargetOfMotorInMain.TagDefinitionAddress;
+        var declaredTagAddress = RampTargetOfMotorInMain.RootTagAddress;
 
         // Assert
         declaredTagAddress.Should().Be(new TagAddress("Program:Main.Motor"));

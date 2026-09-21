@@ -29,7 +29,7 @@ public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : Logix
         read.Succeeded.Should().BeTrue(read.Error);
 
         var buffer = read.Buffer.Span;
-        output.WriteLine($"Tag                : {BenchControllerTags.StrValue1}");
+        output.WriteLine($"RootTagName                : {BenchControllerTags.StrValue1}");
         output.WriteLine($"Buffer length      : {buffer.Length}   (88 = the padded .LEN + .DATA[82] template)");
         output.WriteLine($"First 16 bytes     : {Hex(buffer[..Math.Min(16, buffer.Length)])}");
         output.WriteLine(string.Empty);
@@ -38,7 +38,7 @@ public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : Logix
         output.WriteLine("  LL 00 00 00  => the buffer starts at .LEN, which is what LogixStringConverter assumes.");
         output.WriteLine(string.Empty);
         output.WriteLine("Fact 2 — the listing's declaration for the tag");
-        output.WriteLine($"  {tag.Metadata?.ToString() ?? "(absent from the symbol table)"}");
+        output.WriteLine($"  {tag.DeclaredType?.ToString() ?? "(absent from the symbol table)"}");
         output.WriteLine(string.Empty);
         output.WriteLine("Fact 3 — what libplctag itself makes of the tag");
         output.WriteLine($"  {DescribeWithRawLibplctag(BenchControllerTags.StrValue1)}");

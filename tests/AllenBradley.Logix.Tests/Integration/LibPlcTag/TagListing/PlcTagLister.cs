@@ -22,7 +22,7 @@ public class PlcTagLister(string connectionEndpoint, string cipRoutePath, TimeSp
         };
     }
 
-    // Every Tag must be disposed. It owns a handle in libplctag's native layer, and letting the
+    // Every RootTagName must be disposed. It owns a handle in libplctag's native layer, and letting the
     // finalizer release it means native code runs after the CLR has torn down, which fail-fasts
     // the process on exit (exit code 0xC0000602) even when every test has passed.
     private TagInfo[] ReadControllerTags()

@@ -5,7 +5,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 
 /// <summary>
 /// One data point and everything known about it: the configured <see cref="DataPoint"/>, the controller's
-/// <see cref="Metadata"/> for its path, and the read/write handle. The batches, decode and verification
+/// <see cref="DeclaredType"/> for its path, and the read/write handle. The batches, decode and verification
 /// all project off this one object.
 /// </summary>
 internal interface ILogixTag : IDisposable
@@ -14,16 +14,15 @@ internal interface ILogixTag : IDisposable
     ILogixDataPoint DataPoint { get; init; }
 
     /// <summary>
-    /// What the controller's symbol table reports for the path, or <c>null</c> when the path is absent from
-    /// it — the "not on the controller" signal verification reports.
+    /// The type that is declared on the controller at the address of the configured datapoint.
     /// </summary>
-    TagDefinition? Metadata { get; init; }
+    DeclaredType? DeclaredType { get; init; }
 
     /// <summary>
     /// The configured-against-reported pair configuration verification takes. A projection of the two
     /// immutable getters above, so it is the same pair every time it is asked for.
     /// </summary>
-    ResolvedDataPoint Resolved => new(DataPoint, Metadata);
+    ResolvedDataPoint Resolved => new(DataPoint, DeclaredType);
 
     /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
     Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken);

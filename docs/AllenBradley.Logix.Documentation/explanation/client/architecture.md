@@ -12,10 +12,12 @@ they collaborate along to a scene each.
 | Scene | What it adds |
 |---|---|
 | [`client-connection-lifecycle`](../../diagrams/client-connection-lifecycle.excalidraw) | The pool, the factory and `ILogixClient`: who acquires a connection, who counts its holders, and where connect, disconnect and dispose land on the tag manager |
-| [`type-gate-and-verification`](../../diagrams/type-gate-and-verification.excalidraw) | Where the controller's own `TagDefinition` comes from, and the one comparison the verifier makes against it at connect ([verifying configuration against the symbol table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)). The filename predates that comparison becoming connect-only — there is no longer a gate on the read or write path |
+| [`type-gate-and-verification`](../../diagrams/type-gate-and-verification.excalidraw) | Where the controller's own `DeclaredType` comes from, and the one comparison the verifier makes against it at connect ([verifying configuration against the symbol table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)). The filename predates that comparison becoming connect-only — there is no longer a gate on the read or write path |
 | [`read-write-paths`](../../diagrams/read-write-paths.excalidraw) | One poll and one write end to end, and why a single failed tag fails the batch it sits in |
+| [`tag-creation`](../../diagrams/tag-creation.excalidraw) | How one `LogixTag` comes to exist: the symbol table loaded at connect, the lookup and the libplctag handle built on the first `TagFor`, the cache it lives in, and the drain that frees it |
+| [`symbol-table-loader`](../../diagrams/symbol-table-loader.excalidraw) | The browse itself: the controller listing, one listing per program, one template per distinct id with nested templates followed, and the `SymbolTable` those three reads add up to |
 
-All four are Excalidraw sources under [`diagrams/`](../../diagrams); re-export the SVG and run the
+All six are Excalidraw sources under [`diagrams/`](../../diagrams); re-export the SVG and run the
 font-fix after editing one.
 
 ## The read/write path
@@ -121,7 +123,7 @@ having a `Drain` next to its `Dispose`.
   class one day (the deferred Option 2 in the shared-connection ADR) is a change to the key, not to any
   of this.
 - **`LogixClientFactory`** (`ILogixClientFactory`) is the one place the production stack is assembled:
-  `LogixTagAccessFactory` → `TagDefinitionsLoader` → `CachingLogixTagManager` → `LogixClient`. The pool
+  `LogixTagAccessFactory` → `SymbolTableLoader` → `CachingLogixTagManager` → `LogixClient`. The pool
   builds clients through it rather than with a `new`, which is what lets its tests drive reference
   counting and racing connects without a controller.
 - **`LogixClientInformation`** carries the per-operation timeout alongside the address, because the
@@ -130,7 +132,7 @@ having a `Drain` next to its `Dispose`.
 
 ## Access, cache, and the native handle
 
-- **`CachingLogixTagManager`** (`ILogixTagManager`) owns the controller's `TagDefinitions` and hands
+- **`CachingLogixTagManager`** (`ILogixTagManager`) owns the controller's `SymbolTable` and hands
   out one `LogixTag` per data point, cached for its lifetime. It is the per-device tag cache and the
   owner of the definitions; draining or disposing it frees every handle.
 - **`LogixTag`** joins the three immutable facts about a point — the configured
@@ -144,14 +146,18 @@ having a `Drain` next to its `Dispose`.
   tags on behalf of the manager (`Create`), and for the `@tags` listing names on behalf of the
   definitions loader (`CreateForSchemaTag`).
 
-## Tag definitions and verification
+## Symbol table and verification
 
-- **`TagDefinitionsLoader`** (`ITagDefinitionsLoader`) reads the controller's symbol table once at
+- **`SymbolTableLoader`** (`ISymbolTableLoader`) reads the controller's symbol table once at
   connect through the same exchange seam, decodes each entry with `TagsDecoder`, reads every template
   the entries name — one `@udt/<id>` per distinct id, nested structures included — and decodes each
-  with `TemplateDecoder`. It **builds** a `TagDefinitions` from both: the tag-name → `TagDefinition`
-  map, matched case-insensitively, that the manager joins onto every access, and the template-id →
-  `TemplateDefinition` map behind `LookupTemplate`.
+  with `TemplateDecoder`. It **builds** a `SymbolTable` from both: the tag-address → `TagDefinition`
+  map, matched case-insensitively, and the template-id → `TemplateDefinition` map.
+  `GetDeclaredTypeAtPath(TagPath)` follows a member path through the templates, steps into the element
+  if the path names one, and returns a `DeclaredType` at the address the path renders to — a string
+  when the template it names is one — and that is what the manager joins onto every access. The
+  `TagDefinition` nodes and the template records are the lookup's own; nothing outside
+  `Client/Tags/Symbols` names them.
 - **`LogixConfigurationVerifier`** (`IDataPointConfigurationVerifier<ILogixDataPoint>`) reports the
   tags whose declared type, shape, or existence disagrees with the configuration. It holds an
   `ILogixClient` and gets its metadata from `ResolveDataPoints`, which is a *projection* of the tags the
@@ -162,6 +168,6 @@ having a `Drain` next to its `Dispose`.
   and a misconfigured tag aborts the connect.
 - **`ILogixClient.ResolveDataPoints`** is that projection, and the client is where it lives for the same
   reason `IS7Client` has one: `CreateConfigurationVerifier` is handed a client, and the tag manager
-  behind it is private. It calls `LoadTagDefinitionsAsync` (idempotent, so free after a connect) and
+  behind it is private. It calls `LoadSymbolTableAsync` (idempotent, so free after a connect) and
   pairs each data point with `ILogixTag.Resolved`, leaving a tag the controller does not have paired
   with `null`.

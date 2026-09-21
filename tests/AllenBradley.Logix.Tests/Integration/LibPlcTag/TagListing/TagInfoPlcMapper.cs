@@ -13,7 +13,7 @@ public class TagInfoPlcMapper : IPlcMapper<TagInfo[]>
     public int? ElementSize => null;
 
     // libplctag's interface is nullable-oblivious and treats null as "not an array".
-    public int[] ArrayDimensions { get => null!; set => throw new NotImplementedException("This plcMapper can only be used to read Tag Information"); }
+    public int[] ArrayDimensions { get => null!; set => throw new NotImplementedException("This plcMapper can only be used to read RootTagName Information"); }
 
     private static TagInfo Decode(Tag tag, int offset, out int elementSize)
     {
@@ -67,7 +67,7 @@ public class TagInfoPlcMapper : IPlcMapper<TagInfo[]>
 
     public void Encode(Tag tag, TagInfo[] value)
     {
-        throw new NotImplementedException("This plcMapper can only be used to read Tag Information");
+        throw new NotImplementedException("This plcMapper can only be used to read RootTagName Information");
     }
 
     public int? GetElementCount() => null;

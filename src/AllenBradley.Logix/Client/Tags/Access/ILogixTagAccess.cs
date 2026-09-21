@@ -2,7 +2,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
 /// <summary>
 /// Read/write access to one tag on the controller — the mockable seam over libplctag's sealed, native
-/// <c>Tag</c>, with one whole operation per member and no overlap between them
+/// <c>RootTagName</c>, with one whole operation per member and no overlap between them
 /// (ADR/2026-07-16-operations-not-accessors-over-libplctag.md). A device failure is a failed result, not
 /// an exception; only cancellation throws.
 /// </summary>

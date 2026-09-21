@@ -37,9 +37,8 @@ public sealed class BooleanArrayIntegrationTests(ITestOutputHelper output)
         // Assert
         // The controller declares the two halves of this differently from every other array: the type
         // as DWORD, which decodes to Bool, and the extent as the one word its 32 bits fill.
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.BoolArray, AllenBradleyDataType.Bool, TagAddresses.BoolArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(flags, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(flags, AllenBradleyDataType.Bool, TagAddresses.BoolArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(flags, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<bool[]>().Which.Should().Equal(thirtyTwoFlags);

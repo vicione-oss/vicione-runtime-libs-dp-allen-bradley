@@ -3,7 +3,7 @@ using libplctag;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 
 /// <summary>
-/// The adapter that binds the client stack to libplctag's native <c>Tag</c>: one whole operation per
+/// The adapter that binds the client stack to libplctag's native <c>RootTagName</c>: one whole operation per
 /// member, so the handle's buffer is never exposed between calls, and <c>LibPlcTagException</c> mapped
 /// onto a failed result (ADR/2026-07-16-operations-not-accessors-over-libplctag.md).
 /// </summary>

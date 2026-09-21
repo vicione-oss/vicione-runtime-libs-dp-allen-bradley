@@ -7,13 +7,13 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
 /// <summary>
-/// The rule read against real data points rather than a stand-in: a scalar, a string, an array and an
-/// element are the four shapes it has to serve.
+/// The rule read against real data points rather than a stand-in: a scalar, a string and an array are
+/// the three shapes it has to serve. An element arrives as the scalar the lookup declared it.
 /// </summary>
 public sealed class LogixTypeComparisonTests
 {
@@ -25,20 +25,14 @@ public sealed class LogixTypeComparisonTests
     private static readonly IntArrayDataPoint Readings =
         new(TagPath.Parse("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
 
-    private static readonly IntDataPoint ThirdReading =
-        new(TagPath.Parse("Tank.Readings[3]"), DefaultPollFrequency, NoChannels);
 
-    private static readonly IntDataPoint EleventhReading =
-        new(TagPath.Parse("Tank.Readings[10]"), DefaultPollFrequency, NoChannels);
 
-    private static readonly DIntDataPoint ThirdReadingAsDInt =
-        new(TagPath.Parse("Tank.Readings[3]"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Speed, TagDefinition: null);
+        var resolved = new ResolvedDataPoint(Speed, DeclaredType: null);
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -51,7 +45,7 @@ public sealed class LogixTypeComparisonTests
     public void AnElementaryTagOfTheExpectedTypeIsNoMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Speed, DefaultAtomicTagDefinition());
+        var resolved = new ResolvedDataPoint(Speed, DefaultAtomicDeclaredType());
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -64,7 +58,7 @@ public sealed class LogixTypeComparisonTests
     public void AnElementaryTagOfAnotherTypeIsADataTypeMismatch()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
+        var declaration = DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Real };
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
@@ -75,10 +69,10 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Fact]
-    public void AStructureWhereAnElementaryTypeWasConfiguredIsADataTypeMismatch()
+    public void AStringWhereAnElementaryTypeWasConfiguredIsADataTypeMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Speed, DefaultStringTagDefinition());
+        var resolved = new ResolvedDataPoint(Speed, DefaultStringDeclaredType());
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -88,10 +82,10 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Fact]
-    public void AnElementaryTypeWhereAStructureWasConfiguredIsADataTypeMismatch()
+    public void AnElementaryTypeWhereAStringWasConfiguredIsADataTypeMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Label, DefaultAtomicTagDefinition());
+        var resolved = new ResolvedDataPoint(Label, DefaultAtomicDeclaredType());
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -101,10 +95,10 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Fact]
-    public void AScalarStructureOfTheConfiguredCapacityIsNoMismatch()
+    public void AStringOfTheConfiguredCapacityIsNoMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Label, DefaultStringTagDefinition());
+        var resolved = new ResolvedDataPoint(Label, DefaultStringDeclaredType());
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -117,7 +111,7 @@ public sealed class LogixTypeComparisonTests
     public void ASmallerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
+        var declaration = DefaultStringDeclaredType() with { MaxLength = new StringMaxLength(20) };
         var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
@@ -131,7 +125,7 @@ public sealed class LogixTypeComparisonTests
     public void ALargerDeclaredCapacityIsAStringCapacityMismatch()
     {
         // Arrange
-        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(100) };
+        var declaration = DefaultStringDeclaredType() with { MaxLength = new StringMaxLength(100) };
         var resolved = new ResolvedDataPoint(Label, declaration);
 
         // Act
@@ -145,7 +139,7 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayWhereAScalarWasConfiguredIsARankMismatchBeforeAnythingElse()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = DimensionCount.OneDimensional };
+        var declaration = DefaultAtomicDeclaredType() with { DimensionCount = DimensionCount.OneDimensional };
         var resolved = new ResolvedDataPoint(Speed, declaration);
 
         // Act
@@ -156,10 +150,10 @@ public sealed class LogixTypeComparisonTests
     }
 
     [Fact]
-    public void AnArrayOfStructuresIsARankMismatchBeforeItsCapacity()
+    public void AnArrayOfStringsIsARankMismatchBeforeItsCapacity()
     {
         // Arrange
-        var declaration = DefaultStringTagDefinition() with
+        var declaration = DefaultStringDeclaredType() with
         {
             MaxLength = new StringMaxLength(20),
             DimensionCount = DimensionCount.OneDimensional,
@@ -177,77 +171,20 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayOfTheConfiguredTypeAndCountIsNoMismatch()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(Readings, DefaultIntArrayTagDefinition());
+        var resolved = new ResolvedDataPoint(Readings, DefaultIntArrayDeclaredType());
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
 
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.None);
-    }
-
-    [Fact]
-    public void AnElementWithinTheDeclaredArrayIsComparedAsAScalarOfItsElementType()
-    {
-        // Arrange
-        var resolved = new ResolvedDataPoint(ThirdReading, DefaultIntArrayTagDefinition());
-
-        // Act
-        var mismatch = LogixTypeComparison.Compare(resolved);
-
-        // Assert
-        mismatch.Should().Be(LogixTypeMismatch.None);
-    }
-
-    [Fact]
-    public void AnElementOfAnotherTypeThanTheArrayIsADataTypeMismatch()
-    {
-        // Arrange
-        var resolved = new ResolvedDataPoint(ThirdReadingAsDInt, DefaultIntArrayTagDefinition());
-
-        // Act
-        var mismatch = LogixTypeComparison.Compare(resolved);
-
-        // Assert
-        mismatch.Should().Be(LogixTypeMismatch.DataType);
-    }
-
-    [Fact]
-    public void AnElementPastTheDeclaredCountIsOutOfRange()
-    {
-        // Arrange
-        var resolved = new ResolvedDataPoint(EleventhReading, DefaultIntArrayTagDefinition());
-
-        // Act
-        var mismatch = LogixTypeComparison.Compare(resolved);
-
-        // Assert
-        mismatch.Should().Be(LogixTypeMismatch.ElementIndexOutOfRange);
-    }
-
-    [Fact]
-    public void AnElementOfATagDeclaredScalarIsAnElementOfScalarMismatch()
-    {
-        // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with
-        {
-            DimensionCount = DimensionCount.Scalar,
-            ElementCount = OneElement,
-        };
-        var resolved = new ResolvedDataPoint(ThirdReading, declaration);
-
-        // Act
-        var mismatch = LogixTypeComparison.Compare(resolved);
-
-        // Assert
-        mismatch.Should().Be(LogixTypeMismatch.ElementOfScalar);
     }
 
     [Fact]
     public void AScalarWhereAnArrayWasConfiguredIsARankMismatch()
     {
         // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with
+        var declaration = DefaultIntArrayDeclaredType() with
         {
             DimensionCount = DimensionCount.Scalar,
             ElementCount = OneElement,
@@ -265,7 +202,7 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayOfAnotherElementTypeIsADataTypeMismatchBeforeItsCount()
     {
         // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with
+        var declaration = DefaultIntArrayDeclaredType() with
         {
             DataType = AllenBradleyDataType.Dint,
             ElementCount = new ElementCount(20),
@@ -285,7 +222,7 @@ public sealed class LogixTypeComparisonTests
     public void AnArrayOfAnotherLengthIsAnElementCountMismatch(uint declaredElementCount)
     {
         // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with
+        var declaration = DefaultIntArrayDeclaredType() with
         {
             ElementCount = new ElementCount(declaredElementCount),
         };
@@ -306,9 +243,8 @@ public sealed class LogixTypeComparisonTests
         // comparison never sees the packing.
         var flags = new BoolArrayDataPoint(
             TagPath.Parse("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
-        var declaration = DefaultIntArrayTagDefinition() with
+        var declaration = DefaultIntArrayDeclaredType() with
         {
-            TagAddress = new TagAddress("Line.Flags"),
             DataType = AllenBradleyDataType.Bool,
             ElementCount = new ElementCount(64),
         };
@@ -327,9 +263,8 @@ public sealed class LogixTypeComparisonTests
         // Arrange
         var flags = new BoolArrayDataPoint(
             TagPath.Parse("Line.Flags"), DefaultPollFrequency, NoChannels, new ElementCount(64));
-        var declaration = DefaultIntArrayTagDefinition() with
+        var declaration = DefaultIntArrayDeclaredType() with
         {
-            TagAddress = new TagAddress("Line.Flags"),
             DataType = AllenBradleyDataType.Bool,
             ElementCount = new ElementCount(32),
         };

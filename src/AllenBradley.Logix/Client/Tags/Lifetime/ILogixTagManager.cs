@@ -17,20 +17,19 @@ internal interface ILogixTagManager : IDisposable
     /// that fails is not remembered, so the next call tries again.
     /// </summary>
     /// <exception cref="DataRetrievalException">The symbol table could not be browsed.</exception>
-    Task LoadTagDefinitionsAsync(CancellationToken cancellationToken);
+    Task LoadSymbolTableAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns the tag for <paramref name="dataPoint"/>, creating or reusing it, with the controller's
-    /// metadata for it joined on.
+    /// Returns the tag for <paramref name="dataPoint"/>, creating or reusing it.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// The schema has not been loaded yet — <see cref="LoadTagDefinitionsAsync"/> is a connect precondition.
+    /// The symbol table has not been loaded yet — <see cref="LoadSymbolTableAsync"/> is a connect precondition.
     /// </exception>
     ILogixTag TagFor(ILogixDataPoint dataPoint);
 
     /// <summary>
-    /// Disposes every tag this manager created and drops the schema, putting it back to its pre-connect
-    /// state. A later <see cref="LoadTagDefinitionsAsync"/> browses again and <see cref="TagFor"/>
+    /// Disposes every tag this manager created and drops the symbol table, putting it back to its pre-connect
+    /// state. A later <see cref="LoadSymbolTableAsync"/> browses again and <see cref="TagFor"/>
     /// recreates the tags it needs.
     /// </summary>
     /// <exception cref="ObjectDisposedException">The manager has been disposed.</exception>

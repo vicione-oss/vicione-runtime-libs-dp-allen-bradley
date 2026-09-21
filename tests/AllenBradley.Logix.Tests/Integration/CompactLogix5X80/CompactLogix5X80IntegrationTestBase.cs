@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
@@ -27,7 +27,7 @@ public abstract class CompactLogix5X80IntegrationTestBase : IAsyncLifetime
         var accessFactory = new LogixTagAccessFactory(clientInformation);
         var tagManager = new CachingLogixTagManager(
             accessFactory,
-            new TagDefinitionsLoader(accessFactory),
+            new SymbolTableLoader(accessFactory),
             NullLogger<CachingLogixTagManager>.Instance);
 
         Client = new LogixClient(tagManager, clientInformation, NullLogger<LogixClient>.Instance);

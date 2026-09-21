@@ -331,7 +331,7 @@ Each Symbol instance carries a 16-bit **symbol type** value (attribute 2). Its b
 
 A `BOOL` array reports `DWORD` (`0xD3`), the packing word of [§8](#8-bool-handling). The
 production decoder of this decomposition is
-[`SymbolType.cs`](../../../../src/AllenBradley.Logix/Client/Tags/Definitions/SymbolType.cs).
+[`SymbolType.cs`](../../../../src/AllenBradley.Logix/Client/Tags/Symbols/SymbolTypes/SymbolType.cs).
 
 ### The Template object (class 0x6C)
 
@@ -364,7 +364,7 @@ the status is `0x06`, advancing the offset. The payload, concatenated:
 A member whose type has bit 15 set is itself a structure, and its `0x0FFF` bits name the child
 template — another template read. Members named `ZZZZZZZZZZ…` or `__…` are the hidden host bytes
 that back packed `BOOL`s ([§8](#8-bool-handling)). The production decoder of the payload is
-[`TemplateDecoder.cs`](../../../../src/AllenBradley.Logix/Client/Tags/Definitions/Templates/TemplateDecoder.cs).
+[`TemplateDecoder.cs`](../../../../src/AllenBradley.Logix/Client/Tags/Symbols/Templates/TemplateDecoder.cs).
 
 ### The browse flow
 

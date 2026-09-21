@@ -102,18 +102,10 @@ the real controller and this table completed. **Delete that probe once they are.
 | `ElementLength` in the `@tags` listing | Assumed **86** — the `.LEN` + `.DATA[82]` members without the alignment pad. May be 88 (padded) | **No — open** |
 | The tag's string type | Assumed the built-in `STRING`, `.DATA[82]` | No — from libplctag's default |
 
-The 86 assumption is load-bearing now, where it used to be tolerated. `TagsDecoder` subtracts the
-4-byte `.LEN` from the listing's element length to get a `StringMaxLength`, so 86 decodes as the
-82-character capacity `strValue1` is configured with and verification passes. If the controller
-reports 88 instead, the same tag decodes as a capacity of 84, `LogixTypeComparison` reports
-`StringCapacity`, and the connect aborts before a single `STRING` is polled — a padded size cannot be
-read back as a capacity, because 88 is equally consistent with `.DATA[82]` and `.DATA[84]`.
-
-Fixing that means reading the template (`@udt/<id>`) for the honest `.DATA : SINT[n]`, which is the
-step [verifying configuration against the symbol
-table](../../AllenBradley.Logix.Documentation/ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)
-already defers to structured data-point support. Run `StringWireFormatProbeTests` before that becomes
-necessary.
+The 86 assumption no longer carries anything. A string's capacity is read from its template
+(`@udt/<id>`), the honest `.DATA : SINT[n]`, and `TagsDecoder` does not read the listing's element
+length at all; 86 or 88, verification of `strValue1` is decided by the template. The row stays open
+only as a fact about the wire. `StringWireFormatProbeTests` still prints all three.
 
 ### Controller tags — IO-Link master (`AL1x2x_IOLink`)
 

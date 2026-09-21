@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -14,7 +14,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 /// </summary>
 internal sealed class CachingLogixTagManager(
     ILogixTagAccessFactory factory,
-    ITagDefinitionsLoader schemaBrowser,
+    ISymbolTableLoader symbolTableLoader,
     ILogger<CachingLogixTagManager> logger)
     : ILogixTagManager
 {
@@ -26,11 +26,11 @@ internal sealed class CachingLogixTagManager(
     // mid-browse throw out of the release below's finally.
     private readonly SemaphoreSlim _loadGate = new(1, 1);
 
-    private TagDefinitions? _tagDefinitions;
+    private SymbolTable? _symbolTable;
     private bool _disposed;
 
     /// <inheritdoc />
-    public async Task LoadTagDefinitionsAsync(CancellationToken cancellationToken)
+    public async Task LoadSymbolTableAsync(CancellationToken cancellationToken)
     {
         // Checking the field and then browsing is a check-then-act, so the gate is what makes a
         // concurrent second call a no-op rather than a second round trip. A gate and not a cached
@@ -41,18 +41,18 @@ internal sealed class CachingLogixTagManager(
             lock (_gate)
             {
                 ObjectDisposedException.ThrowIf(_disposed, this);
-                if (_tagDefinitions is not null)
+                if (_symbolTable is not null)
                 {
                     return;
                 }
             }
 
-            var schema = await schemaBrowser.LoadAsync(cancellationToken).ConfigureAwait(false);
+            var symbolTable = await symbolTableLoader.LoadAsync(cancellationToken).ConfigureAwait(false);
 
             lock (_gate)
             {
                 ObjectDisposedException.ThrowIf(_disposed, this);
-                _tagDefinitions = schema;
+                _symbolTable = symbolTable;
             }
         }
         finally
@@ -65,17 +65,17 @@ internal sealed class CachingLogixTagManager(
     public ILogixTag TagFor(ILogixDataPoint dataPoint)
     {
         // Creation happens under the same lock that guards disposal, so a tag can never be created and
-        // then abandoned to its finalizer. The lock is cheap to hold: Create only allocates, since
+        // then abandoned to its finalizer. The lock is cheap to hold: CreateAccessForDatapoint only allocates, since
         // libplctag initialises the handle on its first read.
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
-            if (_tagDefinitions is not { } schema)
+            if (_symbolTable is not { } symbolTable)
             {
                 throw new InvalidOperationException(
-                    "The controller schema must be loaded before a tag is requested; " +
-                    "connect calls LoadTagDefinitionsAsync before the first TagFor.");
+                    "The symbol table must be loaded before a tag is requested; " +
+                    "connect calls LoadSymbolTableAsync before the first TagFor.");
             }
 
             if (_tagByDataPoint.TryGetValue(dataPoint, out var cached))
@@ -83,9 +83,9 @@ internal sealed class CachingLogixTagManager(
                 return cached;
             }
 
-            var declaration = schema.Lookup(dataPoint.TagPath);
-            var access = factory.Create(dataPoint);
-            var tag = new LogixTag(dataPoint, declaration, access);
+            var declaredType = symbolTable.GetDeclaredTypeAtPath(dataPoint.TagPath);
+            var access = factory.CreateAccessForDatapoint(dataPoint);
+            var tag = new LogixTag(dataPoint, declaredType, access);
             _tagByDataPoint.Add(dataPoint, tag);
             return tag;
         }
@@ -137,6 +137,6 @@ internal sealed class CachingLogixTagManager(
         }
 
         _tagByDataPoint.Clear();
-        _tagDefinitions = null;
+        _symbolTable = null;
     }
 }

@@ -55,13 +55,12 @@ public sealed class LogixClientStringRoundtripTests : LogixIntegrationTestBase
         var dataPoint = StringTag();
 
         // Act
-        var metadata = TagManager.TagFor(dataPoint).Metadata;
+        var metadata = TagManager.TagFor(dataPoint).DeclaredType;
 
         // Assert
-        var expected = new TagDefinition(
-            new TagAddress(BenchControllerTags.StrValue1),
+        var expected = new DeclaredType(
+            dataPoint.TagAddress,
             AllenBradleyDataType.String,
-            PredefinedTemplates.String,
             StringMaxLength.Standard,
             DimensionCount.Scalar,
             new ElementCount(1));

@@ -25,9 +25,9 @@ public sealed class BooleanIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.Bool, AllenBradleyDataType.Bool);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Bool);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);

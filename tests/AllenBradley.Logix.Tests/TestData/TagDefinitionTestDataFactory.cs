@@ -1,36 +1,37 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTypes;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Templates;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData;
 
 /// <summary>
-/// Constructs the <see cref="TagDefinition"/>s that stand in for what a controller's symbol table
-/// reports, so a suite about verification or tag lifetime need not browse one.
+/// Constructs the <see cref="TagDefinition"/>s the symbol-table walk holds for a listed tag or a template
+/// member, so a suite about the lookup or the decoders need not browse a controller.
 /// </summary>
 internal static class TagDefinitionTestDataFactory
 {
-    internal static readonly DimensionCount Scalar = new(0);
-
-    internal static readonly ElementCount OneElement = new(1);
-
-    internal static readonly ElementCount TenElements = new(10);
-
     /// <summary>The template a STRING tag names — the id in <c>TagsListingTestDataFactory.StructureSymbolType</c>.</summary>
     internal static readonly TemplateId DefaultTemplateId = new(0x123);
 
-    /// <summary>What the controller reports for a DINT tag.</summary>
+    /// <summary>What the controller declares a DINT tag to be.</summary>
     internal static TagDefinition DefaultAtomicTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.Dint, TemplateId: null, MaxLength: null, Scalar, OneElement);
+        new(AllenBradleyDataType.Dint, TemplateId: null, MaxLength: null, Scalar, OneElement);
 
-    /// <summary>What the controller reports for a built-in STRING tag: a scalar structure of 82 characters.</summary>
+    /// <summary>What the controller declares a built-in STRING tag to be: a scalar structure of 82 characters.</summary>
     internal static TagDefinition DefaultStringTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.String, DefaultTemplateId, StringMaxLength.Standard, Scalar,
-            OneElement);
+        new(AllenBradleyDataType.String, DefaultTemplateId, StringMaxLength.Standard, Scalar, OneElement);
 
-    /// <summary>What the controller reports for a ten-element one-dimensional INT array tag.</summary>
+    /// <summary>
+    /// What a structure is before the lookup has read its template: a structure, naming the template
+    /// that says which kind.
+    /// </summary>
+    internal static TagDefinition DefaultStructureTagDefinition() =>
+        new(AllenBradleyDataType.Structure, DefaultTemplateId, MaxLength: null, Scalar, OneElement);
+
+    /// <summary>What the controller declares a ten-element one-dimensional INT array tag to be.</summary>
     internal static TagDefinition DefaultIntArrayTagDefinition() =>
-        new(DefaultTagAddress, AllenBradleyDataType.Int, TemplateId: null, MaxLength: null,
-            DimensionCount.OneDimensional, TenElements);
+        new(AllenBradleyDataType.Int, TemplateId: null, MaxLength: null, DimensionCount.OneDimensional, TenElements);
 }

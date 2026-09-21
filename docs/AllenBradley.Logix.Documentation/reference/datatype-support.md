@@ -198,13 +198,14 @@ handle and one CIP request per element where a whole-array read is one of each; 
 on every handle, so the library packs them into as few packets as it can, but a configuration that
 wants all ten elements at one frequency should be a whole-array node instead.
 
-The container declares no element count. The controller does, and verification reads every subscript
-against it: the flat `@tags` listing never names an element, so `testIntArray[3]` resolves to the
-declaration of `testIntArray`, and `LogixTypeComparison` then compares the element as a scalar of
-the array's element type. Three things are reported at connect that a whole-array node cannot run
-into: a subscript on a tag the controller declares as a scalar, a subscript at or past the declared
-count, and — the ordinary type mismatch, read the other way — an element configured as a `DINT` on
-an `INT[10]`.
+The container declares no element count. The controller does, and the lookup reads every subscript
+against it: the flat `@tags` listing never names an element, so `testIntArray[3]` walks to the
+declaration of `testIntArray` and then into one element of it, a scalar of the array's element type
+at the element's own address, and `LogixTypeComparison` compares that scalar. Three things are
+reported at connect that a whole-array node cannot run into: a subscript on a tag the controller
+declares as a scalar and a subscript at or past the declared count, both of which stop the walk and
+are reported as *not found on the controller*, and — the ordinary type mismatch, read the other
+way — an element configured as a `DINT` on an `INT[10]`.
 
 ### `BOOL[n]`
 
@@ -220,7 +221,7 @@ every other element type do not hold here:
   a project can declare, so a rank-1 `0xD3` means a `BOOL` array and nothing else.
 - **The dimension is counted in words.** A `BOOL[64]` reports `2`. `TagsDecoder` turns that into the
   64 bits it holds, the way a string structure's 86 member bytes leave it as a capacity of 82, so
-  `TagDefinition` speaks one vocabulary throughout and `LogixTypeComparison` compares bits against
+  `DeclaredType` speaks one vocabulary throughout and `LogixTypeComparison` compares bits against
   bits.
 - **The request is counted in words too**, and that one is not converted away: libplctag puts the
   handle's element count straight onto the CIP request, so `LogixTagAccessFactory` sizes a `BOOL`
@@ -250,7 +251,7 @@ layer, which holds one whole operation per member and nothing smaller.
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | A range of elements as one value | `myArray[2..8]` as a single `short[7]` is neither whole-array nor per-element; needs its own shape |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
-| Arrays of `STRING` or of a UDT  | Need `TagsEntryHeader.ElementLength`, which is kept only for structures, as `MaxLength`          |
+| Arrays of `STRING` or of a UDT  | Declared, and a string array's capacity known from its template; no data point has the shape     |
 | `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                                                    |
 | A UDT as one value              | A UDT is opened into members, each a data point of the member's own type (see [Structure members](#structure-members)); a whole structure as one data point has no converter |
 
@@ -259,23 +260,25 @@ A shape, a type or a capacity that disagrees with the controller is reported at 
 
 ### Templates
 
-The `@tags` listing names a structure only by its **template id**, so a tag's `TagDefinition` carries
-that id and nothing about the members. The browse then reads every template the listing names —
-`@udt/<id>` per distinct id, and again for any member that is itself a structure — and holds each as
-a `TemplateDefinition` under `TagDefinitions.LookupTemplate`. A template says what the structure is
-called, how many bytes an instance occupies, and for every member its name, byte offset, atomic type
-or child template, array length, and the bit position of a packed `BOOL`. The wire layout of the two
-reads is in [reading a UDT definition](../../AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md);
+The `@tags` listing names a structure only by its **template id**, so a structure leaves `TagsDecoder`
+as a `STRUCTURE` naming that id, and nothing about the members. The browse then reads every
+template the listing names — `@udt/<id>` per distinct id, and again for any member that is itself a
+structure — and holds each as a `TemplateDefinition` beside the tags. A template says what the
+structure is called, how many bytes an instance occupies, and for every member its name, byte offset,
+declared type, and the bit position of a packed `BOOL`. The wire layout of the two reads is in
+[reading a UDT definition](../../AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md);
 the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
 
-The lookup is what consumes them: a member address is resolved by following the tag's template into
-the member, and a structure member's template into the next (see [Structure members](#structure-members)).
-A structured tag's own `DataType` is still `String` and its capacity is still read back from the
-element length, so verification of a `STRING` is unchanged, and a `TIMER` configured as a `STRING` is
-still caught by its capacity rather than by its template's name. A system structure — one whose symbol
-type has bit `0x1000` set — names no template, because the controller serves none for it. A template
-the controller will not serve, or one that does not decode, fails the connect the way a listing that
-will not read does: the browse is what connect is.
+`STRING` is the one structure this addon reads as a value, so it is the one data type a template can
+give a structure, and the lookup is where it does: `SymbolTable.GetDeclaredTypeAtPath` walks to the
+tag or the member the path names (see [Structure members](#structure-members)), and if what it found
+names a template with a `.DATA : SINT[n]` member, hands it back as a `String` of capacity `n`. So a `STRING_20`
+tag and a `STRING_20` member inside a UDT both verify against a configured capacity of 20, and a
+`TIMER` configured as a `STRING` is a data-type mismatch, not a capacity one: it comes back
+`STRUCTURE`, and nothing turns it into a string. The listing's element length is not read at all. A system structure — one whose symbol type has bit `0x1000` set — names no template, because the
+controller serves none for it, and stays `STRUCTURE`. A template the controller will not serve, or one
+that does not decode, fails the connect the way a listing that will not read does: the browse is what
+connect is.
 
 ## Structure members
 
@@ -308,25 +311,36 @@ fills the subscript from an array container, and `Motor.Ramp.Target` renders fro
 libplctag asks. A dotted address parses back the same way, so `TagPath.Parse("Motor.Speed")` is the
 tag `Motor` and the member `Speed`; whether `Motor` has one is the symbol table's question.
 
-A member is **absent from the flat `@tags` listing**, so `TagDefinitions.Lookup` is asked by path, not
-by address. The program and the tag find the tag's declaration; each member name is then found in a
+A member is **absent from the flat `@tags` listing**, so `SymbolTable.GetDeclaredTypeAtPath` is asked
+by path, not by address. The program and the tag find the tag's declaration; each member name is then found in a
 template — the tag's for the first, the member's own for the next — matched case-insensitively, the
-way the controller matches tag names. The subscript is not looked up at all: the listing names no
-element, so `Motor.Readings[3]` resolves to the array member `Readings`, and `LogixTypeComparison`
-reads the subscript against it exactly as it does for an array tag.
+way the controller matches tag names. The subscript is the last step: the listing names no element,
+so `Motor.Readings[3]` walks to the array member `Readings` and then into one element of it, a scalar
+of the member's type, exactly as `Readings[3]` does for an array tag.
 
-What comes back for a member is a `TagDefinition`, so the comparison needs no second shape: the
-address as the controller spells it, the member's type, rank and element count, and for a structure
-member `String` with the capacity of its template's `.DATA` member — the listing calls every structure
-a string, and the member says the same so a `STRING` member compares like a `STRING` tag. A member of a
-non-string structure has no capacity, so configuring one as a `STRING` is a capacity mismatch.
+What comes back, for a tag, a member and an element alike, is a `DeclaredType`: the address the path
+renders to, the data type, a string's capacity, the rank and the element count. A member has no
+address of its own (CONTEXT.md, "Member"), so the one on its declared type is the tag's with the member
+path behind it — `Motor.Ramp.Target` — which is also what libplctag is handed. Inside the lookup, the
+listing's entry and the template's member both hold a `TagDefinition`, the walk's own node, which also
+names the template to walk into next; nothing outside `Client/Tags/Symbols` sees it. A `STRING`
+member therefore compares like a `STRING` tag, and a member of a non-string structure configured as a
+`STRING` is a data-type mismatch.
 
-The lookup answers with the declaration, or with nothing when the walk stops short: the listing has not
-got the tag, the template has not got the member, or a member is asked of something that has none — an
+A path that stops on a structure is answered rather than refused. `Motor`, and `Motor.Ramp` where
+`Ramp` is a nested UDT, both come back as a scalar `STRUCTURE` at that address. `STRUCTURE` is the
+addon's own spelling for a structure it reads as members rather than as one value, and it is distinct
+from `UNKNOWN`, which now means one thing only: an elementary type code outside the range this addon
+decodes. A UDT container builds no data point of its own, so a path stops on a structure only when a
+leaf node carries a structure's tag name, and the verifier says so — *configured DINT, controller
+reports STRUCTURE*.
+
+The lookup answers with the definition, or with nothing when the walk stops short: the listing has not
+got the tag, the template has not got the member, a member is asked of something that has none — an
 atomic value, an array (`Motor.History.Target` would need a subscript first, and that is a shape the
-port does not accept), or a structure whose template the controller does not serve. Every such miss is
-reported by `LogixConfigurationVerifier` as *not found on the controller*, the same as a tag the listing
-lacks.
+port does not accept), or a structure whose template the controller does not serve — or an element is
+asked of a scalar or past the declared count. Every such miss is reported by
+`LogixConfigurationVerifier` as *not found on the controller*, the same as a tag the listing lacks.
 
 ## Related
 

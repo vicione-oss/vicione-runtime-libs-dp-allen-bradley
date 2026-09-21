@@ -28,7 +28,7 @@ public sealed class LogixTagAccessFactoryTests
             DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
 
         // Act
-        using var tag = _factory.CreateTagFor(readings);
+        using var tag = _factory.CreateTagForDataPoint(readings);
 
         // Assert
         tag.ElementCount.Should().Be(DeclaredElementCount);
@@ -43,7 +43,7 @@ public sealed class LogixTagAccessFactoryTests
         var moreReadings = readings with { ElementCount = new ElementCount(DeclaredElementCount * 2) };
 
         // Act
-        using var tag = _factory.CreateTagFor(moreReadings);
+        using var tag = _factory.CreateTagForDataPoint(moreReadings);
 
         // Assert
         tag.ElementCount.Should().Be(DeclaredElementCount * 2);
@@ -61,7 +61,7 @@ public sealed class LogixTagAccessFactoryTests
             DefaultTagPath, DefaultPollFrequency, NoChannels, new ElementCount(declaredBitCount));
 
         // Act
-        using var tag = _factory.CreateTagFor(flags);
+        using var tag = _factory.CreateTagForDataPoint(flags);
 
         // Assert
         tag.ElementCount.Should().Be(expectedWords);
@@ -81,7 +81,7 @@ public sealed class LogixTagAccessFactoryTests
         // Arrange
 
         // Act
-        using var tag = _factory.CreateTagFor(dataPoint);
+        using var tag = _factory.CreateTagForDataPoint(dataPoint);
 
         // Assert
         tag.ElementCount.Should().Be(1);
@@ -94,7 +94,7 @@ public sealed class LogixTagAccessFactoryTests
         // The @tags directory is a listing, not an array of the elements any data point is configured as.
 
         // Act
-        using var tag = _factory.CreateTag(new TagAddress("@tags"));
+        using var tag = _factory.CreateTagForAddress(new TagAddress("@tags"));
 
         // Assert
         tag.ElementCount.Should().BeNull();

@@ -66,7 +66,7 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         NoChannels);
 
     [Fact]
-    public async Task AUSIntArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task AUSIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -74,10 +74,9 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         var roundTripResult = await RoundTripAsync(USIntElement, USIntElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.USIntArray, AllenBradleyDataType.Usint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(USIntElement, AllenBradleyDataType.Usint);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(USIntElement, expectedDefinition),
+            new ResolvedDataPoint(USIntElement, expectedDeclaredType),
             USIntElement.CreateLogixValue(USIntElementValue));
 
         roundTripResult.Should().Be(expected);
@@ -98,7 +97,7 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
     }
 
     [Fact]
-    public async Task AUIntArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task AUIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -106,10 +105,9 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         var roundTripResult = await RoundTripAsync(UIntElement, UIntElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.UIntArray, AllenBradleyDataType.Uint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(UIntElement, AllenBradleyDataType.Uint);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(UIntElement, expectedDefinition),
+            new ResolvedDataPoint(UIntElement, expectedDeclaredType),
             UIntElement.CreateLogixValue(UIntElementValue));
 
         roundTripResult.Should().Be(expected);
@@ -130,7 +128,7 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
     }
 
     [Fact]
-    public async Task AUDIntArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task AUDIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -138,10 +136,9 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         var roundTripResult = await RoundTripAsync(UDIntElement, UDIntElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.UDIntArray, AllenBradleyDataType.Udint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(UDIntElement, AllenBradleyDataType.Udint);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(UDIntElement, expectedDefinition),
+            new ResolvedDataPoint(UDIntElement, expectedDeclaredType),
             UDIntElement.CreateLogixValue(UDIntElementValue));
 
         roundTripResult.Should().Be(expected);
@@ -162,7 +159,7 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
     }
 
     [Fact]
-    public async Task AULIntArrayElementRoundTripsAndResolvesToItsArraysDeclaration()
+    public async Task AULIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
     {
         // Arrange
 
@@ -170,10 +167,9 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         var roundTripResult = await RoundTripAsync(ULIntElement, ULIntElementValue);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.ULIntArray, AllenBradleyDataType.Ulint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(ULIntElement, AllenBradleyDataType.Ulint);
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(ULIntElement, expectedDefinition),
+            new ResolvedDataPoint(ULIntElement, expectedDeclaredType),
             ULIntElement.CreateLogixValue(ULIntElementValue));
 
         roundTripResult.Should().Be(expected);

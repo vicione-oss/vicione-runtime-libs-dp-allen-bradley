@@ -28,9 +28,8 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
         var resolved = await Client.ResolveDataPoints(dataPoints, TestContext.Current.CancellationToken);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.IntArray, AllenBradleyDataType.Int, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(dataPoint, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(dataPoint, AllenBradleyDataType.Int, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(dataPoint, expectedDeclaredType);
 
         resolved.Should().ContainSingle().Which.Should().Be(expectedResolved);
     }
@@ -73,9 +72,8 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(samples, tenSamples);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.SIntArray, AllenBradleyDataType.Sint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(samples, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(samples, AllenBradleyDataType.Sint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(samples, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<sbyte[]>().Which.Should().Equal(tenSamples);
@@ -96,9 +94,8 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint1, tenReadings);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.IntArray, AllenBradleyDataType.Int, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(dataPoint1, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(dataPoint1, AllenBradleyDataType.Int, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(dataPoint1, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<short[]>().Which.Should().Equal(tenReadings);
@@ -119,9 +116,8 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(totals, tenTotals);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.DIntArray, AllenBradleyDataType.Dint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(totals, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(totals, AllenBradleyDataType.Dint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(totals, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<int[]>().Which.Should().Equal(tenTotals);
@@ -142,9 +138,8 @@ public sealed class IntegerArrayIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(timestamps, tenTimestamps);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicArray(
-            TagAddresses.LIntArray, AllenBradleyDataType.Lint, TagAddresses.ArrayElementCount);
-        var expectedResolved = new ResolvedDataPoint(timestamps, expectedDefinition);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(timestamps, AllenBradleyDataType.Lint, TagAddresses.ArrayElementCount);
+        var expectedResolved = new ResolvedDataPoint(timestamps, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<long[]>().Which.Should().Equal(tenTimestamps);

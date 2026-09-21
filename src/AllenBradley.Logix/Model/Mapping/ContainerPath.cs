@@ -76,8 +76,8 @@ internal sealed record ContainerPath(IReadOnlyList<ContainerPathSegment> Segment
                     break;
                 case ContainerPathSegment.Named named when element is null:
                     members = members is { } above
-                        ? above.Append(named.TagName.ToMemberName())
-                        : UdtMemberPath.Of(named.TagName.ToMemberName());
+                        ? above.Append(new UdtMemberName(named.TagName.Value))
+                        : UdtMemberPath.Of(new UdtMemberName(named.TagName.Value));
                     break;
                 case ContainerPathSegment.ArrayElement subscript when tag is not null && element is null:
                     element = subscript.Index;

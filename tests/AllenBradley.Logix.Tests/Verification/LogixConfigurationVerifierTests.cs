@@ -14,7 +14,7 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixCommu
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.ProgramTagsNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagNodeTestDataFactory;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Verification;
 
@@ -28,7 +28,7 @@ public sealed class LogixConfigurationVerifierTests
     public void ATagWhoseTypeAndShapeAgreeWithTheControllerReportsNothing()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), DefaultAtomicTagDefinition());
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), DefaultAtomicDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -41,7 +41,7 @@ public sealed class LogixConfigurationVerifierTests
     public void ATagAbsentFromTheControllerIsReportedAsNotFound()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(DIntPointNamed("Ghost"), TagDefinition: null);
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Ghost"), DeclaredType: null);
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -54,7 +54,7 @@ public sealed class LogixConfigurationVerifierTests
     public void ATagOfAnotherAtomicTypeIsReportedWithBothTypesNamed()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real };
+        var declaration = DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Real };
         var resolved = new ResolvedDataPoint(DIntPointNamed("Motor.Speed"), declaration);
 
         // Act
@@ -69,7 +69,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AStringWhereAnElementaryTypeWasConfiguredIsReportedWithBothTypesNamed()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor"), DefaultStringTagDefinition());
+        var resolved = new ResolvedDataPoint(DIntPointNamed("Motor"), DefaultStringDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -82,7 +82,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AnArrayWhereAScalarWasConfiguredIsReportedWithBothShapesNamed()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { DimensionCount = DimensionCount.OneDimensional };
+        var declaration = DefaultAtomicDeclaredType() with { DimensionCount = DimensionCount.OneDimensional };
         var resolved = new ResolvedDataPoint(DIntPointNamed("Counts"), declaration);
 
         // Act
@@ -97,7 +97,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AScalarWhereAnArrayWasConfiguredIsReportedWithBothShapesNamed()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), DefaultAtomicTagDefinition());
+        var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), DefaultAtomicDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -111,7 +111,7 @@ public sealed class LogixConfigurationVerifierTests
     public void ABoolArrayConfiguredAsAScalarIsReportedAsAShapeMismatch()
     {
         // Arrange
-        var declaration = DefaultAtomicTagDefinition() with
+        var declaration = DefaultAtomicDeclaredType() with
         {
             DataType = AllenBradleyDataType.Bool,
             DimensionCount = DimensionCount.OneDimensional,
@@ -132,63 +132,20 @@ public sealed class LogixConfigurationVerifierTests
     {
         // Arrange
         var resolved = new ResolvedDataPoint(
-            IntArrayPointNamed("Readings"), DefaultIntArrayTagDefinition());
+            IntArrayPointNamed("Readings"), DefaultIntArrayDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
 
         // Assert
         mismatches.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void AnElementOfAnArrayTheControllerDeclaresReportsNothing()
-    {
-        // Arrange
-        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[3]"), DefaultIntArrayTagDefinition());
-
-        // Act
-        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
-
-        // Assert
-        mismatches.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void AnElementPastTheDeclaredCountSaysWhichIndexAndWhichCount()
-    {
-        // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with { TagAddress = new TagAddress("Readings") };
-        var resolved = new ResolvedDataPoint(IntPointNamed("Readings[10]"), declaration);
-
-        // Act
-        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
-
-        // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Be(
-            "Element index 10 is out of range for tag 'Readings', which the controller declares with 10 elements.");
-    }
-
-    [Fact]
-    public void AnElementOfATagDeclaredScalarSaysTheTagIsAScalar()
-    {
-        // Arrange
-        var declaration = DefaultAtomicTagDefinition() with { TagAddress = new TagAddress("Count") };
-        var resolved = new ResolvedDataPoint(IntPointNamed("Count[3]"), declaration);
-
-        // Act
-        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
-
-        // Assert
-        mismatches.Should().ContainSingle().Which.Value.Should().Be(
-            "Tag 'Count' is a scalar on the controller, but an element of it is configured.");
     }
 
     [Fact]
     public void AnElementCountThatDiffersIsReportedInElements()
     {
         // Arrange
-        var declaration = DefaultIntArrayTagDefinition() with { ElementCount = new ElementCount(20) };
+        var declaration = DefaultIntArrayDeclaredType() with { ElementCount = new ElementCount(20) };
         var resolved = new ResolvedDataPoint(IntArrayPointNamed("Readings"), declaration);
 
         // Act
@@ -203,7 +160,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AStringOfTheDeclaredCapacityReportsNothing()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(StringPointNamed("Label"), DefaultStringTagDefinition());
+        var resolved = new ResolvedDataPoint(StringPointNamed("Label"), DefaultStringDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -216,7 +173,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AnElementaryTagWhereAStringWasConfiguredIsReportedWithBothTypesNamed()
     {
         // Arrange
-        var resolved = new ResolvedDataPoint(StringPointNamed("Motor.Speed"), DefaultAtomicTagDefinition());
+        var resolved = new ResolvedDataPoint(StringPointNamed("Motor.Speed"), DefaultAtomicDeclaredType());
 
         // Act
         var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
@@ -229,7 +186,7 @@ public sealed class LogixConfigurationVerifierTests
     public void AStringCapacityThatDiffersIsReportedInCharacters()
     {
         // Arrange
-        var declaration = DefaultStringTagDefinition() with { MaxLength = new StringMaxLength(20) };
+        var declaration = DefaultStringDeclaredType() with { MaxLength = new StringMaxLength(20) };
         var resolved = new ResolvedDataPoint(StringPointNamed("Label"), declaration);
 
         // Act
@@ -244,11 +201,11 @@ public sealed class LogixConfigurationVerifierTests
     public async Task OnlyTheMisconfiguredDataPointsComeBackFromAVerify()
     {
         // Arrange
-        // "Missing" is deliberately absent, so the client resolves it with no definition.
+        // "Missing" is deliberately absent, so the client resolves it with no declared type.
         var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Good"] = DefaultAtomicTagDefinition(),
-            ["WrongType"] = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real },
+            ["Good"] = DefaultAtomicDeclaredType(),
+            ["WrongType"] = DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Real },
         });
 
         // Act
@@ -267,7 +224,7 @@ public sealed class LogixConfigurationVerifierTests
         // Arrange
         var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["WrongType"] = DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real },
+            ["WrongType"] = DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Real },
         });
 
         // Act
@@ -285,7 +242,7 @@ public sealed class LogixConfigurationVerifierTests
         // Arrange
         var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Program:MainProgram.Count"] = DefaultAtomicTagDefinition(),
+            ["Program:MainProgram.Count"] = DefaultAtomicDeclaredType(),
         });
         var noSuchProgram = CreateProgramTagsNode("NoSuchProgram");
         var dataPoints = DataPointsOf(CreateCommunicationOf(
@@ -297,7 +254,7 @@ public sealed class LogixConfigurationVerifierTests
         // Assert
         mismatches.Should().ContainSingle()
             .Which.MismatchingConfigurations.Should().ContainSingle()
-            .Which.Value.Should().Be("Tag 'Program:NoSuchProgram.Count' was not found on the controller.");
+            .Which.Value.Should().Be("RootTagName 'Program:NoSuchProgram.Count' was not found on the controller.");
     }
 
     [Fact]
@@ -306,7 +263,7 @@ public sealed class LogixConfigurationVerifierTests
         // Arrange
         var verifier = new LogixConfigurationVerifier(new FakeClient
         {
-            ["Program:MainProgram.Count"] = DefaultAtomicTagDefinition(),
+            ["Program:MainProgram.Count"] = DefaultAtomicDeclaredType(),
         });
         var mainProgram = CreateProgramTagsNode("MainProgram");
         var dataPoints = DataPointsOf(CreateCommunicationOf(
@@ -322,9 +279,6 @@ public sealed class LogixConfigurationVerifierTests
     private static DIntDataPoint DIntPointNamed(string tagName) =>
         new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels);
 
-    private static IntDataPoint IntPointNamed(string tagName) =>
-        new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels);
-
     private static StringDataPoint StringPointNamed(string tagName) =>
         new(TagPath.Parse(tagName), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
@@ -338,10 +292,10 @@ public sealed class LogixConfigurationVerifierTests
 
     private sealed class FakeClient : ILogixClient
     {
-        private readonly Dictionary<TagAddress, TagDefinition> _declarations =
+        private readonly Dictionary<TagAddress, DeclaredType> _declarations =
             new(TagAddress.CaseInsensitiveComparer);
 
-        public TagDefinition this[string tagName]
+        public DeclaredType this[string tagName]
         {
             set => _declarations[new TagAddress(tagName)] = value;
         }

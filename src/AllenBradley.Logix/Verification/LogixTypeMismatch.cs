@@ -32,13 +32,4 @@ internal enum LogixTypeMismatch
     /// an <c>INT[10]</c> is configured.
     /// </summary>
     ElementCount,
-
-    /// <summary>
-    /// An element is configured past the end of the array — <c>Arr[10]</c> on a tag the controller
-    /// declares with ten elements.
-    /// </summary>
-    ElementIndexOutOfRange,
-
-    /// <summary>An element is configured on a tag the controller declares as a scalar.</summary>
-    ElementOfScalar,
 }

@@ -9,13 +9,12 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 /// </summary>
 internal interface ILogixTagAccessFactory
 {
-    /// <summary>Creates access to <paramref name="dataPoint"/>'s tag, bound to this factory's controller.</summary>
-    ILogixTagAccess Create(ILogixDataPoint dataPoint);
+    /// <summary>Creates access to <paramref name="dataPoint"/>'s tag.</summary>
+    ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint);
 
     /// <summary>
-    /// Creates access to one of the names the controller answers schema with — <c>@tags</c>,
-    /// <c>Program:&lt;name&gt;.@tags</c> or <c>@udt/&lt;id&gt;</c>. Used to browse the symbol table for
-    /// configuration verification; the caller owns disposing the transient access once it has read.
+    /// Creates access to a given tag-address. Used to browse the symbol table for
+    /// configuration verification.
     /// </summary>
-    ILogixTagAccess CreateForSchemaTag(TagAddress tagAddress);
+    ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress);
 }

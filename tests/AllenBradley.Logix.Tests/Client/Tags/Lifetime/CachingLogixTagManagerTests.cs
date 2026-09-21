@@ -1,17 +1,20 @@
-using System.Collections.Immutable;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTypes;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.TagsListing;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Definitions;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration.Templates;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TagDefinitionTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.DeclaredTypeTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Lifetime;
 
@@ -22,20 +25,18 @@ public sealed class CachingLogixTagManagerTests
     private static readonly TagAddress SpeedTagAddress = new("Speed");
     private static readonly TagAddress LevelTagAddress = new("Level");
     private static readonly TagAddress GhostTagAddress = new("Ghost");
-
-    private static readonly TagDefinition SpeedDefinition =
-        DefaultAtomicTagDefinition() with { TagAddress = SpeedTagAddress };
+    private static readonly TagAddress ReadingsTagAddress = new("Readings");
 
     [Fact]
-    public async Task ASecondLoadOfTheTagDefinitionsDoesNotBrowseAgain()
+    public async Task ASecondLoadOfTheSymbolTableDoesNotBrowseAgain()
     {
         // Arrange
-        var browser = new FakeTagDefinitionsLoader();
+        var browser = new FakeSymbolTableLoader();
         using var manager = CreateManager(new CountingAccessFactory(), browser);
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
 
         // Act
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
 
         // Assert
         browser.BrowseCount.Should().Be(1);
@@ -47,14 +48,14 @@ public sealed class CachingLogixTagManagerTests
         // Arrange
         // The first browse blocks until the test releases it.
         var browseGate = new TaskCompletionSource();
-        var browser = new FakeTagDefinitionsLoader { OnBrowse = () => browseGate.Task };
+        var browser = new FakeSymbolTableLoader { OnBrowse = () => browseGate.Task };
         using var manager = CreateManager(new CountingAccessFactory(), browser);
 
         // Act
         // A bounded wait is the only way to observe that the second load has not completed yet.
-        var first = manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var first = manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         await browser.BrowseStarted.Task;
-        var second = manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var second = manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         await Task.Delay(50, TestContext.Current.CancellationToken);
         var secondCompletedEarly = second.IsCompleted;
         browseGate.SetResult();
@@ -69,16 +70,16 @@ public sealed class CachingLogixTagManagerTests
     public async Task ALoadAfterAFailedBrowseGoesToTheControllerAgain()
     {
         // Arrange
-        var browser = new FakeTagDefinitionsLoader
+        var browser = new FakeSymbolTableLoader
         {
             OnBrowse = () => Task.FromException(new DataRetrievalException("no route to host")),
         };
         using var manager = CreateManager(new CountingAccessFactory(), browser);
-        _ = await Record.ExceptionAsync(() => manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken));
+        _ = await Record.ExceptionAsync(() => manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken));
 
         // Act
         var retry = await Record.ExceptionAsync(
-            () => manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken));
+            () => manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken));
 
         // Assert
         retry.Should().BeOfType<DataRetrievalException>();
@@ -89,46 +90,50 @@ public sealed class CachingLogixTagManagerTests
     public async Task ATagCarriesTheControllersDefinitionForItsName()
     {
         // Arrange
-        var browser = new FakeTagDefinitionsLoader { [SpeedTagAddress] = SpeedDefinition };
+        var browser = new FakeSymbolTableLoader { [SpeedTagAddress] = DefaultAtomicTagDefinition() };
         using var manager = CreateManager(new CountingAccessFactory(), browser);
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
 
         // Act
         var tag = manager.TagFor(DataPointNamed(SpeedTagAddress));
 
         // Assert
-        tag.Metadata.Should().Be(SpeedDefinition);
+        tag.DeclaredType.Should().Be(DefaultAtomicDeclaredType() with { TagAddress = SpeedTagAddress });
     }
 
     [Fact]
-    public async Task ATagAbsentFromTheDefinitionsIsStillResolvedAndCarriesNone()
+    public async Task ATagAbsentFromTheSymbolTableIsStillResolvedAndCarriesNone()
     {
         // Arrange
-        var browser = new FakeTagDefinitionsLoader { [SpeedTagAddress] = SpeedDefinition };
+        var browser = new FakeSymbolTableLoader { [SpeedTagAddress] = DefaultAtomicTagDefinition() };
         using var manager = CreateManager(new CountingAccessFactory(), browser);
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
 
         // Act
         var tag = manager.TagFor(DataPointNamed(GhostTagAddress));
 
         // Assert
-        tag.Metadata.Should().BeNull();
+        tag.DeclaredType.Should().BeNull();
     }
 
     [Fact]
-    public async Task AnElementCarriesTheControllersDefinitionForItsArray()
+    public async Task AnElementCarriesTheDefinitionOfOneElementOfItsArray()
     {
         // Arrange
-        var readings = DefaultIntArrayTagDefinition() with { TagAddress = new TagAddress("Readings") };
-        var browser = new FakeTagDefinitionsLoader { [readings.TagAddress] = readings };
+        var browser = new FakeSymbolTableLoader { [ReadingsTagAddress] = DefaultIntArrayTagDefinition() };
         using var manager = CreateManager(new CountingAccessFactory(), browser);
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
 
         // Act
         var tag = manager.TagFor(DataPointNamed(new TagAddress("Readings[3]")));
 
         // Assert
-        tag.Metadata.Should().Be(readings);
+        var expected = DefaultAtomicDeclaredType() with
+        {
+            TagAddress = new TagAddress("Readings[3]"),
+            DataType = AllenBradleyDataType.Int,
+        };
+        tag.DeclaredType.Should().Be(expected);
     }
 
     [Fact]
@@ -138,8 +143,8 @@ public sealed class CachingLogixTagManagerTests
         // Distinct instances, equal by record value
         // (ADR/2026-07-16-reusing-and-releasing-tag-handles.md).
         var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         var first = manager.TagFor(DataPointNamed(SpeedTagAddress));
 
         // Act
@@ -155,8 +160,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         var speed = manager.TagFor(DataPointNamed(SpeedTagAddress));
 
         // Act
@@ -172,7 +177,7 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
+        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
 
         // Act
         var tagFor = Record.Exception(() => manager.TagFor(DataPointNamed(SpeedTagAddress)));
@@ -187,8 +192,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
         manager.TagFor(DataPointNamed(LevelTagAddress));
 
@@ -205,8 +210,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
         manager.Dispose();
 
@@ -222,8 +227,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory { ThrowOnDisposeFor = SpeedTagAddress };
-        var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
         manager.TagFor(DataPointNamed(LevelTagAddress));
 
@@ -240,8 +245,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
 
         // Act
@@ -256,14 +261,14 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        var browser = new FakeTagDefinitionsLoader();
+        var browser = new FakeSymbolTableLoader();
         using var manager = CreateManager(factory, browser);
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
         manager.Drain();
 
         // Act
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.TagFor(DataPointNamed(SpeedTagAddress));
 
         // Assert
@@ -276,8 +281,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.Drain();
 
         // Act
@@ -292,8 +297,8 @@ public sealed class CachingLogixTagManagerTests
     public async Task DrainingADisposedManagerIsRefused()
     {
         // Arrange
-        var manager = CreateManager(new CountingAccessFactory(), new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var manager = CreateManager(new CountingAccessFactory(), new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.Dispose();
 
         // Act
@@ -308,8 +313,8 @@ public sealed class CachingLogixTagManagerTests
     {
         // Arrange
         var factory = new CountingAccessFactory();
-        var manager = CreateManager(factory, new FakeTagDefinitionsLoader());
-        await manager.LoadTagDefinitionsAsync(TestContext.Current.CancellationToken);
+        var manager = CreateManager(factory, new FakeSymbolTableLoader());
+        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
         manager.Dispose();
 
         // Act
@@ -321,15 +326,15 @@ public sealed class CachingLogixTagManagerTests
     }
 
     private static CachingLogixTagManager CreateManager(
-        CountingAccessFactory factory, FakeTagDefinitionsLoader browser) =>
+        CountingAccessFactory factory, FakeSymbolTableLoader browser) =>
         new(factory, browser, NullLogger<CachingLogixTagManager>.Instance);
 
     private static DIntDataPoint DataPointNamed(TagAddress tagAddress) =>
         new(TagPath.Parse(tagAddress.Value), DefaultPollFrequency, NoChannels);
 
-    private sealed class FakeTagDefinitionsLoader : ITagDefinitionsLoader
+    private sealed class FakeSymbolTableLoader : ISymbolTableLoader
     {
-        private readonly Dictionary<TagAddress, TagDefinition> _definitions = new(TagAddress.CaseInsensitiveComparer);
+        private readonly Dictionary<TagAddress, ListedTag> _listedTags = new(TagAddress.CaseInsensitiveComparer);
 
         public int BrowseCount { get; private set; }
 
@@ -339,15 +344,15 @@ public sealed class CachingLogixTagManagerTests
 
         public TagDefinition this[TagAddress tagAddress]
         {
-            set => _definitions[tagAddress] = value;
+            set => _listedTags[tagAddress] = new ListedTag(tagAddress, value);
         }
 
-        public async Task<TagDefinitions> LoadAsync(CancellationToken cancellationToken)
+        public async Task<SymbolTable> LoadAsync(CancellationToken cancellationToken)
         {
             BrowseCount++;
             BrowseStarted.TrySetResult();
             await OnBrowse().ConfigureAwait(false);
-            return new TagDefinitions(_definitions, ImmutableDictionary<TemplateId, TemplateDefinition>.Empty);
+            return new SymbolTable([.. _listedTags.Values], []);
         }
     }
 
@@ -361,7 +366,7 @@ public sealed class CachingLogixTagManagerTests
 
         public TagAddress? ThrowOnDisposeFor { get; init; }
 
-        public ILogixTagAccess Create(ILogixDataPoint dataPoint)
+        public ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint)
         {
             var access = Substitute.For<ILogixTagAccess>();
             if (dataPoint.TagAddress == ThrowOnDisposeFor)
@@ -373,7 +378,7 @@ public sealed class CachingLogixTagManagerTests
             return access;
         }
 
-        public ILogixTagAccess CreateForSchemaTag(TagAddress tagAddress) =>
-            throw new NotSupportedException("The manager browses through the injected ITagDefinitionsLoader.");
+        public ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress) =>
+            throw new NotSupportedException("The manager browses through the injected ISymbolTableLoader.");
     }
 }

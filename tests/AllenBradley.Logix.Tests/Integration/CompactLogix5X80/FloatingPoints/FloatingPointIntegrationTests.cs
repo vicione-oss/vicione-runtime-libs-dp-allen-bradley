@@ -28,9 +28,9 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.Real, AllenBradleyDataType.Real);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Real);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
@@ -52,9 +52,9 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDefinition = ExpectedTagDefinitions.AtomicScalar(TagAddresses.LReal, AllenBradleyDataType.Lreal);
+        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Lreal);
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(dataPoint, expectedDefinition),
+            new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
