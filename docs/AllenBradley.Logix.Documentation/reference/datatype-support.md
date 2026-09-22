@@ -294,9 +294,10 @@ name as its tag name, and a member that is itself a UDT is the same container ne
 name as its own. `TagNamePropertyValidator` accepts a plain name at every level and refuses a dotted
 one, because a dotted name is two nodes. The container states no type: the controller's template says
 what the members are, and each child is gated by the generation the container carries down from its
-scope, so an `LREAL` member is refused on a 5X70 the way an `LREAL` tag is. Not accepted under it yet:
-an array container, because an element behind a member path (`MyMotor.Readings[3]`) is an address the
-port has not proved.
+scope, so an `LREAL` member is refused on a 5X70 the way an `LREAL` tag is. An array container nests
+under it the same way, gated by the same generation, so an array member is opened per element and
+`MyMotor.Readings[3]` is one data point. The round trip of that address against a controller is not
+yet proved.
 
 The node names UDTs only. Whether the predefined structures — `TIMER`, `COUNTER`, `STRING` — and
 Add-On Instruction instances are opened the same way, or get a node of their own, is **not decided**.

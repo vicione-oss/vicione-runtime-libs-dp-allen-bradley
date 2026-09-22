@@ -836,7 +836,8 @@ Nodes:
   # ==================== UDT CONTAINER NODES ============================
   # A UDT tag opened into its members: the container holds the tag name, and each child holds a member
   # name, so the address composes to "Name.Member". A member that is itself a UDT is the same container
-  # nested, with the member name as its tag name. The container declares no type: the controller's
+  # nested, with the member name as its tag name; an array member opened per element is an array
+  # container nested, so the address composes to "Name.Member[3]". The container declares no type: the controller's
   # template says what the members are, and a member that is not there, or not of the configured type,
   # is reported at connect. One per generation, like the scopes, so the child list withholds the
   # 5X80-only types on a 5X70 and the mapped node gates them again. Whether TIMER, COUNTER, STRING or
@@ -846,7 +847,7 @@ Nodes:
     MappingId: Udt5X70
     Type: DataPortTreeNode
     Name: "UDT"
-    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT."
+    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: &udt-container-properties
@@ -868,13 +869,18 @@ Nodes:
       - Id: DIntArray
       - Id: LIntArray
       - Id: RealArray
+      - Id: SIntArrayContainer
+      - Id: IntArrayContainer
+      - Id: DIntArrayContainer
+      - Id: LIntArrayContainer
+      - Id: RealArrayContainer
       - Id: Udt5X70
 
   - Id: Udt5X80
     MappingId: Udt5X80
     Type: DataPortTreeNode
     Name: "UDT"
-    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT."
+    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
     Icon: folder
     TransferModes: [ None ]
     PropertyCategories: *udt-container-properties
@@ -902,6 +908,16 @@ Nodes:
       - Id: ULIntArray
       - Id: RealArray
       - Id: LRealArray
+      - Id: SIntArrayContainer
+      - Id: IntArrayContainer
+      - Id: DIntArrayContainer
+      - Id: LIntArrayContainer
+      - Id: USIntArrayContainer
+      - Id: UIntArrayContainer
+      - Id: UDIntArrayContainer
+      - Id: ULIntArrayContainer
+      - Id: RealArrayContainer
+      - Id: LRealArrayContainer
       - Id: Udt5X80
 
   # ==================== ARRAY CONTAINER NODES ==========================

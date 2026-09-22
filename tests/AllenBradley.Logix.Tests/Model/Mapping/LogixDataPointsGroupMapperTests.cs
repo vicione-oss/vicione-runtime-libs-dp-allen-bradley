@@ -431,6 +431,25 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AnElementOfAnArrayMemberIsAddressedBehindTheMember()
+    {
+        // Arrange
+        var motor = DefaultUdtContainerNode;
+        var readings = DefaultIntArrayContainerNode with { TagName = new TagName("Readings") };
+        readings.DataPointNodes.Add(DefaultIntNode with { TagName = new TagName("[3]") });
+        motor.ConfigurationNodes.Add(readings);
+        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TagPath(
+            Program: null, DefaultUdtTagName, UdtMemberPath.Of(new UdtMemberName("Readings")), new ElementIndex(3));
+        dataPoints.Should().ContainSingle().Which.TagPath.Should().Be(expected);
+    }
+
+    [Fact]
     public void EachUdtMemberBecomesThePointOfItsType()
     {
         // Arrange

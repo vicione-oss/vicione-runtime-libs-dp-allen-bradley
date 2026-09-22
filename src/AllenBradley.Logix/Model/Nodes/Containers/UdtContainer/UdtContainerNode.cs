@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
@@ -59,11 +60,15 @@ internal sealed record UdtContainerNode(
     internal static bool IsUdtContainer(LinkedNode node) => LinkedNodeTypeIds.Contains(node.DesignId);
 
     /// <summary>
-    /// A nested UDT of this controller's own generation, and nothing else. An array container is
-    /// not accepted yet: an element behind a member path is an address the port has not proved.
+    /// An array container of a type this controller's generation has, or a nested UDT of this
+    /// controller's own generation, and nothing else — the same gate the scope above it has.
     /// </summary>
-    internal override bool CanBeAdded(ILogixContainerNode logixContainerNode) =>
-        logixContainerNode is UdtContainerNode nested && nested.Generation == Generation;
+    internal override bool CanBeAdded(ILogixContainerNode logixContainerNode) => logixContainerNode switch
+    {
+        ArrayContainerNode arrayContainer => arrayContainer.ArrayDataType.MinimumGeneration <= Generation,
+        UdtContainerNode nested => nested.Generation == Generation,
+        _ => false,
+    };
 
     /// <summary>Whether a member's type is one this controller's generation has.</summary>
     internal override bool CanBeAdded(ILogixDataPointNode logixDataPointNode) =>

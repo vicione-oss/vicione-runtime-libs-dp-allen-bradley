@@ -105,15 +105,46 @@ public sealed class UdtContainerNodeTests
         canBeAdded.Should().BeFalse();
     }
 
-    [Fact]
-    public void AnArrayContainerIsRefused()
+    [Theory]
+    [InlineData(LogixGeneration.Logix5X70)]
+    [InlineData(LogixGeneration.Logix5X80)]
+    public void AnArrayContainerOfTheOldestGenerationCanBeAddedWhateverTheUdtsGeneration(
+        LogixGeneration generation)
     {
         // Arrange
-        var udt = DefaultUdtContainerNode;
+        var udt = DefaultUdtContainerNode with { Generation = generation };
         var readings = DefaultIntArrayContainerNode;
 
         // Act
         var canBeAdded = udt.CanBeAdded(readings);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnArrayContainerOfTheUdtsOwnGenerationCanBeAdded()
+    {
+        // Arrange
+        var udt = DefaultUdtContainerNode with { Generation = LogixGeneration.Logix5X80 };
+        var temperatures = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = udt.CanBeAdded(temperatures);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnArrayContainerRequiringALaterGenerationIsRefused()
+    {
+        // Arrange
+        var udt = DefaultUdtContainerNode with { Generation = LogixGeneration.Logix5X70 };
+        var temperatures = DefaultLRealArrayContainerNode;
+
+        // Act
+        var canBeAdded = udt.CanBeAdded(temperatures);
 
         // Assert
         canBeAdded.Should().BeFalse();
