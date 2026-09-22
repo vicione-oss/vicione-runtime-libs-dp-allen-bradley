@@ -15,17 +15,17 @@ coverage belongs on the L306ER for that reason — a test that needs a tag can s
 
 ## How the integration tests are laid out
 
-`tests/AllenBradley.Logix.Tests/Integration/` is split by what a suite is actually about:
+`tests/AllenBradley.Logix.Tests/Integration/` is split by the device a suite runs against:
 
 | Folder                | What is under test                                                        | Device                          |
 |-----------------------|---------------------------------------------------------------------------|---------------------------------|
-| `LibPlcTag/`          | libplctag on its own — no dataport code in the picture                    | the L32E (borrowed)             |
 | `CompactLogix5X70/`   | the dataport's client stack, and the facts that are about this controller | the L32E (borrowed)             |
 | `CompactLogix5X80/`   | one write/read round trip per data type in the port's vocabulary          | the L306ER (ours, not up yet)   |
 
-`PlcCollection` sits above all three: every test that touches a controller joins it, and it never runs
-in parallel. They share one controller over one libplctag session, and concurrent operations on that
-session collide.
+The folder itself holds what both suites share: `BenchController` and `BenchControllerTags` say how the
+L32E is reached and what lives on it, and `PlcCollection` sits above both folders. Every test that
+touches a controller joins that collection, and it never runs in parallel. The tests share one
+controller over one libplctag session, and concurrent operations on that session collide.
 
 ## Prerequisites
 
@@ -232,13 +232,10 @@ differs.
 |----------|---------|-------------|
 | `CIP_GATEWAY` | `192.168.0.100` | L32E IP address |
 | `CIP_PATH` | `1,0` | Backplane routing path |
-| `CIP_TAG_NAME` | `Program:MainProgram.strValue1` | Tag used by the raw-libplctag spike round trip |
-| `CIP_DINT_TAG` | `Program:MainProgram.Counter.PRE` | Tag the shared-access concurrency probe hammers |
-| `CIP_DUMP_PATH` | `tag-namespace-dump.txt` | Where the tag-namespace dump is written |
 
 Only connection settings are environment variables, for either controller. Which tags a suite targets is
 a fact about the device it runs against, so those names are constants — in
-`Integration/CompactLogix5X70/LogixTagAddresses.cs` for the L32E, and in
+`Integration/BenchControllerTags.cs` for the L32E, and in
 `Integration/CompactLogix5X80/TagAddresses.cs` for the 5X80.
 
 Run only the integration tests (needs the device reachable):

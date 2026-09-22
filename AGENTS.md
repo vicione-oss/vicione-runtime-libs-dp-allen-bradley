@@ -1,30 +1,24 @@
 # AGENTS.md
 
-Allen-Bradley DataPorts for .NET 10, speaking CIP over EtherNet/IP. Two dataports are planned:
+Allen-Bradley DataPorts for .NET 10 that speak CIP over EtherNet/IP. Two dataports are planned:
 **Logix** (ControlLogix / CompactLogix, symbolic tag addressing) and **Legacy**
-(MicroLogix / Micro800, file-based addressing). Only Logix has a project so far.
+(MicroLogix / Micro800, file-based addressing).
 
 ## Current state — read this first
 
-`src/AllenBradley.Logix` is a working dataport, built slice by slice. It reads and writes tags against a real controller:
-the YAML manifest and the typed node model mapped from it, the incoming and outgoing ports, a pooled `LogixClient` over
-`libplctag`, per-type converters, and verification of a configuration against the controller's symbol table.
-**`libplctag` is a dependency of `src/`**, not of the tests alone — the driver question is settled.
+`src/AllenBradley.Logix` is a working dataport, built slice by slice. It reads and writes tags against a real
+controller. It contains the YAML manifest and the typed node model mapped from it, the incoming and outgoing ports,
+a pooled `LogixClient` over `libplctag`, per-type converters, and verification of a configuration against the
+controller's symbol table.
 
-What is missing is most of the type vocabulary and most of the tree: structures, arrays, UDTs and program scope are all
-later slices. Before adding a data type or a node, read
-[`reference/datatype-support.md`](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) for what is
-implemented today, and [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md)
-for how the tree is modelled. The **Legacy** dataport still has no project.
+Before you add a data type or a node, read these two pages:
 
-`tests/AllenBradley.Logix.Tests/Integration/` is the hardware suite; a bare `dotnet test` never runs it. It is split
-three ways: `LibPlcTag/` probes the library on its own and `CompactLogix5X70/` drives the dataport's client stack, both
-against the **L32E — a borrowed controller in the ifm demo cell, over the Link Manager tunnel, whose tags we cannot
-change**; and `CompactLogix5X80/` is one write/read round trip per data type against **our own CompactLogix
-5069-L306ER, which is on hand but not commissioned yet**. New integration coverage goes in `CompactLogix5X80/`, where a
-test that needs a tag can have one provisioned; every address there is a specification for that provisioning, not an
-observation. See [TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before pointing
-anything at a device.
+1. [`reference/datatype-support.md`](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) — what is
+   implemented today, and the list of what is not.
+2. [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md) — how
+   the tree is modelled.
+
+The **Legacy** dataport has no project yet.
 
 ## Quick Reference
 
@@ -32,7 +26,7 @@ anything at a device.
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Build              | `dotnet build allen-bradley.slnx -c Debug`                                                                                          |
 | Test (unit)        | `dotnet test` — the unit suite is the default, and never touches the PLC                                                            |
-| Test (integration) | `dotnet test -p:test-suite=integration` — **requires a controller** (see TEST-DEVICE-SETUP.md)                                      |
+| Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see TEST-DEVICE-SETUP.md)                                         |
 | Test (all)         | `dotnet test -p:test-suite=all`                                                                                                     |
 | Test (class)       | `dotnet test --project tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj --filter-class "<fully.qualified.ClassName>"` |
 | Format             | `dotnet format allen-bradley.slnx`                                                                                                  |
@@ -42,81 +36,82 @@ anything at a device.
 
 ## Testing platform — the thing that trips people up
 
-**MTP + xUnit v3.** The classic VSTest `--filter` syntax does **not** work here. Suites are selected through the
+**MTP + xUnit v3.** The classic VSTest `--filter` syntax does **not** work here. To select a suite, use the
 `test-suite` MSBuild property, defined in `tests/Directory.Build.props`:
 
 - Unit tests carry **no trait**. Integration tests carry `[Trait("Category", "Integration")]`.
-- Unset runs the unit suite, so a bare `dotnet test` is always PLC-safe.
-- An unknown `test-suite` value **fails the build** rather than silently running hardware I/O.
-- `--filter-query` clashes with the injected suite filter; use the simple-style filters (`--filter-class`,
-  `--filter-trait`, `--filter-not-trait`) instead.
+- Valid values are `unit`, `integration` and `all`. Unset selects the unit suite, so a bare `dotnet test` is always
+  PLC-safe.
+- An unknown `test-suite` value **fails the build** instead of a silent run of hardware I/O.
+- `--filter-query` clashes with the injected suite filter. Use the simple-style filters (`--filter-class`,
+  `--filter-trait`, `--filter-not-trait`).
 
-This was not a free choice. `ViciOne.Suite.DataPort.Extensions.Testing` depends on
-`xunit.v3.extensibility.core`, so xUnit v2 was never available — and MTP was picked over the xUnit v3 VSTest adapter to
-stay aligned with the S7 repo. Integration tests need their controller reachable;
-see [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
+## The integration suite
 
-**Under MTP the test assembly *is* the process**, so its exit code is the suite's exit code. Anything that corrupts
-process shutdown fails the suite even when every test passed. This is not theoretical:
-the spike's `PlcTagLister` did not dispose its libplctag `Tag` objects, so native handles were freed from finalizers
-after CLR teardown and the process fail-fasted with `0xC0000602` on a green 3/3 run. **Dispose every `Tag`.** The old
-VSTest host hid this.
+`tests/AllenBradley.Logix.Tests/Integration/` is the suite that targets actual hardware. A bare `dotnet test` never runs it.
+It is split in two, by device:
+
+| Folder              | Device                                                    | What a test there is                                     |
+|---------------------|-----------------------------------------------------------|----------------------------------------------------------|
+| `CompactLogix5X70/` | the **L32E**, borrowed, in the ifm demo cell              | a description of tags we cannot change                   |
+| `CompactLogix5X80/` | the **5069-L306ER**, our own device, not commissioned yet | a specification for a tag that must still be provisioned |
+
+Put new integration coverage in `CompactLogix5X80/`, where a test that needs a tag can have one provisioned. Each
+folder holds exactly one type that says how its device is reached — `BenchController` for the L32E, `TestController`
+for the L306ER — and each reads its endpoint from an environment variable with a default. `PlcCollection` holds every
+test that talks to a controller and never runs in parallel, because the tests share one libplctag session.
+
+Read [TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before you point anything
+at a device.
 
 ## Repo conventions
 
-Adopted wholesale from the S7 repo, so that a dataport developer moving between the two finds the same build:
+Adopted wholesale from the S7 repo, so that a dataport developer who moves between the two finds the same build:
 
 - **`Directory.Build.props`** — net10.0, nullable + implicit usings, `TreatWarningsAsErrors`,
   `EnforceCodeStyleInBuild`, NuGet lock files, version read from `VERSION`
 - **`Directory.Packages.props`** — central package management; **no inline `Version=` in a csproj**
 - **`NuGet.Config`** — JFrog proxy for everything, JFrog ViciOne for `ViciOne.*`
 - **`.editorconfig`** — S7's, verbatim
-- **`AwesomeAssertions`**, not FluentAssertions (which conflicts, and was dropped over the licence change)
 - **`NSubstitute`** for interaction tests only — where every assertion is "the caller did this to its
-  collaborator", as in `LogixClientPoolTests`. Stateful fakes (a tag lookup, a captured write buffer)
-  stay hand-rolled; a substitute makes those longer, not shorter
-- **Model types are `readonly record struct`s or `enum`s — never bare primitives.** Every domain concept we define gets
-  its own named value type; see
+  collaborator", as in `LogixClientPoolTests`. Keep stateful fakes (a tag lookup, a captured write buffer)
+  hand-rolled; a substitute makes those longer, not shorter
+- **Model types are `readonly record struct`s or `enum`s — never bare primitives.** Every domain concept we define
+  gets its own named value type; see
   [modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)
-
-**Trap:** `Directory.Build.props` switches a project to MTP on the condition
-`MSBuildProjectName.EndsWith('Tests') And MSBuildProjectDirectory.Contains('tests')`. Any new test project picks that up
-automatically — which is usually what you want, but it means naming a non-test project `*Tests` under `tests/` will
-quietly reconfigure it.
-
-`src/` and `tests/` project names are load-bearing: `Directory.Build.props` grants
-`InternalsVisibleTo` to `$(MSBuildProjectName).Tests`, so `AllenBradley.Logix` is tested by
-`AllenBradley.Logix.Tests` and the wiring is implicit. `metadata.json` in each dataport carries the same id and is
-templated by the pipeline.
 
 ## DataPort.Extensions Packages
 
-Shared infrastructure comes from `ViciOne.Suite.DataPort.Extensions` (and `...Extensions.Testing`
-for test utilities) — base classes for incoming/outgoing dataports, resilience, validation, queuing and logging.
-Comprehensive documentation ships inside the NuGet packages themselves.
+Shared infrastructure comes from `ViciOne.Suite.DataPort.Extensions` (and `...Extensions.Testing` for test
+utilities) — base classes for incoming and outgoing dataports, resilience, validation, queuing and logging. The full
+documentation ships inside the NuGet packages themselves.
 
 ## Documentation
 
-| Topic                      | Location                                                                                                                     |
-|----------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| **Ubiquitous language**    | [CONTEXT.md](CONTEXT.md) — **read before naming anything**                                                                   |
-| Documentation index        | [docs/AllenBradley.Documentation/README.md](docs/AllenBradley.Documentation/README.md)                                       |
-| Documentation principles   | [docs/AllenBradley.Documentation/documentation-principles.md](docs/AllenBradley.Documentation/documentation-principles.md)   |
-| Modelling conventions      | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)         |
-| CIP protocol               | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)             |
-| Test device setup          | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) |
-| Logix dataport             | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                           |
-| Legacy dataport            | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                         |
-| Data types the port has    | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) |
-| Decision records           | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                     |
+| Topic                     | Location                                                                                                                                             |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Ubiquitous language**   | [CONTEXT.md](CONTEXT.md) — **read before naming anything**; `allen-bradley.glossary.yml` is its Contextive twin, keep the two in step                |
+| Documentation index       | [docs/AllenBradley.Documentation/README.md](docs/AllenBradley.Documentation/README.md)                                                               |
+| Documentation principles  | [docs/AllenBradley.Documentation/documentation-principles.md](docs/AllenBradley.Documentation/documentation-principles.md)                           |
+| Modelling conventions     | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)                                 |
+| CIP protocol              | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)                                             |
+| libplctag behaviour       | [docs/AllenBradley.Documentation/libPlcTag/README.md](docs/AllenBradley.Documentation/libPlcTag/README.md) — the library's quirks and traps          |
+| Test device setup         | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md)                         |
+| Logix dataport            | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                                                   |
+| Legacy dataport           | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                                                 |
+| Data types the port has   | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md)           |
+| Node model                | [docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md)       |
+| Client architecture       | [docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md](docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md) |
+| Decision records          | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                                             |
+| Deploy to a local ViciOne | [scripts/README.md](scripts/README.md)                                                                                                               |
 
 ## GitLab & Version Control
 
 This project is hosted on **GitLab**. Always use the **`glab` CLI** for repository interactions.
 
-Some read commands (e.g. `glab mr view`) fail with 401 unless you pass
-`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. When in doubt,
-add `--repo`.
+Some read commands (for example `glab mr view`) fail with 401 unless you pass
+`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. If you are
+in doubt, add `--repo`.
 
 | Task       | Command                                                         |
 |------------|-----------------------------------------------------------------|
