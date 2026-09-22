@@ -78,6 +78,20 @@ public sealed class ProgramTagsNodeTests
         canBeAdded.Should().BeFalse();
     }
 
+    [Fact]
+    public void ADataPointOfAnotherDataPortIsRefused()
+    {
+        // Arrange
+        var program = DefaultProgramTagsNode;
+        var foreignDataPoint = DefaultForeignDataPointNode;
+
+        // Act
+        var canBeAdded = program.CanBeAdded(foreignDataPoint);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
     [Theory]
     [InlineData(LogixGeneration.Logix5X70)]
     [InlineData(LogixGeneration.Logix5X80)]

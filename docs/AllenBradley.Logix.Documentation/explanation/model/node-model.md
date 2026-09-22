@@ -88,16 +88,16 @@ tag has. `LogixArrayDataPointNode` adds the one thing an array adds, its `Elemen
 exactly: `LogixTagNodeMapper` reads the tag name and the poll frequency, and `LogixArrayNodeMapper` adds the element
 count.
 
-## The asymmetry worth knowing about
+## The repetition worth knowing about
 
-`UdtContainerNode` and `ArrayContainerNode` extend `LogixContainerNode`. `ControllerTagsNode` and `ProgramTagsNode`
-implement `ILogixContainerNode` directly, and each writes out the parent reference, the two child lists and both
-`CanBeAdded` overloads itself. So the two scope containers carry the same gate twice, and neither gets the narrowing
-the base record does. One consequence is visible in the code. Where `LogixContainerNode` refuses a data point node that
-is not a Logix one, a scope container admits it.
+All four containers extend `LogixContainerNode`, so each writes its rule against the narrow types only and none repeats
+the parent reference, the child lists or the type test. A new container belongs there too.
 
-That is history rather than design. The scope containers landed before the base record existed, and no slice has moved
-them since. Treat it as an open item, not a rule to copy. A new container belongs under `LogixContainerNode`.
+What is still written out more than once is the generation gate itself. Both scope containers and the UDT container
+say the same three things: an array container whose element type the generation has, a UDT container of the same
+generation, and a tag whose type the generation has. The three stay separate records because each is mapped from its
+own node type and contributes its own segment to an address: none, a program, or a tag name. Folding the gate into a
+record between them is an open item.
 
 ## Scope is a container, not a property
 

@@ -78,6 +78,20 @@ public sealed class ControllerTagsNodeTests
         canBeAdded.Should().BeFalse();
     }
 
+    [Fact]
+    public void ADataPointOfAnotherDataPortIsRefused()
+    {
+        // Arrange
+        var controllerTags = DefaultControllerTagsNode;
+        var foreignDataPoint = DefaultForeignDataPointNode;
+
+        // Act
+        var canBeAdded = controllerTags.CanBeAdded(foreignDataPoint);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
     [Theory]
     [InlineData(LogixGeneration.Logix5X70)]
     [InlineData(LogixGeneration.Logix5X80)]

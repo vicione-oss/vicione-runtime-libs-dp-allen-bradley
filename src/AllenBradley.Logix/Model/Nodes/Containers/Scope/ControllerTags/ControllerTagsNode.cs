@@ -4,7 +4,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ControllerTags;
 
@@ -20,7 +19,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope
 /// </param>
 internal sealed record ControllerTagsNode(
     LinkedNode OriginalNode,
-    LogixGeneration Generation) : ILogixContainerNode
+    LogixGeneration Generation) : LogixContainerNode(OriginalNode)
 {
     /// <summary>The manifest's <c>MappingId</c> for a 5X70 controller's tag container.</summary>
     internal const string Logix5X70LinkedNodeTypeId = "ControllerTags5X70";
@@ -51,20 +50,11 @@ internal sealed record ControllerTagsNode(
             nameof(generation), $"No controller-scope container for a {generation} controller."),
     };
 
-    /// <inheritdoc />
-    public IConfigurationNode? ParentConfigurationNode { get; set; }
-
-    /// <inheritdoc />
-    public List<IConfigurationNode> ConfigurationNodes { get; } = [];
-
-    /// <inheritdoc />
-    public List<IDataPointNode> DataPointNodes { get; } = [];
-
     /// <summary>
     /// An array container of a type this controller's generation has, or a UDT container of this
     /// controller's generation, and nothing else.
     /// </summary>
-    public bool CanBeAdded(IConfigurationNode configurationNode) => configurationNode switch
+    internal override bool CanBeAdded(ILogixContainerNode logixContainerNode) => logixContainerNode switch
     {
         ArrayContainerNode arrayContainer => arrayContainer.ArrayDataType.MinimumGeneration <= Generation,
         UdtContainerNode udtContainer => udtContainer.Generation == Generation,
@@ -72,6 +62,6 @@ internal sealed record ControllerTagsNode(
     };
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) =>
-        dataPointNode is not ILogixDataPointNode tagNode || tagNode.MinimumGeneration <= Generation;
+    internal override bool CanBeAdded(ILogixDataPointNode logixDataPointNode) =>
+        logixDataPointNode.MinimumGeneration <= Generation;
 }

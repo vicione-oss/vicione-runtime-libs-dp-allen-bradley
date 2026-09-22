@@ -3,7 +3,6 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.ArrayContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtContainer;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
-using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope.ProgramTags;
 
@@ -21,7 +20,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope
 internal sealed record ProgramTagsNode(
     LinkedNode OriginalNode,
     ProgramName ProgramName,
-    LogixGeneration Generation) : ILogixContainerNode
+    LogixGeneration Generation) : LogixContainerNode(OriginalNode)
 {
     /// <summary>The manifest's <c>MappingId</c> for a program's tag container on a 5X70 controller.</summary>
     internal const string Logix5X70LinkedNodeTypeId = "ProgramTags5X70";
@@ -55,21 +54,12 @@ internal sealed record ProgramTagsNode(
             nameof(generation), $"No program-scope container for a {generation} controller."),
     };
 
-    /// <inheritdoc />
-    public IConfigurationNode? ParentConfigurationNode { get; set; }
-
-    /// <inheritdoc />
-    public List<IConfigurationNode> ConfigurationNodes { get; } = [];
-
-    /// <inheritdoc />
-    public List<IDataPointNode> DataPointNodes { get; } = [];
-
     /// <summary>
     /// An array container of a type this controller's generation has, or a UDT container of this
     /// controller's generation, and nothing else. No program nests inside a program: Studio 5000 v32 and later let programs nest, but whether the resulting tags
     /// address as <c>Program:Parent.Child.RootTagName</c> is unconfirmed against hardware.
     /// </summary>
-    public bool CanBeAdded(IConfigurationNode configurationNode) => configurationNode switch
+    internal override bool CanBeAdded(ILogixContainerNode logixContainerNode) => logixContainerNode switch
     {
         ArrayContainerNode arrayContainer => arrayContainer.ArrayDataType.MinimumGeneration <= Generation,
         UdtContainerNode udtContainer => udtContainer.Generation == Generation,
@@ -77,6 +67,6 @@ internal sealed record ProgramTagsNode(
     };
 
     /// <summary>Whether a tag's type is one this controller's generation has.</summary>
-    public bool CanBeAdded(IDataPointNode dataPointNode) =>
-        dataPointNode is not ILogixDataPointNode tagNode || tagNode.MinimumGeneration <= Generation;
+    internal override bool CanBeAdded(ILogixDataPointNode logixDataPointNode) =>
+        logixDataPointNode.MinimumGeneration <= Generation;
 }

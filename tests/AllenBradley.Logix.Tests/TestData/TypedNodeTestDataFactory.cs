@@ -29,6 +29,8 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
+using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
+using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device.LogixControllerKind;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LinkedNodesDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
@@ -296,4 +298,18 @@ internal static class TypedNodeTestDataFactory
             CreateLinkedNode(ArrayContainerNode.LRealLinkedNodeTypeId, DefaultLRealArrayTagName.Value),
             DefaultLRealArrayTagName,
             AllenBradleyDataType.Lreal);
+
+    /// <summary>
+    /// A tag of another dataport, which every Logix container refuses whatever its own rule says.
+    /// </summary>
+    internal static IDataPointNode DefaultForeignDataPointNode => new ForeignDataPointNode();
+
+    private sealed record ForeignDataPointNode : IDataPointNode
+    {
+        public LinkedNode OriginalNode { get; } = CreateLinkedNode("ForeignTag", "Foreign");
+
+        public IConfigurationNode? Parent { get; set; }
+
+        public Channels Channels { get; } = new([], []);
+    }
 }
