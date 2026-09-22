@@ -90,7 +90,7 @@ internal sealed class SymbolTable(
     }
 
     // The listing names a structure by template id alone, so a structure arrives with no data type.
-    // STRING is the one structure this addon reads as a value, and its template is what says it is one.
+    // STRING is the one structure this dataport reads as a value, and its template is what says it is one.
     private TagDefinition AsStringIfItsTemplateIsOne(TagDefinition declared) =>
         TemplateNamed(declared.TemplateId)?.StringCapacity is { } capacity
             ? declared.AsStringOf(capacity)

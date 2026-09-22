@@ -9,7 +9,7 @@ Utility scripts for deployment and automation.
 
 The script cleans the project, builds and publishes it in the requested configuration, and copies the
 build outputs into the appropriate Vicione dependencies folder (creating the target directory if
-needed). A matching `deploy-legacy-to-local-vicione.*` arrives with the Legacy addon project.
+needed). A matching `deploy-legacy-to-local-vicione.*` arrives with the Legacy dataport project.
 
 ### Parameters
 
@@ -56,4 +56,4 @@ Output lands under the suite's standalone cache, keyed by the version in the rep
 ```
 
 `ViciOne.Suite.DataPort.AllenBradley.Logix` is the assembly name from the csproj and matches
-`FULLNAME_LOGIX` in `.gitlab-ci.yml`; keep the three in sync if the addon is ever renamed.
+`FULLNAME_LOGIX` in `.gitlab-ci.yml`; keep the three in sync if the dataport is ever renamed.

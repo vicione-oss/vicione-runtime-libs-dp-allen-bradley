@@ -1,11 +1,11 @@
 # Bootstrap the project
 
-How to take an addon repo from "documentation and a spike" to "a solution that builds and a test
+How to take a dataport repo from "documentation and a spike" to "a solution that builds and a test
 command that works". This is the first phase of the process, and it is deliberately narrow. You are
 not implementing the dataport here. You are making it possible to implement one.
 
 The guide is written from the Allen-Bradley bootstrap (issue #3) and assumes the S7 repo as the
-template. If you are bootstrapping a third addon, the same steps apply and S7 is still the template.
+template. If you are bootstrapping a third dataport, the same steps apply and S7 is still the template.
 
 ## Before you start
 
@@ -80,14 +80,14 @@ controller.
 
 Drop S7's `ProjectReference` to `ViciOne.Testing.Analyzers` unless you have that project too.
 
-## 3. Create the addon project
+## 3. Create the dataport project
 
-`src/<Addon>` is a class library that compiles and does nothing. Give it the right identity and stop
+`src/<DataPortName>` is a class library that compiles and does nothing. Give it the right identity and stop
 there:
 
-- `RootNamespace` and `AssemblyName` of `ViciOne.Suite.DataPort.<Addon>`
+- `RootNamespace` and `AssemblyName` of `ViciOne.Suite.DataPort.<DataPortName>`
 - `PackageReference` to `ViciOne.Suite.DataPort` and `ViciOne.Suite.DataPort.Extensions`
-- a `metadata.json` carrying the addon id, with `__VERSION__` placeholders the pipeline substitutes
+- a `metadata.json` carrying the dataport id, with `__VERSION__` placeholders the pipeline substitutes
 
 Resist the pull to add the protocol client here. On Allen-Bradley, `libplctag` stayed a dependency of
 the test project, because choosing the driver is the walking skeleton's decision and putting it in
@@ -102,7 +102,7 @@ The spike is already the test project you want, so rename it rather than creatin
 Allen-Bradley, `tests/ConnectivityTests` became `tests/AllenBradley.Logix.Tests`.
 
 The name is not cosmetic. `Directory.Build.props` grants `InternalsVisibleTo` to
-`$(MSBuildProjectName).Tests`, so naming the test project after the addon project wires up internals
+`$(MSBuildProjectName).Tests`, so naming the test project after the dataport project wires up internals
 visibility with no further configuration.
 
 Use `git mv` so the history survives, then:
@@ -112,7 +112,7 @@ Use `git mv` so the history survives, then:
 2. Retag them with the trait your `test-suite` switch filters on.
 3. Swap the packages: out go `xunit`, `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`, in
    comes `xunit.v3.mtp-v2`.
-4. Add a `ProjectReference` to the addon project.
+4. Add a `ProjectReference` to the dataport project.
 
 The v2 to v3 source migration is smaller than it sounds. `[Fact]`, `[Trait]`, `Assert` and the
 assertion library all carry over untouched. The one break on Allen-Bradley was `Xunit.Abstractions`,
@@ -130,9 +130,9 @@ one-line comment, not a reason to turn the check off.
 The unit suite cannot be empty. MTP exits non-zero when a run discovers no tests, so an empty suite
 fails CI on a build that is not actually broken. That is a hard constraint, not a stylistic one.
 
-It collides with the other half of this phase. The addon compiles and does nothing, so there is, by
+It collides with the other half of this phase. The dataport compiles and does nothing, so there is, by
 construction, nothing in it worth asserting. Allen-Bradley tried the obvious way out first, with
-tests that checked the assembly was named after the addon id and that `metadata.json` agreed. They
+tests that checked the assembly was named after the dataport id and that `metadata.json` agreed. They
 passed, and they were dropped, because they tested the build system rather than the product and were
 not worth the maintenance.
 
@@ -176,6 +176,6 @@ code is the suite's exit code, and CI would have gone red on a fully passing run
 ## What "done" looks like
 
 The build works from a clean clone, both suites are green, the hardware tests are still there and
-still excluded by default, and the conventions decision is written down. The addon itself still does
+still excluded by default, and the conventions decision is written down. The dataport itself still does
 nothing, and the unit suite is a placeholder. Both of those are correct at this stage. Making the
-addon do something is the walking skeleton, and that is what replaces the placeholder.
+dataport do something is the walking skeleton, and that is what replaces the placeholder.

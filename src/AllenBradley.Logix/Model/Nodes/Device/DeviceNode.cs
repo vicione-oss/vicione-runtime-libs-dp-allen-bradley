@@ -33,7 +33,7 @@ public sealed record DeviceNode(
 
     /// <summary>
     /// What the device node type <paramref name="designId"/> names stands for, or <c>null</c> for a node
-    /// type this addon does not declare.
+    /// type this dataport does not declare.
     /// </summary>
     internal static LogixControllerKind? KindOf(string designId) => designId switch
     {

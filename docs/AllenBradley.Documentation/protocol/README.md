@@ -29,6 +29,7 @@ EtherNet/IP device; reading the extension is what makes a Logix tag readable.
 |----------|-------------|
 | [symbolic-tag-data-types.md](allen-bradley-extension/symbolic-tag-data-types.md) | Which types the **tag-addressed** families expose (Logix classic and 5X80, Micro800), the Logix `STRING`/`TIMER`/`COUNTER` structures, BOOL packing, the tag services and the structure reply, and the Symbol and Template objects with the services that list and describe every tag |
 | [pccc-data-file-types.md](allen-bradley-extension/pccc-data-file-types.md) | Which types the **file-addressed** families expose (MicroLogix, SLC 500, PLC-5): file letters and element sizes, Timer/Counter/Control layouts, the `ST` string element, what these families lack, and the PCCC tunnel that carries their commands inside CIP |
+| [tag-scoping.md](allen-bradley-extension/tag-scoping.md) | Where a Logix tag lives: controller scope and program scope, what the `Program:` prefix adds to an address, shadowing, which tags the firmware keeps in controller scope, and why a full listing is one pass per scope |
 | [controller-families-and-routing.md](allen-bradley-extension/controller-families-and-routing.md) | The controller lines and their two form factors, their programming tools and access services, what chassis / slot / backplane mean, why the backplane is a CIP network, how a route path is built hop by hop, and the conventional path per family |
 
 ## What this folder is not

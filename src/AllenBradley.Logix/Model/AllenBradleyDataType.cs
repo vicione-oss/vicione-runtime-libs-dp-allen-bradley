@@ -15,7 +15,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 /// </param>
 public readonly record struct AllenBradleyDataType(DataTypeName Name, LogixGeneration MinimumGeneration)
 {
-    /// <summary>An elementary type code the controller reported that this addon does not model.</summary>
+    /// <summary>An elementary type code the controller reported that this dataport does not model.</summary>
     public static readonly AllenBradleyDataType Unknown = new(new DataTypeName("UNKNOWN"), LogixGeneration.Logix5X70);
 
     /// <summary><c>BOOL</c> — a single-byte boolean; nonzero is true.</summary>
@@ -58,9 +58,9 @@ public readonly record struct AllenBradleyDataType(DataTypeName Name, LogixGener
     public static readonly AllenBradleyDataType String = new(new DataTypeName("STRING"), LogixGeneration.Logix5X70);
 
     /// <summary>
-    /// <c>STRUCTURE</c> — a structure this addon reads as members rather than as one value: a UDT, a
+    /// <c>STRUCTURE</c> — a structure this dataport reads as members rather than as one value: a UDT, a
     /// predefined <c>TIMER</c> or <c>COUNTER</c>, an Add-On Instruction instance, a module-defined
-    /// type. This one spelling is the addon's own, because the controller names each structure after
+    /// type. This one spelling is the dataport's own, because the controller names each structure after
     /// its own type and only the template carries that name (CONTEXT.md, "Structure"). A
     /// <c>STRING</c> is the one structure that gets a type of its own.
     /// </summary>

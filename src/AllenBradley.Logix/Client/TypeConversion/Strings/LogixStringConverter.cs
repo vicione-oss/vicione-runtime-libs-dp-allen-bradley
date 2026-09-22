@@ -13,7 +13,7 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
     // Not a const: a marshalled size is not a constant expression.
     private static readonly int DataOffset = LogixStringHeader.Size;
 
-    // Matches the sibling S7 addon's StringAccessBufferSetter, so a value written through one port reads
+    // Matches the sibling S7 dataport's StringAccessBufferSetter, so a value written through one port reads
     // back the same through the other. One byte per character, so anything outside Latin-1 encodes as '?'.
     private static readonly Encoding Latin1 = Encoding.Latin1;
 

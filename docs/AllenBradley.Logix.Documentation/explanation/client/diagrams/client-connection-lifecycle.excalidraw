@@ -9,7 +9,7 @@
       "x": 60,
       "y": 30,
       "width": 253.00000000000003,
-      "height": 25.0,
+      "height": 25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -117,7 +117,7 @@
       "id": "t_inPort",
       "type": "text",
       "x": 128,
-      "y": 131.0,
+      "y": 131,
       "width": 244,
       "height": 60,
       "angle": 0,
@@ -190,10 +190,10 @@
     {
       "id": "t_outPort",
       "type": "text",
-      "x": 428,
-      "y": 131.0,
-      "width": 244,
-      "height": 60,
+      "x": 415,
+      "y": 132.875,
+      "width": 270,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -205,16 +205,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1077,
-      "version": 1,
+      "version": 2,
       "versionNonce": 1084,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nnot built yet (slice 5)",
-      "rawText": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nnot built yet (slice 5)",
-      "originalText": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nnot built yet (slice 5)",
+      "text": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nthe base acquires and releases",
+      "rawText": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nthe base acquires and releases",
+      "originalText": "OutgoingDataPort\n: OutgoingDataPortBase<...>\nthe base acquires and releases",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
@@ -273,7 +273,7 @@
       "id": "t_lifecycle",
       "type": "text",
       "x": 128,
-      "y": 263.0,
+      "y": 263,
       "width": 544,
       "height": 40,
       "angle": 0,
@@ -359,7 +359,7 @@
       "id": "t_pool",
       "type": "text",
       "x": 128,
-      "y": 379.0,
+      "y": 379,
       "width": 544,
       "height": 60,
       "angle": 0,
@@ -436,10 +436,10 @@
     {
       "id": "t_info",
       "type": "text",
-      "x": 768,
-      "y": 379.0,
-      "width": 364,
-      "height": 60,
+      "x": 747.5,
+      "y": 371.5,
+      "width": 405,
+      "height": 75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -451,16 +451,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1161,
-      "version": 1,
+      "version": 2,
       "versionNonce": 1168,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "LogixClientInformation\nGateway · Path · OperationTimeout\nrecord equality is the \"same connection\" test",
-      "rawText": "LogixClientInformation\nGateway · Path · OperationTimeout\nrecord equality is the \"same connection\" test",
-      "originalText": "LogixClientInformation\nGateway · Path · OperationTimeout\nrecord equality is the \"same connection\" test",
+      "text": "LogixClientInformation\nConnectionEndpoint · TcpPort\nCipRoutePath · OperationTimeout\nrecord equality is the \"same connection\" test",
+      "rawText": "LogixClientInformation\nConnectionEndpoint · TcpPort\nCipRoutePath · OperationTimeout\nrecord equality is the \"same connection\" test",
+      "originalText": "LogixClientInformation\nConnectionEndpoint · TcpPort\nCipRoutePath · OperationTimeout\nrecord equality is the \"same connection\" test",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
@@ -514,10 +514,10 @@
     {
       "id": "t_entry",
       "type": "text",
-      "x": 128,
-      "y": 531.0,
-      "width": 284,
-      "height": 60,
+      "x": 126,
+      "y": 532.875,
+      "width": 288,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -529,16 +529,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1189,
-      "version": 1,
+      "version": 2,
       "versionNonce": 1196,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "PooledClient\nClient + RefCount + ConnectGate\n(TaskCompletionSource)",
-      "rawText": "PooledClient\nClient + RefCount + ConnectGate\n(TaskCompletionSource)",
-      "originalText": "PooledClient\nClient + RefCount + ConnectGate\n(TaskCompletionSource)",
+      "text": "PooledClient\nClient + RefCount + Connected\n(a Lazy<Task> all holders await)",
+      "rawText": "PooledClient\nClient + RefCount + Connected\n(a Lazy<Task> all holders await)",
+      "originalText": "PooledClient\nClient + RefCount + Connected\n(a Lazy<Task> all holders await)",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
@@ -597,9 +597,9 @@
       "id": "t_factory",
       "type": "text",
       "x": 488,
-      "y": 531.0,
+      "y": 531,
       "width": 324,
-      "height": 80.0,
+      "height": 80,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -679,7 +679,7 @@
       "id": "t_iclient",
       "type": "text",
       "x": 308,
-      "y": 701.0,
+      "y": 701,
       "width": 464,
       "height": 60,
       "angle": 0,
@@ -757,7 +757,7 @@
       "id": "t_client",
       "type": "text",
       "x": 308,
-      "y": 841.0,
+      "y": 841,
       "width": 464,
       "height": 40,
       "angle": 0,
@@ -835,9 +835,9 @@
       "id": "t_mgr",
       "type": "text",
       "x": 308,
-      "y": 957.0,
+      "y": 957,
       "width": 464,
-      "height": 40.0,
+      "height": 40,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -909,9 +909,9 @@
       "id": "t_state",
       "type": "text",
       "x": 308,
-      "y": 1081.0,
+      "y": 1081,
       "width": 464,
-      "height": 40.0,
+      "height": 40,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -944,9 +944,9 @@
     {
       "id": "e1",
       "type": "arrow",
-      "x": 250.0,
+      "x": 250,
       "y": 202,
-      "width": 150.0,
+      "width": 150,
       "height": 50,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -977,7 +977,7 @@
           0
         ],
         [
-          150.0,
+          150,
           50
         ]
       ],
@@ -1003,7 +1003,7 @@
       "id": "l_e1",
       "type": "text",
       "x": 193.6,
-      "y": 218.0,
+      "y": 218,
       "width": 262.8,
       "height": 18,
       "angle": 0,
@@ -1038,9 +1038,9 @@
     {
       "id": "e2",
       "type": "arrow",
-      "x": 550.0,
+      "x": 550,
       "y": 202,
-      "width": 150.0,
+      "width": 150,
       "height": 50,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1066,7 +1066,7 @@
           0
         ],
         [
-          -150.0,
+          -150,
           50
         ]
       ],
@@ -1091,9 +1091,9 @@
     {
       "id": "e3",
       "type": "arrow",
-      "x": 400.0,
+      "x": 400,
       "y": 314,
-      "width": 0.0,
+      "width": 0,
       "height": 54,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1119,7 +1119,7 @@
           0
         ],
         [
-          0.0,
+          0,
           54
         ]
       ],
@@ -1144,9 +1144,9 @@
     {
       "id": "e4",
       "type": "arrow",
-      "x": 400.0,
+      "x": 400,
       "y": 450,
-      "width": 130.0,
+      "width": 130,
       "height": 70,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1177,7 +1177,7 @@
           0
         ],
         [
-          -130.0,
+          -130,
           70
         ]
       ],
@@ -1203,7 +1203,7 @@
       "id": "l_e4",
       "type": "text",
       "x": 247.4,
-      "y": 476.0,
+      "y": 476,
       "width": 175.2,
       "height": 18,
       "angle": 0,
@@ -1238,9 +1238,9 @@
     {
       "id": "e5",
       "type": "arrow",
-      "x": 400.0,
+      "x": 400,
       "y": 450,
-      "width": 250.0,
+      "width": 250,
       "height": 70,
       "angle": 0,
       "strokeColor": "#868e96",
@@ -1271,7 +1271,7 @@
           0
         ],
         [
-          250.0,
+          250,
           70
         ]
       ],
@@ -1297,7 +1297,7 @@
       "id": "l_e5",
       "type": "text",
       "x": 503.1,
-      "y": 476.0,
+      "y": 476,
       "width": 43.8,
       "height": 18,
       "angle": 0,
@@ -1333,9 +1333,9 @@
       "id": "e6",
       "type": "arrow",
       "x": 760,
-      "y": 409.0,
+      "y": 409,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#868e96",
       "backgroundColor": "transparent",
@@ -1366,7 +1366,7 @@
         ],
         [
           -80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1391,7 +1391,7 @@
       "id": "l_e6",
       "type": "text",
       "x": 676.2,
-      "y": 400.0,
+      "y": 400,
       "width": 87.6,
       "height": 18,
       "angle": 0,
@@ -1426,10 +1426,10 @@
     {
       "id": "e7",
       "type": "arrow",
-      "x": 950.0,
+      "x": 950,
       "y": 450,
-      "width": 130.0,
-      "height": 121.0,
+      "width": 130,
+      "height": 121,
       "angle": 0,
       "strokeColor": "#868e96",
       "backgroundColor": "transparent",
@@ -1459,8 +1459,8 @@
           0
         ],
         [
-          -130.0,
-          121.0
+          -130,
+          121
         ]
       ],
       "roundness": {
@@ -1520,10 +1520,10 @@
     {
       "id": "e8",
       "type": "arrow",
-      "x": 270.0,
+      "x": 270,
       "y": 602,
-      "width": 30.0,
-      "height": 129.0,
+      "width": 30,
+      "height": 129,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1553,8 +1553,8 @@
           0
         ],
         [
-          30.0,
-          129.0
+          30,
+          129
         ]
       ],
       "roundness": {
@@ -1578,10 +1578,10 @@
     {
       "id": "l_e8",
       "type": "text",
-      "x": 164.55,
-      "y": 648.5,
-      "width": 240.9,
-      "height": 36,
+      "x": 164.10000000000002,
+      "y": 650.25,
+      "width": 241.79999999999998,
+      "height": 32.5,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -1593,16 +1593,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1525,
-      "version": 1,
+      "version": 2,
       "versionNonce": 1532,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "the first caller connects;\nconcurrent ones await ConnectGate",
-      "rawText": "the first caller connects;\nconcurrent ones await ConnectGate",
-      "originalText": "the first caller connects;\nconcurrent ones await ConnectGate",
+      "text": "the first caller connects;\nconcurrent ones await Connected",
+      "rawText": "the first caller connects;\nconcurrent ones await Connected",
+      "originalText": "the first caller connects;\nconcurrent ones await Connected",
       "fontSize": 13,
       "fontFamily": 1,
       "textAlign": "center",
@@ -1614,10 +1614,10 @@
     {
       "id": "e9",
       "type": "arrow",
-      "x": 650.0,
+      "x": 650,
       "y": 622,
-      "width": 130.0,
-      "height": 109.0,
+      "width": 130,
+      "height": 109,
       "angle": 0,
       "strokeColor": "#868e96",
       "backgroundColor": "transparent",
@@ -1647,8 +1647,8 @@
           0
         ],
         [
-          130.0,
-          109.0
+          130,
+          109
         ]
       ],
       "roundness": {
@@ -1708,9 +1708,9 @@
     {
       "id": "e10",
       "type": "arrow",
-      "x": 540.0,
+      "x": 540,
       "y": 772,
-      "width": 0.0,
+      "width": 0,
       "height": 58,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1736,7 +1736,7 @@
           0
         ],
         [
-          0.0,
+          0,
           58
         ]
       ],
@@ -1761,9 +1761,9 @@
     {
       "id": "e11",
       "type": "arrow",
-      "x": 540.0,
+      "x": 540,
       "y": 892,
-      "width": 0.0,
+      "width": 0,
       "height": 54,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1794,7 +1794,7 @@
           0
         ],
         [
-          0.0,
+          0,
           54
         ]
       ],
@@ -1820,7 +1820,7 @@
       "id": "l_e11",
       "type": "text",
       "x": 470.65,
-      "y": 910.0,
+      "y": 910,
       "width": 138.7,
       "height": 18,
       "angle": 0,
@@ -1855,9 +1855,9 @@
     {
       "id": "e12",
       "type": "arrow",
-      "x": 540.0,
+      "x": 540,
       "y": 1008,
-      "width": 0.0,
+      "width": 0,
       "height": 62,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1888,7 +1888,7 @@
           0
         ],
         [
-          0.0,
+          0,
           62
         ]
       ],
@@ -1914,7 +1914,7 @@
       "id": "l_e12",
       "type": "text",
       "x": 525.4,
-      "y": 1030.0,
+      "y": 1030,
       "width": 29.2,
       "height": 18,
       "angle": 0,
@@ -1951,8 +1951,8 @@
       "type": "text",
       "x": 820,
       "y": 830,
-      "width": 414.96000000000004,
-      "height": 195.0,
+      "width": 452.4,
+      "height": 195,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -1964,16 +1964,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1637,
-      "version": 1,
+      "version": 2,
       "versionNonce": 1644,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the definitions. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
-      "rawText": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the definitions. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
-      "originalText": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the definitions. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
+      "text": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the symbol table. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
+      "rawText": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the symbol table. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
+      "originalText": "connect     → LoadSymbolTableAsync\n   libplctag opens no socket until a handle is first\n   read, so the browse is what a connect establishes\n   — and the proof the controller answers CIP.\n   A failure arrives as ConnectionFailureException.\n\ndisconnect → Drain\n   frees every handle, drops the symbol table. Reversible.\n\ndispose      → Dispose\n   terminal. A handle left to its finalizer fail-fasts\n   the process at CLR teardown (0xC0000602).",
       "fontSize": 13,
       "fontFamily": 1,
       "textAlign": "left",

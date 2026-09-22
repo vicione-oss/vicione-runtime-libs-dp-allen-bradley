@@ -47,8 +47,9 @@ Each port project organises its content into Diátaxis folders:
 | `ADR/`         | Reference    | What was decided, and why — architecture decision records |
 
 When adding content, identify which question it answers and place it in the matching folder. If no
-existing file fits, create one. Cross-port material belongs in this project under one of its top-level
-folders:
+existing file fits, create one. A diagram lives in a `diagrams/` folder beside the page that embeds it,
+as an `.excalidraw` source and the SVG exported from it; there is no shared diagram folder. Cross-port
+material belongs in this project under one of its top-level folders:
 
 - [`protocol/`](protocol/) — **client-agnostic** CIP / EtherNet/IP background: wire formats,
   the object model, networking, per-family type differences. Nothing here is specific to this codebase.
@@ -103,6 +104,20 @@ If a detail is already expressed by the source and surfaced by IntelliSense, it 
 markdown docs — duplicated implementation details go stale silently. How-to guides are deliberately
 light on code for the same reason: they point at the source files that are the single source of truth
 and explain the *shape* of the change.
+
+---
+
+## Diagrams
+
+A diagram is drawn in Excalidraw. Its `.excalidraw` source and the SVG exported from it sit together in
+the `diagrams/` folder beside the page that embeds the SVG, and both are committed. A diagram names
+classes and methods, so a rename in the code is a rename in the diagram too. To change one:
+
+1. Open the `.excalidraw` file in [excalidraw.com](https://excalidraw.com) or the Excalidraw extension
+   for VS Code and edit it.
+2. Export it as SVG with the background on and the scene embedding off, and save it over the SVG of the
+   same name. The export embeds the font, so the SVG renders the same everywhere.
+3. Save the `.excalidraw` source next to it and commit both.
 
 ---
 

@@ -11,7 +11,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope
 /// <summary>
 /// The controller-scope tag container. It declares no properties, because controller scope contributes
 /// no segment to a tag address: a tag configured under it addresses itself. See
-/// <c>explanation/tag-scoping.md</c>.
+/// <c>explanation/model/node-model.md</c>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="Generation">

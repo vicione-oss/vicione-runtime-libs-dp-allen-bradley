@@ -1,15 +1,15 @@
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "https://excalidraw-jetbrains-plugin",
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
   "elements": [
     {
       "id": "ti_0",
       "type": "text",
-      "x": 50,
-      "y": 30,
-      "width": 429.0,
-      "height": 25.0,
+      "x": -38.148193359375114,
+      "y": 28.888888888888886,
+      "width": 429,
+      "height": 25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -21,15 +21,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1007,
-      "version": 1,
-      "versionNonce": 1014,
+      "version": 27,
+      "versionNonce": 1086663766,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074445121,
       "link": null,
       "locked": false,
       "text": "One comparison, reached once at connect",
-      "rawText": "One comparison, reached once at connect",
       "originalText": "One comparison, reached once at connect",
       "fontSize": 20,
       "fontFamily": 1,
@@ -37,14 +36,16 @@
       "verticalAlign": "top",
       "containerId": null,
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a0",
+      "roundness": null
     },
     {
       "id": "n_1",
       "type": "text",
-      "x": 50,
-      "y": 64,
-      "width": 1157.5200000000002,
+      "x": -38.148193359375114,
+      "y": 62.888888888888886,
+      "width": 1333.8,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#495057",
@@ -57,29 +58,30 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1021,
-      "version": 1,
-      "versionNonce": 1028,
+      "version": 28,
+      "versionNonce": 1867067798,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074445121,
       "link": null,
       "locked": false,
-      "text": "How the controller's own declared type reaches configuration verification — the only place it is compared, and the only place it can stop a connect (ADR-003).",
-      "rawText": "How the controller's own declared type reaches configuration verification — the only place it is compared, and the only place it can stop a connect (ADR-003).",
-      "originalText": "How the controller's own declared type reaches configuration verification — the only place it is compared, and the only place it can stop a connect (ADR-003).",
+      "text": "How the controller's own declared type reaches configuration verification — the only place it is compared, and the only place it can stop a connect (the verification ADR).",
+      "originalText": "How the controller's own declared type reaches configuration verification — the only place it is compared, and the only place it can stop a connect (the verification ADR).",
       "fontSize": 13,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a1",
+      "roundness": null
     },
     {
       "id": "tags",
       "type": "rectangle",
-      "x": 50,
-      "y": 120,
+      "x": -47.777777777777715,
+      "y": 119.62961832682294,
       "width": 330,
       "height": 62,
       "angle": 0,
@@ -93,8 +95,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1035,
-      "version": 1,
-      "versionNonce": 1042,
+      "version": 17,
+      "versionNonce": 909980618,
       "isDeleted": false,
       "boundElements": [
         {
@@ -106,20 +108,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441120,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "a2"
     },
     {
       "id": "t_tags",
       "type": "text",
-      "x": 58,
-      "y": 131.0,
-      "width": 314,
-      "height": 40,
+      "x": -62.777777777777715,
+      "y": 131.87961832682294,
+      "width": 360,
+      "height": 37.5,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -131,29 +134,30 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1049,
-      "version": 1,
-      "versionNonce": 1056,
+      "version": 18,
+      "versionNonce": 347613834,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441120,
       "link": null,
       "locked": false,
-      "text": "@tags  ·  Program:<name>.@tags\nthe controller's symbol table",
-      "rawText": "@tags  ·  Program:<name>.@tags\nthe controller's symbol table",
-      "originalText": "@tags  ·  Program:<name>.@tags\nthe controller's symbol table",
+      "text": "@tags · Program:<name>.@tags · @udt/<id>\nthe controller's symbol table",
+      "originalText": "@tags · Program:<name>.@tags · @udt/<id>\nthe controller's symbol table",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "tags",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a3",
+      "roundness": null
     },
     {
       "id": "browser",
       "type": "rectangle",
-      "x": 50,
-      "y": 232,
+      "x": -47.777777777777715,
+      "y": 231.62961832682294,
       "width": 330,
       "height": 82,
       "angle": 0,
@@ -167,8 +171,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1063,
-      "version": 1,
-      "versionNonce": 1070,
+      "version": 17,
+      "versionNonce": 971149322,
       "isDeleted": false,
       "boundElements": [
         {
@@ -184,20 +188,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441120,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "a4"
     },
     {
       "id": "t_browser",
       "type": "text",
-      "x": 58,
-      "y": 243.0,
-      "width": 314,
-      "height": 60.0,
+      "x": -53.777777777777715,
+      "y": 244.50461832682294,
+      "width": 342,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -209,29 +214,30 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1077,
-      "version": 1,
-      "versionNonce": 1084,
+      "version": 18,
+      "versionNonce": 1810366154,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441120,
       "link": null,
       "locked": false,
-      "text": "SymbolTableLoader : ISymbolTableLoader\none read per scope, over a transient\naccess disposed straight after",
-      "rawText": "SymbolTableLoader : ISymbolTableLoader\none read per scope, over a transient\naccess disposed straight after",
-      "originalText": "SymbolTableLoader : ISymbolTableLoader\none read per scope, over a transient\naccess disposed straight after",
+      "text": "SymbolTableLoader : ISymbolTableLoader\none read per scope and per template,\nover an access disposed straight after",
+      "originalText": "SymbolTableLoader : ISymbolTableLoader\none read per scope and per template,\nover an access disposed straight after",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "browser",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a5",
+      "roundness": null
     },
     {
       "id": "decoder",
       "type": "rectangle",
-      "x": 50,
-      "y": 376,
+      "x": -47.777777777777715,
+      "y": 375.62961832682294,
       "width": 330,
       "height": 82,
       "angle": 0,
@@ -245,8 +251,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1091,
-      "version": 1,
-      "versionNonce": 1098,
+      "version": 17,
+      "versionNonce": 2027764490,
       "isDeleted": false,
       "boundElements": [
         {
@@ -266,20 +272,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "a6"
     },
     {
       "id": "t_decoder",
       "type": "text",
-      "x": 58,
-      "y": 387.0,
+      "x": -39.777777777777715,
+      "y": 386.62961832682294,
       "width": 314,
-      "height": 60.0,
+      "height": 60,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -291,15 +298,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1105,
-      "version": 1,
-      "versionNonce": 1112,
+      "version": 17,
+      "versionNonce": 1817528778,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "text": "TagsDecoder\nTagsEntryHeader (22 bytes) + ASCII name,\nlittle-endian throughout",
-      "rawText": "TagsDecoder\nTagsEntryHeader (22 bytes) + ASCII name,\nlittle-endian throughout",
       "originalText": "TagsDecoder\nTagsEntryHeader (22 bytes) + ASCII name,\nlittle-endian throughout",
       "fontSize": 15,
       "fontFamily": 1,
@@ -307,14 +313,16 @@
       "verticalAlign": "middle",
       "containerId": "decoder",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a7",
+      "roundness": null
     },
     {
       "id": "symtype",
       "type": "rectangle",
-      "x": 440,
+      "x": 400,
       "y": 376,
-      "width": 300,
+      "width": 380,
       "height": 82,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -327,8 +335,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1119,
-      "version": 1,
-      "versionNonce": 1126,
+      "version": 22,
+      "versionNonce": 179433738,
       "isDeleted": false,
       "boundElements": [
         {
@@ -340,20 +348,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074437189,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "a8"
     },
     {
       "id": "t_symtype",
       "type": "text",
-      "x": 448,
-      "y": 387.0,
-      "width": 284,
-      "height": 60.0,
+      "x": 408,
+      "y": 388.875,
+      "width": 364,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -365,15 +374,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1133,
-      "version": 1,
-      "versionNonce": 1140,
+      "version": 22,
+      "versionNonce": 469546634,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074437189,
       "link": null,
       "locked": false,
       "text": "SymbolType\nbit 15 structure · bits 14-13 rank\nlow byte → CipTypeCode → AllenBradleyDataType",
-      "rawText": "SymbolType\nbit 15 structure · bits 14-13 rank\nlow byte → CipTypeCode → AllenBradleyDataType",
       "originalText": "SymbolType\nbit 15 structure · bits 14-13 rank\nlow byte → CipTypeCode → AllenBradleyDataType",
       "fontSize": 15,
       "fontFamily": 1,
@@ -381,13 +389,15 @@
       "verticalAlign": "middle",
       "containerId": "symtype",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "a9",
+      "roundness": null
     },
     {
       "id": "decl",
       "type": "rectangle",
-      "x": 50,
-      "y": 520,
+      "x": -47.777777777777715,
+      "y": 519.629618326823,
       "width": 330,
       "height": 82,
       "angle": 0,
@@ -401,8 +411,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1147,
-      "version": 1,
-      "versionNonce": 1154,
+      "version": 17,
+      "versionNonce": 38081738,
       "isDeleted": false,
       "boundElements": [
         {
@@ -418,20 +428,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aA"
     },
     {
       "id": "t_decl",
       "type": "text",
-      "x": 58,
-      "y": 531.0,
+      "x": -39.777777777777715,
+      "y": 530.629618326823,
       "width": 314,
-      "height": 60.0,
+      "height": 60,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -443,15 +454,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1161,
-      "version": 1,
-      "versionNonce": 1168,
+      "version": 17,
+      "versionNonce": 924576650,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "text": "DeclaredType\nTagAddress · DataType · MaxLength\nDimensionCount · ElementCount",
-      "rawText": "DeclaredType\nTagAddress · DataType · MaxLength\nDimensionCount · ElementCount",
       "originalText": "DeclaredType\nTagAddress · DataType · MaxLength\nDimensionCount · ElementCount",
       "fontSize": 15,
       "fontFamily": 1,
@@ -459,13 +469,15 @@
       "verticalAlign": "middle",
       "containerId": "decl",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aB",
+      "roundness": null
     },
     {
       "id": "schema",
       "type": "rectangle",
-      "x": 50,
-      "y": 664,
+      "x": -47.777777777777715,
+      "y": 663.629618326823,
       "width": 330,
       "height": 82,
       "angle": 0,
@@ -479,8 +491,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1175,
-      "version": 1,
-      "versionNonce": 1182,
+      "version": 17,
+      "versionNonce": 410476490,
       "isDeleted": false,
       "boundElements": [
         {
@@ -496,20 +508,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aC"
     },
     {
       "id": "t_schema",
       "type": "text",
-      "x": 58,
-      "y": 675.0,
-      "width": 314,
-      "height": 60.0,
+      "x": -35.777777777777715,
+      "y": 676.504618326823,
+      "width": 306,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -521,23 +534,24 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1189,
-      "version": 1,
-      "versionNonce": 1196,
+      "version": 18,
+      "versionNonce": 114087562,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
-      "text": "SymbolTable\nTagAddress → TagDefinition,\nmatched case-insensitively",
-      "rawText": "SymbolTable\nTagAddress → TagDefinition,\nmatched case-insensitively",
-      "originalText": "SymbolTable\nTagAddress → TagDefinition,\nmatched case-insensitively",
+      "text": "SymbolTable\ntags by address (case-insensitive)\nand templates by id",
+      "originalText": "SymbolTable\ntags by address (case-insensitive)\nand templates by id",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "schema",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aD",
+      "roundness": null
     },
     {
       "id": "mgr",
@@ -557,8 +571,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1203,
-      "version": 1,
-      "versionNonce": 1210,
+      "version": 2,
+      "versionNonce": 798989718,
       "isDeleted": false,
       "boundElements": [
         {
@@ -574,20 +588,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aE"
     },
     {
       "id": "t_mgr",
       "type": "text",
-      "x": 448,
-      "y": 675.0,
-      "width": 284,
-      "height": 60.0,
+      "x": 441.5,
+      "y": 676.875,
+      "width": 297,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -599,23 +614,24 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1217,
-      "version": 1,
-      "versionNonce": 1224,
+      "version": 3,
+      "versionNonce": 1373843146,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
-      "text": "CachingLogixTagManager\nTagFor looks the definition up\nand stamps it onto the tag",
-      "rawText": "CachingLogixTagManager\nTagFor looks the definition up\nand stamps it onto the tag",
-      "originalText": "CachingLogixTagManager\nTagFor looks the definition up\nand stamps it onto the tag",
+      "text": "CachingLogixTagManager\nTagFor looks the declared type up\nand stamps it onto the tag",
+      "originalText": "CachingLogixTagManager\nTagFor looks the declared type up\nand stamps it onto the tag",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "mgr",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aF",
+      "roundness": null
     },
     {
       "id": "tag",
@@ -635,8 +651,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1231,
-      "version": 1,
-      "versionNonce": 1238,
+      "version": 2,
+      "versionNonce": 339966678,
       "isDeleted": false,
       "boundElements": [
         {
@@ -652,20 +668,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aG"
     },
     {
       "id": "t_tag",
       "type": "text",
-      "x": 448,
-      "y": 811.0,
-      "width": 284,
-      "height": 60,
+      "x": 455,
+      "y": 812.875,
+      "width": 270,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -677,23 +694,24 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1245,
-      "version": 1,
-      "versionNonce": 1252,
+      "version": 3,
+      "versionNonce": 1608959370,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
-      "text": "LogixTag : ILogixTag\nDataPoint + Metadata\n(null when the tag is absent)",
-      "rawText": "LogixTag : ILogixTag\nDataPoint + Metadata\n(null when the tag is absent)",
-      "originalText": "LogixTag : ILogixTag\nDataPoint + Metadata\n(null when the tag is absent)",
+      "text": "LogixTag : ILogixTag\nDataPoint + DeclaredType\n(null when the path is absent)",
+      "originalText": "LogixTag : ILogixTag\nDataPoint + DeclaredType\n(null when the path is absent)",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "tag",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aH",
+      "roundness": null
     },
     {
       "id": "resolved",
@@ -713,8 +731,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1259,
-      "version": 1,
-      "versionNonce": 1266,
+      "version": 2,
+      "versionNonce": 184135702,
       "isDeleted": false,
       "boundElements": [
         {
@@ -730,20 +748,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aI"
     },
     {
       "id": "t_resolved",
       "type": "text",
-      "x": 448,
-      "y": 947.0,
-      "width": 284,
-      "height": 60.0,
+      "x": 459.5,
+      "y": 948.875,
+      "width": 261,
+      "height": 56.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -755,23 +774,24 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1273,
-      "version": 1,
-      "versionNonce": 1280,
+      "version": 3,
+      "versionNonce": 2127135818,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
-      "text": "ResolvedDataPoint\nconfigured point and reported\ndefinition, in one value",
-      "rawText": "ResolvedDataPoint\nconfigured point and reported\ndefinition, in one value",
-      "originalText": "ResolvedDataPoint\nconfigured point and reported\ndefinition, in one value",
+      "text": "ResolvedDataPoint\nconfigured point and declared\ntype, in one value",
+      "originalText": "ResolvedDataPoint\nconfigured point and declared\ntype, in one value",
       "fontSize": 15,
       "fontFamily": 1,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "resolved",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aJ",
+      "roundness": null
     },
     {
       "id": "compare",
@@ -791,8 +811,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1287,
-      "version": 1,
-      "versionNonce": 1294,
+      "version": 2,
+      "versionNonce": 1337408854,
       "isDeleted": false,
       "boundElements": [
         {
@@ -808,20 +828,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aK"
     },
     {
       "id": "t_compare",
       "type": "text",
       "x": 808,
-      "y": 947.0,
+      "y": 947,
       "width": 324,
-      "height": 60.0,
+      "height": 60,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -833,15 +854,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1301,
-      "version": 1,
-      "versionNonce": 1308,
+      "version": 2,
+      "versionNonce": 409365258,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "LogixTypeComparison.Compare\nthe single comparison: a DeclaredType\nread against what the data point says it is",
-      "rawText": "LogixTypeComparison.Compare\nthe single comparison: a DeclaredType\nread against what the data point says it is",
       "originalText": "LogixTypeComparison.Compare\nthe single comparison: a DeclaredType\nread against what the data point says it is",
       "fontSize": 15,
       "fontFamily": 1,
@@ -849,7 +869,9 @@
       "verticalAlign": "middle",
       "containerId": "compare",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aL",
+      "roundness": null
     },
     {
       "id": "mismatch",
@@ -869,8 +891,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1315,
-      "version": 1,
-      "versionNonce": 1322,
+      "version": 2,
+      "versionNonce": 1473323670,
       "isDeleted": false,
       "boundElements": [
         {
@@ -886,18 +908,19 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aM"
     },
     {
       "id": "t_mismatch",
       "type": "text",
       "x": 808,
-      "y": 1091.0,
+      "y": 1091,
       "width": 324,
       "height": 60,
       "angle": 0,
@@ -911,15 +934,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1329,
-      "version": 1,
-      "versionNonce": 1336,
+      "version": 2,
+      "versionNonce": 590903754,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "LogixTypeMismatch\nNone · Rank · DataType · StringCapacity\nElementCount",
-      "rawText": "LogixTypeMismatch\nNone · Rank · DataType · StringCapacity\nElementCount",
       "originalText": "LogixTypeMismatch\nNone · Rank · DataType · StringCapacity\nElementCount",
       "fontSize": 15,
       "fontFamily": 1,
@@ -927,7 +949,9 @@
       "verticalAlign": "middle",
       "containerId": "mismatch",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aN",
+      "roundness": null
     },
     {
       "id": "verify",
@@ -947,8 +971,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1399,
-      "version": 1,
-      "versionNonce": 1406,
+      "version": 2,
+      "versionNonce": 637296598,
       "isDeleted": false,
       "boundElements": [
         {
@@ -960,20 +984,21 @@
           "type": "arrow"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "roundness": {
         "type": 3
-      }
+      },
+      "index": "aO"
     },
     {
       "id": "t_verify",
       "type": "text",
       "x": 798,
-      "y": 1261.0,
+      "y": 1261,
       "width": 334,
-      "height": 60.0,
+      "height": 60,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -985,15 +1010,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1413,
-      "version": 1,
-      "versionNonce": 1420,
+      "version": 2,
+      "versionNonce": 240824458,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "LogixConfigurationVerifier\nthe only caller. Renders the kind as a\nMismatchingConfiguration — connect aborts",
-      "rawText": "LogixConfigurationVerifier\nthe only caller. Renders the kind as a\nMismatchingConfiguration — connect aborts",
       "originalText": "LogixConfigurationVerifier\nthe only caller. Renders the kind as a\nMismatchingConfiguration — connect aborts",
       "fontSize": 15,
       "fontFamily": 1,
@@ -1001,14 +1025,16 @@
       "verticalAlign": "middle",
       "containerId": "verify",
       "autoResize": false,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aP",
+      "roundness": null
     },
     {
       "id": "f1",
       "type": "arrow",
-      "x": 215.0,
-      "y": 182,
-      "width": 0.0,
+      "x": 117.22222222222229,
+      "y": 181.62961832682294,
+      "width": 0,
       "height": 50,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1021,8 +1047,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1427,
-      "version": 1,
-      "versionNonce": 1434,
+      "version": 49,
+      "versionNonce": 1328036118,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1030,7 +1056,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441892,
       "link": null,
       "locked": false,
       "points": [
@@ -1039,7 +1065,7 @@
           0
         ],
         [
-          0.0,
+          0,
           50
         ]
       ],
@@ -1052,20 +1078,21 @@
       "startBinding": {
         "elementId": "tags",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
       "endBinding": {
         "elementId": "browser",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aQ"
     },
     {
       "id": "l_f1",
       "type": "text",
       "x": 182.15,
-      "y": 198.0,
+      "y": 198,
       "width": 65.7,
       "height": 18,
       "angle": 0,
@@ -1079,15 +1106,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1441,
-      "version": 1,
-      "versionNonce": 1448,
+      "version": 2,
+      "versionNonce": 763891530,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "ReadAsync",
-      "rawText": "ReadAsync",
       "originalText": "ReadAsync",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1095,14 +1121,16 @@
       "verticalAlign": "middle",
       "containerId": "f1",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aR",
+      "roundness": null
     },
     {
       "id": "f2",
       "type": "arrow",
-      "x": 215.0,
-      "y": 314,
-      "width": 0.0,
+      "x": 117.22222222222229,
+      "y": 313.62961832682294,
+      "width": 0,
       "height": 62,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1115,8 +1143,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1455,
-      "version": 1,
-      "versionNonce": 1462,
+      "version": 49,
+      "versionNonce": 649161622,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1124,7 +1152,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441893,
       "link": null,
       "locked": false,
       "points": [
@@ -1133,7 +1161,7 @@
           0
         ],
         [
-          0.0,
+          0,
           62
         ]
       ],
@@ -1146,20 +1174,21 @@
       "startBinding": {
         "elementId": "browser",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
       "endBinding": {
         "elementId": "decoder",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aS"
     },
     {
       "id": "l_f2",
       "type": "text",
       "x": 193.1,
-      "y": 336.0,
+      "y": 336,
       "width": 43.8,
       "height": 18,
       "angle": 0,
@@ -1173,15 +1202,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1469,
-      "version": 1,
-      "versionNonce": 1476,
+      "version": 2,
+      "versionNonce": 622564874,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "Decode",
-      "rawText": "Decode",
       "originalText": "Decode",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1189,15 +1217,17 @@
       "verticalAlign": "middle",
       "containerId": "f2",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aT",
+      "roundness": null
     },
     {
       "id": "f3",
       "type": "arrow",
-      "x": 380,
-      "y": 417.0,
-      "width": 60,
-      "height": 0.0,
+      "x": 286.08754133191906,
+      "y": 416.7613376746269,
+      "width": 110.01591191820557,
+      "height": 0.08617356533380871,
       "angle": 0,
       "strokeColor": "#868e96",
       "backgroundColor": "transparent",
@@ -1209,8 +1239,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1483,
-      "version": 1,
-      "versionNonce": 1490,
+      "version": 37,
+      "versionNonce": 1370545994,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1218,7 +1248,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "points": [
@@ -1227,8 +1257,8 @@
           0
         ],
         [
-          60,
-          0.0
+          110.01591191820557,
+          0.08617356533380871
         ]
       ],
       "roundness": {
@@ -1247,15 +1277,16 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aU"
     },
     {
       "id": "l_f3",
       "type": "text",
-      "x": 377.15,
-      "y": 408.0,
-      "width": 65.7,
-      "height": 18,
+      "x": 381.08802032470703,
+      "y": 408.875,
+      "width": 57.82395935058594,
+      "height": 16.25,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -1267,15 +1298,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1497,
-      "version": 1,
-      "versionNonce": 1504,
+      "version": 5,
+      "versionNonce": 943148822,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074437190,
       "link": null,
       "locked": false,
       "text": "per entry",
-      "rawText": "per entry",
       "originalText": "per entry",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1283,14 +1313,16 @@
       "verticalAlign": "middle",
       "containerId": "f3",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aV",
+      "roundness": null
     },
     {
       "id": "f4",
       "type": "arrow",
-      "x": 215.0,
-      "y": 458,
-      "width": 0.0,
+      "x": 117.22222222222229,
+      "y": 457.62961832682294,
+      "width": 0,
       "height": 62,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1303,11 +1335,11 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1511,
-      "version": 1,
-      "versionNonce": 1518,
+      "version": 49,
+      "versionNonce": 1181744662,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074441893,
       "link": null,
       "locked": false,
       "points": [
@@ -1316,7 +1348,7 @@
           0
         ],
         [
-          0.0,
+          0,
           62
         ]
       ],
@@ -1329,21 +1361,22 @@
       "startBinding": {
         "elementId": "decoder",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
       "endBinding": {
         "elementId": "decl",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aW"
     },
     {
       "id": "f5",
       "type": "arrow",
-      "x": 215.0,
-      "y": 602,
-      "width": 0.0,
+      "x": 117.22222222222229,
+      "y": 601.629618326823,
+      "width": 0,
       "height": 62,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1356,8 +1389,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1525,
-      "version": 1,
-      "versionNonce": 1532,
+      "version": 49,
+      "versionNonce": 1754001558,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1365,7 +1398,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441893,
       "link": null,
       "locked": false,
       "points": [
@@ -1374,7 +1407,7 @@
           0
         ],
         [
-          0.0,
+          0,
           62
         ]
       ],
@@ -1387,20 +1420,21 @@
       "startBinding": {
         "elementId": "decl",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
       "endBinding": {
         "elementId": "schema",
         "focus": 0,
-        "gap": 4
+        "gap": 1
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aX"
     },
     {
       "id": "l_f5",
       "type": "text",
       "x": 152.95,
-      "y": 624.0,
+      "y": 624,
       "width": 124.1,
       "height": 18,
       "angle": 0,
@@ -1414,15 +1448,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1539,
-      "version": 1,
-      "versionNonce": 1546,
+      "version": 2,
+      "versionNonce": 651672086,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "keyed by tag name",
-      "rawText": "keyed by tag name",
       "originalText": "keyed by tag name",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1430,15 +1463,17 @@
       "verticalAlign": "middle",
       "containerId": "f5",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aY",
+      "roundness": null
     },
     {
       "id": "f6",
       "type": "arrow",
-      "x": 380,
-      "y": 705.0,
-      "width": 60,
-      "height": 0.0,
+      "x": 286.08754133191906,
+      "y": 704.7612319319763,
+      "width": 150.0730176096057,
+      "height": 0.1175246046149141,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1450,8 +1485,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1553,
-      "version": 1,
-      "versionNonce": 1560,
+      "version": 17,
+      "versionNonce": 398212106,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1459,7 +1494,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074441121,
       "link": null,
       "locked": false,
       "points": [
@@ -1468,8 +1503,8 @@
           0
         ],
         [
-          60,
-          0.0
+          150.0730176096057,
+          0.1175246046149141
         ]
       ],
       "roundness": {
@@ -1488,15 +1523,16 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "aZ"
     },
     {
       "id": "l_f6",
       "type": "text",
       "x": 388.1,
-      "y": 696.0,
-      "width": 43.8,
-      "height": 18,
+      "y": 696,
+      "width": 42.31495666503906,
+      "height": 16.25,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -1508,15 +1544,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1567,
-      "version": 1,
-      "versionNonce": 1574,
+      "version": 3,
+      "versionNonce": 397484042,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074440622,
       "link": null,
       "locked": false,
       "text": "Lookup",
-      "rawText": "Lookup",
       "originalText": "Lookup",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1524,14 +1559,16 @@
       "verticalAlign": "middle",
       "containerId": "f6",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aa",
+      "roundness": null
     },
     {
       "id": "f7",
       "type": "arrow",
-      "x": 590.0,
+      "x": 590,
       "y": 746,
-      "width": 0.0,
+      "width": 0,
       "height": 54,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1544,8 +1581,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1581,
-      "version": 1,
-      "versionNonce": 1588,
+      "version": 2,
+      "versionNonce": 1952661770,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1553,7 +1590,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "points": [
@@ -1562,7 +1599,7 @@
           0
         ],
         [
-          0.0,
+          0,
           54
         ]
       ],
@@ -1582,13 +1619,14 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "ab"
     },
     {
       "id": "l_f7",
       "type": "text",
       "x": 531.6,
-      "y": 764.0,
+      "y": 764,
       "width": 116.8,
       "height": 18,
       "angle": 0,
@@ -1602,15 +1640,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1595,
-      "version": 1,
-      "versionNonce": 1602,
+      "version": 2,
+      "versionNonce": 1731505302,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "creates / caches",
-      "rawText": "creates / caches",
       "originalText": "creates / caches",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1618,14 +1655,16 @@
       "verticalAlign": "middle",
       "containerId": "f7",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ac",
+      "roundness": null
     },
     {
       "id": "f8",
       "type": "arrow",
-      "x": 590.0,
+      "x": 590,
       "y": 882,
-      "width": 0.0,
+      "width": 0,
       "height": 54,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1638,8 +1677,8 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1609,
-      "version": 1,
-      "versionNonce": 1616,
+      "version": 2,
+      "versionNonce": 1428852682,
       "isDeleted": false,
       "boundElements": [
         {
@@ -1647,7 +1686,7 @@
           "type": "text"
         }
       ],
-      "updated": 1,
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "points": [
@@ -1656,7 +1695,7 @@
           0
         ],
         [
-          0.0,
+          0,
           54
         ]
       ],
@@ -1676,13 +1715,14 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "ad"
     },
     {
       "id": "l_f8",
       "type": "text",
       "x": 560.8,
-      "y": 900.0,
+      "y": 900,
       "width": 58.4,
       "height": 18,
       "angle": 0,
@@ -1696,15 +1736,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1623,
-      "version": 1,
-      "versionNonce": 1630,
+      "version": 2,
+      "versionNonce": 1415490006,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "Resolved",
-      "rawText": "Resolved",
       "originalText": "Resolved",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1712,15 +1751,17 @@
       "verticalAlign": "middle",
       "containerId": "f8",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ae",
+      "roundness": null
     },
     {
       "id": "f9",
       "type": "arrow",
       "x": 740,
-      "y": 977.0,
+      "y": 977,
       "width": 60,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1732,11 +1773,11 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1637,
-      "version": 1,
-      "versionNonce": 1644,
+      "version": 2,
+      "versionNonce": 630851210,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "points": [
@@ -1746,7 +1787,7 @@
         ],
         [
           60,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1765,14 +1806,15 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "af"
     },
     {
       "id": "f10",
       "type": "arrow",
-      "x": 970.0,
+      "x": 970,
       "y": 1018,
-      "width": 0.0,
+      "width": 0,
       "height": 62,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1785,11 +1827,11 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1651,
-      "version": 1,
-      "versionNonce": 1658,
+      "version": 2,
+      "versionNonce": 500629270,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "points": [
@@ -1798,7 +1840,7 @@
           0
         ],
         [
-          0.0,
+          0,
           62
         ]
       ],
@@ -1818,14 +1860,15 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "ag"
     },
     {
       "id": "f11",
       "type": "arrow",
-      "x": 970.0,
+      "x": 970,
       "y": 1162,
-      "width": 5.0,
+      "width": 5,
       "height": 88,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1838,11 +1881,11 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1665,
-      "version": 1,
-      "versionNonce": 1672,
+      "version": 2,
+      "versionNonce": 242001226,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "points": [
@@ -1851,7 +1894,7 @@
           0
         ],
         [
-          -5.0,
+          -5,
           88
         ]
       ],
@@ -1871,7 +1914,8 @@
         "focus": 0,
         "gap": 4
       },
-      "lastCommittedPoint": null
+      "lastCommittedPoint": null,
+      "index": "ah"
     },
     {
       "id": "n_50",
@@ -1891,15 +1935,14 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1707,
-      "version": 1,
-      "versionNonce": 1714,
+      "version": 2,
+      "versionNonce": 1477618774,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
       "text": "The data point states what it is, in the fields the\ncontroller reports its side in; a converter only\ndecodes and encodes:\n\n   DataType and DimensionCount on every data point\n   — a DIntDataPoint is a scalar DINT.\n\n   StringDataPoint adds the configured capacity,\n   an array data point its element count.",
-      "rawText": "The data point states what it is, in the fields the\ncontroller reports its side in; a converter only\ndecodes and encodes:\n\n   DataType and DimensionCount on every data point\n   — a DIntDataPoint is a scalar DINT.\n\n   StringDataPoint adds the configured capacity,\n   an array data point its element count.",
       "originalText": "The data point states what it is, in the fields the\ncontroller reports its side in; a converter only\ndecodes and encodes:\n\n   DataType and DimensionCount on every data point\n   — a DIntDataPoint is a scalar DINT.\n\n   StringDataPoint adds the configured capacity,\n   an array data point its element count.",
       "fontSize": 13,
       "fontFamily": 1,
@@ -1907,14 +1950,16 @@
       "verticalAlign": "top",
       "containerId": null,
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "ai",
+      "roundness": null
     },
     {
       "id": "n_51",
       "type": "text",
       "x": 30,
       "y": 1180,
-      "width": 851.76,
+      "width": 936,
       "height": 32.5,
       "angle": 0,
       "strokeColor": "#495057",
@@ -1927,27 +1972,30 @@
       "groupIds": [],
       "frameId": null,
       "seed": 1721,
-      "version": 1,
-      "versionNonce": 1728,
+      "version": 3,
+      "versionNonce": 1761438730,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
+      "boundElements": [],
+      "updated": 1790074427604,
       "link": null,
       "locked": false,
-      "text": "An absent definition (null) is unverifiable, not a contradiction — Compare reports None, and the verifier has already\nreported that tag as missing from the controller before it ever asks.",
-      "rawText": "An absent definition (null) is unverifiable, not a contradiction — Compare reports None, and the verifier has already\nreported that tag as missing from the controller before it ever asks.",
-      "originalText": "An absent definition (null) is unverifiable, not a contradiction — Compare reports None, and the verifier has already\nreported that tag as missing from the controller before it ever asks.",
+      "text": "An absent declared type (null) is unverifiable, not a contradiction — Compare reports None, and the verifier has already\nreported that tag as missing from the controller before it ever asks.",
+      "originalText": "An absent declared type (null) is unverifiable, not a contradiction — Compare reports None, and the verifier has already\nreported that tag as missing from the controller before it ever asks.",
       "fontSize": 13,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "index": "aj",
+      "roundness": null
     }
   ],
   "appState": {
-    "gridSize": null,
+    "gridSize": 20,
+    "gridStep": 5,
+    "gridModeEnabled": false,
     "viewBackgroundColor": "#ffffff"
   },
   "files": {}

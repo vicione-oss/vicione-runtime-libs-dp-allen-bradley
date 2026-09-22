@@ -486,12 +486,12 @@ contexts:
           The one-byte CIP code identifying an atomic type on the wire — `0xC4` for `DINT`, `0xCA`
           for `REAL`. Structures have no type code; they carry a template id instead.
 
-  # Boundary with the host. The addon translates between the Allen-Bradley language and
+  # Boundary with the host. The dataport translates between the Allen-Bradley language and
   # ViciOne.Suite.DataPort's. These are the host's words, recorded here so they are not reused for
   # Allen-Bradley concepts.
   - name: ViciOne DataPort
     domainVisionStatement: >-
-      The host the addon translates the Allen-Bradley language into. Host words are not ours to
+      The host the dataport translates the Allen-Bradley language into. Host words are not ours to
       redefine, and they must not be used for Allen-Bradley concepts.
     terms:
       - name: Data point

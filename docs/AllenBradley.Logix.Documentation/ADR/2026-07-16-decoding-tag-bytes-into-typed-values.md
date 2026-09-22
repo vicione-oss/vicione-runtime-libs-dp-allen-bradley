@@ -27,9 +27,9 @@ direction is the base `Tag` plus raw buffers, with all marshalling owned by the 
 ## Considered Options
 
 - **Option 1: A converter registry that decodes raw bytes**, guarded by a runtime CIP type-code
-  check (the pattern the sibling S7 addon uses)
+  check (the pattern the sibling S7 dataport uses)
 - **Option 2: Converters built on the wrapper's typed getters** such as `GetInt32`, `GetString`, …
-- **Option 3: A hybrid**, raw bytes only where needed and typed getters elsewhere (how the S7 addon
+- **Option 3: A hybrid**, raw bytes only where needed and typed getters elsewhere (how the S7 dataport
   ended up)
 
 ## Decision Outcome
@@ -152,7 +152,7 @@ a byte array laid out the way the controller sends it. That byte-layout knowledg
 libplctag either. If the client library were ever swapped, the codecs would survive and only the
 tag-access adapter would be rewritten (see [Operations, not
 accessors](2026-07-16-operations-not-accessors-over-libplctag.md)). It also avoids the upstream removal of
-the mapper API completely, because we never touch that API. And the S7 addon's registry pattern ports over directly,
+the mapper API completely, because we never touch that API. And the S7 dataport's registry pattern ports over directly,
 bringing the exhaustive dictionary and the single boundary cast with it.
 
 #### Cons
@@ -179,7 +179,7 @@ are still fine for a quick throwaway experiment. They just cannot be the product
 
 ### Option 3: The hybrid, raw bytes where needed and typed getters elsewhere (rejected)
 
-The sibling S7 addon decodes raw bytes only for the cases where its client library (S7.Net) lays
+The sibling S7 dataport decodes raw bytes only for the cases where its client library (S7.Net) lays
 the bytes out incorrectly, and uses the library's typed values everywhere else.
 
 #### Cons

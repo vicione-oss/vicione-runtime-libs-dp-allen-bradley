@@ -31,13 +31,14 @@
     framework, so markdown lives in nested folders (explanation/, how-to/,
     reference/) alongside ADR/; a single recursive **/*.md glob picks all of them
     up so a new Diátaxis folder appears on reload without editing this file.
-    diagrams/ is globbed separately for its non-markdown assets (.excalidraw, .svg).
+    A diagrams/ folder sits beside the page that embeds its SVGs, so every
+    diagrams/ folder at any depth is globbed for its assets (.excalidraw, .svg).
     None means the files are never compiled or copied — they just appear in
     Solution Explorer. bin/obj are excluded everywhere.
   -->
   <ItemGroup>
     <None Include="**/*.md" Exclude="**/bin/**;**/obj/**" />
-    <None Include="diagrams/**" Exclude="**/bin/**;**/obj/**;**/*.md" />
+    <None Include="**/diagrams/**" Exclude="**/bin/**;**/obj/**;**/*.md" />
   </ItemGroup>
 
 </Project>

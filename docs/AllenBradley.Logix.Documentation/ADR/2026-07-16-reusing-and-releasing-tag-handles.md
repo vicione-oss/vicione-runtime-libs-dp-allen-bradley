@@ -60,14 +60,14 @@ handle cache.
 
 What the manager hands out is a tag, not the bare handle. The tag joins the configured data point, the
 controller's metadata for that tag, and the read/write access into one object. It has the shape of the
-sibling S7 addon's symbolic data-point access, and it is what the batches and configuration verification
+sibling S7 dataport's symbolic data-point access, and it is what the batches and configuration verification
 both project off. The minimal access interface survives underneath as the operation and mock seam (see
 [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md)). The tag composes it,
 adds the two immutable getters, and disposes it. The concurrency contract is untouched, because metadata and
 the data point are data rather than exchange state and need no gating.
 
 The manager also owns the controller's symbol table, which is what it has to join that metadata from. This
-mirrors the S7 addon's access manager owning its root-node handle. The browse runs once through an
+mirrors the S7 dataport's access manager owning its root-node handle. The browse runs once through an
 injected loader and the definitions are retained whole. It is idempotent, which is the same guard S7 puts
 on its root node. Asking for a tag joins the lookup by name onto the handle at creation, and it **throws**
 if the definitions have not been loaded. The browse is a hard connect precondition rather than a lazy

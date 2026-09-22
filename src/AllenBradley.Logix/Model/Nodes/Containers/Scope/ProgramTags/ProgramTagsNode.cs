@@ -10,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.Scope
 /// <summary>
 /// A program-scope tag container: one program of the controller, and the tags configured inside it. A
 /// peer of controller scope under the device, the way Studio 5000's own tree puts them. See
-/// <c>explanation/tag-scoping.md</c>.
+/// <c>explanation/model/node-model.md</c>.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="ProgramName">The program these tags live in, and the segment their addresses carry.</param>

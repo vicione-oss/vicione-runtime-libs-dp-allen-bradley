@@ -55,6 +55,7 @@ folder is split by who defines the mechanism: `cip/` is the [ODVA](https://www.o
 | [protocol/cip/cip-datatypes-reference.md](protocol/cip/cip-datatypes-reference.md) | Source-of-truth wire formats for every CIP type: type codes, little-endian encoding, byte layout, ranges, and .NET equivalents |
 | [protocol/allen-bradley-extension/symbolic-tag-data-types.md](protocol/allen-bradley-extension/symbolic-tag-data-types.md) | The types the tag-addressed families expose (Logix, Micro800), the Logix `STRING`/`TIMER` structures, BOOL packing, the tag services, and the Symbol and Template objects that list and describe every tag |
 | [protocol/allen-bradley-extension/pccc-data-file-types.md](protocol/allen-bradley-extension/pccc-data-file-types.md) | The data-file types of the file-addressed families (MicroLogix, SLC 500, PLC-5): file letters, element layouts, what these families lack, and the PCCC tunnel |
+| [protocol/allen-bradley-extension/tag-scoping.md](protocol/allen-bradley-extension/tag-scoping.md) | Controller scope and program scope, the `Program:` prefix, shadowing, the tags that cannot be program-scoped, and why a full tag listing takes one pass per scope |
 | [protocol/allen-bradley-extension/controller-families-and-routing.md](protocol/allen-bradley-extension/controller-families-and-routing.md) | The controller lines and their two form factors, chassis / slot / backplane, the backplane as a CIP network, building a route path hop by hop, and the conventional path per family |
 
 ### libplctag behaviour — `libPlcTag/`

@@ -25,7 +25,7 @@ queue never holds more than one request, so nothing ever packs (see
 - **Option 1: Resolve every converter and tag up front**, then start one operation per tag
   at once and await them all, handling failure per tag
 - **Option 2: Hand-roll the Multiple Service Packet** ourselves over `libplctag.NativeImport`
-- **Option 3: Mirror the S7 addon's batch**, where the whole group is one client-library call
+- **Option 3: Mirror the S7 dataport's batch**, where the whole group is one client-library call
 
 ## Decision Outcome
 
@@ -74,7 +74,7 @@ engine should see, and it belongs to the port rather than to the client.
 On the **write** side the batch still fails whole, with one `LogixTagException` naming every failed tag
 and its reason. The encode loop follows the same rule from before any I/O: a batch holding three values
 that will not fit their tags names all three, and says that nothing was sent. This is where the sibling
-Siemens S7 addon's contract (`Siemens.S7.Absolute/Client/S7NetPlusClient.cs`) still holds and the read
+Siemens S7 dataport's contract (`Siemens.S7.Absolute/Client/S7NetPlusClient.cs`) still holds and the read
 side has now diverged from it.
 
 A failed read costs one value for one poll. The failures are logged with the controller, and a batch that
@@ -144,9 +144,9 @@ It is only worth doing if we owned the whole wrapper layer, an option already re
 accessors](2026-07-16-operations-not-accessors-over-libplctag.md). And it buys nothing, because the core
 already packs.
 
-### Option 3: Mirror the S7 addon's one-call batch (rejected)
+### Option 3: Mirror the S7 dataport's one-call batch (rejected)
 
-In the sibling Siemens S7 addon, the client library (S7.Net) exposes a read-multiple call that takes the
+In the sibling Siemens S7 dataport, the client library (S7.Net) exposes a read-multiple call that takes the
 whole batch at once and updates each item's value in place. The S7 batch classes are built around it.
 What was rejected is the *call shape*. The failure contract was shared at first and now is only on the
 write side: a read here returns what it could read.

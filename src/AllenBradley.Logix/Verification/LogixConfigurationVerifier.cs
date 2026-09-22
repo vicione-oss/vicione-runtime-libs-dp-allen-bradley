@@ -88,7 +88,7 @@ internal sealed class LogixConfigurationVerifier(ILogixClient client)
     }
 
     private static string Describe(AllenBradleyDataType dataType) =>
-        dataType == AllenBradleyDataType.Unknown ? "a type this addon does not model" : dataType.Name.Value;
+        dataType == AllenBradleyDataType.Unknown ? "a type this dataport does not model" : dataType.Name.Value;
 
     private static string Describe(StringMaxLength? maxLength) =>
         maxLength?.Value.ToString(CultureInfo.InvariantCulture) ?? "none";

@@ -48,8 +48,8 @@ These pages cover only what the Logix port adds on top.
 
 | Document | Covers |
 |----------|--------|
-| [`explanation/tag-scoping.md`](explanation/tag-scoping.md) | Controller scope vs. program scope: what the `Program:` prefix means, which tags cannot be program-scoped, why enumeration takes two passes, and what scope is in the configuration tree |
-| [`explanation/client/architecture.md`](explanation/client/architecture.md) | How the client classes collaborate — from the read/write seams down to the native `libplctag` handle (with diagram) |
+| [`explanation/model/node-model.md`](explanation/model/node-model.md) | The configured tree: the three kinds of node, why the marker interfaces exist, what each container accepts as a child, and why there is one record per data type |
+| [`explanation/client/architecture.md`](explanation/client/architecture.md) | The entry point to the client architecture: the overview diagram, and one linked page per axis (reading and writing, values, connecting, tags and handles, the symbol table, verification) |
 
 ### How-to *(planned)*
 

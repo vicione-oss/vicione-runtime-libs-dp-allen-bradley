@@ -37,7 +37,7 @@ public sealed class DeviceNodeMapperTests
     }
 
     [Fact]
-    public void ADeviceNodeTypeTheAddonDoesNotHaveIsRefusedByName()
+    public void ADeviceNodeTypeTheDataPortDoesNotHaveIsRefusedByName()
     {
         // Arrange
         var communication = DefaultTestCommunication() with { DesignId = "DeviceMicro800" };

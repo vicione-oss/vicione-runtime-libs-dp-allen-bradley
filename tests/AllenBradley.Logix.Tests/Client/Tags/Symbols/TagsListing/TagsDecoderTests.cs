@@ -10,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Symbols.Ta
 
 public sealed class TagsDecoderTests
 {
-    // Outside the elementary range 0xC1-0xCB the addon knows how to decode.
+    // Outside the elementary range 0xC1-0xCB the dataport knows how to decode.
     private const ushort UnmodelledSymbolType = 0x00DE;
 
     [Fact]

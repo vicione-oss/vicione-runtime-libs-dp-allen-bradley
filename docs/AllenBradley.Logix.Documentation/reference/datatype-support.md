@@ -68,7 +68,7 @@ device's — the pairing the first guard rests on. See
 The node states the rule itself, as `ILogixDataPointNode.MinimumGeneration`: the oldest generation whose
 vocabulary has the type. `ControllerTagsNode` and `ProgramTagsNode` compare it against their own
 generation in `CanBeAdded`, and an array container is gated the same way by its element type, so a type that arrives with a later generation is
-one line on the node and no edit to a container. The default is the oldest generation the addon
+one line on the node and no edit to a container. The default is the oldest generation the dataport
 addresses, which is why `BoolNode`, `SIntNode`, `IntNode`, `DIntNode`, `LIntNode`, `RealNode`,
 `StringNode`, and the array nodes of `BOOL`, the signed integers and `REAL`, say nothing. The comparison reads
 `LogixGeneration` in declaration order, and the members are numbered — `Logix5X70 = 70` — so a later
@@ -119,7 +119,7 @@ bytes — but a **scalar** in this model: one value, not an array. `StringDataPo
 
 Two things are worth knowing before configuring one:
 
-- **Characters are Latin-1**, one byte each, matching the sibling S7 addon. Anything outside Latin-1
+- **Characters are Latin-1**, one byte each, matching the sibling S7 dataport. Anything outside Latin-1
   is written as `?`, which is lossy and unavoidable: a `STRING` stores one byte per character.
 - **A value longer than the declared capacity is rejected, not truncated.** The write fails while the
   batch is being built, before any bytes reach the controller.
@@ -269,7 +269,7 @@ declared type, and the bit position of a packed `BOOL`. The wire layout of the t
 [reading a UDT definition](../../AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md);
 the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
 
-`STRING` is the one structure this addon reads as a value, so it is the one data type a template can
+`STRING` is the one structure this dataport reads as a value, so it is the one data type a template can
 give a structure, and the lookup is where it does: `SymbolTable.GetDeclaredTypeAtPath` walks to the
 tag or the member the path names (see [Structure members](#structure-members)), and if what it found
 names a template with a `.DATA : SINT[n]` member, hands it back as a `String` of capacity `n`. So a `STRING_20`
@@ -330,8 +330,8 @@ member therefore compares like a `STRING` tag, and a member of a non-string stru
 
 A path that stops on a structure is answered rather than refused. `Motor`, and `Motor.Ramp` where
 `Ramp` is a nested UDT, both come back as a scalar `STRUCTURE` at that address. `STRUCTURE` is the
-addon's own spelling for a structure it reads as members rather than as one value, and it is distinct
-from `UNKNOWN`, which now means one thing only: an elementary type code outside the range this addon
+dataport's own spelling for a structure it reads as members rather than as one value, and it is distinct
+from `UNKNOWN`, which now means one thing only: an elementary type code outside the range this dataport
 decodes. A UDT container builds no data point of its own, so a path stops on a structure only when a
 leaf node carries a structure's tag name, and the verifier says so — *configured DINT, controller
 reports STRUCTURE*.

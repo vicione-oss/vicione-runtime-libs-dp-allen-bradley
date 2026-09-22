@@ -401,7 +401,7 @@ Structures have no type code; they carry a template id instead.
 
 ## Boundary with the host
 
-The addon translates between this language and `ViciOne.Suite.DataPort`'s. Host words are not ours
+The dataport translates between this language and `ViciOne.Suite.DataPort`'s. Host words are not ours
 to redefine, and they must not be used for Allen-Bradley concepts:
 
 - **Data point** — the host's configured unit of exchange. A data point _resolves to_ a tag; it is

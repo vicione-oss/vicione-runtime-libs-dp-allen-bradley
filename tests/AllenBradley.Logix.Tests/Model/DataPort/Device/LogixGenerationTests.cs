@@ -4,7 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Model.DataPort.Device;
 
 /// <summary>
 /// A member inserted or renumbered in the wrong place would silently change what every minimum-generation
-/// comparison in the addon means.
+/// comparison in the dataport means.
 /// </summary>
 public sealed class LogixGenerationTests
 {

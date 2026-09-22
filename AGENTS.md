@@ -1,12 +1,12 @@
 # AGENTS.md
 
-Allen-Bradley DataPorts for .NET 10, speaking CIP over EtherNet/IP. Two addons are planned:
+Allen-Bradley DataPorts for .NET 10, speaking CIP over EtherNet/IP. Two dataports are planned:
 **Logix** (ControlLogix / CompactLogix, symbolic tag addressing) and **Legacy**
 (MicroLogix / Micro800, file-based addressing). Only Logix has a project so far.
 
 ## Current state — read this first
 
-`src/AllenBradley.Logix` is a working addon, built slice by slice. It reads and writes tags against a real controller:
+`src/AllenBradley.Logix` is a working dataport, built slice by slice. It reads and writes tags against a real controller:
 the YAML manifest and the typed node model mapped from it, the incoming and outgoing ports, a pooled `LogixClient` over
 `libplctag`, per-type converters, and verification of a configuration against the controller's symbol table.
 **`libplctag` is a dependency of `src/`**, not of the tests alone — the driver question is settled.
@@ -14,11 +14,11 @@ the YAML manifest and the typed node model mapped from it, the incoming and outg
 What is missing is most of the type vocabulary and most of the tree: structures, arrays, UDTs and program scope are all
 later slices. Before adding a data type or a node, read
 [`reference/datatype-support.md`](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) for what is
-implemented today, and [`explanation/tag-scoping.md`](docs/AllenBradley.Logix.Documentation/explanation/tag-scoping.md)
-for how scope becomes a container node. The **Legacy** addon still has no project.
+implemented today, and [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md)
+for how the tree is modelled. The **Legacy** dataport still has no project.
 
 `tests/AllenBradley.Logix.Tests/Integration/` is the hardware suite; a bare `dotnet test` never runs it. It is split
-three ways: `LibPlcTag/` probes the library on its own and `CompactLogix5X70/` drives the addon's client stack, both
+three ways: `LibPlcTag/` probes the library on its own and `CompactLogix5X70/` drives the dataport's client stack, both
 against the **L32E — a borrowed controller in the ifm demo cell, over the Link Manager tunnel, whose tags we cannot
 change**; and `CompactLogix5X80/` is one write/read round trip per data type against **our own CompactLogix
 5069-L306ER, which is on hand but not commissioned yet**. New integration coverage goes in `CompactLogix5X80/`, where a
@@ -64,7 +64,7 @@ VSTest host hid this.
 
 ## Repo conventions
 
-Adopted wholesale from the S7 repo, so that an addon developer moving between the two finds the same build:
+Adopted wholesale from the S7 repo, so that a dataport developer moving between the two finds the same build:
 
 - **`Directory.Build.props`** — net10.0, nullable + implicit usings, `TreatWarningsAsErrors`,
   `EnforceCodeStyleInBuild`, NuGet lock files, version read from `VERSION`
@@ -86,7 +86,7 @@ quietly reconfigure it.
 
 `src/` and `tests/` project names are load-bearing: `Directory.Build.props` grants
 `InternalsVisibleTo` to `$(MSBuildProjectName).Tests`, so `AllenBradley.Logix` is tested by
-`AllenBradley.Logix.Tests` and the wiring is implicit. `metadata.json` in each addon carries the same id and is
+`AllenBradley.Logix.Tests` and the wiring is implicit. `metadata.json` in each dataport carries the same id and is
 templated by the pipeline.
 
 ## DataPort.Extensions Packages
@@ -105,8 +105,8 @@ Comprehensive documentation ships inside the NuGet packages themselves.
 | Modelling conventions      | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)         |
 | CIP protocol               | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)             |
 | Test device setup          | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) |
-| Logix addon                | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                           |
-| Legacy addon               | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                         |
+| Logix dataport             | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                           |
+| Legacy dataport            | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                         |
 | Data types the port has    | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md) |
 | Decision records           | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                     |
 

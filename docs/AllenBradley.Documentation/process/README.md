@@ -10,7 +10,7 @@ The phases are ordered. Each assumes the previous one is finished.
 |-------|-------|--------|
 | 1. Bootstrap the project | [bootstrap-the-project.md](bootstrap-the-project.md) | Written |
 | 2. CI pipeline | *planned* | Builds the solution and runs the unit suite on a machine that is not a developer laptop |
-| 3. Walking skeleton | *planned* | The first addon the engine can actually discover: device nodes, YAML manifest, communication configuration |
+| 3. Walking skeleton | *planned* | The first dataport the engine can actually discover: device nodes, YAML manifest, communication configuration |
 | 4. Data types | *planned* | Adding Logix types one family at a time |
 
 The repo-wide build conventions these guides assume — the test platform, the package feeds, central

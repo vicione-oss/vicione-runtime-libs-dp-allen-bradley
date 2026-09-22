@@ -8,8 +8,8 @@
       "type": "text",
       "x": 60,
       "y": 30,
-      "width": 612.0,
-      "height": 25.0,
+      "width": 612,
+      "height": 25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -80,7 +80,7 @@
       "type": "text",
       "x": 60,
       "y": 130,
-      "width": 225.0,
+      "width": 225,
       "height": 18.75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -431,9 +431,9 @@
       "id": "a1",
       "type": "arrow",
       "x": 340,
-      "y": 205.0,
+      "y": 205,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -455,11 +455,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -484,9 +484,9 @@
       "id": "a2",
       "type": "arrow",
       "x": 700,
-      "y": 205.0,
+      "y": 205,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -513,11 +513,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -543,7 +543,7 @@
       "type": "text",
       "x": 720.5,
       "y": 196.875,
-      "width": 39.0,
+      "width": 39,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -578,9 +578,9 @@
       "id": "a3",
       "type": "arrow",
       "x": 1060,
-      "y": 205.0,
+      "y": 205,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -607,11 +607,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -673,8 +673,8 @@
       "type": "text",
       "x": 420,
       "y": 260,
-      "width": 316.8,
-      "height": 45.0,
+      "width": 345.59999999999997,
+      "height": 45,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -686,16 +686,16 @@
       "groupIds": [],
       "frameId": null,
       "seed": 2231,
-      "version": 1,
+      "version": 2,
       "versionNonce": 2238,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Each read opens one handle through\nCreateForSchemaTag and disposes it after.\nA failed read throws DataRetrievalException.",
-      "rawText": "Each read opens one handle through\nCreateForSchemaTag and disposes it after.\nA failed read throws DataRetrievalException.",
-      "originalText": "Each read opens one handle through\nCreateForSchemaTag and disposes it after.\nA failed read throws DataRetrievalException.",
+      "text": "Each read opens one handle through\nCreateAccessForTagAddress and disposes it after.\nA failed read throws DataRetrievalException.",
+      "rawText": "Each read opens one handle through\nCreateAccessForTagAddress and disposes it after.\nA failed read throws DataRetrievalException.",
+      "originalText": "Each read opens one handle through\nCreateAccessForTagAddress and disposes it after.\nA failed read throws DataRetrievalException.",
       "fontSize": 12,
       "fontFamily": 1,
       "textAlign": "left",
@@ -709,7 +709,7 @@
       "type": "text",
       "x": 60,
       "y": 470,
-      "width": 234.0,
+      "width": 234,
       "height": 18.75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -981,9 +981,9 @@
     {
       "id": "b0",
       "type": "arrow",
-      "x": 200.0,
+      "x": 200,
       "y": 240,
-      "width": 0.0,
+      "width": 0,
       "height": 270,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1010,11 +1010,11 @@
       "locked": false,
       "points": [
         [
-          0.0,
+          0,
           0
         ],
         [
-          0.0,
+          0,
           270
         ]
       ],
@@ -1076,9 +1076,9 @@
       "id": "b1",
       "type": "arrow",
       "x": 340,
-      "y": 545.0,
+      "y": 545,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1100,11 +1100,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1129,9 +1129,9 @@
       "id": "b2",
       "type": "arrow",
       "x": 700,
-      "y": 545.0,
+      "y": 545,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1158,11 +1158,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1188,7 +1188,7 @@
       "type": "text",
       "x": 720.5,
       "y": 536.875,
-      "width": 39.0,
+      "width": 39,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1223,9 +1223,9 @@
       "id": "b3",
       "type": "arrow",
       "x": 1060,
-      "y": 545.0,
+      "y": 545,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1252,11 +1252,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1319,7 +1319,7 @@
       "x": 60,
       "y": 600,
       "width": 223.2,
-      "height": 15.0,
+      "height": 15,
       "angle": 0,
       "strokeColor": "#495057",
       "backgroundColor": "transparent",
@@ -1354,7 +1354,7 @@
       "type": "text",
       "x": 60,
       "y": 810,
-      "width": 279.0,
+      "width": 279,
       "height": 18.75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1708,9 +1708,9 @@
     {
       "id": "c0",
       "type": "arrow",
-      "x": 200.0,
+      "x": 200,
       "y": 580,
-      "width": 0.0,
+      "width": 0,
       "height": 270,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1737,11 +1737,11 @@
       "locked": false,
       "points": [
         [
-          0.0,
+          0,
           0
         ],
         [
-          0.0,
+          0,
           270
         ]
       ],
@@ -1768,7 +1768,7 @@
       "type": "text",
       "x": 102.5,
       "y": 706.875,
-      "width": 195.0,
+      "width": 195,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1803,9 +1803,9 @@
       "id": "c1",
       "type": "arrow",
       "x": 340,
-      "y": 885.0,
+      "y": 885,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1827,11 +1827,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1856,9 +1856,9 @@
       "id": "c2",
       "type": "arrow",
       "x": 700,
-      "y": 885.0,
+      "y": 885,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1885,11 +1885,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -1915,7 +1915,7 @@
       "type": "text",
       "x": 720.5,
       "y": 876.875,
-      "width": 39.0,
+      "width": 39,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -1950,9 +1950,9 @@
       "id": "c3",
       "type": "arrow",
       "x": 1060,
-      "y": 885.0,
+      "y": 885,
       "width": 80,
-      "height": 0.0,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -1974,11 +1974,11 @@
       "points": [
         [
           0,
-          0.0
+          0
         ],
         [
           80,
-          0.0
+          0
         ]
       ],
       "roundness": {
@@ -2068,7 +2068,7 @@
       "type": "text",
       "x": 447.5,
       "y": 1001.875,
-      "width": 585.0,
+      "width": 585,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -2104,7 +2104,7 @@
       "type": "text",
       "x": 60,
       "y": 1090,
-      "width": 117.0,
+      "width": 117,
       "height": 18.75,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -2376,7 +2376,7 @@
       "type": "text",
       "x": 1111.5,
       "y": 1016.875,
-      "width": 117.0,
+      "width": 117,
       "height": 16.25,
       "angle": 0,
       "strokeColor": "#1e1e1e",

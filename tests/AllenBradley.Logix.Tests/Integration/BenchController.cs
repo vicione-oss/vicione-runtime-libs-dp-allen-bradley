@@ -29,7 +29,7 @@ internal static class BenchController
         Timeout);
 
     /// <summary>
-    /// A raw libplctag handle on the same controller, for the suites that hold this addon's decode
+    /// A raw libplctag handle on the same controller, for the suites that hold this dataport's decode
     /// against libplctag's own accessors. The caller owns it: a handle left to its finalizer fail-fasts
     /// the process (0xC0000602).
     /// </summary>

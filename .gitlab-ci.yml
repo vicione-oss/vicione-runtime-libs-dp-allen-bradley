@@ -1,5 +1,5 @@
 # Component-based pipeline modeled on the Siemens S7 repo, collapsed to the single
-# module that exists so far. Only AllenBradley.Logix has a project; the Legacy addon
+# module that exists so far. Only AllenBradley.Logix has a project; the Legacy dataport
 # arrives later and gets its own module fan-out then.
 #
 # Dropped versus S7, because the inputs don't exist in this repo yet:

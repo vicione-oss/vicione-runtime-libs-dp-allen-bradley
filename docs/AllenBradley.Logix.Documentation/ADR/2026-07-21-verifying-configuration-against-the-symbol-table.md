@@ -9,8 +9,8 @@ diffed against it. It was made under
 The DataPort lifecycle runs a **verification step after connecting**. Each configured data point is
 compared against the tag metadata the controller itself reports, meaning data type, dimensions and size,
 and every mismatch is reported. A misconfigured tag is caught once, at connect, instead of surfacing as a
-silent bad read on every poll. The sibling Siemens S7 addon does exactly this, diffing each configured
-data point against the type declaration its symbol table reports. The Logix addon needs the same check,
+silent bad read on every poll. The sibling Siemens S7 dataport does exactly this, diffing each configured
+data point against the type declaration its symbol table reports. The Logix dataport needs the same check,
 over CIP.
 
 Two facts frame where that metadata can come from.
@@ -24,11 +24,7 @@ dimensions, element sizes and names, without reading any tag's *value*. That is 
 source the [decode ADR](2026-07-16-decoding-tag-bytes-into-typed-values.md) left open for its type-code
 check.
 
-The connectivity spike already proves the browse works, but the wrong way. The spike is the throwaway code
-in the integration-test project that first proved the protocol against the real controller. It binds to
-the typed-mapper API that is being removed upstream
-([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)). It proves the protocol and
-nothing beyond that, and it cannot be tested without a device.
+There is typed-mapper API in the lib that somewhat supports it, but that is going to be removed ([libplctag.NET#406](https://github.com/libplctag/libplctag.NET/issues/406)).
 
 ## Considered Options
 
@@ -80,7 +76,7 @@ the dataport base hands over when it asks for a verifier.
 
 Verification implements the framework's contract directly. It reports the framework's own misconfiguration
 and mismatch types instead of result types of ours behind an adapter. That is the shape the sibling S7
-addon has over its client, with nothing in between.
+dataport has over its client, with nothing in between.
 
 The diff reads the configured data point against the declaration, and it is the only place that comparison
 runs. Reads and
@@ -152,7 +148,7 @@ mapper API being removed upstream.
 #### Cons
 
 libplctag has no load-everything call, so the browse is *N* reads, one for the controller plus one per
-program. The S7 addon gets its whole symbol tree from a single call of its client library (AGLink). The
+program. The S7 dataport gets its whole symbol tree from a single call of its client library (AGLink). The
 `@udt` responses must also be decoded by hand once structures are modelled, and the wrapper's own string
 accessor currently hides their string layout. Program browsing goes one level deep in this version, with
 no programs nested inside programs.

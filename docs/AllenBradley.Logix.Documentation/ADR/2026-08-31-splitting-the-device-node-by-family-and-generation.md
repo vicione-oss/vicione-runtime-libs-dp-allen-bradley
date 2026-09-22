@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 This decision covers the device node in `allen-bradley-logix.yaml` and the
-`Model/Nodes/Device/` types behind it. It settles how an integrator tells the addon which controller
+`Model/Nodes/Device/` types behind it. It settles how an integrator tells the dataport which controller
 they are pointing it at. It was made under
 [issue #9: Split the device node by controller family and generation](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/9).
 
@@ -27,7 +27,7 @@ and `LREAL`. See
 Nothing stopped a 5X70 from being configured with a type it has not got, and the failure would have
 surfaced as a tag the controller could not resolve.
 
-So: does the addon ask these as properties on one node, or declare a node type per answer?
+So: does the dataport ask these as properties on one node, or declare a node type per answer?
 
 ## Considered Options
 
@@ -47,7 +47,7 @@ Chosen: **Option 3.**
 The manifest declares four device nodes and the C# side keeps one `DeviceNode`, carrying a
 `LogixControllerFamily` and a `LogixGeneration` that `DeviceNodeMapper` resolves from
 `communication.DesignId`. This is the shape `s7-absolute.yaml` already uses for its seven
-`DeviceNNNN` ids, so an addon developer moving between the two repos finds the same thing.
+`DeviceNNNN` ids, so a dataport developer moving between the two repos finds the same thing.
 
 What decides it is that a node type can vary its **property list** and its **child list**, and a
 property cannot vary either. That is exactly what the two differences need:
@@ -59,7 +59,7 @@ property cannot vary either. That is exactly what the two differences need:
   differs: the 5X80 container offers `LReal`, the 5X70 one does not.
 
 Under Option 1 both of those would have had to be runtime rules on a tree the editor still offers in
-full, which means an integrator can build a configuration the addon then refuses. Under Option 3 the
+full, which means an integrator can build a configuration the dataport then refuses. Under Option 3 the
 editor cannot offer it in the first place.
 
 `ControllerType` is deleted rather than renamed. The family is now the node type, and it deliberately
@@ -77,7 +77,7 @@ part number Rockwell ships.
 The node id is a configuration contract, so this is the expensive half of the decision. `Device` no
 longer exists, and a configuration referencing it maps to nothing. `DeviceNodeMapper` rejects an
 unrecognised design id outright rather than guessing, because a device node type with no family and
-no generation has nothing to fall back on. The addon is unreleased, so no stored configuration is
+no generation has nothing to fall back on. The dataport is unreleased, so no stored configuration is
 affected today; after a release this rename would need a migration.
 
 `DeviceNode.TypeOf` and the manifest's device nodes are the same set, and nothing enforces that but
@@ -163,7 +163,7 @@ renames the only device node there was.
 #### Cons
 
 Dozens of node ids carrying no information the two axes do not already carry, and a new one for every
-part number Rockwell ships. The catalog number is narrower than anything the addon acts on.
+part number Rockwell ships. The catalog number is narrower than anything the dataport acts on.
 
 ## More Information
 
