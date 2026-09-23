@@ -14,7 +14,8 @@
     sibling AllenBradley.Documentation project; keep port-specific material here.
 
     Microsoft.Build.NoTargets is used (instead of Microsoft.NET.Sdk) so nothing in
-    the tree is ever compiled.
+    the tree is ever compiled — including the C# file-based app under
+    logix-icons/update-script/, which is run on demand with `dotnet run <file>.cs`.
   -->
 
   <PropertyGroup>
@@ -34,11 +35,13 @@
     A diagrams/ folder sits beside the page that embeds its SVGs, so every
     diagrams/ folder at any depth is globbed for its assets (.excalidraw, .svg).
     None means the files are never compiled or copied — they just appear in
-    Solution Explorer. bin/obj are excluded everywhere.
+    Solution Explorer. The tree-editor icons and their update script live in
+    logix-icons/. bin/obj are excluded everywhere.
   -->
   <ItemGroup>
     <None Include="**/*.md" Exclude="**/bin/**;**/obj/**" />
     <None Include="**/diagrams/**" Exclude="**/bin/**;**/obj/**;**/*.md" />
+    <None Include="logix-icons/**" Exclude="**/bin/**;**/obj/**;**/*.md" />
   </ItemGroup>
 
 </Project>

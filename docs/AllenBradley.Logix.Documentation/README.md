@@ -64,6 +64,12 @@ These pages cover only what the Logix port adds on top.
 |----------|--------|
 | [`reference/datatype-support.md`](reference/datatype-support.md) | Which Logix types the port implements, their .NET mapping and wire size, and what is not supported yet |
 
+### Tree-editor icons
+
+| Document | Covers |
+|----------|--------|
+| [`logix-icons/README.md`](logix-icons/README.md) | The SVG sources of the manifest's icons, the Studio 5000 shapes they follow, and the script that embeds them in the YAML |
+
 ### Decision records
 
 Architecture decision records land under [`ADR/`](ADR/) as design decisions are made.

@@ -103,6 +103,7 @@ documentation ships inside the NuGet packages themselves.
 | Node model                | [docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md)       |
 | Client architecture       | [docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md](docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md) |
 | Decision records          | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                                             |
+| Tree-editor icons         | [docs/AllenBradley.Logix.Documentation/logix-icons/README.md](docs/AllenBradley.Logix.Documentation/logix-icons/README.md) — edit the SVG and run the script, never a `Content:` line |
 | Deploy to a local ViciOne | [scripts/README.md](scripts/README.md)                                                                                                               |
 
 ## GitLab & Version Control

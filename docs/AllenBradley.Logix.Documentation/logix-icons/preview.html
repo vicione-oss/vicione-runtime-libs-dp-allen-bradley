@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logix tree-editor icons</title>
+<style>
+  body { margin: 0; font: 13px system-ui, sans-serif; }
+  section { padding: 12px 16px; }
+  .light { background: #ffffff; color: #1b1b1b; }
+  .dark { background: #1e1e1e; color: #e6e6e6; }
+  /* An SVG loaded through <img> resolves currentColor to black. */
+  .dark img { filter: invert(1); }
+  table { border-collapse: collapse; }
+  th, td { padding: 6px 14px; text-align: center; vertical-align: middle; }
+  th:first-child, td:first-child { text-align: left; font-family: ui-monospace, monospace; }
+  img { display: block; margin: auto; }
+</style>
+</head>
+<body>
+<script>
+  const icons = ["allen-bradley-logix", "controllogix", "compactlogix", "controller-tags", "program-tags", "udt", "array-container"];
+  const sizes = [16, 20, 24, 32, 64];
+
+  for (const theme of ["light", "dark"]) {
+    const rows = icons.map(id =>
+      `<tr><td>${id}</td>${sizes.map(size =>
+        `<td><img src="dataport-concepts/${id}.svg" width="${size}" height="${size}" alt="${id}"></td>`).join("")}</tr>`);
+    document.body.insertAdjacentHTML("beforeend",
+      `<section class="${theme}"><table>
+         <tr><th>${theme}</th>${sizes.map(size => `<th>${size} px</th>`).join("")}</tr>
+         ${rows.join("")}
+       </table></section>`);
+  }
+</script>
+</body>
+</html>

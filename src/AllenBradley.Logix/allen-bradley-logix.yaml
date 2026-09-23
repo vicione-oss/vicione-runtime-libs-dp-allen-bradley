@@ -38,7 +38,7 @@ Nodes:
     Name: "ControlLogix 5X70"
     Description: "Allen-Bradley ControlLogix 5550/5560/5570 controller in a 1756 chassis, reached over EtherNet/IP."
     MetadataLength: 0
-    Icon: allen-bradley-logix
+    Icon: controllogix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: &controllogix-device-properties
       - Id: Connection
@@ -62,7 +62,7 @@ Nodes:
     Name: "ControlLogix 5X80"
     Description: "Allen-Bradley ControlLogix 5580 controller in a 1756 chassis, reached over EtherNet/IP."
     MetadataLength: 0
-    Icon: allen-bradley-logix
+    Icon: controllogix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: *controllogix-device-properties
     ChildNodes:
@@ -77,7 +77,7 @@ Nodes:
     Name: "CompactLogix 5X70"
     Description: "Allen-Bradley CompactLogix 1769/5370 controller on a DIN rail, reached over EtherNet/IP."
     MetadataLength: 0
-    Icon: allen-bradley-logix
+    Icon: compactlogix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: &compactlogix-device-properties
       - Id: Connection
@@ -97,7 +97,7 @@ Nodes:
     Name: "CompactLogix 5X80"
     Description: "Allen-Bradley CompactLogix 5380/5480 controller on a DIN rail, reached over EtherNet/IP."
     MetadataLength: 0
-    Icon: allen-bradley-logix
+    Icon: compactlogix
     TransferDirections: [ Inbound, Outbound ]
     PropertyCategories: *compactlogix-device-properties
     ChildNodes:
@@ -113,9 +113,9 @@ Nodes:
   - Id: ControllerTags5X70
     MappingId: ControllerTags5X70
     Type: DataPortTreeNode
-    Name: "Controller"
+    Name: "Controller Tags"
     Description: "Controller-scope tags of a 5X70 controller. Adds no segment to the tag address."
-    Icon: folder
+    Icon: controller-tags
     TransferModes: [ None ]
     ChildNodes: &basic-tag-nodes
       # Grouped by type family, widest last within a family, and in the order the tag node
@@ -149,9 +149,9 @@ Nodes:
   - Id: ControllerTags5X80
     MappingId: ControllerTags5X80
     Type: DataPortTreeNode
-    Name: "Controller"
+    Name: "Controller Tags"
     Description: "Controller-scope tags of a 5X80 controller, which adds the unsigned integers and LREAL. Adds no segment to the tag address."
-    Icon: folder
+    Icon: controller-tags
     TransferModes: [ None ]
     ChildNodes: &logix5x80-tag-nodes
       # *basic-tag-nodes spelled out again: YAML merges mappings, not sequences. Same grouping,
@@ -210,7 +210,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "Program"
     Description: "Program-scope tags of a 5X70 controller. Adds the Program:<name> segment to every tag address below it."
-    Icon: folder
+    Icon: program-tags
     TransferModes: [ None ]
     PropertyCategories: &program-tags-properties
       - Id: TagScope
@@ -224,7 +224,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "Program"
     Description: "Program-scope tags of a 5X80 controller, which adds the unsigned integers and LREAL. Adds the Program:<name> segment to every tag address below it."
-    Icon: folder
+    Icon: program-tags
     TransferModes: [ None ]
     PropertyCategories: *program-tags-properties
     ChildNodes: *logix5x80-tag-nodes
@@ -848,7 +848,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "UDT"
     Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
-    Icon: folder
+    Icon: udt
     TransferModes: [ None ]
     PropertyCategories: &udt-container-properties
       - Id: TagAddress
@@ -881,7 +881,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "UDT"
     Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
-    Icon: folder
+    Icon: udt
     TransferModes: [ None ]
     PropertyCategories: *udt-container-properties
     ChildNodes:
@@ -933,7 +933,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "SInt[i]"
     Description: "Per-element access to a one-dimensional SINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: &array-container-properties
       - Id: TagAddress
@@ -948,7 +948,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "Int[i]"
     Description: "Per-element access to a one-dimensional INT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -959,7 +959,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "DInt[i]"
     Description: "Per-element access to a one-dimensional DINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -970,7 +970,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "LInt[i]"
     Description: "Per-element access to a one-dimensional LINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -981,7 +981,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "USInt[i]"
     Description: "Per-element access to a one-dimensional USINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -992,7 +992,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "UInt[i]"
     Description: "Per-element access to a one-dimensional UINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -1003,7 +1003,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "UDInt[i]"
     Description: "Per-element access to a one-dimensional UDINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -1014,7 +1014,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "ULInt[i]"
     Description: "Per-element access to a one-dimensional ULINT array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -1025,7 +1025,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "Real[i]"
     Description: "Per-element access to a one-dimensional REAL array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -1036,7 +1036,7 @@ Nodes:
     Type: DataPortTreeNode
     Name: "LReal[i]"
     Description: "Per-element access to a one-dimensional LREAL array. Each element is a separate data point."
-    Icon: folder
+    Icon: array-container
     TransferModes: [ None ]
     PropertyCategories: *array-container-properties
     ChildNodes:
@@ -1198,10 +1198,29 @@ Properties:
     MinValue: 100
 
 # ==================== ICONS ========================================
-# 'folder' and 'datapoint' are the engine's own and need no declaration. The controller glyph below
-# is a placeholder until there is real artwork.
+# 'datapoint' is the engine's own and needs no declaration. The Content lines are
+# written by docs/AllenBradley.Logix.Documentation/logix-icons/update-script from the SVG sources
+# there; edit the SVG and run the script rather than editing a Content line.
 
 Icons:
   - Id: allen-bradley-logix
-    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJjdXJyZW50Q29sb3IiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZD0iTSA0LDYgTCAyOCw2IEwgMjgsMjYgTCA0LDI2IFogTSA1LDcgTCA1LDI1IEwgMTIsMjUgTCAxMiw3IFogTSAxMyw3IEwgMTMsMjUgTCAxNywyNSBMIDE3LDcgWiBNIDE4LDcgTCAxOCwyNSBMIDIyLDI1IEwgMjIsNyBaIE0gMjMsNyBMIDIzLDI1IEwgMjcsMjUgTCAyNyw3IFoiLz48cGF0aCBkPSJNIDYsOCBMIDExLDggTCAxMSwxNCBMIDYsMTQgWiIvPjxwYXRoIGQ9Ik0gNywxNyBMIDEwLDE3IEwgMTAsMTkgTCA3LDE5IFogTSA3LDIxIEwgMTAsMjEgTCAxMCwyMyBMIDcsMjMgWiIvPjxwYXRoIGQ9Ik0gMTQsOSBMIDE2LDkgTCAxNiwxMSBMIDE0LDExIFogTSAxOSw5IEwgMjEsOSBMIDIxLDExIEwgMTksMTEgWiBNIDI0LDkgTCAyNiw5IEwgMjYsMTEgTCAyNCwxMSBaIi8+PC9nPjwvc3ZnPgo=
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L2FsbGVuLWJyYWRsZXktbG9naXgvbGlnaHQ8L3RpdGxlPgo8ZyBpZD0iYWxsZW4tYnJhZGxleS1sb2dpeCIgc3Ryb2tlPSJub25lIiBmaWxsPSJjdXJyZW50Q29sb3IiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CjxwYXRoIGQ9Ik0gMTIsMiBIIDIwIEEgNC44MjgsNC44MjggMCAwIDEgMjMuNDE0LDMuNDE0IEwgMjguNTg2LDguNTg2IEEgNC44MjgsNC44MjggMCAwIDEgMzAsMTIgViAyMCBBIDIsMiAwIDAgMSAyOCwyMiBIIDQgQSAyLDIgMCAwIDEgMiwyMCBWIDEyIEEgNC44MjgsNC44MjggMCAwIDEgMy40MTQsOC41ODYgTCA4LjU4NiwzLjQxNCBBIDQuODI4LDQuODI4IDAgMCAxIDEyLDIgWiBNIDQuNCwyMCBMIDguNCw4IEggMTAuNiBMIDE0LjYsMjAgSCAxMS42IEwgMTAuOTMzLDE4IEggNy4wNjcgTCA2LjQsMjAgWiBNIDcuNzMzLDE2IEwgOSwxMi4yIEwgMTAuMjY3LDE2IFogTSAxNCwxMiBIIDE2IFYgMTQgSCAxNCBaIE0gMTgsOCBIIDI0IEEgMiwyIDAgMCAxIDI2LDEwIFYgMTEgQSAyLDIgMCAwIDEgMjQsMTMgQSAyLDIgMCAwIDEgMjYsMTUgViAxOCBBIDIsMiAwIDAgMSAyNCwyMCBIIDE4IFogTSAyMCwxMCBIIDI0IFYgMTIgSCAyMCBaIE0gMjAsMTQgSCAyNCBWIDE4IEggMjAgWiIvPgo8cGF0aCBkPSJNIDUuMjA3LDI0IEggMjYuNzkzIEEgMC41LDAuNSAwIDAgMSAyNy4xNDYsMjQuODU0IEwgMjMuNDE0LDI4LjU4NiBBIDQuODI4LDQuODI4IDAgMCAxIDIwLDMwIEggMTIgQSA0LjgyOCw0LjgyOCAwIDAgMSA4LjU4NiwyOC41ODYgTCA0Ljg1NCwyNC44NTQgQSAwLjUsMC41IDAgMCAxIDUuMjA3LDI0IFoiLz4KPC9nPgo8L3N2Zz4K
+    ContentType: Base64
+  - Id: controller-tags
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L2NvbnRyb2xsZXItdGFncy9saWdodDwvdGl0bGU+CjxnIGlkPSJjb250cm9sbGVyLXRhZ3MiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cGF0aCBkPSJNIDE1LDYgSCAyNiBWIDE3IEwgMTUsMjggTCA0LDE3IFogTSAyMCw5LjUgQSAyLjUsMi41IDAgMSAwIDIwLDE0LjUgQSAyLjUsMi41IDAgMSAwIDIwLDkuNSBaIi8+CjwvZz4KPC9zdmc+Cg==
+    ContentType: Base64
+  - Id: program-tags
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L3Byb2dyYW0tdGFncy9saWdodDwvdGl0bGU+CjxnIGlkPSJwcm9ncmFtLXRhZ3MiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cmVjdCB4PSI0IiB5PSIyIiB3aWR0aD0iNiIgaGVpZ2h0PSI2IiByeD0iMSIvPgo8cmVjdCB4PSI0IiB5PSIxMiIgd2lkdGg9IjYiIGhlaWdodD0iNiIgcng9IjEiLz4KPHJlY3QgeD0iNCIgeT0iMjIiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIHJ4PSIxIi8+CjxwYXRoIGQ9Ik0gNiw4IEggOCBWIDEyIEggNiBaIE0gNiwxOCBIIDggViAyMiBIIDYgWiIvPgo8cGF0aCBkPSJNIDEwLDE0IEggMjggViAyNiBIIDEwIFYgMjQgSCAyNiBWIDE2IEggMTAgWiIvPgo8L2c+Cjwvc3ZnPgo=
+    ContentType: Base64
+  - Id: udt
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L3VkdC9saWdodDwvdGl0bGU+CjxnIGlkPSJ1ZHQiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cGF0aCBkPSJNIDgsNCBIIDEwIFYgMTQgSCA4IFogTSA2LDYgSCA4IFYgOCBIIDYgWiIvPgo8cGF0aCBkPSJNIDE0LDQgSCAxOCBWIDYgSCAxNCBaIE0gMTQsMTIgSCAxOCBWIDE0IEggMTQgWiBNIDEyLDYgSCAxNCBWIDEyIEggMTIgWiBNIDE4LDYgSCAyMCBWIDEyIEggMTggWiIvPgo8cGF0aCBkPSJNIDI0LDQgSCAyNiBWIDE0IEggMjQgWiBNIDIyLDYgSCAyNCBWIDggSCAyMiBaIi8+CjxwYXRoIGQ9Ik0gNiwxOCBIIDEwIFYgMjAgSCA2IFogTSA2LDI2IEggMTAgViAyOCBIIDYgWiBNIDQsMjAgSCA2IFYgMjYgSCA0IFogTSAxMCwyMCBIIDEyIFYgMjYgSCAxMCBaIi8+CjxwYXRoIGQ9Ik0gMTYsMTggSCAxOCBWIDI4IEggMTYgWiBNIDE0LDIwIEggMTYgViAyMiBIIDE0IFoiLz4KPHBhdGggZD0iTSAyMiwxOCBIIDI2IFYgMjAgSCAyMiBaIE0gMjIsMjYgSCAyNiBWIDI4IEggMjIgWiBNIDIwLDIwIEggMjIgViAyNiBIIDIwIFogTSAyNiwyMCBIIDI4IFYgMjYgSCAyNiBaIi8+CjwvZz4KPC9zdmc+Cg==
+    ContentType: Base64
+  - Id: controllogix
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L2NvbnRyb2xsb2dpeC9saWdodDwvdGl0bGU+CjxnIGlkPSJjb250cm9sbG9naXgiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cGF0aCBkPSJNIDIsNCBIIDMwIFYgMjggSCAyIFogTSA0LDYgViAyNiBIIDI4IFYgNiBaIi8+CjxwYXRoIGQ9Ik0gNiw4IEggMTQgViAyNCBIIDYgWiBNIDgsMTAgViAxNCBIIDEyIFYgMTAgWiIvPgo8cGF0aCBkPSJNIDE2LDggSCAyMCBWIDI0IEggMTYgWiBNIDIyLDggSCAyNiBWIDI0IEggMjIgWiIvPgo8L2c+Cjwvc3ZnPgo=
+    ContentType: Base64
+  - Id: compactlogix
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L2NvbXBhY3Rsb2dpeC9saWdodDwvdGl0bGU+CjxnIGlkPSJjb21wYWN0bG9naXgiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cGF0aCBkPSJNIDIsMTQgSCA2IFYgMTggSCAyIFogTSAyNiwxNCBIIDMwIFYgMTggSCAyNiBaIi8+CjxwYXRoIGQ9Ik0gNiw0IEggMTQgViAyOCBIIDYgWiBNIDgsNiBWIDEwIEggMTIgViA2IFoiLz4KPHBhdGggZD0iTSAxNiw0IEggMjAgViAyOCBIIDE2IFogTSAyMiw0IEggMjYgViAyOCBIIDIyIFoiLz4KPC9nPgo8L3N2Zz4K
+    ContentType: Base64
+  - Id: array-container
+    Content: PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHRpdGxlPmRhcmstdGhlbWUvaWNvbi9tb25vY2hyb21lLzMyeDMyL2RhdGFwb3J0L2FycmF5LWNvbnRhaW5lci9saWdodDwvdGl0bGU+CjxnIGlkPSJhcnJheS1jb250YWluZXIiIHN0cm9rZT0ibm9uZSIgZmlsbD0iY3VycmVudENvbG9yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgo8cGF0aCBkPSJNIDQsNCBIIDEwIFYgNiBIIDYgViAyNiBIIDEwIFYgMjggSCA0IFogTSAyOCw0IEggMjIgViA2IEggMjYgViAyNiBIIDIyIFYgMjggSCAyOCBaIi8+CjxwYXRoIGQ9Ik0gOCwxNCBIIDEyIFYgMTggSCA4IFogTSAxNCwxNCBIIDE4IFYgMTggSCAxNCBaIE0gMjAsMTQgSCAyNCBWIDE4IEggMjAgWiIvPgo8L2c+Cjwvc3ZnPgo=
     ContentType: Base64
