@@ -846,8 +846,8 @@ Nodes:
   - Id: Udt5X70
     MappingId: Udt5X70
     Type: DataPortTreeNode
-    Name: "UDT"
-    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
+    Name: "UDT Instance"
+    Description: "A tag or a member whose data type is a user-defined data type (UDT). The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container."
     Icon: udt
     TransferModes: [ None ]
     PropertyCategories: &udt-container-properties
@@ -879,8 +879,8 @@ Nodes:
   - Id: Udt5X80
     MappingId: Udt5X80
     Type: DataPortTreeNode
-    Name: "UDT"
-    Description: "A tag of a user-defined data type (UDT), opened into its members. Add one node per member you want, named as the member. Nest another UDT for a member that is itself a UDT, or an array container for per-element access to an array member."
+    Name: "UDT Instance"
+    Description: "A tag or a member whose data type is a user-defined data type (UDT). The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container."
     Icon: udt
     TransferModes: [ None ]
     PropertyCategories: *udt-container-properties
@@ -1060,7 +1060,7 @@ PropertyCategories:
 
   - Id: TagAddress
     Name: "Tag Address"
-    Description: "Studio 5000 tag name"
+    Description: "Which tag, member or element the node reaches, as named in Studio 5000"
 
   - Id: TagDeclaration
     Name: "Tag Declaration"
@@ -1075,17 +1075,17 @@ PropertyCategories:
 Properties:
 
   # ---- TagScope Properties ----
-  # The editor's half of LogixIdentifier.IsWellFormed, shared with TagName because a program name and
-  # a tag name are one rule. Two patterns rather than one: a manifest pattern is compiled
-  # NonBacktracking, which has no lookaheads to carry the length bound in. \A and \z rather than ^ and
-  # $, because in .NET $ also matches before a trailing newline and would let "Count\n" through.
+  # The editor's half of TagName.IsWellFormed, the one rule a program name and a tag name share. Two
+  # patterns rather than one: a manifest pattern is compiled NonBacktracking, which has no lookaheads
+  # to carry the length bound in. \A and \z rather than ^ and $, because in .NET $ also matches before
+  # a trailing newline and would let "Count\n" through.
   - Id: ProgramName
     Name: "Program name"
     Description: "Name of the program as it appears in Studio 5000. Tags below it address as \"Program:MainProgram.Count\"."
     DataType: String
     UiControl: TextBox
     DefaultValue: "MainProgram"
-    Validations: &logix-identifier-validations
+    Validations:
       - Type: Regex
         Pattern: '\A[A-Za-z_](_?[A-Za-z0-9])*\z'
         Message: "Must start with a letter or an underscore, then letters, digits and single underscores — no two underscores in a row, and none at the end."
@@ -1157,17 +1157,22 @@ Properties:
     MaxValue: 1
 
   # ---- TagAddress Properties ----
-  # The bare name, never an address: the tree walk composes the scope, so the rule is ProgramName's.
+  # One segment, never an address: the tree walk composes the rest. ProgramName's rule, or a subscript,
+  # because an element under an array container holds its subscript here. A manifest pattern cannot
+  # see the parent, so which of the two the parent takes is TagNamePropertyValidator's check.
   - Id: TagName
-    Name: "Tag name"
-    Description: "Studio 5000 tag name (e.g. \"MotorSpeed\"); under an array container, the element's subscript (e.g. \"[3]\"); under a UDT, the member's name (e.g. \"Speed\")"
+    Name: "Studio 5000 name"
+    Description: "The name as declared in Studio 5000, without dots: the tag name (\"Motor1\"), the member name below a UDT Instance (\"Speed\"), or the subscript below an array container (\"[3]\")."
     DataType: String
     UiControl: TextBox
     DefaultValue: ""
-    ## Currently not active as we use this also for array-elements where the patterns would not match.
-    ## tree-builder does not support conditional validations based on the parent node yet.
-    ## Validation is done in the c# code instead. The difference is the validation is not done during configuration time but during run-time
-    # Validations: *logix-identifier-validations
+    Validations:
+      - Type: Regex
+        Pattern: '\A([A-Za-z_](_?[A-Za-z0-9])*|\[(0|[1-9][0-9]*)\])\z'
+        Message: "Must be one name without dots — a letter or an underscore, then letters, digits and single underscores, none at the end — or a subscript such as \"[3]\"."
+      - Type: Regex
+        Pattern: '\A.{1,40}\z'
+        Message: "Must be 1 to 40 characters long."
 
   # ---- TagDeclaration Properties ----
   - Id: MaxLength

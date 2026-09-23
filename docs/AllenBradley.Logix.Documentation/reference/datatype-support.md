@@ -288,7 +288,7 @@ The tree has a node for a UDT's members, the walk builds a data point per member
 lookup follows the tag's template to the member's declaration. What is not yet in place is a round
 trip against a UDT on the 5X80: no tag in that suite is one.
 
-The node is the **UDT container**, `UDT` in the editor, one per generation like the scopes. It is the
+The node is the **UDT container**, `UDT Instance` in the editor, one per generation like the scopes. It is the
 array container's pattern for members: the container carries the tag name, each child carries a member
 name as its tag name, and a member that is itself a UDT is the same container nested with the member
 name as its own. `TagNamePropertyValidator` accepts a plain name at every level and refuses a dotted
