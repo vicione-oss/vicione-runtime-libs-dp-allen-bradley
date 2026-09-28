@@ -87,6 +87,19 @@ public sealed class LogixTagAccessFactoryTests
         tag.ElementCount.Should().Be(1);
     }
 
+    [Theory]
+    [MemberData(nameof(ScalarDataPoints))]
+    public void AHandleIsNamedAfterTheHandleAddressOfItsDataPoint(ILogixDataPoint dataPoint)
+    {
+        // Arrange
+
+        // Act
+        using var tag = _factory.CreateTagForDataPoint(dataPoint);
+
+        // Assert
+        tag.Name.Should().Be(dataPoint.HandleAddress.Value);
+    }
+
     [Fact]
     public void ASchemaTagIsNeverSizedAsAnArray()
     {

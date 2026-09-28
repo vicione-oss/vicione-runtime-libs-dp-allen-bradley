@@ -12,8 +12,17 @@ public interface ILogixDataPoint : IPollingDataPoint
     /// <summary>Where the value lives, in the parts an address is composed from.</summary>
     TagPath TagPath { get; }
 
-    /// <summary>The address libplctag is handed, rendered from <see cref="TagPath"/>.</summary>
+    /// <summary>
+    /// The address of what the user configured, rendered from <see cref="TagPath"/>: what the point is
+    /// identified by and what every message names.
+    /// </summary>
     TagAddress TagAddress { get; }
+
+    /// <summary>
+    /// The address libplctag is handed. The same as <see cref="TagAddress"/> unless the point reads only
+    /// one member of the value it stands for.
+    /// </summary>
+    TagAddress HandleAddress { get; }
 
     /// <summary>The type this point holds; for an array, the element type.</summary>
     AllenBradleyDataType DataType { get; }

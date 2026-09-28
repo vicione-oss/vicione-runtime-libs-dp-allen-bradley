@@ -18,6 +18,9 @@ public abstract record LogixDataPoint<TDomain>(TagPath TagPath, PollFrequency Po
     public TagAddress TagAddress { get; } = TagPath.ToTagAddress();
 
     /// <inheritdoc />
+    public virtual TagAddress HandleAddress => TagAddress;
+
+    /// <inheritdoc />
     public DataPointIdentifier Identifier => new(TagAddress.Value);
 
     /// <inheritdoc />

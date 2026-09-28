@@ -34,7 +34,7 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     // the element count is the difference between reading an array and reading its first element.
     internal Tag CreateTagForDataPoint(ILogixDataPoint dataPoint)
     {
-        var tag = CreateTagForAddress(dataPoint.TagAddress);
+        var tag = CreateTagForAddress(dataPoint.HandleAddress);
         tag.ElementCount = (int)GetElementCount(dataPoint).Value;
         return tag;
     }
