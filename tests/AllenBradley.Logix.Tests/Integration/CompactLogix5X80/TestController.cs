@@ -7,7 +7,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// The CompactLogix 5069-L306ER this folder's suites run against, and the <b>only</b> place that says how
 /// it is reached. The device is on hand but not commissioned, so every default below is an assumption,
 /// each overridable from the environment; see
-/// <c>docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md</c>.
+/// <c>docs/AllenBradley.Documentation/test-bench/test-device-setup.md</c>.
 /// </summary>
 internal static class TestController
 {
@@ -23,7 +23,7 @@ internal static class TestController
     private const string TimeoutVariable = "CIP_5X80_TIMEOUT_SECONDS";
 
     // A placeholder until the L306ER has an address of its own: the unconfigured second CompactLogix on
-    // the lab subnet (TEST-DEVICE-SETUP.md).
+    // the lab subnet (test-device-setup.md).
     private const string DefaultEndpoint = "192.168.0.102";
 
     private const int DefaultTimeoutSeconds = 10;

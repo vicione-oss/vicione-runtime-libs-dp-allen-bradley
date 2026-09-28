@@ -6,7 +6,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Template
 /// <summary>
 /// The 14-byte header libplctag puts in front of an <c>@udt/&lt;id&gt;</c> read, built from the
 /// template's attributes rather than copied off the wire
-/// (<c>docs/AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md</c>). Laid out exactly as
+/// (<c>docs/AllenBradley.Documentation/libplctag/reading-a-udt-definition.md</c>). Laid out exactly as
 /// the library writes it so <see cref="TemplateDecoder"/> can reinterpret it in one step; <c>Pack = 1</c>
 /// is load-bearing, because the 4-byte fields sit at offsets 2 and 6. Reinterpreting assumes little-endian.
 /// </summary>

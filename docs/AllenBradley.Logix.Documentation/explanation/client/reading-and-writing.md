@@ -1,67 +1,81 @@
 # About reading and writing
 
-This page follows one poll and one write through the client, and says why a failed tag costs the two directions
-different things.
+This page follows one poll and one write through the client. It also explains why a failed tag has a different result
+in the two directions.
 
-## What the client is asked for
+## What the framework asks for
 
-The framework asks two things of it. The incoming port groups its data points by poll frequency, schedules a polling
-job per group, and hands each group to the read seam. It wants one typed value back per point. The outgoing port queues
-engine values, converts each one into a typed value, and hands a batch to the write seam, which answers with success or
-an exception and nothing else. Polling jobs, the write queue, retries and the circuit breaker all belong to the
-framework and are documented with the package.
+The incoming port groups its data points by poll frequency and schedules one polling job for each group. Each job
+gives its group to the client and expects one typed value for each data point. The outgoing port queues engine
+values, converts each one into a typed value, and gives a batch to the client. A write returns nothing: it completes
+or it throws. The polling jobs, the write queue, the retries and the circuit breaker belong to the framework, and its
+documentation describes them.
 
-`libplctag` sets the other boundary. Every handle to a controller shares one session, and that session packs whatever
-requests are in flight into one packet. There is no timer to tune. Requests pack only because they arrive while the
-session thread is still busy with the previous packet
-([the shared session](../../../AllenBradley.Documentation/libPlcTag/the-shared-session.md)). So the throughput of a
-poll comes down to how many requests the client has in flight at once.
+libplctag sets the other limit. All handles to one controller share one session, and the session packs the requests
+that wait at the same time into one packet. There is no timer to adjust. Requests go into one packet only when they
+arrive while the session thread waits for the previous packet
+([the shared session](../../../AllenBradley.Documentation/libplctag/the-shared-session.md)). Thus, the throughput of a
+poll depends on the number of requests in flight at the same time.
 
-## The shape of a batch
+## The two phases of a batch
 
 ![One poll and one write, and how each fails](diagrams/read-write-paths.svg)
 
-Both seams share one client underneath, which is what puts the two ports on one connection and one handle cache
+Each read and each write becomes a batch, and a batch has two phases
+([reading and writing a group of tags](../../ADR/2026-07-16-reading-and-writing-a-group-of-tags.md)):
+
+1. The batch gets all that it needs before any I/O: the converter and the tag object for each data point. A write
+   batch also encodes each value.
+2. The batch starts one request for each tag, waits for all of them, and sorts the results.
+
+The requests start at the same time because of the packing. A loop that reads one tag after the other never gives the
+session two requests to pack. A poll of 100 tags would then need 100 round trips.
+
+The first phase finds configuration mistakes before the controller gets a request. A data point without a converter
+fails the batch in this phase. In a write batch, a value that does not encode also fails the batch, and nothing is
+sent. The error names each value that failed.
+
+A device failure is a result, not an exception. `Task.WhenAll` rethrows only the first exception of a set, and the
+results of all other tags would be lost. A reply that does not decode is also a failure of that tag only. A
+cancellation still throws, because the caller decided it.
+
+## A read continues, and a write fails as a whole
+
+A poll is a sample, and the next poll is already scheduled. Thus, a tag that fails loses only its own value. The client
+returns the values of the other tags in the sequence of the group, and it logs all failures as one warning. The engine
+keeps the last value of a data point that is missing from the list.
+
+A read throws only when no tag gave a value and the group is not empty. The circuit breaker of the framework needs
+this. An empty list would make a dead controller look like an empty group, and the breaker would never open.
+
+A write sets state. When the controller is down, the outgoing port keeps the batch at the head of its queue and writes
+it again until the write succeeds. The client makes this retry safe in two ways. First, it encodes each value before it
+sends anything. Second, after the send, one exception names each tag that failed. The tags that the exception does not
+name were written.
+
+The retry writes the full batch again, also the values that were written before. This is safe for a tag that only the
+engine writes. It is not safe for a tag that the controller program also changes, for example a flag that the program
+resets.
+
+We looked at three other options:
+
+- Throw at the first failure. A plain `await` does this, but it hides all later failures.
+- Give a placeholder value with a bad quality flag for a failed read. The list would then be complete, but it would
+  contain a value that the tag never held ([values and their types](values-and-their-types.md)).
+- Give one result for each written value. A write could then continue like a read. But the write method of the
+  framework has no place for these results.
+
+## What this means for a user of the values
+
+Do not expect one value for each data point. The list from a read can be shorter than the group. It contains one value
+for each tag that answered, in the sequence of the group. A missing data point is a failed read, and the log has a
+warning for it. A write completes without a result, or it throws an exception that names each failed tag.
+
+A type mismatch between the data point and the controller does not cause these failures. The verification at connect
+prevents it, unless the controller changed after the connect ([verification](verification.md#after-connect)).
+
+The gate that lets one operation at a time run on a handle limits each handle, not the batch
+([tags and handles](tags-and-handles.md)). A batch of 100 different tags still starts 100 requests. Two batches that
+use the same tag wait for each other at its handle. The client has no limit on the requests in flight yet. The
+throughput measurement must supply this limit
 ([maximizing throughput with one shared connection](../../ADR/2026-07-16-maximizing-throughput-with-one-shared-connection.md)).
-Each operation becomes a batch, and a batch runs in two phases. First it resolves everything it will need, a converter
-and a handle per point, before any I/O. Then it starts one request per tag, waits for all of them, and sorts the
-outcomes ([reading and writing a group of tags](../../ADR/2026-07-16-reading-and-writing-a-group-of-tags.md)).
-
-The fan-out is not an optimisation somebody added later. A loop that read one tag after another would never give the
-session two requests to pack, and a poll of a hundred tags would cost a hundred round trips. Resolving first is what
-makes a configuration mistake, say a data point with no converter, show up once and before the controller is touched,
-rather than halfway through a poll.
-
-A device failure comes back as a result, never as an exception. Waiting on a set of tasks rethrows only the first
-exception of the set, and every other tag's outcome would go down with it. Cancellation still throws, because that is
-the caller's decision and not the device's.
-
-## Why a read degrades and a write fails whole
-
-A poll is a sample, and the next sample is already scheduled. A tag that would not read loses its own value, the tags
-that did answer come back in the group's order, and the failures go to the log as a warning. A read throws only when
-nothing came back at all. That last rule is there for the framework's circuit breaker. An empty list would make a dead
-controller look like a poll of an empty group, and nothing would ever trip.
-
-A write is state. The outgoing port waits for a controller that is down instead of writing it off, so a failed write is
-retried, and the client has to make that retry safe. It does so twice over. Every value is encoded before anything goes
-out, so one value that will not encode fails the batch while the controller has seen nothing, and the message says as
-much. After sending, every failed tag is named in one exception, and the values it does not name were written. Writing
-a value that already landed does no harm, because a tag write sets state rather than raising an event.
-
-We looked at three other options. Throwing at the first failure is what a plain `await` gives for free, and it hides
-every failure after that one. A placeholder value with a bad quality flag would keep the list of a degraded read
-complete, but it invents a payload the tag never held. The [values page](values-and-their-types.md) says why we dropped
-it. Per-value write results would let a write degrade the way a read does, but the write seam has nowhere to carry
-them, and adding one would mean re-explaining the framework's queue.
-
-## What this means for a reader of the values
-
-A caller that reads a group must not assume the list is as long as the group. It is as long as the number of tags that
-answered, in the group's order, and a missing point is a failed read that was logged. A caller that writes gets either
-silence or an exception naming every tag it needs to look at. Neither direction fails because a data point's type
-contradicts the controller. That was settled before the first poll ([verification](verification.md)).
-
-The gate that lets one operation at a time onto a handle limits parallelism per handle, not across handles
-([tags and handles](tags-and-handles.md)). A batch of a hundred different tags still fans out a hundred requests. Two
-batches that share a tag queue behind each other on that one handle.

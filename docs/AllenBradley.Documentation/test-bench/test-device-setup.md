@@ -2,16 +2,16 @@
 
 This document describes how to connect to the controllers used for integration testing.
 
-Two of them, and only one is ours. The **CompactLogix L32E** belongs to the ifm demo cell: reachable
-through the Link Manager tunnel, and what every suite has run against so far, but nothing on it is ours
-to change. We take its tags as we find them, and it is a 5X70, so it has no `LREAL` and no unsigned
-integers. The **CompactLogix 5069-L306ER** is ours. It is on hand and not commissioned yet; the suite
-that targets it is written, and every address in it is an assumption until the device is on the network
-and provisioned to match.
+There are two of them, and only one is ours. The CompactLogix L32E belongs to the ifm demo cell. It
+is reachable through the Link Manager tunnel, and it is what every suite has run against so far, but
+nothing on it is ours to change. We take its tags as we find them, and it is a 5X70, so it has no
+`LREAL` and no unsigned integers. The CompactLogix 5069-L306ER is ours. It is on hand and not
+commissioned yet. The suite that targets it is written, and every address in it is an assumption
+until the device is on the network and provisioned to match.
 
 Which way round that goes matters. On the L32E the device is the given and the tests are written to fit
-it; on the L306ER the suite is the given and the controller gets provisioned to fit it. New integration
-coverage belongs on the L306ER for that reason — a test that needs a tag can simply have one.
+it. On the L306ER the suite is the given and the controller gets provisioned to fit it. New integration
+coverage belongs on the L306ER for that reason, because a test that needs a tag can simply have one.
 
 ## How the integration tests are laid out
 
@@ -29,8 +29,8 @@ controller over one libplctag session, and concurrent operations on that session
 
 ## Prerequisites
 
-- **ifm Link Manager** installed on your machine (see step 6 below)
-- Certificate and password stored in KeePass under **`ifmCLT_CR3170_Cert.lmc`**
+- ifm Link Manager installed on your machine (see step 6 below)
+- Certificate and password stored in KeePass under `ifmCLT_CR3170_Cert.lmc`
 
 ## 1. Connect via GateManager
 
@@ -46,11 +46,11 @@ controller over one libplctag session, and concurrent operations on that session
 
 ![GateManager portal showing CR3170_CC2F with active subnet connections](gatemanager.png)
 
-## 2. The L32E — the borrowed controller
+## 2. The L32E, the borrowed controller
 
 It is part of the ifm demo cell, shared with whoever else is using it, and we have no way to add a tag
 or change a program on it. Everything in this section is a description of a device, not a
-specification: if a tag below disappears, the suites that use it are what changes.
+specification. If a tag below disappears, the suites that use it are what changes.
 
 | Property | Value |
 |----------|-------|
@@ -69,13 +69,13 @@ ping 192.168.0.100
 
 ## 3. Available Tags
 
-### Program tags — `Program:MainProgram`
+### Program tags, `Program:MainProgram`
 
 These are the user-defined tags accessible for testing. The full tag name is `Program:MainProgram.<name>`.
 
 | Tag | Notes |
 |-----|-------|
-| `strValue1` | String — **written by the test suite** (see below) |
+| `strValue1` | String, **written by the test suite** (see below) |
 | `strValue2` | String |
 | `strVarString` | String |
 | `IOLM` | IO-Link master data |
@@ -83,31 +83,31 @@ These are the user-defined tags accessible for testing. The full tag name is `Pr
 | `IOLM_PDO` | IO-Link Process Data Out |
 | `Blink` | Boolean output |
 | `Outon` | Boolean output |
-| `Counter` | Counter — `Counter.PRE` is the only plain DINT the device exposes |
+| `Counter` | Counter. `Counter.PRE` is the only plain DINT the device exposes |
 
 > **`strValue1` is written, not just read.** `LogixClientStringRoundtripTests` writes it once per
-> theory case and reads it back. That is what the tag is for, so there is no save-and-restore; do not
+> theory case and reads it back. That is what the tag is for, so there is no save-and-restore. Do not
 > point any suite at a tag whose value someone depends on.
 
 ### Wire-format facts for `Program:MainProgram.strValue1`
 
 The `STRING` converter's byte offsets hang off these. Two of the three were settled from libplctag's
 documented Logix string layout rather than from the device, because the tunnel was down when the
-converter was written; `StringWireFormatProbeTests` prints all three so they can be confirmed against
-the real controller and this table completed. **Delete that probe once they are.**
+converter was written. `StringWireFormatProbeTests` prints all three so they can be confirmed against
+the real controller and this table completed. Delete that probe once they are.
 
 | Fact | Value | Confirmed against the device? |
 |------|-------|-------------------------------|
-| Where `Tag.GetBuffer()` starts | At `.LEN`. libplctag strips the `A0 02 HH HH` abbreviated-structure prefix into its own type-info store and re-attaches it on write. Its Logix string defaults say the same: count word 4 bytes at offset 0, capacity 82, 2 pad bytes, 88 total | No — from libplctag |
-| `ElementLength` in the `@tags` listing | Assumed **86** — the `.LEN` + `.DATA[82]` members without the alignment pad. May be 88 (padded) | **No — open** |
-| The tag's string type | Assumed the built-in `STRING`, `.DATA[82]` | No — from libplctag's default |
+| Where `Tag.GetBuffer()` starts | At `.LEN`. libplctag strips the `A0 02 HH HH` abbreviated-structure prefix into its own type-info store and re-attaches it on write. Its Logix string defaults say the same: count word 4 bytes at offset 0, capacity 82, 2 pad bytes, 88 total | No, from libplctag |
+| `ElementLength` in the `@tags` listing | Assumed **86**, the `.LEN` + `.DATA[82]` members without the alignment pad. May be 88 (padded) | **No, open** |
+| The tag's string type | Assumed the built-in `STRING`, `.DATA[82]` | No, from libplctag's default |
 
 The 86 assumption no longer carries anything. A string's capacity is read from its template
 (`@udt/<id>`), the honest `.DATA : SINT[n]`, and `TagsDecoder` does not read the listing's element
 length at all; 86 or 88, verification of `strValue1` is decided by the template. The row stays open
 only as a fact about the wire. `StringWireFormatProbeTests` still prints all three.
 
-### Controller tags — IO-Link master (`AL1x2x_IOLink`)
+### Controller tags, IO-Link master (`AL1x2x_IOLink`)
 
 | Tag | Length | Notes |
 |-----|--------|-------|
@@ -115,30 +115,30 @@ only as a fact about the wire. `StringWireFormatProbeTests` still prints all thr
 | `AL1x2x_IOLink:O` | 304 bytes | Output data to IO-Link master |
 | `AL1x2x_IOLink:C` | 108 bytes | IO-Link master configuration |
 
-## 4. The CompactLogix 5069-L306ER — ours, not commissioned yet
+## 4. The CompactLogix 5069-L306ER, ours and not commissioned yet
 
-The controller we own: a 5069-L306ER, 600 KB of user memory, a CompactLogix 5380 and therefore a 5X80
-in this repo's vocabulary. It is here but not yet on a network, so nothing below has been confirmed
-against it.
+The controller we own is a 5069-L306ER with 600 KB of user memory. It is a CompactLogix 5380 and
+therefore a 5X80 in this repo's vocabulary. It is here but not yet on a network, so nothing below has
+been confirmed against it.
 
-`Integration/CompactLogix5X80/` is the data-type suite that targets it: one write/read round trip per
-type the port implements — `BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`, `ULINT`,
-`REAL`, `LREAL`, `STRING` — each driven to both ends of its range, each also asserting the declaration
-the controller reports for its tag.
+`Integration/CompactLogix5X80/` is the data-type suite that targets it. It does one write/read round
+trip per type the port implements (`BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`,
+`ULINT`, `REAL`, `LREAL`, `STRING`), each driven to both ends of its range, and each also asserting
+the declaration the controller reports for its tag.
 
 It has to be a 5X80 because of `LREAL` and the unsigned integers. Those are the types in the vocabulary
 a 5X70 has not got, so the L32E could not host this suite even if it were ours; see
 [datatype-support.md](../../AllenBradley.Logix.Documentation/reference/datatype-support.md).
 
-Because the device is ours, the tag list below is a **provisioning specification, not a survey**. When
+Because the device is ours, the tag list below is a provisioning specification, not a survey. When
 the controller is commissioned, create these tags with these names and these types. If a suite needs a
-tag it has not got, add the tag rather than bending the test around the controller — that freedom is
+tag it has not got, add the tag rather than bending the test around the controller. That freedom is
 the whole reason new integration coverage goes here.
 
 Two files hold everything the suite assumes, split along the line between what varies by machine and
 what is a fact about the controller.
 
-### `TagAddresses.cs` — the tags, as constants
+### `TagAddresses.cs`, the tags as constants
 
 One tag per type, all program-scoped in `MainProgram`:
 
@@ -173,29 +173,29 @@ And one array per element type, every one of them ten elements long except the `
 | `REAL[10]` | `Program:MainProgram.testRealArray` |
 | `LREAL[10]` | `Program:MainProgram.testLrealArray` |
 
-The `BOOL` array is 32 rather than 10 because Studio 5000 will not declare one otherwise: it packs
+The `BOOL` array is 32 rather than 10 because Studio 5000 will not declare one otherwise. It packs
 the bits into 32-bit words, so a length that is not a multiple of 32 is not a length it offers.
 
-Constants, not environment variables. Which tags a controller holds is the same everywhere the suite
-runs, so it belongs in the source and in review; on a controller we provision ourselves, this file is
-the list to type into Studio 5000 rather than a guess to be corrected afterwards.
+These are constants, not environment variables. Which tags a controller holds is the same everywhere
+the suite runs, so it belongs in the source and in review. On a controller we provision ourselves,
+this file is the list to type into Studio 5000 rather than a guess to be corrected afterwards.
 
-They are program-scoped deliberately: a program tag is browsed under a program-qualified key, and the
-address the configuration tree composes has to agree with it — which a bare controller tag would not
+They are program-scoped deliberately. A program tag is browsed under a program-qualified key, and the
+address the configuration tree composes has to agree with it, which a bare controller tag would not
 prove.
 
 > **Every one of these tags is written, not just read.** Provision them as tags nothing in the
-> controller's program depends on. On a controller of our own that costs nothing — there is no program
-> for them to disturb.
+> controller's program depends on. On a controller of our own that costs nothing, because there is no
+> program for them to disturb.
 
-### `TestController.cs` — how the controller is reached
+### `TestController.cs`, how the controller is reached
 
-This is the part that varies by machine, so it is configurable. A direct connection is assumed: the
+This is the part that varies by machine, so it is configurable. A direct connection is assumed. The
 endpoint is the controller itself, on the EtherNet/IP port, over the virtual backplane.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CIP_5X80_GATEWAY` | `192.168.0.102` | Controller IP address — a placeholder until commissioning, see below |
+| `CIP_5X80_GATEWAY` | `192.168.0.102` | Controller IP address, a placeholder until commissioning, see below |
 | `CIP_5X80_PORT` | `44818` | TCP port the EtherNet/IP session is opened on |
 | `CIP_5X80_PATH` | `1,0` | CIP route path to the CPU |
 | `CIP_5X80_TIMEOUT_SECONDS` | `10` | How long one tag read or write may take |
@@ -204,23 +204,23 @@ The prefix is `CIP_5X80_` rather than the plain `CIP_` below, because those poin
 this suite at that controller would fail on the `LREAL` and the unsigned integers, for reasons that
 read as a decode bug.
 
-**Where the L306ER will sit is not decided yet** — a lab subnet behind the tunnel, or straight on the
-office network. `192.168.0.102` is a placeholder standing in until it is: the second CompactLogix on
-the lab subnet, labelled `AB_CompactLogix` and unconfigured, chosen because it is at least a real
-address on a network the tunnel already routes. Replace it, or set `CIP_5X80_GATEWAY`, once the device
-has an address. If it ends up behind a tunnel or a bridge, `TestController.cs` is the only file that
-changes.
+Where the L306ER will sit is not decided yet. It may go on a lab subnet behind the tunnel, or
+straight on the office network. `192.168.0.102` is a placeholder standing in until it is. That is the
+second CompactLogix on the lab subnet, labelled `AB_CompactLogix` and unconfigured, chosen because it
+is at least a real address on a network the tunnel already routes. Replace it, or set
+`CIP_5X80_GATEWAY`, once the device has an address. If it ends up behind a tunnel or a bridge,
+`TestController.cs` is the only file that changes.
 
-**Run `GeneralIntegrationTests` first against a newly provisioned controller.** Its
+Run `GeneralIntegrationTests` first against a newly provisioned controller. Its
 `Verify_EveryTypeInTheVocabulary_ReportsNoMisconfiguration` resolves every configured tag against
-the symbol table in one go and reports each disagreement by name — missing, wrong type, wrong shape,
+the symbol table in one go and reports each disagreement by name: missing, wrong type, wrong shape,
 wrong capacity. That turns a set of wrong assumptions into a readable list, where the round trips would
 give a failure per type that all say a read came back `Bad`.
 
-`Verify_TagsConfiguredAsTheWrongType_AreEachReported` covers the other half: a tag that exists but is
+`Verify_TagsConfiguredAsTheWrongType_AreEachReported` covers the other half, a tag that exists but is
 declared as something other than what was configured. No round trip catches that for any type, since
 the read decodes the bytes as whatever was configured. The unsigned integers are there as the case with
-the least to go on — each is the same width as its signed twin, so neither direction gets even the
+the least to go on. Each is the same width as its signed twin, so neither direction gets even the
 buffer-length backstop a width mismatch would.
 
 ## 5. Running the Integration Tests
@@ -234,8 +234,8 @@ differs.
 | `CIP_PATH` | `1,0` | Backplane routing path |
 
 Only connection settings are environment variables, for either controller. Which tags a suite targets is
-a fact about the device it runs against, so those names are constants — in
-`Integration/BenchControllerTags.cs` for the L32E, and in
+a fact about the device it runs against, so those names are constants, in
+`Integration/BenchControllerTags.cs` for the L32E and in
 `Integration/CompactLogix5X80/TagAddresses.cs` for the 5X80.
 
 Run only the integration tests (needs the device reachable):

@@ -1,60 +1,80 @@
 # About verification
 
-The configuration is compared against the controller once, at connect. This page says what is compared, in which order,
-and why the write port runs the comparison as well.
+The port compares its configuration with the controller one time, at connect. This page explains what the port
+compares, in which sequence, and why the write port does the comparison too.
 
-## Catch it once
+## Find the mistake one time
 
-The framework runs a verification step right after connect and before the first poll, and a data point it reports as
-misconfigured aborts the connect. The step is the framework's. What it compares against is the port's. The sibling S7
-dataport fills it by diffing each data point against its controller's symbol table, and this port does the same over CIP
+The framework runs a verification step after connect and before the first poll. If the step reports a data point as
+misconfigured, the connect fails. The framework owns the step, and the port supplies the comparison. The S7 dataport
+compares each data point with the symbol table of its controller. This port does the same over CIP
 ([verifying configuration against the symbol table](../../ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)).
 
-The alternative is to let a misconfigured tag surface as a bad read. It would surface, because the converter would be
-handed a buffer of the wrong length. But it would surface on every poll, as one more warning in a log that already has
-a few, and a `DINT` configured as an `INT` would decode into garbage that looks like data. A configuration that
-disagrees with the controller is an engineering mistake. The place to catch one is at connect, once, with a message
-that names the tag and both sides of the disagreement.
+The alternative is to let a configuration mistake show as a bad read. Some mistakes would then give one more warning
+in the log on each poll. Other mistakes would give no error at all. For example, a `DINT` configured as an `INT` gives
+incorrect values that look like data.
 
-## One comparison, one place
+A configuration that does not agree with the controller is an engineering mistake. The port must find it one time, at
+connect, with a message that names the tag and both sides.
+
+## One comparison in one place
 
 ![One comparison, reached once at connect](diagrams/declared-type-and-verification.svg)
 
-Exactly one function compares the declared type against the configuration, and the verifier is its only caller. An
-earlier design compared on the read path and the write path too, with each converter stating the type it required. That
-was three consumers of one rule, and it paid on every operation for something that happens once, at a download. The
-comparison moved to connect, the converters stopped stating anything, and what is left on the read path is cheap: a
-buffer whose length does not fit is that tag's failure ([values and their types](values-and-their-types.md)).
+One function compares the declared type with the configuration, and the verifier is its only caller. An earlier design
+also compared the types on each read and each write, and each converter stated the type that it needed. Thus, three
+parts used one rule, and each operation paid for a check of something that changes only with a download. The
+comparison moved to connect, and the converters now state nothing
+([values and their types](values-and-their-types.md)).
 
-The verifier does not read the controller itself. It takes the controller's side from the very tags the polls will run
-against, each of which carries the declared type that was stamped onto it when its handle was created
-([tags and handles](tags-and-handles.md)). The declaration that gets verified is therefore the one the polls read
-under, and no second lookup can disagree with the first.
+The verifier does not read from the controller. It gets the declared types from the tag objects that the polls use.
+The tag manager attached the declared type to each tag object when it created it
+([tags and handles](tags-and-handles.md)). Thus, the verified declared type is the declared type that the polls use,
+and no second lookup can give a different answer.
 
-## What is compared, and in which order
+## What the verifier compares, and in which sequence
 
-Rank comes first. A scalar configured against an array, or the other way round, makes every later comparison
-meaningless, so the report names the shape and stops there. Then the data type. Then whatever the configured shape
-adds, a string's capacity or an array's element count. That is why the comparison takes the configured point and the
-declaration together rather than the declaration alone. An elementary scalar adds nothing.
+The verifier does these checks for each data point, and it stops at the first mismatch:
 
-An absent declaration is not a contradiction. The [symbol table](symbol-table.md) answers nothing for a path it cannot
-walk, and the verifier reports that path as a tag the controller does not have before the comparison is ever asked. The
-comparison itself reports no mismatch for it, so an absent tag is one finding and not two.
+1. It checks that the tag exists. If the [symbol table](symbol-table.md) has no declared type for the path, the
+   verifier reports that the controller does not have the tag.
+2. It compares the shape: scalar or array. If the shape is different, a later comparison has no meaning.
+3. It compares the data type.
+4. It compares what the shape adds: the capacity of a string, or the element count of an array. An atomic scalar adds
+   nothing.
+
+The comparison function itself reports no mismatch when the declared type is missing. Thus, a missing tag gives one
+finding, not two.
 
 ## Why the write port verifies too
 
-The verification step exists for polling, and a write-only port could skip it. This one does not, because of what a
-write failure costs. The outgoing port waits for a controller that is down instead of writing it off, so a value whose
-type contradicts the controller would be a write that retries forever, and the log would say only that the controller
-refused it. Verified at connect, it is one message naming the tag and the two types, and the port does not come up.
+The verification step is optional in the framework, and a port that only writes could skip it. This port does not
+skip it, because a failed write has a high cost. The outgoing port waits for a controller that is down, and it
+writes a failed batch again without a limit. Thus, a value whose type does not agree with the controller would be
+written again forever. The log would only say that the controller refused it.
+
+With the verification, the port gives one message that names the tag and the two types, and the port does not start.
 
 ## What this means for the operator
 
-One wrong tag takes the whole port down at connect. We meant it to. The message says which tag it is, and whether the
-shape, the type, the string capacity, the element count or the tag's existence is what disagrees. The fix is in the
-configuration or in the project, never in the port.
+One incorrect tag stops the full port at connect. This is intentional. The message names the tag and the part that
+does not agree. This part is the existence, the shape, the data type, the capacity or the element count. Correct the
+configuration or the controller project. A change to the port does not correct it.
 
-Verification does not run again while the port runs. A download that changes a verified tag's type under a running port
-shows up as that tag failing on every operation, because its handle refuses a payload of the wrong width or its reply
-no longer decodes. It is verified again at the next connect.
+## After connect
+
+The port does not verify again while it runs. During this time, a download can change the type of a verified tag. The
+client does not compare types at run time. It finds only the changes that give an incorrect length:
+
+1. An atomic scalar that became narrower gives a reply that is too short. The read of that tag fails.
+2. An array whose element type changed its width gives a reply with the incorrect length. The read of that tag fails.
+3. An array that became shorter than the configured count makes the controller refuse the request.
+4. A write payload that is longer than the handle makes libplctag refuse the write.
+
+Other changes give no error. A `DINT` that became a `REAL` has the same width, and the client decodes its bytes as a
+`DINT`. A scalar that became wider decodes from its first bytes. An array that became longer gives its first elements,
+because the request contains the configured element count.
+
+The next connect of a new client finds each of these changes. The client pool keeps the old client while one port of
+the controller still uses it ([connecting](connecting.md#what-this-means-at-run-time)). Thus, after a download that
+changes a configured tag, restart all ports of that controller.

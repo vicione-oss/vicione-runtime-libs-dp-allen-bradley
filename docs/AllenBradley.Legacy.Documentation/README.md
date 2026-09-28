@@ -1,38 +1,40 @@
 # Allen-Bradley Legacy DataPort
 
-Documentation for the **Legacy** Allen-Bradley DataPort — **file / data-table addressing** (e.g.
-`N7:0`, `T4:0.PRE`, `I:1.0/7`) over **PCCC tunneled inside EtherNet/IP**. It targets the classic
-controller families: **PLC-5** (programmed in RSLogix 5) and **SLC 500** / **MicroLogix** (programmed
-in RSLogix 500).
+Documentation for the Legacy Allen-Bradley DataPort, which does file / data-table addressing
+(`N7:0`, `T4:0.PRE`, `I:1.0/7`) over PCCC tunneled inside EtherNet/IP. It targets the classic
+controller families: PLC-5, programmed in RSLogix 5, and SLC 500 and MicroLogix, programmed in
+RSLogix 500.
 
-Unlike the Logix port, these controllers have no symbolic tag database on the wire: addresses name a
-**data file** (`N` integer, `B` binary, `F` float, `T` timer, `C` counter, `ST` string, …), a file
-number, and an element, with optional field and bit suffixes. The request is carried as a **PCCC**
-command wrapped in a CIP unconnected-send; see the protocol background for the encapsulation details.
+Unlike the Logix port, these controllers have no symbolic tag database on the wire. An address names
+a data file (`N` integer, `B` binary, `F` float, `T` timer, `C` counter, `ST` string, and so on), a
+file number, and an element, with optional field and bit suffixes. The request is carried as a PCCC
+command wrapped in a CIP unconnected-send. The protocol background has the encapsulation details.
 
 This implementation builds on the reusable `ViciOne.Suite.DataPort.Extensions` base classes, which
-handle the generic data-port machinery (connection lifecycle, polling, write queuing, retry, value
-validation, the typed-node framework). That machinery is **documented with the package**, not here.
-These pages cover only what the Legacy port adds on top.
+handle the generic data-port machinery: connection lifecycle, polling, write queuing, retry, value
+validation, the typed-node framework. That machinery is documented with the package, not here. These
+pages cover only what the Legacy port adds on top.
 
-> **Status.** Nothing here is planned work. The roadmap builds the **Logix** port and nothing else;
-> whether the legacy families ever get a DataPort — and whether it lives here, in a separate port, or
-> in a separate repository — is an open decision with no owner yet. This project is scaffolded and the
-> content below is **protocol background only**. There is no addressing grammar in the repo; the
-> Diátaxis folders (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in only if the port is built.
+> **Status.** Nothing here is planned work. The roadmap builds the Logix port and nothing else.
+> Whether the legacy families ever get a DataPort, and whether it lives here, in a separate port, or
+> in a separate repository, is an open decision with no owner yet. This project is scaffolded and the
+> content below is protocol background only. There is no addressing grammar in the repo. The Diátaxis
+> folders (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in only if the port is built.
 
 ## New here?
 
-- **Protocol background** — the
-  [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/protocol/cip/cip-networking-overview.md)
-  explains how PCCC is tunneled over EtherNet/IP and how a data-file read is framed on the wire.
-- **Data types** —
-  [PCCC data-file types](../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc-data-file-types.md)
-  lists which types each legacy family exposes, how the file letters map to CIP and .NET types, and
-  how Timer, Counter, and string elements are laid out.
-- **Test device** — the integration test rig currently targets a Logix controller; see
-  [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) for the
-  connection model (a legacy device would be reached the same way, through the Link Manager tunnel).
+The [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/protocol/cip/networking-overview.md)
+explains how PCCC is tunneled over EtherNet/IP and how a data-file read is framed on the wire.
+[PCCC data-file types](../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc-data-file-types.md)
+lists which types each legacy family exposes, how the file letters map to CIP and .NET types, and
+how Timer, Counter, and string elements are laid out.
+
+Most of these families have no Ethernet of their own. How a request reaches them through a bridge is
+in [chassis and route paths](../AllenBradley.Documentation/controllers/chassis-and-route-paths.md#reaching-a-legacy-controller-through-a-bridge).
+
+The integration test rig currently targets a Logix controller. See
+[the test-device setup](../AllenBradley.Documentation/test-bench/test-device-setup.md) for the
+connection model. A legacy device would be reached the same way, through the Link Manager tunnel.
 
 ## Components
 
@@ -61,7 +63,8 @@ Architecture decision records land under `ADR/` as design decisions are made.
 
 ---
 
-Cross-port material — the protocol/PLC background, the test-device inventory, and process docs — lives
-in the [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These docs follow the
-[Diátaxis](https://diataxis.fr/) framework; see the
-[documentation principles](../AllenBradley.Documentation/documentation-principles.md) before adding to them.
+Cross-port material (the controllers, the protocol background, libplctag behaviour and the test
+bench) lives in the [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These
+docs follow the [Diátaxis](https://diataxis.fr/) framework. Read the
+[documentation principles](../AllenBradley.Documentation/conventions/documentation-principles.md)
+before adding to them.

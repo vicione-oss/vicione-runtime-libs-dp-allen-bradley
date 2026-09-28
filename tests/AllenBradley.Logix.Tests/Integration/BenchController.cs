@@ -13,7 +13,7 @@ internal static class BenchController
     private const string RoutePathVariable = "CIP_PATH";
 
     // The L32E as it is reached through the ifm demo cell's Link Manager tunnel; see
-    // docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md.
+    // docs/AllenBradley.Documentation/test-bench/test-device-setup.md.
     private const string DefaultEndpoint = "192.168.0.100";
 
     private static readonly OperationTimeout Timeout = new(TimeSpan.FromSeconds(10));

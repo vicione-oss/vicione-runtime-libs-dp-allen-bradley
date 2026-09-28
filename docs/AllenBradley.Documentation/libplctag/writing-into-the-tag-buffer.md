@@ -1,10 +1,10 @@
 # Writing into the Tag Buffer
 
-`Tag.SetBuffer(byte[])` is a **bounds-checked copy into the handle's buffer, and the handle's width
-does not change to fit what you pass.** The wrapper forwards the array straight to
-`plc_tag_set_raw_bytes` (`Tag.cs:976`) and turns the returned status into an exception. The
-buffer it copies into is `tag->data`, whose size is the tag's size as the core settled it at creation,
-from `elem_size * elem_count` or from the first read. The array you hand in is measured against that
+`Tag.SetBuffer(byte[])` is a bounds-checked copy into the handle's buffer, and the handle's width
+does not change to fit what you pass. The wrapper forwards the array straight to
+`plc_tag_set_raw_bytes` (`Tag.cs:976`) and turns the returned status into an exception. The buffer
+it copies into is `tag->data`, whose size is the tag's size as the core settled it at creation, from
+`elem_size * elem_count` or from the first read. The array you hand in is measured against that
 size, not the other way round.
 
 This is the write-side mirror of [what the tag buffer holds](what-the-tag-buffer-holds.md), and it
@@ -54,7 +54,7 @@ carries the same per-call bounds check:
 | `plc_tag_set_int8` at offset 31 | `-27` |
 
 The elements that fit are copied into the local buffer, and the first one past the end throws out
-of `EncodeAll()`. The controller write still never happens, since the exception surfaces on the
+of `EncodeAll()`. The controller write still never happens, because the exception surfaces on the
 returned task before the native write starts. The local buffer is now the head of your oversized
 array, though. Catch the exception and write again, or have `AutoSyncWriteInterval` running, and that
 partial data is what goes out. Anyone using the typed path has to guard the length themselves.

@@ -10,7 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLog
 /// <summary>
 /// <b>A probe, not a test.</b> It asserts almost nothing; it prints the three device facts the
 /// <c>STRING</c> work was specified against, so they can be read off a real controller and recorded in
-/// TEST-DEVICE-SETUP.md. <b>Delete it once they are.</b>
+/// test-device-setup.md. <b>Delete it once they are.</b>
 /// </summary>
 public sealed class StringWireFormatProbeTests(ITestOutputHelper output) : LogixIntegrationTestBase
 {

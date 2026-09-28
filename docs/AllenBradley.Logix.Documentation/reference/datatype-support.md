@@ -6,7 +6,7 @@ This is the *port's* status. Which types a given controller family exposes at al
 question, answered by the cross-port
 [symbolic tag data types](../../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md);
 the wire layout of each type is in the
-[CIP data types reference](../../AllenBradley.Documentation/protocol/cip/cip-datatypes-reference.md).
+[CIP data types reference](../../AllenBradley.Documentation/protocol/cip/data-types.md).
 
 ## Supported
 
@@ -266,7 +266,7 @@ template the listing names — `@udt/<id>` per distinct id, and again for any me
 structure — and holds each as a `TemplateDefinition` beside the tags. A template says what the
 structure is called, how many bytes an instance occupies, and for every member its name, byte offset,
 declared type, and the bit position of a packed `BOOL`. The wire layout of the two reads is in
-[reading a UDT definition](../../AllenBradley.Documentation/libPlcTag/reading-a-udt-definition.md);
+[reading a UDT definition](../../AllenBradley.Documentation/libplctag/reading-a-udt-definition.md);
 the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
 
 `STRING` is the one structure this dataport reads as a value, so it is the one data type a template can

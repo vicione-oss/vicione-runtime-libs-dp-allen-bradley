@@ -1,46 +1,45 @@
 # CIP Data Types Reference
 
-How CIP data types are **encoded**: type codes, wire format, byte layout, value ranges, and .NET
-equivalents. **Client-agnostic and vendor-agnostic** — this describes the ODVA standard, not how any
-specific library handles it and not which controller exposes which type.
+How CIP data types are encoded: type codes, wire format, byte layout, value ranges, and .NET
+equivalents. This document is client-agnostic and vendor-agnostic. It describes the ODVA standard,
+not how any specific library handles it and not which controller exposes which type.
 
 This document deliberately says nothing about which controller has which type. That question is
-answered per **addressing mode**, because the addressing mode decides the type vocabulary:
-
-- [Symbolic Tag Data Types](../allen-bradley-extension/symbolic-tag-data-types.md) — Logix and Micro800, which name tags and
-  report a type code with the data.
-- [PCCC Data-File Types](../allen-bradley-extension/pccc-data-file-types.md) — MicroLogix, SLC 500, and PLC-5, where a file's type
-  letter fixes the type and no code crosses the wire.
+answered per addressing mode, because the addressing mode decides the type vocabulary.
+[Symbolic Tag Data Types](../allen-bradley-extension/symbolic-tag-data-types.md) covers Logix and
+Micro800, which name tags and report a type code with the data.
+[PCCC Data-File Types](../allen-bradley-extension/pccc-data-file-types.md) covers MicroLogix, SLC
+500, and PLC-5, where a file's type letter fixes the type and no code crosses the wire.
 
 Both link back here for encoding rather than restating it. Note that CIP defines many more type codes
-than any Allen-Bradley controller exposes as a tag type — a code listed below is not a promise that
+than any Allen-Bradley controller exposes as a tag type. A code listed below is not a promise that
 some controller will report it.
 
-**General notes:**
-
-- CIP is **little-endian** (least-significant-byte-first) on the wire for all multi-byte values — the
-  encapsulation header, the message-router fields, and all tag data. This is the opposite of big-endian
-  protocols (Siemens S7comm, Modbus/TCP). Because .NET also runs little-endian, **scalar CIP values
-  need no byte swapping** (see the [.NET mapping](#8-net--cts-mapping)).
-- Every CIP type has a **type code**. A single byte in `0xC1`–`0xDE` is an **elementary** type; a
-  descriptor starting `0xA0`–`0xA3` is a **constructed** one (see [§7](#7-constructed-type-codes)).
-- On Logix, `STRING`, `TIMER`, `COUNTER`, and every UDT are constructed types, so the elementary
-  `STRING` codes (`0xD0` / `0xDA`) below describe the generic CIP string forms and **not** a Logix
-  `STRING` tag. Its structure is documented with
-  [the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0).
+Three general notes apply throughout. CIP is little-endian (least-significant-byte-first) on the
+wire for all multi-byte values: the encapsulation header, the message-router fields, and all tag
+data. This is the opposite of big-endian protocols such as Siemens S7comm and Modbus/TCP. Because
+.NET also runs little-endian, scalar CIP values need no byte swapping (see the
+[.NET mapping](#8-net--cts-mapping)). Every CIP type has a type code. A single byte in `0xC1`-`0xDE`
+is an elementary type, and a descriptor starting `0xA0`-`0xA3` is a constructed one (see
+[§7](#7-constructed-type-codes)). On Logix, `STRING`, `TIMER`, `COUNTER`, and every UDT are
+constructed types, so the elementary `STRING` codes (`0xD0` / `0xDA`) below describe the generic
+CIP string forms and not a Logix `STRING` tag. Its structure is documented with
+[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#the-logix-string-structure).
 
 ---
 
 ## Table columns
 
-- **CIP type** — the CIP / IEC type keyword.
-- **Code** — the one-byte CIP type code reported on the wire.
-- **Size** — wire byte count (`var` = variable-length).
-- **Encoding** — how the bytes are interpreted (two's complement, IEEE 754, bit string, …).
-- **Layout** — per-byte order (little-endian: `byte 0 = LSB, byte N = MSB`); `—` when single-byte.
-- **Range** — value range on the wire (omitted where not meaningful).
-- **C#-alias** — the C# keyword alias.
-- **CTS-name** — the fully qualified .NET Common Type System name (`System.<Name>`).
+| Column       | Meaning                                                                                  |
+|--------------|------------------------------------------------------------------------------------------|
+| **CIP type** | The CIP / IEC type keyword.                                                              |
+| **Code**     | The one-byte CIP type code reported on the wire.                                         |
+| **Size**     | Wire byte count (`var` = variable-length).                                               |
+| **Encoding** | How the bytes are interpreted (two's complement, IEEE 754, bit string, …).               |
+| **Layout**   | Per-byte order (little-endian: `byte 0 = LSB, byte N = MSB`); `n/a` when single-byte.    |
+| **Range**    | Value range on the wire (omitted where not meaningful).                                  |
+| **C#-alias** | The C# keyword alias.                                                                    |
+| **CTS-name** | The fully qualified .NET Common Type System name (`System.<Name>`).                      |
 
 ---
 
@@ -50,16 +49,16 @@ some controller will report it.
 |----------|--------|------|--------------------------|-----------|----------|------------------|
 | `BOOL`   | `0xC1` | 1    | 1 byte: nonzero = true   | `0`/`1`   | `bool`   | `System.Boolean` |
 
-- **Wire representation:** a single byte. Writers send `0xFF` for true and `0x00` for false; readers
-  should treat **any nonzero byte** as true (do not test `== 0x01`).
-- BOOL arrays and BOOL-in-UDT pack differently on Logix — see
-  [BOOL handling](../allen-bradley-extension/symbolic-tag-data-types.md#8-bool-handling).
+The wire representation is a single byte. Writers send `0xFF` for true and `0x00` for false, and
+readers should treat any nonzero byte as true (do not test `== 0x01`). BOOL arrays and BOOL-in-UDT
+pack differently on Logix; see
+[BOOL handling](../allen-bradley-extension/symbolic-tag-data-types.md#bool-handling).
 
 ---
 
 ## 2. Bit strings
 
-Fixed-width registers with no arithmetic interpretation — used for bit masks and status flags. They
+Fixed-width registers with no arithmetic interpretation, used for bit masks and status flags. They
 share their wire layout with the unsigned integers of the same width but are distinct CIP type names.
 
 | CIP type | Code   | Size | Encoding             | Range                      | C#-alias | CTS-name        |
@@ -75,8 +74,8 @@ share their wire layout with the unsigned integers of the same width but are dis
 
 | CIP type | Code   | Size | Encoding                | Layout                      | Range             | C#-alias | CTS-name        |
 |----------|--------|------|-------------------------|-----------------------------|-------------------|----------|-----------------|
-| `SINT`   | `0xC2` | 1    | Two's complement        | —                           | `-128`..`127`     | `sbyte`  | `System.SByte`  |
-| `USINT`  | `0xC6` | 1    | Unsigned                | —                           | `0`..`255`        | `byte`   | `System.Byte`   |
+| `SINT`   | `0xC2` | 1    | Two's complement        | n/a                         | `-128`..`127`     | `sbyte`  | `System.SByte`  |
+| `USINT`  | `0xC6` | 1    | Unsigned                | n/a                         | `0`..`255`        | `byte`   | `System.Byte`   |
 | `INT`    | `0xC3` | 2    | Little-endian two's complement | byte 0 = LSB, byte 1 = MSB | `-32768`..`32767` | `short`  | `System.Int16`  |
 | `UINT`   | `0xC7` | 2    | Little-endian unsigned  | byte 0 = LSB, byte 1 = MSB  | `0`..`65535`      | `ushort` | `System.UInt16` |
 | `DINT`   | `0xC4` | 4    | Little-endian two's complement | byte 0 = LSB, byte 3 = MSB | `-2^31`..`2^31-1` | `int`    | `System.Int32`  |
@@ -97,9 +96,9 @@ share their wire layout with the unsigned integers of the same width but are dis
 
 ## 5. Date / time / duration
 
-CIP defines several temporal types. Each is built on an integer base type; the table gives the **code,
-size, and base type**. The exact *unit* and *epoch* of some of these are specified in ODVA CIP Vol. 1
-Appendix C and are noted below where not independently confirmed here.
+CIP defines several temporal types. Each is built on an integer base type, and the table gives the
+code, size, and base type. The exact unit and epoch of some of these are specified in ODVA CIP Vol.
+1 Appendix C and are noted below where not independently confirmed here.
 
 | CIP type        | Code   | Size | Base type / encoding    | Notes                                                      | CTS-name          |
 |-----------------|--------|------|-------------------------|------------------------------------------------------------|-------------------|
@@ -128,40 +127,40 @@ CIP defines several string forms that differ in their length prefix and per-char
 | `STRINGN`      | `0xD9` | var  | `UINT` size + `UINT` count | 1/2/4 | per size    | `[char_size:u16][count:u16][data…]`           |
 | `STRINGI`      | `0xDE` | var  | (international)       | varies   | multi-language| count of sub-strings, each with language + charset + data |
 
-- The CIP `STRING` (`0xD0`) length prefix is **2 bytes** — do not confuse it with `SHORT_STRING`
-  (`0xDA`), whose prefix is 1 byte.
-- `STRINGI` (`0xDE`) is defined by ODVA but not implemented by every stack (OpENer, for instance, does
-  not assign it).
-- Neither form is how a controller in this repo stores a string. A Logix `STRING` is a
-  [structure](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0); a legacy
-  `ST` file element is [42 words with swapped character pairs](../allen-bradley-extension/pccc-data-file-types.md#string-elements).
+The CIP `STRING` (`0xD0`) length prefix is 2 bytes. Do not confuse it with `SHORT_STRING` (`0xDA`),
+whose prefix is 1 byte. `STRINGI` (`0xDE`) is defined by ODVA but not implemented by every stack;
+OpENer, for instance, does not assign it. Neither form is how a controller in this repo stores a
+string. A Logix `STRING` is a
+[structure](../allen-bradley-extension/symbolic-tag-data-types.md#the-logix-string-structure), and
+a legacy `ST` file element is
+[42 words with swapped character pairs](../allen-bradley-extension/pccc-data-file-types.md#string-elements).
 
 ---
 
 ## 7. Constructed type codes
 
-Per the CIP rule that a data-type descriptor starting `0xA0`–`0xA3` is *structured* while a single byte
-`0xC1`–`0xDE` is *elementary*:
+Per the CIP rule that a data-type descriptor starting `0xA0`-`0xA3` is structured while a single
+byte `0xC1`-`0xDE` is elementary:
 
 | Code   | Name           | Meaning                                                            |
 |--------|----------------|--------------------------------------------------------------------|
-| `0xA0` | ABBREV_STRUCT  | Abbreviated structure — a 2-byte handle stands in for the template |
+| `0xA0` | ABBREV_STRUCT  | Abbreviated structure: a 2-byte handle stands in for the template  |
 | `0xA1` | ABBREV_ARRAY   | Abbreviated array                                                  |
 | `0xA2` | STRUCT         | Structure with an explicit member type list                        |
 | `0xA3` | ARRAY          | Array                                                              |
 
-`0xA0` is the one an Allen-Bradley client meets constantly: every structured Logix tag read begins with
-it, followed by the template handle. That exchange, the handle's meaning, and the template read that
-resolves it are documented with
-[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#the-structure-reply).
+`0xA0` is the one an Allen-Bradley client meets constantly. Every structured Logix tag read begins
+with it, followed by the template handle. That exchange, the handle's meaning, and the template read
+that resolves it are documented with
+[the symbolic types](../allen-bradley-extension/tag-services.md#the-structure-reply).
 
 ---
 
 ## 8. .NET / CTS mapping
 
-CIP is little-endian and .NET runs little-endian, so **scalar values need no byte swapping** — a direct
-`BitConverter` / `MemoryMarshal` read of the raw payload yields the correct value. (This is the
-opposite of big-endian PLC protocols, where every multi-byte value must be reversed.)
+CIP is little-endian and .NET runs little-endian, so scalar values need no byte swapping. A direct
+`BitConverter` / `MemoryMarshal` read of the raw payload yields the correct value. This is the
+opposite of big-endian PLC protocols, where every multi-byte value must be reversed.
 
 | CIP type                              | C#-alias | CTS-name         | Conversion note                                  |
 |---------------------------------------|----------|------------------|--------------------------------------------------|
@@ -178,17 +177,17 @@ opposite of big-endian PLC protocols, where every multi-byte value must be rever
 | `LREAL`                               | `double` | `System.Double`  | `BitConverter.ToDouble` directly                  |
 | `STRING` / `SHORT_STRING` / Logix `STRING` | `string` | `System.String` | decode with the length prefix + ASCII/Latin-1 |
 | `STRING2`                             | `string` | `System.String`  | UTF-16-LE                                         |
-| `TIME` / `ITIME` / `FTIME` / `LTIME`  | —        | `System.TimeSpan`| scale by the type's time unit (App. C)            |
-| `DATE` / `DATE_AND_TIME`              | —        | `System.DateTime`| epoch/units per App. C                            |
+| `TIME` / `ITIME` / `FTIME` / `LTIME`  | n/a      | `System.TimeSpan`| scale by the type's time unit (App. C)            |
+| `DATE` / `DATE_AND_TIME`              | n/a      | `System.DateTime`| epoch/units per App. C                            |
 
 ---
 
 ## 9. Byte-offset examples
 
-Concrete wire bytes for the common types. All multi-byte values are **little-endian** (byte 0 = LSB);
-this is the key difference from big-endian PLC protocols.
+Concrete wire bytes for the common types. All multi-byte values are little-endian (byte 0 = LSB),
+which is the key difference from big-endian PLC protocols.
 
-### `INT` — 16-bit signed
+### `INT`: 16-bit signed
 
 ```text
 INT = 4660  (= 0x1234)
@@ -204,7 +203,7 @@ Offset  Hex   Dec   Meaning
 0x01    FF    255   high byte
 ```
 
-### `DINT` — 32-bit signed
+### `DINT`: 32-bit signed
 
 ```text
 DINT = 1000  (= 0x000003E8)
@@ -216,7 +215,7 @@ Offset  Hex   Dec   Meaning
 0x03    00      0   byte 3 (MSB)
 ```
 
-### `REAL` — IEEE 754 single
+### `REAL`: IEEE 754 single
 
 ```text
 REAL = 1.0  (= 0x3F800000)
@@ -236,7 +235,7 @@ Offset  Hex   Dec   Meaning
 0x03    BF    191   byte 3 (MSB)
 ```
 
-### `LREAL` — IEEE 754 double
+### `LREAL`: IEEE 754 double
 
 ```text
 LREAL = 1.0  (= 0x3FF0000000000000)
@@ -252,8 +251,8 @@ Offset  Hex   Meaning
 0x07    3F    byte 7 (MSB)
 ```
 
-A structured example — the 88-byte Logix `STRING` read reply — is with
-[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#5-the-logix-string-structure-not-elementary-0xd0),
+A structured example, the 88-byte Logix `STRING` read reply, is with
+[the symbolic types](../allen-bradley-extension/symbolic-tag-data-types.md#the-logix-string-structure),
 because its layout is a controller fact rather than a CIP encoding rule.
 
 ---
@@ -262,32 +261,33 @@ because its layout is a controller fact rather than a CIP encoding rule.
 
 ### ODVA specifications
 
-- ODVA — *The CIP Networks Library*, Volume 1, **Appendix C "Data Management"** (elementary type codes
-  `0xC1`–`0xDE`, constructed codes `0xA0`–`0xA3`, temporal type base types and epochs, the
+- ODVA, *The CIP Networks Library*, Volume 1, Appendix C "Data Management" (elementary type codes
+  `0xC1`-`0xDE`, constructed codes `0xA0`-`0xA3`, temporal type base types and epochs, the
   structure-handle CRC):
   <https://www.odva.org/technology-standards/key-technologies/common-industrial-protocol-cip/>
 
 ### Rockwell publications
 
-- Rockwell Automation — *Logix 5000 Controllers Data Access* (1756-PM020) — tag type reporting and the
-  Logix structures:
+- Rockwell Automation, *Logix 5000 Controllers Data Access* (1756-PM020), on tag type reporting and
+  the Logix structures:
   <https://literature.rockwellautomation.com/idc/groups/literature/documents/pm/1756-pm020_-en-p.pdf>
-- Rockwell Automation — *Type Encoding of Logix Structures in CIP Data Table Read/Write* (the `0xA0`
+- Rockwell Automation, *Type Encoding of Logix Structures in CIP Data Table Read/Write* (the `0xA0`
   abbreviated-structure marker, alignment/padding, little-endian ordering):
   <https://www.rockwellautomation.com/content/dam/rockwell-automation/sites/downloads/pdf/TypeEncode_CIPRW.pdf>
 
 ### Reference implementations
 
-- OpENer (`ciptypes.h`) — CIP type-code constants (`kCipBool` `0xC1` … `kCipEngUnit` `0xDD`):
+- OpENer (`ciptypes.h`), CIP type-code constants (`kCipBool` `0xC1` … `kCipEngUnit` `0xDD`):
   <https://github.com/EIPStackGroup/OpENer/blob/master/source/src/cip/ciptypes.h>
-- pycomm3 (`cip/data_types.py`) — type codes, string length-prefix logic, BOOL `0xFF`/`0x00`:
+- pycomm3 (`cip/data_types.py`), type codes, string length-prefix logic, BOOL `0xFF`/`0x00`:
   <https://github.com/ottowayi/pycomm3/blob/master/pycomm3/cip/data_types.py>
-- Wireshark CIP dissector (`packet-cip.h`) — string type codes `0xD0`/`0xD5`/`0xD9`/`0xDA`:
+- Wireshark CIP dissector (`packet-cip.h`), string type codes `0xD0`/`0xD5`/`0xD9`/`0xDA`:
   <https://www.wireshark.org/docs/wsar_html/packet-cip_8h_source.html>
 
 ### Related in-tree docs
 
-- [`symbolic-tag-data-types.md`](../allen-bradley-extension/symbolic-tag-data-types.md) — which of these types Logix and Micro800
-  expose, plus structures, arrays, and the symbol table
-- [`pccc-data-file-types.md`](../allen-bradley-extension/pccc-data-file-types.md) — the file-addressed legacy families
-- [`cip-networking-overview.md`](cip-networking-overview.md) — wire stack, object model, services
+- [`symbolic-tag-data-types.md`](../allen-bradley-extension/symbolic-tag-data-types.md): which of
+  these types Logix and Micro800 expose, plus structures, arrays, and the symbol table
+- [`pccc-data-file-types.md`](../allen-bradley-extension/pccc-data-file-types.md): the
+  file-addressed legacy families
+- [`networking-overview.md`](networking-overview.md): wire stack, object model, services

@@ -26,7 +26,7 @@ The **Legacy** dataport has no project yet.
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Build              | `dotnet build allen-bradley.slnx -c Debug`                                                                                          |
 | Test (unit)        | `dotnet test` — the unit suite is the default, and never touches the PLC                                                            |
-| Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see TEST-DEVICE-SETUP.md)                                         |
+| Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see test-device-setup.md)                                         |
 | Test (all)         | `dotnet test -p:test-suite=all`                                                                                                     |
 | Test (class)       | `dotnet test --project tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj --filter-class "<fully.qualified.ClassName>"` |
 | Format             | `dotnet format allen-bradley.slnx`                                                                                                  |
@@ -61,7 +61,7 @@ folder holds exactly one type that says how its device is reached — `BenchCont
 for the L306ER — and each reads its endpoint from an environment variable with a default. `PlcCollection` holds every
 test that talks to a controller and never runs in parallel, because the tests share one libplctag session.
 
-Read [TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md) before you point anything
+Read [test-device-setup.md](docs/AllenBradley.Documentation/test-bench/test-device-setup.md) before you point anything
 at a device.
 
 ## Repo conventions
@@ -78,7 +78,7 @@ Adopted wholesale from the S7 repo, so that a dataport developer who moves betwe
   hand-rolled; a substitute makes those longer, not shorter
 - **Model types are `readonly record struct`s or `enum`s — never bare primitives.** Every domain concept we define
   gets its own named value type; see
-  [modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)
+  [modelling-conventions.md](docs/AllenBradley.Documentation/conventions/modelling-conventions.md)
 
 ## DataPort.Extensions Packages
 
@@ -92,11 +92,11 @@ documentation ships inside the NuGet packages themselves.
 |---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Ubiquitous language**   | [CONTEXT.md](CONTEXT.md) — **read before naming anything**; `allen-bradley.glossary.yml` is its Contextive twin, keep the two in step                |
 | Documentation index       | [docs/AllenBradley.Documentation/README.md](docs/AllenBradley.Documentation/README.md)                                                               |
-| Documentation principles  | [docs/AllenBradley.Documentation/documentation-principles.md](docs/AllenBradley.Documentation/documentation-principles.md)                           |
-| Modelling conventions     | [docs/AllenBradley.Documentation/modelling-conventions.md](docs/AllenBradley.Documentation/modelling-conventions.md)                                 |
+| Documentation principles  | [docs/AllenBradley.Documentation/conventions/documentation-principles.md](docs/AllenBradley.Documentation/conventions/documentation-principles.md)   |
+| Modelling conventions     | [docs/AllenBradley.Documentation/conventions/modelling-conventions.md](docs/AllenBradley.Documentation/conventions/modelling-conventions.md)         |
 | CIP protocol              | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)                                             |
-| libplctag behaviour       | [docs/AllenBradley.Documentation/libPlcTag/README.md](docs/AllenBradley.Documentation/libPlcTag/README.md) — the library's quirks and traps          |
-| Test device setup         | [docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md](docs/AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md)                         |
+| libplctag behaviour       | [docs/AllenBradley.Documentation/libplctag/README.md](docs/AllenBradley.Documentation/libplctag/README.md) — the library's quirks and traps          |
+| Test device setup         | [docs/AllenBradley.Documentation/test-bench/test-device-setup.md](docs/AllenBradley.Documentation/test-bench/test-device-setup.md)                   |
 | Logix dataport            | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                                                   |
 | Legacy dataport           | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                                                 |
 | Data types the port has   | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md)           |

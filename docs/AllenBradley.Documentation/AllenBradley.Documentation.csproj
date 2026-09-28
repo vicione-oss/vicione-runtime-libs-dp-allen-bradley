@@ -4,8 +4,8 @@
     Shared (cross-port) documentation container project.
 
     This project compiles nothing and produces no output. Its only purpose is to
-    surface the cross-port docs (the CIP/EtherNet-IP protocol background, the test
-    device context, these principles) in the IDE's Solution Explorer without
+    surface the cross-port docs (the controller hardware, the CIP/EtherNet-IP protocol
+    background, libplctag behaviour, the test bench, the writing conventions) in the IDE's Solution Explorer without
     hand-maintaining file lists in allen-bradley.slnx. SDK-style projects render
     their on-disk folder tree automatically, so new files appear on reload.
 
@@ -45,10 +45,11 @@
   -->
   <ItemGroup>
     <None Include="*.md" />
+    <None Include="controllers/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="protocol/**" Exclude="**/bin/**;**/obj/**" />
-    <None Include="libPlcTag/**" Exclude="**/bin/**;**/obj/**" />
-    <None Include="context/**" Exclude="**/bin/**;**/obj/**" />
-    <None Include="process/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="libplctag/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="test-bench/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="conventions/**" Exclude="**/bin/**;**/obj/**" />
   </ItemGroup>
 
 </Project>

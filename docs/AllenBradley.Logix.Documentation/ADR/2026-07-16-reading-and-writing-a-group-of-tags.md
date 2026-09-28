@@ -2,167 +2,121 @@
 
 ## Context and Problem Statement
 
-This decision covers the client and its read and write batches, under `src/AllenBradley.Logix/Client/`. It
-was made under
+For a read, the framework gives the client a group of data points and expects a list of typed values back. For a
+write, it gives a list of typed values. The write returns no result, so only an exception can report a failure. The
+code is the read batch and the write batch in `src/AllenBradley.Logix/Client/`. This decision was made under
 [issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
 
-The DataPort read hands the client a **group** of data points and expects a list of typed values back. The
-write hands it a list of typed values and returns a bare `ValueTask`. libplctag has no call that reads
-several tags at once (see [Operations, not
-accessors](2026-07-16-operations-not-accessors-over-libplctag.md)), so a group cannot be one wire call. It
-is *N* separate handle operations.
+The group has a different meaning in the two directions:
 
-What makes *N* operations acceptable is packing. libplctag's C core (the native library under the .NET
-wrapper) services all handles to one controller from a single queue, and bundles whatever is waiting in
-that queue into a Multiple Service Packet (MSP), one CIP request that carries many tag reads in a single
-network round-trip. Whether packing happens depends on how many requests sit in the queue at the same
-moment. Start the whole group at once and the core can pack it. Read the group in a blocking loop and the
-queue never holds more than one request, so nothing ever packs (see
-[the-shared-session.md](../../AllenBradley.Documentation/libPlcTag/the-shared-session.md)).
+- A read group contains the data points with the same poll frequency. It exists only for the schedule and for
+  performance, and it has no other meaning. The values of one read are not one consistent snapshot of the controller.
+- A write batch contains the values that the engine gives in one cycle. These values belong together, for example a
+  setpoint and its mode flag. For this reason, the outgoing port of the framework drops the full batch when one value
+  fails conversion or range validation.
+
+libplctag has no call that reads or writes many tags. Thus, a group is *N* separate handle operations. CIP also has no
+transaction over several tags. Each tag write is a separate service, also inside one Multiple Service Packet. Thus, the
+client cannot write a batch as one unit in the ACID sense.
+
+libplctag can still send *N* operations in few round trips. All handles to one controller use one session with one
+queue. The session thread packs all requests that wait in the queue into one Multiple Service Packet
+([the shared session](../../AllenBradley.Documentation/libplctag/the-shared-session.md)). This occurs only when many
+requests are in the queue at the same time. A loop that reads one tag after the other never packs.
+
+Three questions follow. How does the client start the operations? What does it do when some tags fail and others do
+not? How near can a write come to "all values or none"?
 
 ## Considered Options
 
-- **Option 1: Resolve every converter and tag up front**, then start one operation per tag
-  at once and await them all, handling failure per tag
-- **Option 2: Hand-roll the Multiple Service Packet** ourselves over `libplctag.NativeImport`
-- **Option 3: Mirror the S7 dataport's batch**, where the whole group is one client-library call
+1. **Resolve first, then start all.** Get the converter and the handle for each data point before any I/O. Then start
+   one operation for each tag, all at the same time, and wait for all of them.
+2. **Build the Multiple Service Packet ourselves** over `libplctag.NativeImport`.
+3. **Copy the batch of the S7 dataport,** where one call of the client library reads the full group.
 
 ## Decision Outcome
 
-Chosen: **Option 1, resolve everything before any I/O**. Resolve every converter (see [Decoding tag bytes
-into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)) and every tag (see [Reusing and
-releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md)), then start one operation per tag
-at once and await them all. Starting them concurrently is what fills the core's queue and makes its
-packing engage. And libplctag offers no batch call we could mirror instead.
+Chosen option: **Option 1**. Concurrent operations fill the queue, and a full queue lets libplctag pack them. libplctag
+has no batch call that we could use instead.
 
-On the write side, resolving goes one step further. Constructing the batch also has the converter encode
-each value into the bytes it occupies, sized from the type or the configured capacity and from nothing
-the handle knows. A value that will not encode, such as a string longer than its tag was declared to
-hold, therefore fails before any tag is touched, instead of leaving half the batch written. Where the
-conversion sits is the one place the two directions differ: a decode needs the reply and so happens per
-entry, an encode needs nothing from the device and so happens up front. Whether the bytes fit the tag on
-the controller is libplctag's check: its handle is the controller's width and refuses a longer payload
-before sending, which the adapter reports as a failed outcome for that tag.
+- Before any I/O, the batch gets a converter and a handle for each data point. A data point without a converter stops
+  the batch before the controller gets a request.
+- The write batch also encodes each value before any I/O. If a value cannot be encoded, the batch fails and sends
+  nothing. The error names each value that failed.
+- The batch starts all operations and waits for all of them. Each operation returns a result, not an exception.
+  `Task.WhenAll` rethrows only the first exception, and the other failures would be lost.
+- Cancellation throws, because the caller decides it.
 
-Failure is **detected** per tag. Every tag is attempted — none of them stops its siblings — and the
-outcomes are collected afterwards rather than being allowed to throw, because `Task.WhenAll` rethrows
-only the *first* exception of a set, and a caller told about one failed tag out of five would go looking
-in the wrong place. Both directions collect this way. What they do with the collection differs, and the
-difference follows from what the batch *is* on each side.
+### A read gives what it could read
 
-On the **read** side the batch is ours. Data points are grouped by poll frequency so that they reach the
-controller in one Multiple Service Packet, and being read together carries no meaning past that: no
-caller asked for these points as a set, and no reading depends on its neighbours. So **one tag that will
-not read costs its own value and nothing else.** The values the other tags produced are returned, and the
-failed tags travel out beside them by name and reason, which `LogixClient` logs as one warning against
-the controller. Dropping the whole group instead would let a single permanently unreadable point blind
-every other point that happens to share its frequency, for as long as it stays broken.
+A read group has no meaning beyond the schedule. Thus, one failed tag must not cost the values of the other tags. The client returns the
+values of the tags that answered, and logs the failed tags as one warning. The next poll is already scheduled.
 
-The one case that still throws is a batch where **nothing** was read. There is no value to hand up, and
-the controller rather than a tag is what failed. Returning an empty list there would make a dead device
-look like a poll of a group that had nothing to fetch: no failed poll logged, and nothing for the polling
-job's circuit breaker to count. An empty group is not that case and does not throw.
+A read throws only when no tag answered. An empty list would make a dead controller look like an empty group. The
+circuit breaker of the framework would then never open. An empty group does not throw.
 
-What is still ruled out is returning the group full-length with a placeholder standing in for the tag
-that failed. `IncomingDataPortBase.ToExternalValue` hard-codes `Validity = 1` and passes
-`IDataPointValue.Value` through as it is, so a placeholder would reach the engine as a **valid null**,
-indistinguishable from a tag that genuinely holds nothing. A short list has no such ambiguity: the point
-simply gets no update this tick and keeps its last one. Marking a missing reading invalid instead is
-possible — override `ToExternalValue` and map onto `Validity` — but that is a decision about what the
-engine should see, and it belongs to the port rather than to the client.
+A failed read does not give a placeholder value. The framework marks each value from the port as valid
+(`Validity = 1`), so a placeholder would reach the engine as a valid null. A data point that is missing from the list
+keeps its last value.
 
-On the **write** side the batch still fails whole, with one `LogixTagException` naming every failed tag
-and its reason. The encode loop follows the same rule from before any I/O: a batch holding three values
-that will not fit their tags names all three, and says that nothing was sent. This is where the sibling
-Siemens S7 dataport's contract (`Siemens.S7.Absolute/Client/S7NetPlusClient.cs`) still holds and the read
-side has now diverged from it.
+### A write makes a best effort to write the batch as one unit
 
-A failed read costs one value for one poll. The failures are logged with the controller, and a batch that
-read nothing is logged and thrown, so the polling job above catches it, counts it against the circuit
-breaker and tries again on the next tick.
+The client cannot guarantee that a write batch arrives as one unit. It does these three things to come near:
 
-A reply too short for the type the point was configured as costs that point its value like any other tag
-failure. It is caught narrowly on the read path, only so the tag it happened to can be named rather than
-a bare `ArgumentException` travelling with no address in it. On a verified tag it should not happen at
-all.
+1. If one value cannot be encoded, the batch sends nothing.
+2. The batch starts all writes at the same time. Thus, the writes reach the controller close together in time, and
+   libplctag can pack them into few packets.
+3. If one tag write fails, the batch fails as a whole. One `LogixTagException` names each tag that failed. The
+   framework keeps the full batch at the head of its queue and writes it again, until all values are written.
 
-Cancellation flows into every operation and still throws, because cancelling is the caller's decision and
-not the device's answer.
+The client does not roll back the tags that were written before a failure. A rollback needs the old values, and a
+rollback write can also fail.
+
+For a write batch, the ACID properties are as follows:
+
+| Property    | Write batch                                                                                                    |
+|-------------|----------------------------------------------------------------------------------------------------------------|
+| Atomicity   | Not guaranteed. After a failure, only a part of the batch is written. The retry of the full batch completes it later. |
+| Consistency | In part. The framework and the encode step stop invalid values before any I/O. Verification at connect stops type mismatches. The client does not know the rules of the controller program. |
+| Isolation   | Not guaranteed. The controller program, other clients and the read port can see a batch that is only partly written. The batches of one outgoing port do not overlap, because its queue writes one batch at a time. |
+| Durability  | The controller keeps the values. The client has no part in it.                                                  |
 
 ### Consequences
 
-The group starts one operation per tag with no upper bound, so a concurrency cap must be set before this
-runs in production. That cap, and the in-flight load one shared connection can absorb, come from the
-planned throughput measurement (see [Maximizing throughput with one shared
-connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md)). The same measurement must
-confirm the core actually packs concurrent reads into one Multiple Service Packet, by counting round-trips
-for *N* concurrent reads on one shared session, since the whole approach rests on it. If the core does not
-pack them, this decision still stands, but the throughput story changes. The fallback is to accept *N*
-round-trips or move to a newer libplctag batch facility, never a hand-rolled packet.
+- Good: libplctag packs the requests. We write no CIP encoding code.
+- Good: Each failed tag is named with its reason. One failure does not hide the others.
+- Good: One tag that cannot be read does not stop the values of the other tags in its group.
+- Bad: The list from a read can be shorter than the group. A caller must not expect one value for each data point.
+- Bad: The controller program can see a write batch that is only partly written. The writes in one batch also have no
+  order.
+- Bad: The retry writes again the values that were already written. This is safe for a tag that only the engine
+  writes. It is not safe for a tag that the controller program also changes, for example a flag that the program resets.
+- Open: There is no limit on the operations in flight. A group of 200 data points starts 200 operations. The limit
+  must come from the throughput measurement
+  ([Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md)).
+- Open: The same measurement must confirm that libplctag packs concurrent operations. If it does not, this decision
+  stays. The fallback is *N* round trips, or a batch call in a later libplctag version, but not an MSP of our own.
 
-### Enforcement
+## Why Not the Other Options
 
-The client suite drives the client against a fake tag manager whose tags are in-process fakes over the
-access seam, and it holds the contract in place. A data point with no converter aborts before anything is
-read. A failed read, and a reply too short to decode, each leave that point out and let its siblings
-through, naming the point among the batch's failures; a batch where every tag failed raises one exception
-naming them all. Failed writes still raise one exception naming every failed tag — including several
-values that will not encode, which are named without a byte being sent. A group where every tag answers
-returns a value per point in the group's own order. A cancelled batch raises the cancellation itself and
-touches no tag. The device tier round-trips a value through the same batches against the real controller.
+### Option 2: Build the Multiple Service Packet ourselves
 
-The model carries no valueless value shape and no quality flag, so there is nothing for a read to return
-in place of a value it does not have; a point that failed is absent from the list rather than present
-and empty.
+libplctag already packs the requests, so this gives nothing. It also needs a replacement for the full wrapper layer,
+and [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) rejects that. An MSP of our own
+would also not make a write batch atomic, because each service in it is still a separate tag write.
 
-## Pros and Cons of the Options
+### Option 3: Copy the S7 batch
 
-### Option 1: Resolve every converter and tag up front, then start all at once (chosen)
-
-#### Pros
-
-Every tag is attempted independently, so a failing one never hides another and the exception can name
-the whole set — better diagnostics than a single-call batch, which reports whichever failure the library
-noticed first. We also inherit the core's packing instead of owning any CIP encoding ourselves.
-
-#### Cons
-
-The fan-out is currently unbounded. A group of 200 data points starts 200 concurrent operations. Bounding
-that fan-out is an obligation handed to the throughput work (see Consequences above). Duplicate data
-points in one group also serialize. Two equal data points share one synchronized tag, so their
-"concurrent" reads block each other into two round-trips instead of one. That is a missed chance to
-de-duplicate before I/O rather than a correctness problem.
-
-### Option 2: Hand-roll the Multiple Service Packet (rejected)
-
-Drop to `libplctag.NativeImport` (the raw bindings to the C core) and encode the CIP packet
-ourselves.
-
-#### Cons
-
-It is only worth doing if we owned the whole wrapper layer, an option already rejected in [Operations, not
-accessors](2026-07-16-operations-not-accessors-over-libplctag.md). And it buys nothing, because the core
-already packs.
-
-### Option 3: Mirror the S7 dataport's one-call batch (rejected)
-
-In the sibling Siemens S7 dataport, the client library (S7.Net) exposes a read-multiple call that takes the
-whole batch at once and updates each item's value in place. The S7 batch classes are built around it.
-What was rejected is the *call shape*. The failure contract was shared at first and now is only on the
-write side: a read here returns what it could read.
-
-#### Cons
-
-libplctag has no such call, so the model does not port. Starting *N* operations concurrently is what
-stands in for it.
+The client library of the S7 dataport, S7.Net, has a call that reads many items in one request. libplctag has no such
+call. Concurrent operations are the replacement.
 
 ## More Information
 
-- [the-shared-session.md](../../AllenBradley.Documentation/libPlcTag/the-shared-session.md)
-  (why starting reads concurrently is what makes packing engage)
-- Related: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
+- Explanation: [Reading and writing](../explanation/client/reading-and-writing.md)
+- Background: [The shared session](../../AllenBradley.Documentation/libplctag/the-shared-session.md)
+- Framework: the outgoing data port in the `ViciOne.Suite.DataPort.Extensions` docs, for the write queue, the
+  all-or-nothing validation and the retry of a full batch
+- Related decisions: [Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md) ·
   [Maximizing throughput with one shared connection](2026-07-16-maximizing-throughput-with-one-shared-connection.md) ·
   [Reusing and releasing tag handles](2026-07-16-reusing-and-releasing-tag-handles.md) ·
   [Decoding tag bytes into typed values](2026-07-16-decoding-tag-bytes-into-typed-values.md)
-- S7 precedent: its client's data-item batch classes, one per direction
-- [Issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5)

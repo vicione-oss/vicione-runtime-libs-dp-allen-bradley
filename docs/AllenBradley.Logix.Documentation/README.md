@@ -1,22 +1,21 @@
 # Allen-Bradley Logix DataPort
 
-Documentation for the **Logix** Allen-Bradley DataPort — **symbolic tag addressing** (e.g.
-`Motor.Speed`, `Arr[5]`) over **CIP / EtherNet/IP**. It targets the Logix controller family across
-**all its generations** — **ControlLogix**, **CompactLogix**, **GuardLogix**, **SoftLogix**,
-programmed in Studio 5000 Logix Designer — spanning both the classic type set and the extended one
-the 5X80 controllers add.
+Documentation for the Logix Allen-Bradley DataPort, which does symbolic tag addressing
+(`Motor.Speed`, `Arr[5]`) over CIP / EtherNet/IP. It targets the Logix controller family across all
+its generations: ControlLogix, CompactLogix, GuardLogix and SoftLogix, programmed in Studio 5000
+Logix Designer, with both the classic type set and the extended one the 5X80 controllers add.
 
-**Micro800** (programmed in Connected Components Workbench) speaks the same symbolic tag protocol
-but is **not in scope**: whether it lands here as a device family or in a port of its own is an open
-decision, taken once Logix is done.
+Micro800, programmed in Connected Components Workbench, speaks the same symbolic tag protocol but is
+not in scope. Whether it lands here as a device family or in a port of its own is an open decision,
+taken once Logix is done.
 
 This implementation builds on the reusable `ViciOne.Suite.DataPort.Extensions` base classes, which
-handle the generic data-port machinery (connection lifecycle, polling, write queuing, retry, value
-validation, the typed-node framework). That machinery is **documented with the package**, not here.
-These pages cover only what the Logix port adds on top.
+handle the generic data-port machinery: connection lifecycle, polling, write queuing, retry, value
+validation, the typed-node framework. That machinery is documented with the package, not here. These
+pages cover only what the Logix port adds on top.
 
 > **Status.** The port reads and writes tags against a real controller, and is being built slice by
-> slice — so these pages describe a moving target. `reference/` and `ADR/` track what has landed;
+> slice, so these pages describe a moving target. `reference/` and `ADR/` track what has landed.
 > `how-to/` is still scaffolding.
 >
 > **Addressing is a plain tag name today.** A configuration node carries the tag name the controller
@@ -29,18 +28,10 @@ These pages cover only what the Logix port adds on top.
 
 ## New here?
 
-- **Protocol background** — start with the
-  [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/protocol/cip/cip-networking-overview.md)
-  for the wire stack, session registration, the CIP object model and EPATH, and how a Logix tag read
-  becomes a message-router request.
-- **Data types** —
-  [Symbolic tag data types](../AllenBradley.Documentation/protocol/allen-bradley-extension/symbolic-tag-data-types.md)
-  covers what Logix exposes, the `STRING`/`TIMER` structures, BOOL packing, and the symbol-type
-  bitfield used when enumerating tags; the
-  [CIP data types reference](../AllenBradley.Documentation/protocol/cip/cip-datatypes-reference.md)
-  has the wire encoding of each type.
-- **Test devices** — a borrowed CompactLogix L32E, and our own CompactLogix 5069-L306ER once it is
-  commissioned; see [the test-device setup](../AllenBradley.Documentation/context/TEST-DEVICE-SETUP.md).
+The cross-port hub has a [reading path](../AllenBradley.Documentation/README.md#new-here-read-in-this-order)
+for a developer who has never worked with CIP or Allen-Bradley. Its stop on
+[Logix generations](../AllenBradley.Documentation/controllers/logix-generations.md) is the one this
+port leans on most. It is why a device node names a generation and why some types are `5X80 only`.
 
 ## Components
 
@@ -76,7 +67,8 @@ Architecture decision records land under [`ADR/`](ADR/) as design decisions are 
 
 ---
 
-Cross-port material — the protocol/PLC background, the test-device inventory, and process docs — lives
-in the [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These docs follow the
-[Diátaxis](https://diataxis.fr/) framework; see the
-[documentation principles](../AllenBradley.Documentation/documentation-principles.md) before adding to them.
+Cross-port material (the controllers, the protocol background, libplctag behaviour and the test
+bench) lives in the [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These
+docs follow the [Diátaxis](https://diataxis.fr/) framework. Read the
+[documentation principles](../AllenBradley.Documentation/conventions/documentation-principles.md)
+before adding to them.

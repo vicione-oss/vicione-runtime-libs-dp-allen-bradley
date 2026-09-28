@@ -17,7 +17,7 @@ controller is ever contacted.
 Read the diagram in three bands.
 
 1. **Grey** is `ViciOne.Suite.DataPort.Extensions`. It owns the tree, the traversal and the mapping. None of it is
-   explained here ([documentation principles](../../../AllenBradley.Documentation/documentation-principles.md)).
+   explained here ([documentation principles](../../../AllenBradley.Documentation/conventions/documentation-principles.md)).
 2. **Orange** is one empty interface, `ITypedLogixNode`. It marks a node as this dataport's.
 3. **Violet, blue and green** are the dataport's own types: the root, the containers and the data points.
 
@@ -74,7 +74,7 @@ when the element's type equals it. There is no assignability rule and no widenin
 
 Every node is a `record`, and every value on it is a named value type: `TagName`, `PollFrequency`, `ProgramName`,
 `ElementCount`, never a bare `string` or `int`. That is the repo's
-[modelling convention](../../../AllenBradley.Documentation/modelling-conventions.md), and the node model is where it
+[modelling convention](../../../AllenBradley.Documentation/conventions/modelling-conventions.md), and the node model is where it
 pays off. A mapper that reads two string properties off a `LinkedNode` cannot swap them.
 
 There is one sealed record per data type rather than one record with a type field. `DIntNode` and `RealNode` differ

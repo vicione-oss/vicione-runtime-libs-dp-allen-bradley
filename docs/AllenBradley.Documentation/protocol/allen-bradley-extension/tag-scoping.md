@@ -5,12 +5,12 @@ Where a Logix tag lives, what that adds to its address, and which tags have no c
 port handles them.
 
 Everything here is a **Rockwell extension** of CIP, specified in *Logix 5000 Controllers Data Access*
-(1756-PM020), not by ODVA. What the types of those tags are, and the Symbol and Template objects that
-list and describe them, is in [Symbolic Tag Data Types](symbolic-tag-data-types.md), which this
-document does not repeat.
+(1756-PM020), not by ODVA. What the types of those tags are is in
+[Symbolic Tag Data Types](symbolic-tag-data-types.md), and the Symbol and Template objects that list
+and describe them are in [Tag Browsing](tag-browsing.md). This document repeats neither.
 
 **Who has scopes:** ControlLogix, CompactLogix, GuardLogix and SoftLogix. Micro800 has no program
-scope at all — see [§3 of the type document](symbolic-tag-data-types.md#3-what-micro800-exposes).
+scope at all; see [what Micro800 exposes](symbolic-tag-data-types.md#what-micro800-exposes).
 
 ---
 
@@ -72,7 +72,7 @@ with the symbolic segment `Program:<name>`. The programs themselves are discover
 controller listing: its entries whose name begins `Program:` are programs, not tags. So a full
 listing is one pass for controller scope and one further pass per program. The services, the
 attributes and the loop that does this are in
-[§9 of the type document](symbolic-tag-data-types.md#9-discovering-what-a-controller-has).
+[Tag Browsing](tag-browsing.md#the-browse-flow).
 
 Neither listing descends into a structure. A member such as `Program:MainProgram.Counter.PRE` is
 readable and appears in no listing; a client reaches it through the tag's template instead.
