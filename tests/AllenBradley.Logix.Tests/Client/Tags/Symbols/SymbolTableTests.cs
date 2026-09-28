@@ -19,6 +19,7 @@ public sealed class SymbolTableTests
 {
     private static readonly TemplateId RampTemplateId = new(0x456);
     private static readonly TemplateId StringTemplateId = new(0xFCE);
+    private static readonly TemplateId TimerTemplateId = new(0xF83);
 
     private static readonly TagDefinition StringTagDefinition =
         DefaultStructureTagDefinition() with { TemplateId = StringTemplateId };
@@ -26,6 +27,14 @@ public sealed class SymbolTableTests
     private static readonly TemplateDefinition StringTemplate = Template(StringTemplateId, "STRING",
         AtomicMember("LEN", AllenBradleyDataType.Dint),
         ArrayMemberOf(AtomicMember("DATA", AllenBradleyDataType.Sint), 82));
+
+    private static readonly TagDefinition TimerTagDefinition =
+        DefaultStructureTagDefinition() with { TemplateId = TimerTemplateId };
+
+    private static readonly TemplateDefinition TimerTemplate = Template(TimerTemplateId, "TIMER",
+        AtomicMember("PRE", AllenBradleyDataType.Dint),
+        AtomicMember("ACC", AllenBradleyDataType.Dint),
+        AtomicMember("DN", AllenBradleyDataType.Bool));
 
     [Fact]
     public void ATagIsLookedUpWithoutRegardToCase()
@@ -235,24 +244,65 @@ public sealed class SymbolTableTests
     }
 
     [Fact]
-    public void AStructureTagThatIsNoStringIsDeclaredAStructure()
+    public void AStructureTagThatIsNeitherAStringNorATimerIsDeclaredAStructure()
     {
         // Arrange
-        var timerTemplateId = new TemplateId(0x789);
-        var timerTag = new ListedTag(
-            new TagAddress("Timer"),
-            DefaultStructureTagDefinition() with { TemplateId = timerTemplateId });
-        var timerTemplate = Template(timerTemplateId, "TIMER",
-            AtomicMember("PRE", AllenBradleyDataType.Dint),
-            AtomicMember("ACC", AllenBradleyDataType.Dint));
-        var symbolTable = new SymbolTable([timerTag], [timerTemplate]);
-        var path = TagPath.Parse("Timer");
+        var motorTag = new ListedTag(new TagAddress("Motor"), DefaultStructureTagDefinition());
+        var motorTemplate = MotorTemplateWith(AtomicMember("Speed", AllenBradleyDataType.Dint));
+        var symbolTable = new SymbolTable([motorTag], [motorTemplate]);
+        var path = TagPath.Parse("Motor");
 
         // Act
         var found = symbolTable.GetDeclaredTypeAtPath(path);
 
         // Assert
-        found.Should().Be(StructureAt("Timer"));
+        found.Should().Be(StructureAt("Motor"));
+    }
+
+    [Fact]
+    public void ATimerTagIsDeclaredATimer()
+    {
+        // Arrange
+        var delayTag = new ListedTag(new TagAddress("Delay"), TimerTagDefinition);
+        var symbolTable = new SymbolTable([delayTag], [TimerTemplate]);
+        var path = TagPath.Parse("Delay");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(TimerAt("Delay"));
+    }
+
+    [Fact]
+    public void ATimerMemberIsDeclaredATimer()
+    {
+        // Arrange
+        var motorTag = new ListedTag(new TagAddress("Motor"), DefaultStructureTagDefinition());
+        var motorTemplate = MotorTemplateWith(StructureMember("StartDelay", TimerTemplateId));
+        var symbolTable = new SymbolTable([motorTag], [motorTemplate, TimerTemplate]);
+        var path = TagPath.Parse("Motor.StartDelay");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(TimerAt("Motor.StartDelay"));
+    }
+
+    [Fact]
+    public void AMemberOfATimerIsDeclaredAsTheTimerTemplateDescribesIt()
+    {
+        // Arrange
+        var delayTag = new ListedTag(new TagAddress("Delay"), TimerTagDefinition);
+        var symbolTable = new SymbolTable([delayTag], [TimerTemplate]);
+        var path = TagPath.Parse("Delay.PRE");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(DefaultAtomicDeclaredType() with { TagAddress = new TagAddress("Delay.PRE") });
     }
 
     [Fact]
@@ -383,4 +433,7 @@ public sealed class SymbolTableTests
 
     private static DeclaredType StructureAt(string address) =>
         new(new TagAddress(address), AllenBradleyDataType.Structure, MaxLength: null, Scalar, OneElement);
+
+    private static DeclaredType TimerAt(string address) =>
+        new(new TagAddress(address), AllenBradleyDataType.Timer, MaxLength: null, Scalar, OneElement);
 }

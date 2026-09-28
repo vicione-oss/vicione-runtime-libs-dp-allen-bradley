@@ -58,11 +58,17 @@ public readonly record struct AllenBradleyDataType(DataTypeName Name, LogixGener
     public static readonly AllenBradleyDataType String = new(new DataTypeName("STRING"), LogixGeneration.Logix5X70);
 
     /// <summary>
+    /// <c>TIMER</c> — the predefined structure the <c>TON</c>, <c>TOF</c> and <c>RTO</c> instructions share:
+    /// the status bits, then <c>.PRE</c> and <c>.ACC</c> in milliseconds.
+    /// </summary>
+    public static readonly AllenBradleyDataType Timer = new(new DataTypeName("TIMER"), LogixGeneration.Logix5X70);
+
+    /// <summary>
     /// <c>STRUCTURE</c> — a structure this dataport reads as members rather than as one value: a UDT, a
-    /// predefined <c>TIMER</c> or <c>COUNTER</c>, an Add-On Instruction instance, a module-defined
-    /// type. This one spelling is the dataport's own, because the controller names each structure after
-    /// its own type and only the template carries that name (CONTEXT.md, "Structure"). A
-    /// <c>STRING</c> is the one structure that gets a type of its own.
+    /// predefined <c>COUNTER</c>, an Add-On Instruction instance, a module-defined type. This one
+    /// spelling is the dataport's own, because the controller names each structure after its own type
+    /// and only the template carries that name (CONTEXT.md, "Structure"). <c>STRING</c> and
+    /// <c>TIMER</c> are the structures that get a type of their own.
     /// </summary>
     public static readonly AllenBradleyDataType Structure = new(new DataTypeName("STRUCTURE"), LogixGeneration.Logix5X70);
 }

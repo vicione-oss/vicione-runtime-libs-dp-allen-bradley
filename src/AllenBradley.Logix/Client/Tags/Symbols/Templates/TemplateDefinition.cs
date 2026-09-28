@@ -24,6 +24,8 @@ internal readonly record struct TemplateDefinition(
 {
     private static readonly UdtMemberName StringDataMember = new("DATA");
 
+    private const string TimerName = "TIMER";
+
     /// <summary>
     /// The member <paramref name="name"/> spells, matched the way the controller matches names —
     /// ordinal, case-insensitive — or <c>null</c> when this structure has no such member.
@@ -50,4 +52,10 @@ internal readonly record struct TemplateDefinition(
         && type == AllenBradleyDataType.Sint
             ? new StringMaxLength((int)data.ElementCount.Value)
             : null;
+
+    /// <summary>
+    /// Whether this is the predefined <c>TIMER</c>, told by its name, matched the way the controller
+    /// matches names. The name is reserved, so no UDT can carry it.
+    /// </summary>
+    public bool IsTimer => string.Equals(Name.Value, TimerName, StringComparison.OrdinalIgnoreCase);
 }

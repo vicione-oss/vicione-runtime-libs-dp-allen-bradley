@@ -48,7 +48,7 @@ internal sealed class SymbolTable(
     }
 
     private DeclaredType DeclaredTypeOf(TagDefinition reached, TagAddress at) =>
-        AsStringIfItsTemplateIsOne(reached).At(at);
+        IdentifyPredefinedStructure(reached).At(at);
 
     private TagDefinition? GetListedTag(TagPath tagPath) =>
         _tagsByAddress.TryGetValue(tagPath.RootTagAddress, out var tag) ? tag : null;
@@ -93,11 +93,14 @@ internal sealed class SymbolTable(
     }
 
     // The listing names a structure by template id alone, so a structure arrives with no data type.
-    // STRING is the one structure this dataport reads as a value, and its template is what says it is one.
-    private TagDefinition AsStringIfItsTemplateIsOne(TagDefinition declared) =>
-        TemplateNamed(declared.TemplateId)?.StringCapacity is { } capacity
-            ? declared.AsStringOf(capacity)
-            : declared;
+    // STRING and TIMER are the structures this dataport reads as a value, and the template says which.
+    private TagDefinition IdentifyPredefinedStructure(TagDefinition declared) =>
+        TemplateNamed(declared.TemplateId) switch
+        {
+            { StringCapacity: { } capacity } => declared.AsStringOf(capacity),
+            { IsTimer: true } => declared.AsTimer(),
+            _ => declared,
+        };
 
     private TemplateDefinition? TemplateNamed(TemplateId? templateId) =>
         templateId is { } id && _templatesById.TryGetValue(id, out var template) ? template : null;

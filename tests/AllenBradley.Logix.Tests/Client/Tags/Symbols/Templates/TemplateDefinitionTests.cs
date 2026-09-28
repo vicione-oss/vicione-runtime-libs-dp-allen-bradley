@@ -67,4 +67,33 @@ public sealed class TemplateDefinitionTests
         // Assert
         capacity.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("TIMER")]
+    [InlineData("Timer")]
+    public void ATemplateNamedTimerIsATimerWithoutRegardToCase(string name)
+    {
+        // Arrange
+        var template = Template(new TemplateId(0xF83), name,
+            AtomicMember("PRE", AllenBradleyDataType.Dint),
+            AtomicMember("ACC", AllenBradleyDataType.Dint));
+
+        // Act
+        var isTimer = template.IsTimer;
+
+        // Assert
+        isTimer.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ATemplateNamedOtherwiseIsNoTimer()
+    {
+        // Arrange
+
+        // Act
+        var isTimer = StringTemplate.IsTimer;
+
+        // Assert
+        isTimer.Should().BeFalse();
+    }
 }

@@ -269,13 +269,13 @@ declared type, and the bit position of a packed `BOOL`. The wire layout of the t
 [reading a UDT definition](../../AllenBradley.Documentation/libplctag/reading-a-udt-definition.md);
 the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
 
-`STRING` is the one structure this dataport reads as a value, so it is the one data type a template can
-give a structure, and the lookup is where it does: `SymbolTable.GetDeclaredTypeAtPath` walks to the
-tag or the member the path names (see [Structure members](#structure-members)), and if what it found
-names a template with a `.DATA : SINT[n]` member, hands it back as a `String` of capacity `n`. So a `STRING_20`
-tag and a `STRING_20` member inside a UDT both verify against a configured capacity of 20, and a
-`TIMER` configured as a `STRING` is a data-type mismatch, not a capacity one: it comes back
-`STRUCTURE`, and nothing turns it into a string. The listing's element length is not read at all. A system structure — one whose symbol type has bit `0x1000` set — names no template, because the
+`STRING` and `TIMER` are the two data types a template can give a structure, and the lookup is where
+it does: `SymbolTable.GetDeclaredTypeAtPath` walks to the tag or the member the path names (see
+[Structure members](#structure-members)), and if what it found names a template with a
+`.DATA : SINT[n]` member, hands it back as a `String` of capacity `n`; if the template is named `TIMER`, as
+a `Timer`. So a `STRING_20` tag and a `STRING_20` member inside a UDT both verify against a configured
+capacity of 20, and a `TIMER` configured as a `STRING` is a data-type mismatch, not a capacity one: it
+comes back `TIMER`, and nothing turns it into a string. The listing's element length is not read at all. A system structure — one whose symbol type has bit `0x1000` set — names no template, because the
 controller serves none for it, and stays `STRUCTURE`. A template the controller will not serve, or one
 that does not decode, fails the connect the way a listing that will not read does: the browse is what
 connect is.

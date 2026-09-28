@@ -11,8 +11,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTy
 /// its own; the walk puts the address on when it hands the node out as a <see cref="DeclaredType"/>.
 /// </summary>
 /// <param name="DataType">
-/// The atomic data type, or <see cref="AllenBradleyDataType.String"/> for a string structure. Any other
-/// structure is <see cref="AllenBradleyDataType.Structure"/> here and names its template beside it.
+/// The atomic data type, <see cref="AllenBradleyDataType.String"/> for a string structure, or
+/// <see cref="AllenBradleyDataType.Timer"/> for a timer. Any other structure is
+/// <see cref="AllenBradleyDataType.Structure"/> here and names its template beside it.
 /// </param>
 /// <param name="TemplateId">
 /// The template that lays out a structure's members; <c>null</c> for an atomic type, and for a system
@@ -32,7 +33,7 @@ internal readonly record struct TagDefinition(
     /// The node a symbol type declares, whether it came off a listing entry or a member descriptor.
     /// <paramref name="declaredCount"/> is the count the declaration carries — the product of the
     /// dimensions, <c>1</c> for a scalar — and is words rather than elements for a packed <c>BOOL</c> array.
-    /// A structure is <see cref="AllenBradleyDataType.Structure"/> here; the lookup says which are strings.
+    /// A structure is <see cref="AllenBradleyDataType.Structure"/> here; the lookup says which are strings and timers.
     /// </summary>
     internal static TagDefinition Of(SymbolType symbolType, uint declaredCount) => new(
         symbolType.DataType,
@@ -55,4 +56,7 @@ internal readonly record struct TagDefinition(
     /// <summary>This structure, now known to be a string holding <paramref name="capacity"/> characters.</summary>
     internal TagDefinition AsStringOf(StringMaxLength capacity) =>
         this with { DataType = AllenBradleyDataType.String, MaxLength = capacity };
+
+    /// <summary>This structure, now known to be a timer.</summary>
+    internal TagDefinition AsTimer() => this with { DataType = AllenBradleyDataType.Timer };
 }
