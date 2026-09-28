@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -61,6 +62,7 @@ internal static class DataPointConverterRegistry
         Register(converters, new RealConverter());
         Register(converters, new LRealConverter());
         Register(converters, new LogixStringConverter());
+        Register(converters, new TimerConverter());
     }
 
     // Infers the key from the converter's own type parameter rather than taking it, so filing a converter

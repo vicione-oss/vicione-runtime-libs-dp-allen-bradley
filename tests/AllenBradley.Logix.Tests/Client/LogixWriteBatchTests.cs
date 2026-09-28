@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -178,6 +179,26 @@ public sealed class LogixWriteBatchTests
         // Assert
         construct.Should().BeOfType<LogixTagException>()
             .Which.Message.Should().Contain(Label.TagAddress.Value).And.Contain("Nothing was sent");
+        speedTag.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ANegativeAccumulatedTimeRefusesTheWholeBatchNamingTheTimer()
+    {
+        // Arrange
+        var speedTag = TagWriting(LogixTagWriteResult.Ok());
+        var delay = new TimerDataPoint(TagPath.Parse("Line.Delay"), DefaultPollFrequency, NoChannels);
+        var tagManager = TagManagerFor(
+            (Speed, speedTag),
+            (delay, TagWriting(LogixTagWriteResult.Ok())));
+
+        // Act
+        var construct = Record.Exception(() => new LogixWriteBatch(
+            [Speed.CreateLogixValue(42), delay.CreateLogixValue(-1)], tagManager));
+
+        // Assert
+        construct.Should().BeOfType<LogixTagException>()
+            .Which.Message.Should().Contain(delay.TagAddress.Value).And.Contain("Nothing was sent");
         speedTag.ReceivedCalls().Should().BeEmpty();
     }
 

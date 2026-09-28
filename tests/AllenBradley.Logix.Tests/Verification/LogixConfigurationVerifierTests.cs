@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
@@ -63,6 +64,21 @@ public sealed class LogixConfigurationVerifierTests
         // Assert
         mismatches.Should().ContainSingle().Which.Value.Should().Be(
             "Data type mismatch for tag 'Motor.Speed': configured DINT, controller reports REAL.");
+    }
+
+    [Fact]
+    public void ATagThatIsNoTimerWhereATimerWasConfiguredIsReportedNamingTheTag()
+    {
+        // Arrange
+        var delay = new TimerDataPoint(TagPath.Parse("Line.Delay"), DefaultPollFrequency, NoChannels);
+        var resolved = new ResolvedDataPoint(delay, DefaultAtomicDeclaredType());
+
+        // Act
+        var mismatches = LogixConfigurationVerifier.GetMismatches(resolved);
+
+        // Assert
+        mismatches.Should().ContainSingle().Which.Value.Should().Be(
+            "Data type mismatch for tag 'Line.Delay': configured TIMER, controller reports DINT.");
     }
 
     [Fact]

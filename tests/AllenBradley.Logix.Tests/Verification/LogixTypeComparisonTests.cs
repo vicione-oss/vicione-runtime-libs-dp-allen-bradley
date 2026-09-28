@@ -4,6 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -25,8 +26,7 @@ public sealed class LogixTypeComparisonTests
     private static readonly IntArrayDataPoint Readings =
         new(TagPath.Parse("Tank.Readings"), DefaultPollFrequency, NoChannels, TenElements);
 
-
-
+    private static readonly TimerDataPoint Delay = new(TagPath.Parse("Line.Delay"), DefaultPollFrequency, NoChannels);
 
     [Fact]
     public void ATagAbsentFromTheSymbolTableIsNoMismatch()
@@ -86,6 +86,40 @@ public sealed class LogixTypeComparisonTests
     {
         // Arrange
         var resolved = new ResolvedDataPoint(Label, DefaultAtomicDeclaredType());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.DataType);
+    }
+
+    [Fact]
+    public void ATimerWhereATimerWasConfiguredIsNoMismatch()
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(Delay, TimerDeclaredType());
+
+        // Act
+        var mismatch = LogixTypeComparison.Compare(resolved);
+
+        // Assert
+        mismatch.Should().Be(LogixTypeMismatch.None);
+    }
+
+    /// <summary>What the controller may declare at a tag that is no timer.</summary>
+    public static TheoryData<DeclaredType> DeclaredTypesThatAreNoTimer =>
+    [
+        DefaultAtomicDeclaredType(),
+        DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Structure },
+    ];
+
+    [Theory]
+    [MemberData(nameof(DeclaredTypesThatAreNoTimer))]
+    public void AnythingButATimerWhereATimerWasConfiguredIsADataTypeMismatch(DeclaredType declaration)
+    {
+        // Arrange
+        var resolved = new ResolvedDataPoint(Delay, declaration);
 
         // Act
         var mismatch = LogixTypeComparison.Compare(resolved);
@@ -276,4 +310,7 @@ public sealed class LogixTypeComparisonTests
         // Assert
         mismatch.Should().Be(LogixTypeMismatch.ElementCount);
     }
+
+    private static DeclaredType TimerDeclaredType() =>
+        DefaultAtomicDeclaredType() with { DataType = AllenBradleyDataType.Timer };
 }
