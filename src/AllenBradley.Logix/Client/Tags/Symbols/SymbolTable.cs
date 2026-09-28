@@ -27,7 +27,12 @@ internal sealed class SymbolTable(
     /// <c>null</c> when the path stops short: the tag is not listed, a member is not in its template,
     /// a member is asked of something that has none, or an element is asked of a scalar or past its end.
     /// </summary>
-    public DeclaredType? GetDeclaredTypeAtPath(TagPath tagPath)
+    public DeclaredType? GetDeclaredTypeAtPath(TagPath tagPath) =>
+        FollowPath(tagPath) is { } reached
+            ? DeclaredTypeOf(reached, at: tagPath.ToTagAddress())
+            : null;
+
+    private TagDefinition? FollowPath(TagPath tagPath)
     {
         if (GetListedTag(tagPath) is not { } tag)
         {
@@ -39,13 +44,11 @@ internal sealed class SymbolTable(
             return null;
         }
 
-        if (FollowElementIndex(from: member, tagPath.ArrayElementIndex) is not { } reached)
-        {
-            return null;
-        }
-
-        return AsStringIfItsTemplateIsOne(reached).At(tagPath.ToTagAddress());
+        return FollowElementIndex(from: member, tagPath.ArrayElementIndex);
     }
+
+    private DeclaredType DeclaredTypeOf(TagDefinition reached, TagAddress at) =>
+        AsStringIfItsTemplateIsOne(reached).At(at);
 
     private TagDefinition? GetListedTag(TagPath tagPath) =>
         _tagsByAddress.TryGetValue(tagPath.RootTagAddress, out var tag) ? tag : null;
