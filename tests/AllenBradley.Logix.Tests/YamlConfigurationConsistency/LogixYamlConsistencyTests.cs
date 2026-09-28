@@ -34,10 +34,8 @@ public sealed class LogixYamlConsistencyTests :
         [typeof(UdtContainerNode)] = [nameof(UdtContainerNode.Generation)],
     };
 
-    public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties =>
-        Mapper.DataPointNodeMappers
-            .Where(mapper => typeof(LogixDataPointNode).IsAssignableFrom(mapper.NodeType))
-            .ToDictionary(
-                mapper => mapper.NodeType,
-                _ => new HashSet<string> { nameof(ILogixDataPointNode.DataType) });
+    public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties => new()
+    {
+        [typeof(ILogixDataPointNode)] = [nameof(ILogixDataPointNode.DataType)]
+    };
 }

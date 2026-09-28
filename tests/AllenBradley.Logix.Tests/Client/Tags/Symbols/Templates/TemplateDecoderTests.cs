@@ -1,7 +1,6 @@
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTypes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TemplateDefinitionTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.TemplateTestDataFactory;
 

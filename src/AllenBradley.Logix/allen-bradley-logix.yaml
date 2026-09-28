@@ -245,6 +245,7 @@ Nodes:
       Encoding: nonzero is true; a written true is 0xFF
       Layout: byte 0 = the whole value
       Range: false, true
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Bool ]
     TransferModes: [ OnChange, Periodic ]
@@ -269,6 +270,7 @@ Nodes:
       Encoding: two's complement; a single byte has no byte order
       Layout: byte 0 = the whole value
       Range: −128..127
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int8 ]
     TransferModes: [ OnChange, Periodic ]
@@ -292,6 +294,7 @@ Nodes:
       Encoding: little-endian two's complement
       Layout: byte 0 = LSB, byte 1 = MSB
       Range: −32 768..32 767
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int16 ]
     TransferModes: [ OnChange, Periodic ]
@@ -315,6 +318,7 @@ Nodes:
       Encoding: little-endian two's complement
       Layout: byte 0 = LSB, byte 3 = MSB
       Range: −2 147 483 648..2 147 483 647
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int32 ]
     TransferModes: [ OnChange, Periodic ]
@@ -338,6 +342,7 @@ Nodes:
       Encoding: little-endian two's complement
       Layout: byte 0 = LSB, byte 7 = MSB
       Range: −9 223 372 036 854 775 808..9 223 372 036 854 775 807
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int64 ]
     TransferModes: [ OnChange, Periodic ]
@@ -362,6 +367,7 @@ Nodes:
       Encoding: unsigned binary; a single byte has no byte order
       Layout: byte 0 = the whole value
       Range: 0..255
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ UInt8 ]
     TransferModes: [ OnChange, Periodic ]
@@ -385,6 +391,7 @@ Nodes:
       Encoding: little-endian unsigned binary
       Layout: byte 0 = LSB, byte 1 = MSB
       Range: 0..65 535
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ UInt16 ]
     TransferModes: [ OnChange, Periodic ]
@@ -408,6 +415,7 @@ Nodes:
       Encoding: little-endian unsigned binary
       Layout: byte 0 = LSB, byte 3 = MSB
       Range: 0..4 294 967 295
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ UInt32 ]
     TransferModes: [ OnChange, Periodic ]
@@ -431,6 +439,7 @@ Nodes:
       Encoding: little-endian unsigned binary
       Layout: byte 0 = LSB, byte 7 = MSB
       Range: 0..18 446 744 073 709 551 615
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ UInt64 ]
     TransferModes: [ OnChange, Periodic ]
@@ -456,6 +465,7 @@ Nodes:
       Layout: byte 0 = LSB (low mantissa), byte 3 = MSB (sign + high exponent)
       Bits: 1 sign + 8 exponent + 23 mantissa
       Range: ±1.18e−38..±3.40e+38
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Float32 ]
     TransferModes: [ OnChange, Periodic ]
@@ -480,6 +490,7 @@ Nodes:
       Layout: byte 0 = LSB (low mantissa), byte 7 = MSB (sign + high exponent)
       Bits: 1 sign + 11 exponent + 52 mantissa
       Range: ±2.23e−308..±1.79e+308
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Float64 ]
     TransferModes: [ OnChange, Periodic ]
@@ -504,6 +515,7 @@ Nodes:
       Encoding: Latin-1, one byte per character; .LEN little-endian two's complement
       Layout: bytes 0..3 = .LEN, bytes 4..(4 + n) = .DATA
       Range: 0..n characters; a longer value is rejected, never truncated
+    Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ String ]
     TransferModes: [ OnChange, Periodic ]
@@ -536,6 +548,7 @@ Nodes:
       Layout: element i is bit i mod 8 of byte i div 8
       Range: n must be a multiple of 32, which is the only length Studio 5000 declares a BOOL array with
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Bool[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -564,6 +577,7 @@ Nodes:
       Layout: element i occupies byte i
       Range: −128..127 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Int8[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -592,6 +606,7 @@ Nodes:
       Layout: element i occupies bytes 2i and 2i + 1
       Range: −32 768..32 767 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Int16[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -620,6 +635,7 @@ Nodes:
       Layout: element i occupies bytes 4i..4i + 3
       Range: −2 147 483 648..2 147 483 647 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Int32[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -648,6 +664,7 @@ Nodes:
       Layout: element i occupies bytes 8i..8i + 7
       Range: −9 223 372 036 854 775 808..9 223 372 036 854 775 807 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Int64[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -676,6 +693,7 @@ Nodes:
       Layout: element i occupies byte i
       Range: 0..255 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'UInt8[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -704,6 +722,7 @@ Nodes:
       Layout: element i occupies bytes 2i and 2i + 1
       Range: 0..65 535 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'UInt16[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -732,6 +751,7 @@ Nodes:
       Layout: element i occupies bytes 4i..4i + 3
       Range: 0..4 294 967 295 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'UInt32[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -760,6 +780,7 @@ Nodes:
       Layout: element i occupies bytes 8i..8i + 7
       Range: 0..18 446 744 073 709 551 615 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'UInt64[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -788,6 +809,7 @@ Nodes:
       Layout: element i occupies bytes 4i..4i + 3
       Range: ±1.18e−38..±3.40e+38 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Float32[]' ]
     TransferModes: [ OnChange, Periodic ]
@@ -816,6 +838,7 @@ Nodes:
       Layout: element i occupies bytes 8i..8i + 7
       Range: ±2.23e−308..±1.79e+308 per element
       Direction: read and write; the whole array is one value, and a value of another length is refused
+    Namespace: "Array"
     Icon: datapoint
     DataTypes: [ 'Float64[]' ]
     TransferModes: [ OnChange, Periodic ]

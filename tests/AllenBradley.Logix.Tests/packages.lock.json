@@ -45,15 +45,15 @@
       },
       "ViciOne.Suite.DataPort.Extensions.Testing": {
         "type": "Direct",
-        "requested": "[1.0.0-ci2623299841, )",
-        "resolved": "1.0.0-ci2623299841",
-        "contentHash": "GaV3K9GOdtuHLJFgJRTrLqLSciINovvn8nr0lYULKzzwB0mtn1kInbfGl1pt6L8R3VuJjeGqILNkOC9thXaDDA==",
+        "requested": "[1.0.1-ci2878897099, )",
+        "resolved": "1.0.1-ci2878897099",
+        "contentHash": "jaGWLiJQ1Zt33A74ytcPHNsCgw/zNTMC+mbWkJ2fDLOZPf9Rf5ZNS1Vu14amxb+czlQ+CHh60d9NEuGkmM4hNw==",
         "dependencies": {
           "AwesomeAssertions": "9.4.0",
           "Microsoft.Extensions.Logging.Console": "10.0.5",
-          "ViciOne.Suite.DataPort": "1.0.0-ci2623299841",
-          "ViciOne.Suite.DataPort.Extensions": "1.0.0-ci2623299841",
-          "ViciOne.TreeBuilder": "1.0.0",
+          "ViciOne.Suite.DataPort": "1.0.1-ci2878897099",
+          "ViciOne.Suite.DataPort.Extensions": "1.0.1-ci2878897099",
+          "ViciOne.Tree.Builder": "3.0.0",
           "xunit.v3.extensibility.core": "3.2.2"
         }
       },
@@ -70,8 +70,8 @@
       },
       "AngleSharp": {
         "type": "Transitive",
-        "resolved": "1.4.0",
-        "contentHash": "6ph8mpaQx0KL0COYRt0kI8MB9gSp1PtKijKMhJU//+aVFgKAJLKDesG/+26JSaVCOrHNgPf12wpfoyRcMYOeXg=="
+        "resolved": "1.6.0",
+        "contentHash": "kVnhnZlM4Yww2KWqW3uSL8isvhYsrTTBMSPAgoF8ZhMrLSoay6783AP6dQxAj1J9gvWKi3OIM4ZezdE2Y4ufCQ=="
       },
       "Castle.Core": {
         "type": "Transitive",
@@ -353,39 +353,40 @@
       "ViciOne.Suite.DataPort.AllenBradley.Logix": {
         "type": "Project",
         "dependencies": {
-          "ViciOne.Suite.DataPort": "[1.0.0-ci2623299841, )",
-          "ViciOne.Suite.DataPort.Extensions": "[1.0.0-ci2623299841, )",
+          "ViciOne.Suite.DataPort": "[1.0.1-ci2878897099, )",
+          "ViciOne.Suite.DataPort.Extensions": "[1.0.1-ci2878897099, )",
+          "ViciOne.Tree.Builder": "[3.0.0, )",
           "libplctag": "[1.5.2, )"
         }
       },
       "ViciOne.Suite.DataPort": {
         "type": "CentralTransitive",
-        "requested": "[1.0.0-ci2623299841, )",
-        "resolved": "1.0.0-ci2623299841",
-        "contentHash": "a1aCOz5zmH4aW8yPOrgmlqR2kLrp/3SeKDx88BaG+SmilVNVl8ja8eYfXVuqfBNfx1xgywahyhoWRAYm9yzXkg==",
+        "requested": "[1.0.1-ci2878897099, )",
+        "resolved": "1.0.1-ci2878897099",
+        "contentHash": "L02DgJMT9OzAXauYi3lPrMObA/HnB2xLH8qj8as9a1DDjxslPOX41v3GQwZiYnyz3chXUbBFZCqoaV7+rw6PDg==",
         "dependencies": {
           "ViciOne.ManagedEngine.Contracts": "1.0.0"
         }
       },
       "ViciOne.Suite.DataPort.Extensions": {
         "type": "CentralTransitive",
-        "requested": "[1.0.0-ci2623299841, )",
-        "resolved": "1.0.0-ci2623299841",
-        "contentHash": "ZeAcbYrTqNXCB35e3DEeobfkxYld4VV2RNdCQK8YXeZUjJxjZ2fI+15llOrscF+bKL59f3VOOIUSH4UKXer8VA==",
+        "requested": "[1.0.1-ci2878897099, )",
+        "resolved": "1.0.1-ci2878897099",
+        "contentHash": "Z/QRinDEGN7XB+aFyM4qkbYUIBWbqhSkoGVcPyrJJBKjeADV6y1tzs2MRvSWU4txRYbn1Xn/pf5zJFo4S/Jzvg==",
         "dependencies": {
           "FluentValidation": "12.1.0",
           "Microsoft.Extensions.Logging.Abstractions": "10.0.5",
           "Polly": "8.6.6",
-          "ViciOne.Suite.DataPort": "1.0.0-ci2623299841"
+          "ViciOne.Suite.DataPort": "1.0.1-ci2878897099"
         }
       },
-      "ViciOne.TreeBuilder": {
+      "ViciOne.Tree.Builder": {
         "type": "CentralTransitive",
-        "requested": "[1.1.0, )",
-        "resolved": "1.1.0",
-        "contentHash": "DAyJy3VUvB8M3TEOec638c/1y+h1qelZSlozlD/4ZURUgnOsmUCcbvaxbXsCjfMFCttC1TvEeI3vET/3nIIzCQ==",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "iDO1AEB0vVw9VsUjkMEtx1HyQg74jznOPf9fjEeLRvMAWU7n7/BU6OlRvUATRhbTCKLx32N9BrnokgoM8NfHpQ==",
         "dependencies": {
-          "AngleSharp": "1.4.0",
+          "AngleSharp": "1.6.0",
           "YamlDotNet": "16.3.0"
         }
       }

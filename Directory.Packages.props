@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    <DataPortVersion>1.0.0-ci2623299841</DataPortVersion>
+    <DataPortVersion>1.0.1-ci2878897099</DataPortVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AwesomeAssertions" Version="9.4.0" />
@@ -13,10 +13,7 @@
     <PackageVersion Include="ViciOne.Suite.DataPort" Version="$(DataPortVersion)" />
     <PackageVersion Include="ViciOne.Suite.DataPort.Extensions" Version="$(DataPortVersion)" />
     <PackageVersion Include="ViciOne.Suite.DataPort.Extensions.Testing" Version="$(DataPortVersion)" />
-
-    <!-- Pinned above what DataPort.Extensions brings: 1.0.0 has no BoolArrayType, so a node
-         declaring 'Bool[]' fails ruleset validation. -->
-    <PackageVersion Include="ViciOne.TreeBuilder" Version="1.1.0" />
+    <PackageVersion Include="ViciOne.Tree.Builder" Version="3.0.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
   </ItemGroup>
 </Project>

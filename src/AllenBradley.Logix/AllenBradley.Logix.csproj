@@ -10,6 +10,7 @@
     <PackageReference Include="libplctag" />
     <PackageReference Include="ViciOne.Suite.DataPort" />
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
+    <PackageReference Include="ViciOne.Tree.Builder" />
   </ItemGroup>
 
   <!-- Configuration file - always copy to output -->

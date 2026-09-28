@@ -140,7 +140,8 @@ comes from the controller's own template at connect. The node model states what 
 
 A new data type is four edits, and they have to agree:
 
-1. The node type in `allen-bradley-logix.yaml`, and its place in every parent's child list.
+1. The node type in `allen-bradley-logix.yaml`, and its place in every parent's child list. A scalar goes in the
+   `Scalar` namespace and a whole array in `Array`, which is how the editor groups the data point nodes.
 2. The record under `Model/Nodes/`, with its `LinkedNodeTypeId` and its `DataType`.
 3. The mapper beside it, and its entry in `TypedLogixNodeMapper`.
 4. The `LogixDataPointsGroupsMapper` switch, and the data point it produces.

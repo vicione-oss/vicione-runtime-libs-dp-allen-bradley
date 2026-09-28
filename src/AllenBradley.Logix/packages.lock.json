@@ -13,24 +13,39 @@
       },
       "ViciOne.Suite.DataPort": {
         "type": "Direct",
-        "requested": "[1.0.0-ci2623299841, )",
-        "resolved": "1.0.0-ci2623299841",
-        "contentHash": "a1aCOz5zmH4aW8yPOrgmlqR2kLrp/3SeKDx88BaG+SmilVNVl8ja8eYfXVuqfBNfx1xgywahyhoWRAYm9yzXkg==",
+        "requested": "[1.0.1-ci2878897099, )",
+        "resolved": "1.0.1-ci2878897099",
+        "contentHash": "L02DgJMT9OzAXauYi3lPrMObA/HnB2xLH8qj8as9a1DDjxslPOX41v3GQwZiYnyz3chXUbBFZCqoaV7+rw6PDg==",
         "dependencies": {
           "ViciOne.ManagedEngine.Contracts": "1.0.0"
         }
       },
       "ViciOne.Suite.DataPort.Extensions": {
         "type": "Direct",
-        "requested": "[1.0.0-ci2623299841, )",
-        "resolved": "1.0.0-ci2623299841",
-        "contentHash": "ZeAcbYrTqNXCB35e3DEeobfkxYld4VV2RNdCQK8YXeZUjJxjZ2fI+15llOrscF+bKL59f3VOOIUSH4UKXer8VA==",
+        "requested": "[1.0.1-ci2878897099, )",
+        "resolved": "1.0.1-ci2878897099",
+        "contentHash": "Z/QRinDEGN7XB+aFyM4qkbYUIBWbqhSkoGVcPyrJJBKjeADV6y1tzs2MRvSWU4txRYbn1Xn/pf5zJFo4S/Jzvg==",
         "dependencies": {
           "FluentValidation": "12.1.0",
           "Microsoft.Extensions.Logging.Abstractions": "10.0.5",
           "Polly": "8.6.6",
-          "ViciOne.Suite.DataPort": "1.0.0-ci2623299841"
+          "ViciOne.Suite.DataPort": "1.0.1-ci2878897099"
         }
+      },
+      "ViciOne.Tree.Builder": {
+        "type": "Direct",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "iDO1AEB0vVw9VsUjkMEtx1HyQg74jznOPf9fjEeLRvMAWU7n7/BU6OlRvUATRhbTCKLx32N9BrnokgoM8NfHpQ==",
+        "dependencies": {
+          "AngleSharp": "1.6.0",
+          "YamlDotNet": "16.3.0"
+        }
+      },
+      "AngleSharp": {
+        "type": "Transitive",
+        "resolved": "1.6.0",
+        "contentHash": "kVnhnZlM4Yww2KWqW3uSL8isvhYsrTTBMSPAgoF8ZhMrLSoay6783AP6dQxAj1J9gvWKi3OIM4ZezdE2Y4ufCQ=="
       },
       "FluentValidation": {
         "type": "Transitive",
@@ -81,6 +96,11 @@
         "type": "Transitive",
         "resolved": "1.0.0",
         "contentHash": "8ZwPSnqDn3lZODdhK2/7Qe54yNEWt3XIxmVDAd5IK86+OjsU3gSCcZdMOo1Zq2aqWja4KtlSzgvj3hQfMqiisQ=="
+      },
+      "YamlDotNet": {
+        "type": "Transitive",
+        "resolved": "16.3.0",
+        "contentHash": "SgMOdxbz8X65z8hraIs6hOEdnkH6hESTAIUa7viEngHOYaH+6q5XJmwr1+yb9vJpNQ19hCQY69xbFsLtXpobQA=="
       }
     },
     "net10.0/linux-arm64": {},
