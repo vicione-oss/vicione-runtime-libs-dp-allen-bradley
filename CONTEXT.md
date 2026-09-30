@@ -196,10 +196,10 @@ case-insensitively.
 
 **Tag address**:
 The string that reaches a value — `Count`, `Program:Main.Count`, `Arr[5]`. It is what a data point
-resolves to and what libplctag is handed. Rockwell has no word for it; PM004 writes such references
-as `array_name[subscript]` and `structure_tag.member` and calls the whole thing an operand. When
-the tag sits in controller scope with no member or subscript, the address and the tag name are the
-same string.
+resolves to, and what libplctag is handed unless the point has a handle address of its own. Rockwell
+has no word for it; PM004 writes such references as `array_name[subscript]` and
+`structure_tag.member` and calls the whole thing an operand. When the tag sits in controller scope
+with no member or subscript, the address and the tag name are the same string.
 _Avoid_: tag name (only the identifier), operand (Rockwell's word, but it names a slot in an
 instruction rather than the string in it)
 
@@ -208,7 +208,8 @@ The parts a tag address is composed from, held apart: the program that scopes th
 tag's declared name; the members reached through, if any; and the subscript, if the point is one
 element of an array. The first two say where the declaration is, the last two where inside it the
 value is. What a data point carries, filled in by the tree walk, and what the tag address is rendered
-from — one string for libplctag, and the declared tag's address for the symbol table.
+from — the address the point is verified and named by, and the declared tag's address for the symbol
+table.
 _Avoid_: tag address (the rendered string), symbol path
 
 **Member path**:
@@ -280,6 +281,13 @@ same thing from the library's side and ours.
 _Avoid_: Session Handle — that is the EtherNet/IP header field above, and unrelated
 _Avoid_: saying "tag" for the handle — the tag is the controller's memory, the handle is the
 library's object standing in for it
+
+**Handle address**:
+The address a data point's tag handle is created for. It is the tag address, except when the point
+stands for a structure but reads only one of its members: a timer point has the tag address
+`Delay1` and the handle address `Delay1.ACC`. Verification and every message use the tag address;
+only libplctag sees the handle address.
+_Avoid_: tag address (what the user configured), member address
 
 ### Data types
 
@@ -369,13 +377,20 @@ with the `.EN`, `.TT` and `.DN` bits, then the preset and the accumulated value.
 accumulated value is a major fault as soon as an instruction runs the timer, and the controller stops.
 
 **Preset**:
-`.PRE`, the number of milliseconds a timer counts to. A `DINT`, and never negative.
+`.PRE`, the `DINT` a `TIMER` or a `COUNTER` counts towards: milliseconds for a timer, counts for a
+counter. A timer's is never negative; a counter's may be.
 _Avoid_: setpoint, limit
 
 **Accumulated value**:
-`.ACC`, the number of milliseconds a timer has counted so far. A `DINT`, and never negative. Rockwell's
-word; "accumulated time" names the same member.
-_Avoid_: elapsed time, current value
+`.ACC`, the `DINT` a `TIMER` or a `COUNTER` has counted so far: milliseconds for a timer, counts for a
+counter. Rockwell's word for the member in both structures. A timer's is never negative; a counter's
+may be.
+_Avoid_: current value
+
+**Accumulated time**:
+A timer's accumulated value, in milliseconds. The word wherever only a timer is meant, as in the timer
+node and its tests; a counter's accumulated value is a count, not a time.
+_Avoid_: elapsed time, accumulated time for a counter
 
 ### On the wire
 

@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Timers;
@@ -22,6 +23,9 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
 
     private static readonly DIntDataPoint TimerPreset =
         new(TagPath.Parse(TagAddresses.TimerMember("PRE")), DefaultPollFrequency, NoChannels);
+
+    private static readonly DIntDataPoint TimerAccumulatedTime =
+        new(TagPath.Parse(TagAddresses.TimerMember("ACC")), DefaultPollFrequency, NoChannels);
 
     private static readonly BoolDataPoint TimerDone =
         new(TagPath.Parse(TagAddresses.TimerMember("DN")), DefaultPollFrequency, NoChannels);
@@ -61,6 +65,40 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
         write.Should().BeOfType<LogixTagException>()
             .Which.Message.Should().Contain(Timer.TagAddress.Value);
         accumulatedTimeAfterwards.Should().Be(Timer.CreateLogixValue(1234));
+    }
+
+    [Fact]
+    public async Task TheAccumulatedTimeWrittenThroughTheTimerIsWhatItsAccMemberHolds()
+    {
+        // Arrange
+        // Cleared first, so a 1234 another test left behind cannot pass this one.
+        var cancellationToken = TestContext.Current.CancellationToken;
+        await Client.WriteAsync([TimerAccumulatedTime.CreateLogixValue(0)], cancellationToken);
+
+        // Act
+        await Client.WriteAsync([Timer.CreateLogixValue(1234)], cancellationToken);
+        var accumulatedTime = await ReadAsync(TimerAccumulatedTime);
+
+        // Assert
+        accumulatedTime.Should().Be(TimerAccumulatedTime.CreateLogixValue(1234));
+    }
+
+    [Fact]
+    public async Task AMissingTimerIsReportedAtConnectNamingTheTimerRatherThanItsAcc()
+    {
+        // Arrange
+        var missingTimer =
+            new TimerDataPoint(TagPath.Parse(TagAddresses.MissingTimer), DefaultPollFrequency, NoChannels);
+        var verifier = new LogixConfigurationVerifier(Client);
+
+        // Act
+        var reported = await verifier.Verify([missingTimer], TestContext.Current.CancellationToken);
+
+        // Assert
+        var expected = $"RootTagName '{TagAddresses.MissingTimer}' was not found on the controller.";
+        reported.Should().ContainSingle()
+            .Which.MismatchingConfigurations.Should().ContainSingle()
+            .Which.Value.Should().Be(expected);
     }
 
     [Fact]

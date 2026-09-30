@@ -25,7 +25,7 @@ public readonly partial record struct TagPath(
 {
     private const string ProgramPrefix = "Program:";
 
-    /// <summary>The address libplctag is handed — <c>Program:MainProgram.Motor.Readings[3]</c>.</summary>
+    /// <summary>The address these parts render to — <c>Program:MainProgram.Motor.Readings[3]</c>.</summary>
     public TagAddress ToTagAddress()
     {
         var program = BuildProgramSegment();

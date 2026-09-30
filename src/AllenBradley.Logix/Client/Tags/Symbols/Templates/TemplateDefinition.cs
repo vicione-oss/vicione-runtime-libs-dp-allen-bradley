@@ -10,10 +10,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Template
 /// <c>@udt/&lt;id&gt;</c> read: the layout that turns a structure from a byte count into named members
 /// (CONTEXT.md, "Template"). The <see cref="Id"/> of a structured tag names it by id.
 /// </summary>
-/// <param name="Name">The template's id, the one the tag's symbol type carries.</param>
-/// <param name="Handle">The structure data type's name.</param>
-/// <param name="Size">The handle a read reply of a tag of this type carries.</param>
-/// <param name="Members">The bytes one instance occupies, padding included.</param>
+/// <param name="Id">The template's id, the one the tag's symbol type carries.</param>
+/// <param name="Name">The structure data type's name.</param>
+/// <param name="Handle">The handle a read reply of a tag of this type carries.</param>
+/// <param name="Size">The bytes one instance occupies, padding included.</param>
 /// <param name="Members">The members in the order the template lists them, which is declaration order.</param>
 internal readonly record struct TemplateDefinition(
     TemplateId Id,
@@ -23,8 +23,6 @@ internal readonly record struct TemplateDefinition(
     IReadOnlyList<TemplateMember> Members)
 {
     private static readonly UdtMemberName StringDataMember = new("DATA");
-
-    private const string TimerName = "TIMER";
 
     /// <summary>
     /// The member <paramref name="name"/> spells, matched the way the controller matches names —
@@ -57,5 +55,6 @@ internal readonly record struct TemplateDefinition(
     /// Whether this is the predefined <c>TIMER</c>, told by its name, matched the way the controller
     /// matches names. The name is reserved, so no UDT can carry it.
     /// </summary>
-    public bool IsTimer => string.Equals(Name.Value, TimerName, StringComparison.OrdinalIgnoreCase);
+    public bool IsTimer =>
+        string.Equals(Name.Value, AllenBradleyDataType.Timer.Name.Value, StringComparison.OrdinalIgnoreCase);
 }

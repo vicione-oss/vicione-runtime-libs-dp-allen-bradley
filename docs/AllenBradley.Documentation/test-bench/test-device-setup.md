@@ -192,6 +192,9 @@ prove.
 `testTimer` must stay out of every `TON`, `TOF` and `RTO`. The suite writes its `.ACC` and `.PRE` and
 expects `.DN` to read clear, which holds only while no instruction runs the timer.
 
+`Program:MainProgram.noSuchTimer` must not exist. The suite configures a timer there to see connect
+report it missing.
+
 ### `TestController.cs`, how the controller is reached
 
 This is the part that varies by machine, so it is configurable. A direct connection is assumed. The

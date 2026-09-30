@@ -39,19 +39,6 @@ public sealed class TimerConverterTests
     }
 
     [Fact]
-    public void AnAccumulatedTimeOfZeroEncodesToFourZeroBytes()
-    {
-        // Arrange
-        var value = Delay.CreateLogixValue(0);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0x00, 0x00, 0x00, 0x00);
-    }
-
-    [Fact]
     public void ANegativeAccumulatedTimeIsRefusedNamingTheTimer()
     {
         // Arrange

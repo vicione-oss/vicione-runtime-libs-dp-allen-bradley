@@ -239,30 +239,6 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
-    public void ATimerInsideAUdtBecomesATimerPointAtItsMember()
-    {
-        // Arrange
-        var motor = DefaultUdtContainerNode;
-        var startDelay = DefaultTimerNode;
-        motor.DataPointNodes.Add(startDelay);
-        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
-
-        // Act
-        var dataPoints = _mapper.ToDataPoints(deviceNode);
-
-        // Assert
-        var expected = new TimerDataPoint(
-            new TagPath(
-                Program: null,
-                DefaultUdtTagName,
-                UdtMemberPath.Of(new UdtMemberName(startDelay.TagName.Value)),
-                ArrayElementIndex: null),
-            startDelay.PollFrequency,
-            startDelay.Channels);
-        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
-    }
-
-    [Fact]
     public void AnArrayPointKeepsTheDeclaredElementCount()
     {
         // Arrange

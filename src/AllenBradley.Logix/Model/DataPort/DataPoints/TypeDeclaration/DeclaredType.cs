@@ -7,8 +7,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// at the address that path renders to.
 /// </summary>
 /// <param name="TagAddress">
-/// The address of the value, as libplctag is handed it: a tag's listed name, program-qualified for a
-/// program tag, with the members and the element behind it when the path reaches inside.
+/// The address of the value, the one the data point is verified by: a tag's listed name,
+/// program-qualified for a program tag, with the members and the element behind it when the path
+/// reaches inside.
 /// </param>
 /// <param name="DataType">
 /// The atomic data type, <see cref="AllenBradleyDataType.String"/> for a string structure,
