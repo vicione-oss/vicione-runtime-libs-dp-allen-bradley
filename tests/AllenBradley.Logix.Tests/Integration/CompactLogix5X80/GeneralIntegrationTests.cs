@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using ViciOne.Suite.DataPort.Extensions.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
@@ -94,6 +95,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new DIntDataPoint(TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
             TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new TimerDataPoint(TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
+        new DIntDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
         new IntDataPoint(TagPath.Parse(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
         new IntArrayDataPoint(
             TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
@@ -114,6 +117,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new LRealDataPoint(TagPath.Parse(TagAddresses.LReal), DefaultPollFrequency, NoChannels),
         new StringDataPoint(
             TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
+        new TimerDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
         new SIntArrayDataPoint(
             TagPath.Parse(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),

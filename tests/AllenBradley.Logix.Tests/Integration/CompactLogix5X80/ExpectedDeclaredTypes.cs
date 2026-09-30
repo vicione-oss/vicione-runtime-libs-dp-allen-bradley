@@ -28,4 +28,11 @@ internal static class ExpectedDeclaredTypes
     /// </summary>
     internal static DeclaredType StringScalar(ILogixDataPoint dataPoint, StringMaxLength maxLength) =>
         new(dataPoint.TagAddress, AllenBradleyDataType.String, maxLength, DimensionCount.Scalar, new ElementCount(1));
+
+    /// <summary>
+    /// What the controller must declare a <c>TIMER</c> tag to be: a structure on the wire, a scalar in this
+    /// model, declared at the timer's address rather than at the <c>.ACC</c> its handle reaches.
+    /// </summary>
+    internal static DeclaredType TimerScalar(ILogixDataPoint dataPoint) =>
+        new(dataPoint.TagAddress, AllenBradleyDataType.Timer, MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
 }
