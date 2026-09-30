@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes;
@@ -216,6 +217,48 @@ public sealed class LogixDataPointsGroupMapperTests
         // Assert
         var expected = new StringDataPoint(
             label.TagName.ToTagPath(), label.PollFrequency, label.Channels, label.MaxLength);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ATimerTagBecomesATimerPoint()
+    {
+        // Arrange
+        var startDelay = DefaultTimerNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInProgramScope(startDelay);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TimerDataPoint(
+            new TagPath(DefaultProgramName, startDelay.TagName, UdtMemberPath: null, ArrayElementIndex: null),
+            startDelay.PollFrequency,
+            startDelay.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ATimerInsideAUdtBecomesATimerPointAtItsMember()
+    {
+        // Arrange
+        var motor = DefaultUdtContainerNode;
+        var startDelay = DefaultTimerNode;
+        motor.DataPointNodes.Add(startDelay);
+        var deviceNode = DeviceNodeHoldingInControllerScope(motor);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TimerDataPoint(
+            new TagPath(
+                Program: null,
+                DefaultUdtTagName,
+                UdtMemberPath.Of(new UdtMemberName(startDelay.TagName.Value)),
+                ArrayElementIndex: null),
+            startDelay.PollFrequency,
+            startDelay.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

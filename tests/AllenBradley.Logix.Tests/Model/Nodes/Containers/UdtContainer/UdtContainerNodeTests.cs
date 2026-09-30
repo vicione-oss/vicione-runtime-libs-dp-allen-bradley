@@ -64,6 +64,20 @@ public sealed class UdtContainerNodeTests
     }
 
     [Fact]
+    public void ATimerMemberCanBeAdded()
+    {
+        // Arrange
+        var udt = DefaultUdtContainerNode;
+        var startDelay = DefaultTimerNode;
+
+        // Act
+        var canBeAdded = udt.CanBeAdded(startDelay);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
     public void AWholeArrayMemberCanBeAdded()
     {
         // Arrange

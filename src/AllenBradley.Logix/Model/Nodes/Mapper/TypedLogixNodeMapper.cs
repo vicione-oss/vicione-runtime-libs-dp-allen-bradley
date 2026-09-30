@@ -25,6 +25,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.ULInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Timers.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
@@ -53,7 +54,7 @@ internal static class TypedLogixNodeMapper
     private static IDataPointNodeMapper<IDataPointNode>[] DataPointNodeMappers() =>
         [
             .. BooleanNodeMappers(), .. IntegerNodeMappers(), .. FloatingPointNodeMappers(),
-            .. StringNodeMappers(), .. ArrayNodeMappers(),
+            .. StringNodeMappers(), .. TimerNodeMappers(), .. ArrayNodeMappers(),
         ];
 
     private static IDataPointNodeMapper<IDataPointNode>[] BooleanNodeMappers() =>
@@ -70,6 +71,9 @@ internal static class TypedLogixNodeMapper
 
     private static IDataPointNodeMapper<IDataPointNode>[] StringNodeMappers() =>
         [new StringNodeMapper()];
+
+    private static IDataPointNodeMapper<IDataPointNode>[] TimerNodeMappers() =>
+        [new TimerNodeMapper()];
 
     private static IDataPointNodeMapper<IDataPointNode>[] ArrayNodeMappers() =>
         [

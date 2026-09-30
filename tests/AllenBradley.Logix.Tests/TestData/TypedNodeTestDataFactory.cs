@@ -28,6 +28,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.ULInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes;
@@ -70,6 +71,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultRealTagName = new("FlowRate");
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
     internal static readonly TagName DefaultStringTagName = new("Label");
+    internal static readonly TagName DefaultTimerTagName = new("StartDelay");
     internal static readonly TagName DefaultSIntArrayTagName = new("Samples");
     internal static readonly TagName DefaultIntArrayTagName = new("Readings");
     internal static readonly TagName DefaultDIntArrayTagName = new("Totals");
@@ -267,6 +269,13 @@ internal static class TypedNodeTestDataFactory
             DefaultStringTagName,
             DefaultPollFrequency,
             StringMaxLength.Standard);
+
+    /// <summary>A configured <c>TIMER</c> tag.</summary>
+    internal static TimerNode DefaultTimerNode =>
+        new(
+            CreateChanneledLinkedNode(TimerNode.LinkedNodeTypeId, DefaultTimerTagName.Value, DefaultChannel),
+            DefaultTimerTagName,
+            DefaultPollFrequency);
 
     /// <summary>An <c>INT</c> array opened for per-element access, holding no element yet.</summary>
     internal static ArrayContainerNode DefaultIntArrayContainerNode =>

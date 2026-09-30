@@ -6,6 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays;
@@ -32,6 +33,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.I
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.ULInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.USInt;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.Mapping;
@@ -97,6 +99,7 @@ internal sealed class LogixDataPointsGroupsMapper : IDataPointGroupsMapper<ILogi
             RealNode => new RealDataPoint(tagPath, pollFrequency, channels),
             LRealNode => new LRealDataPoint(tagPath, pollFrequency, channels),
             StringNode stringNode => new StringDataPoint(tagPath, pollFrequency, channels, stringNode.MaxLength),
+            TimerNode => new TimerDataPoint(tagPath, pollFrequency, channels),
             LogixArrayDataPointNode arrayNode => ToArrayDataPoint(arrayNode, tagPath),
             _ => throw UnsupportedNode(dataPointNode),
         };
