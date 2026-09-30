@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
@@ -74,7 +75,7 @@ public sealed class StringIntegrationTests(ITestOutputHelper output)
             client.WriteAsync([dataPoint.CreateLogixValue(tooLong)], TestContext.Current.CancellationToken).AsTask());
 
         // Assert
-        await writing.Should().ThrowAsync<InvalidOperationException>();
+        await writing.Should().ThrowAsync<LogixTagException>();
     }
 
     private static StringDataPoint StringTag() =>
