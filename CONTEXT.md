@@ -363,6 +363,20 @@ The character capacity a string type is declared with — the size of its `.DATA
 `.LEN`, which is how many of them are currently in use.
 _Avoid_: length, max length (in Logix, "length" is `.LEN`, the current value)
 
+**`TIMER`**:
+The predefined structure the `TON`, `TOF` and `RTO` instructions keep their state in: a status word
+with the `.EN`, `.TT` and `.DN` bits, then the preset and the accumulated value. A negative preset or
+accumulated value is a major fault as soon as an instruction runs the timer, and the controller stops.
+
+**Preset**:
+`.PRE`, the number of milliseconds a timer counts to. A `DINT`, and never negative.
+_Avoid_: setpoint, limit
+
+**Accumulated value**:
+`.ACC`, the number of milliseconds a timer has counted so far. A `DINT`, and never negative. Rockwell's
+word; "accumulated time" names the same member.
+_Avoid_: elapsed time, current value
+
 ### On the wire
 
 **Symbol**:

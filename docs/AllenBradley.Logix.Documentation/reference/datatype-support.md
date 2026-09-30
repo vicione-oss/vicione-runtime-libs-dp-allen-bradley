@@ -29,6 +29,8 @@ the wire layout of each type is in the
 | `LREAL`               | `LRealNode`      | `LRealDataPoint`      | `double`   | 8         | `LRealConverter`       | 5X80 only   |
 | **String**            |                  |                       |            |           |                        |             |
 | `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
+| **Timer**             |                  |                       |            |           |                        |             |
+| `TIMER` (`.ACC` only) | `TimerNode`      | `TimerDataPoint`      | `int`      | 4         | `TimerConverter`       | all         |
 | **Arrays**            |                  |                       |            |           |                        |             |
 | `BOOL[n]`             | `BoolArrayDataPointNode`  | `BoolArrayDataPoint`  | `bool[]`   | 4 × n/32  | `BoolArrayConverter`   | all         |
 | `SINT[n]`             | `SIntArrayDataPointNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
@@ -126,6 +128,39 @@ Two things are worth knowing before configuring one:
 
 Verification checks the declared capacity as well as the shape, because a round trip cannot: writing
 `"Hi"` into a `STRING_20` and reading `"Hi"` back says nothing about how much the tag holds.
+
+### `TIMER`
+
+A Logix `TIMER` is a predefined structure of 12 bytes: a status word that holds the `.EN`, `.TT` and
+`.DN` bits, then `.PRE` and `.ACC`, each a `DINT` of milliseconds. `TON`, `TOF` and `RTO` all keep their
+state in this one structure, so one node serves all three.
+
+The timer node carries the accumulated time, `.ACC`, and nothing else. The user enters the name of the
+timer and no member. The data point stands for the whole timer, so verification checks that the
+controller declares a `TIMER` at that address, and every message names the timer as it was entered.
+Only the libplctag handle reaches inside, to `.ACC` (`TimerDataPoint.HandleAddress`), and a read or a
+write is one `DINT`.
+
+The handle stops at `.ACC` because a write of the whole structure is not safe. libplctag writes its
+buffer whole, so changing `.ACC` that way means reading the timer, changing four bytes and writing all
+twelve back. The controller scans between the read and the write, and the write would put back status
+bits and a preset that the logic or an HMI changed in the meantime.
+
+A negative accumulated time is refused, and nothing is sent to the controller. When a timer instruction
+runs with a negative `.ACC` or `.PRE`, the controller raises a major fault and stops all logic. The node
+hides how a timer is built, so its user cannot be expected to know that. The outgoing port's range
+check drops the batch, and `TimerConverter` refuses the value again for a write that goes to the client
+directly.
+
+To reach the other members, open the timer with a UDT Instance node instead (see
+[Structure members](#structure-members)). `.PRE` is a `DINT` member there, and `.EN`, `.TT` and `.DN` are
+`BOOL` members.
+
+> **Warning:** nothing checks the values written through a UDT Instance. A negative `.PRE` or `.ACC`
+> written that way stops the controller as soon as an instruction runs the timer.
+
+An array of timers such as `Delays[3]` is not supported, because the port has no arrays of structures
+yet.
 
 ### Arrays
 
@@ -251,8 +286,8 @@ layer, which holds one whole operation per member and nothing smaller.
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | A range of elements as one value | `myArray[2..8]` as a single `short[7]` is neither whole-array nor per-element; needs its own shape |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
-| Arrays of `STRING` or of a UDT  | Declared, and a string array's capacity known from its template; no data point has the shape     |
-| `TIMER` / `COUNTER` / `CONTROL` | 12-byte predefined structures                                                                    |
+| Arrays of `STRING`, `TIMER` or a UDT | Declared, and a string array's capacity known from its template; no data point has the shape |
+| `COUNTER` / `CONTROL`           | 12-byte predefined structures; a UDT Instance reaches their members                              |
 | A UDT as one value              | A UDT is opened into members, each a data point of the member's own type (see [Structure members](#structure-members)); a whole structure as one data point has no converter |
 
 A shape, a type or a capacity that disagrees with the controller is reported at connect by
@@ -299,11 +334,11 @@ under it the same way, gated by the same generation, so an array member is opene
 `MyMotor.Readings[3]` is one data point. The round trip of that address against a controller is not
 yet proved.
 
-The node names UDTs only. Whether the predefined structures — `TIMER`, `COUNTER`, `STRING` — and
-Add-On Instruction instances are opened the same way, or get a node of their own, is **not decided**.
-Nothing refuses one today: the container states no type, and the lookup follows whatever template the
-tag names, so `Timer1.PRE` under a UDT container resolves to a `DINT`. The template's name is visible
-there, and that is where a refusal would go.
+A UDT Instance also opens a `TIMER`, and that is how the members the timer node leaves out are reached:
+`Timer1.PRE` under it resolves to a `DINT`, and `Timer1.DN` to a `BOOL`. Whether `COUNTER`, `CONTROL`
+and Add-On Instruction instances are opened the same way, or get a node of their own, is **not
+decided**. Nothing refuses one today, because the container states no type and the lookup follows
+whatever template the tag names.
 
 The data point carries the member path. `TagPath` holds the program, the tag, the members reached
 through, and the element, each apart: the first two say where the declaration is, the last two where
