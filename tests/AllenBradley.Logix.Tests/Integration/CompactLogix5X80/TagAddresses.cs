@@ -56,6 +56,21 @@ internal static class TagAddresses
     internal const string MissingTimer = $"{Program}.noSuchTimer";
 
     /// <summary>
+    /// The <c>COUNTER</c> test tag. No instruction may use it: the suites write its <c>.ACC</c> and
+    /// <c>.PRE</c>, and read its <c>.DN</c> expecting the bit clear, which holds only while no <c>CTU</c>
+    /// or <c>CTD</c> runs on it.
+    /// </summary>
+    internal const string Counter = $"{Program}.testCounter";
+
+    /// <summary>
+    /// Member <paramref name="member"/> of <see cref="Counter"/>, reached as a member of a UDT would be.
+    /// </summary>
+    internal static string CounterMember(string member) => $"{Counter}.{member}";
+
+    /// <summary>A counter that must <b>not</b> be provisioned, so that connect has a missing tag to report.</summary>
+    internal const string MissingCounter = $"{Program}.noSuchCounter";
+
+    /// <summary>
     /// The one-dimensional <c>BOOL</c> array test tag, to be declared <c>BOOL[32]</c>. It is the one
     /// array tag not declared with <see cref="ArrayElementCount"/> elements: Studio 5000 takes only a
     /// multiple of 32 for a <c>BOOL</c> array, because it packs the bits into 32-bit words.

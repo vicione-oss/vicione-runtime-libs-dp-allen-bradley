@@ -20,6 +20,7 @@ public sealed class SymbolTableTests
     private static readonly TemplateId RampTemplateId = new(0x456);
     private static readonly TemplateId StringTemplateId = new(0xFCE);
     private static readonly TemplateId TimerTemplateId = new(0xF83);
+    private static readonly TemplateId CounterTemplateId = new(0xF82);
 
     private static readonly TagDefinition StringTagDefinition =
         DefaultStructureTagDefinition() with { TemplateId = StringTemplateId };
@@ -32,6 +33,14 @@ public sealed class SymbolTableTests
         DefaultStructureTagDefinition() with { TemplateId = TimerTemplateId };
 
     private static readonly TemplateDefinition TimerTemplate = Template(TimerTemplateId, "TIMER",
+        AtomicMember("PRE", AllenBradleyDataType.Dint),
+        AtomicMember("ACC", AllenBradleyDataType.Dint),
+        AtomicMember("DN", AllenBradleyDataType.Bool));
+
+    private static readonly TagDefinition CounterTagDefinition =
+        DefaultStructureTagDefinition() with { TemplateId = CounterTemplateId };
+
+    private static readonly TemplateDefinition CounterTemplate = Template(CounterTemplateId, "COUNTER",
         AtomicMember("PRE", AllenBradleyDataType.Dint),
         AtomicMember("ACC", AllenBradleyDataType.Dint),
         AtomicMember("DN", AllenBradleyDataType.Bool));
@@ -244,7 +253,7 @@ public sealed class SymbolTableTests
     }
 
     [Fact]
-    public void AStructureTagThatIsNeitherAStringNorATimerIsDeclaredAStructure()
+    public void AStructureTagThatIsNoStringTimerOrCounterIsDeclaredAStructure()
     {
         // Arrange
         var motorTag = new ListedTag(new TagAddress("Motor"), DefaultStructureTagDefinition());
@@ -288,6 +297,37 @@ public sealed class SymbolTableTests
 
         // Assert
         found.Should().Be(TimerAt("Motor.StartDelay"));
+    }
+
+    [Fact]
+    public void ACounterTagIsDeclaredACounter()
+    {
+        // Arrange
+        var partsTag = new ListedTag(new TagAddress("Parts"), CounterTagDefinition);
+        var symbolTable = new SymbolTable([partsTag], [CounterTemplate]);
+        var path = TagPath.Parse("Parts");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(CounterAt("Parts"));
+    }
+
+    [Fact]
+    public void ACounterMemberIsDeclaredACounter()
+    {
+        // Arrange
+        var motorTag = new ListedTag(new TagAddress("Motor"), DefaultStructureTagDefinition());
+        var motorTemplate = MotorTemplateWith(StructureMember("Starts", CounterTemplateId));
+        var symbolTable = new SymbolTable([motorTag], [motorTemplate, CounterTemplate]);
+        var path = TagPath.Parse("Motor.Starts");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(CounterAt("Motor.Starts"));
     }
 
     [Fact]
@@ -436,4 +476,7 @@ public sealed class SymbolTableTests
 
     private static DeclaredType TimerAt(string address) =>
         new(new TagAddress(address), AllenBradleyDataType.Timer, MaxLength: null, Scalar, OneElement);
+
+    private static DeclaredType CounterAt(string address) =>
+        new(new TagAddress(address), AllenBradleyDataType.Counter, MaxLength: null, Scalar, OneElement);
 }

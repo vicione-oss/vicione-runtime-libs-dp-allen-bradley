@@ -17,6 +17,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.In
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.ULIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Arrays.Integers.USIntArray;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Booleans.Bool;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.LReal;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.FloatingPoints.Real;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.DataPoints.Scalars.Integers.DInt;
@@ -72,6 +73,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultLRealTagName = new("Temperature");
     internal static readonly TagName DefaultStringTagName = new("Label");
     internal static readonly TagName DefaultTimerTagName = new("StartDelay");
+    internal static readonly TagName DefaultCounterTagName = new("PartCount");
     internal static readonly TagName DefaultSIntArrayTagName = new("Samples");
     internal static readonly TagName DefaultIntArrayTagName = new("Readings");
     internal static readonly TagName DefaultDIntArrayTagName = new("Totals");
@@ -275,6 +277,13 @@ internal static class TypedNodeTestDataFactory
         new(
             CreateChanneledLinkedNode(TimerNode.LinkedNodeTypeId, DefaultTimerTagName.Value, DefaultChannel),
             DefaultTimerTagName,
+            DefaultPollFrequency);
+
+    /// <summary>A configured <c>COUNTER</c> tag.</summary>
+    internal static CounterNode DefaultCounterNode =>
+        new(
+            CreateChanneledLinkedNode(CounterNode.LinkedNodeTypeId, DefaultCounterTagName.Value, DefaultChannel),
+            DefaultCounterTagName,
             DefaultPollFrequency);
 
     /// <summary>An <c>INT</c> array opened for per-element access, holding no element yet.</summary>

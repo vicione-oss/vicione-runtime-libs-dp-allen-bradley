@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
@@ -63,6 +64,7 @@ internal static class DataPointConverterRegistry
         Register(converters, new LRealConverter());
         Register(converters, new LogixStringConverter());
         Register(converters, new TimerConverter());
+        Register(converters, new CounterConverter());
     }
 
     // Infers the key from the converter's own type parameter rather than taking it, so filing a converter

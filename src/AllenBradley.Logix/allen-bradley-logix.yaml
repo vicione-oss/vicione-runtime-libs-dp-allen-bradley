@@ -132,6 +132,8 @@ Nodes:
       - Id: String
       # Timer — the accumulated time of a TIMER
       - Id: Timer
+      # Counter — the accumulated value of a COUNTER
+      - Id: Counter
       # Arrays — grouped by shape rather than by element type, because that is what they have in common
       - Id: BoolArray
       - Id: SIntArray
@@ -176,6 +178,8 @@ Nodes:
       - Id: String
       # Timer — the accumulated time of a TIMER
       - Id: Timer
+      # Counter — the accumulated value of a COUNTER
+      - Id: Counter
       # Arrays
       - Id: BoolArray
       - Id: SIntArray
@@ -565,6 +569,34 @@ Nodes:
           - Id: PollFrequency
             Required: true
 
+  # ---- Counter ----
+  # Configured and verified as the whole COUNTER, but the handle reaches .ACC alone, for the same reason
+  # as the timer's.
+  - Id: Counter
+    MappingId: Counter
+    Type: DataPortTreeNode
+    Name: "Counter"
+    Description: >-
+      Logix-Type: COUNTER (predefined structure, the same for CTU and CTD)
+      Value: the accumulated value (.ACC) in counts, a DINT
+      Access: reads and writes the .ACC member only; .PRE, .CU, .CD, .DN, .OV and .UN are left untouched
+      Tag name: the counter's own name, without a member, so "Parts1" and not "Parts1.ACC"
+      Range: -2 147 483 648..2 147 483 647; a CTD counts below zero
+      Other members: to reach .PRE, .CU, .CD, .DN, .OV or .UN, add a UDT Instance with the counter's name instead
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Int32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: TagAddress
+        Properties:
+          - Id: TagName
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
   # ---- Arrays ----
   # One dimension, transferred whole, and ordered by element type as the scalars above are. Rank 2 and 3
   # exist on Logix and are rejected at connect; per-element access is a container node with indexed
@@ -895,14 +927,14 @@ Nodes:
   # container nested, so the address composes to "Name.Member[3]". The container declares no type: the controller's
   # template says what the members are, and a member that is not there, or not of the configured type,
   # is reported at connect. One per generation, like the scopes, so the child list withholds the
-  # 5X80-only types on a 5X70 and the mapped node gates them again. A TIMER is opened the same way to
-  # reach its members; whether COUNTER or an AOI instance is, is not decided.
+  # 5X80-only types on a 5X70 and the mapped node gates them again. A TIMER and a COUNTER are opened the
+  # same way to reach their members; whether CONTROL or an AOI instance is, is not decided.
 
   - Id: Udt5X70
     MappingId: Udt5X70
     Type: DataPortTreeNode
     Name: "UDT Instance"
-    Description: "A tag or a member whose data type is a user-defined data type (UDT) or a TIMER. The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container. Nothing checks the values written here: a negative .PRE or .ACC written to a TIMER causes a major fault that stops the controller."
+    Description: "A tag or a member whose data type is a user-defined data type (UDT), a TIMER or a COUNTER. The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container. Nothing checks the values written here: a negative .PRE or .ACC written to a TIMER causes a major fault that stops the controller."
     Icon: udt
     TransferModes: [ None ]
     PropertyCategories: &udt-container-properties
@@ -919,6 +951,7 @@ Nodes:
       - Id: Real
       - Id: String
       - Id: Timer
+      - Id: Counter
       - Id: BoolArray
       - Id: SIntArray
       - Id: IntArray
@@ -936,7 +969,7 @@ Nodes:
     MappingId: Udt5X80
     Type: DataPortTreeNode
     Name: "UDT Instance"
-    Description: "A tag or a member whose data type is a user-defined data type (UDT) or a TIMER. The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container. Nothing checks the values written here: a negative .PRE or .ACC written to a TIMER causes a major fault that stops the controller."
+    Description: "A tag or a member whose data type is a user-defined data type (UDT), a TIMER or a COUNTER. The UDT itself is declared in Studio 5000, not here. Add a node only for each member you need, in any order, with the member name as its Studio 5000 name. For a member that is itself a UDT, add a UDT Instance below; for per-element access to an array member, add an array container. Nothing checks the values written here: a negative .PRE or .ACC written to a TIMER causes a major fault that stops the controller."
     Icon: udt
     TransferModes: [ None ]
     PropertyCategories: *udt-container-properties
@@ -954,6 +987,7 @@ Nodes:
       - Id: LReal
       - Id: String
       - Id: Timer
+      - Id: Counter
       - Id: BoolArray
       - Id: SIntArray
       - Id: IntArray

@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
@@ -68,12 +69,13 @@ public sealed class LogixTagAccessFactoryTests
         tag.ElementCount.Should().Be(expectedWords);
     }
 
-    /// <summary>One data point per shape that configures no extent: an elementary type, a STRING and a TIMER.</summary>
+    /// <summary>One data point per shape that configures no extent: an elementary type, a STRING, a TIMER and a COUNTER.</summary>
     public static TheoryData<ILogixDataPoint> ScalarDataPoints =>
     [
         new IntDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels),
         new StringDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels, StringMaxLength.Standard),
         new TimerDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels),
+        new CounterDataPoint(DefaultTagPath, DefaultPollFrequency, NoChannels),
     ];
 
     [Theory]

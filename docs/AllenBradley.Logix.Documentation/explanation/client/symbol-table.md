@@ -59,9 +59,11 @@ the path:
 4. If the result is a structure whose template has a `.DATA` member of `SINT` elements, the result is a string. Its
    capacity is the element count of `.DATA`.
 5. If the result is a structure whose template is named `TIMER`, the result is a timer.
+6. If the result is a structure whose template is named `COUNTER`, the result is a counter.
 
 Step 4 is how the port identifies a string. Thus, a string type of the project with a different capacity is a string
-to the port, like `STRING`. Step 5 can go by the name, because Studio 5000 reserves `TIMER`, so no UDT can have it.
+to the port, like `STRING`. Steps 5 and 6 can go by the name, because Studio 5000 reserves `TIMER` and `COUNTER`, so no UDT can have
+either.
 
 If a step fails, the table gives no answer. This occurs when the tag is not listed, or when a member is not in its
 template. It also occurs when the path asks for a member of an array or of an atomic type. An element of a scalar, or
@@ -77,9 +79,9 @@ A system structure has bit `0x1000` set in its symbol type. The controller gives
 not ask for one. A path into the members of a system structure is not found.
 
 The predefined structures `TIMER` and `COUNTER` have templates, and the walk follows them like a UDT. `Timer1.PRE`
-resolves to a `DINT`, and `Timer1` itself to a `TIMER`. It is not decided if the port supports `COUNTER` and Add-On
+resolves to a `DINT`, and `Timer1` itself to a `TIMER`. It is not decided if the port supports `CONTROL` and Add-On
 Instruction instances the same way as a UDT ([data type support](../../reference/datatype-support.md)). A structure
-that is neither a string nor a timer is never a value in this port. The port only opens it into members.
+that is not a string, a timer or a counter is never a value in this port. The port only opens it into members.
 
 The nodes of the walk are internal to the symbols folder. Thus, the format of a listing can change, and the rest of
 the client does not see the change.

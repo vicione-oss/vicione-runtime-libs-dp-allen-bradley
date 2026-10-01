@@ -93,12 +93,13 @@ internal sealed class SymbolTable(
     }
 
     // The listing names a structure by template id alone, so a structure arrives with no data type.
-    // STRING and TIMER are the structures this dataport reads as a value, and the template says which.
+    // STRING, TIMER and COUNTER are the structures this dataport reads as a value, and the template says which.
     private TagDefinition IdentifyPredefinedStructure(TagDefinition declared) =>
         TemplateNamed(declared.TemplateId) switch
         {
             { StringCapacity: { } capacity } => declared.AsStringOf(capacity),
             { IsTimer: true } => declared.AsTimer(),
+            { IsCounter: true } => declared.AsCounter(),
             _ => declared,
         };
 

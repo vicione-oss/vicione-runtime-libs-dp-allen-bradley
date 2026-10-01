@@ -10,8 +10,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.Nodes.Containers.UdtCo
 /// A tag of a user-defined data type opened into its members. Each child is one member, named as the
 /// member, and a member that is itself a UDT is another container nested here. The container states
 /// no type: the controller's template says what the members are, and verification checks each child
-/// against it. Whether a predefined structure — <c>TIMER</c>, <c>COUNTER</c>, <c>STRING</c> — or an
-/// Add-On Instruction is opened the same way is not decided; this node is for UDTs.
+/// against it. A <c>TIMER</c> and a <c>COUNTER</c> are opened the same way, to reach the members their
+/// own nodes leave out. Whether <c>CONTROL</c> or an Add-On Instruction is, is not decided.
 /// </summary>
 /// <param name="OriginalNode">The untyped node this was mapped from.</param>
 /// <param name="TagName">

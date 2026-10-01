@@ -64,11 +64,17 @@ public readonly record struct AllenBradleyDataType(DataTypeName Name, LogixGener
     public static readonly AllenBradleyDataType Timer = new(new DataTypeName("TIMER"), LogixGeneration.Logix5X70);
 
     /// <summary>
+    /// <c>COUNTER</c> — the predefined structure the <c>CTU</c> and <c>CTD</c> instructions share: the
+    /// status bits, then <c>.PRE</c> and <c>.ACC</c> in counts.
+    /// </summary>
+    public static readonly AllenBradleyDataType Counter = new(new DataTypeName("COUNTER"), LogixGeneration.Logix5X70);
+
+    /// <summary>
     /// <c>STRUCTURE</c> — a structure this dataport reads as members rather than as one value: a UDT, a
-    /// predefined <c>COUNTER</c>, an Add-On Instruction instance, a module-defined type. This one
+    /// predefined <c>CONTROL</c>, an Add-On Instruction instance, a module-defined type. This one
     /// spelling is the dataport's own, because the controller names each structure after its own type
-    /// and only the template carries that name (CONTEXT.md, "Structure"). <c>STRING</c> and
-    /// <c>TIMER</c> are the structures that get a type of their own.
+    /// and only the template carries that name (CONTEXT.md, "Structure"). <c>STRING</c>, <c>TIMER</c>
+    /// and <c>COUNTER</c> are the structures that get a type of their own.
     /// </summary>
     public static readonly AllenBradleyDataType Structure = new(new DataTypeName("STRUCTURE"), LogixGeneration.Logix5X70);
 }

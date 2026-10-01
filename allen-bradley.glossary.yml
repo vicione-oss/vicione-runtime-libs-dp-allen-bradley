@@ -460,6 +460,13 @@ contexts:
           A negative preset or accumulated value is a major fault as soon as an instruction runs the
           timer, and the controller stops.
 
+      - name: COUNTER
+        definition: >-
+          The predefined structure the `CTU` and `CTD` instructions keep their state in: a status word
+          with the `.CU`, `.CD`, `.DN`, `.OV` and `.UN` bits, then the preset and the accumulated value.
+          Both may be negative. A count that passes the end of the `DINT` range wraps and sets `.OV` or
+          `.UN`.
+
       - name: Preset
         definition: >-
           `.PRE`, the `DINT` a `TIMER` or a `COUNTER` counts towards: milliseconds for a timer, counts

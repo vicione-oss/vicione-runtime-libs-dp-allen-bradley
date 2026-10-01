@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -97,6 +98,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
             TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
         new TimerDataPoint(TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels),
         new DIntDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
+        new CounterDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
+        new TimerDataPoint(TagPath.Parse(TagAddresses.Counter), DefaultPollFrequency, NoChannels),
         new IntDataPoint(TagPath.Parse(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
         new IntArrayDataPoint(
             TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
@@ -118,6 +121,7 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new StringDataPoint(
             TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
         new TimerDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
+        new CounterDataPoint(TagPath.Parse(TagAddresses.Counter), DefaultPollFrequency, NoChannels),
         new SIntArrayDataPoint(
             TagPath.Parse(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),

@@ -96,4 +96,36 @@ public sealed class TemplateDefinitionTests
         // Assert
         isTimer.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData("COUNTER")]
+    [InlineData("Counter")]
+    public void ATemplateNamedCounterIsACounterWithoutRegardToCase(string name)
+    {
+        // Arrange
+        var template = Template(new TemplateId(0xF82), name,
+            AtomicMember("PRE", AllenBradleyDataType.Dint),
+            AtomicMember("ACC", AllenBradleyDataType.Dint));
+
+        // Act
+        var isCounter = template.IsCounter;
+
+        // Assert
+        isCounter.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ATimerTemplateIsNoCounter()
+    {
+        // Arrange
+        var template = Template(new TemplateId(0xF83), "TIMER",
+            AtomicMember("PRE", AllenBradleyDataType.Dint),
+            AtomicMember("ACC", AllenBradleyDataType.Dint));
+
+        // Act
+        var isCounter = template.IsCounter;
+
+        // Assert
+        isCounter.Should().BeFalse();
+    }
 }

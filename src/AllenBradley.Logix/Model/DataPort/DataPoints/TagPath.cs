@@ -55,6 +55,14 @@ public readonly partial record struct TagPath(
     /// </summary>
     public TagAddress RootTagAddress => (this with { UdtMemberPath = null, ArrayElementIndex = null }).ToTagAddress();
 
+    /// <summary>This path reaching <paramref name="udtMember"/> next — <c>Delay</c> becomes <c>Delay.ACC</c>.</summary>
+    public TagPath AppendMember(UdtMemberName udtMember) => this with
+    {
+        UdtMemberPath = UdtMemberPath is { } members
+            ? members.Append(udtMember)
+            : DataPoints.UdtMemberPath.Of(udtMember),
+    };
+
     /// <summary>
     /// Reads an address back into its parts — the inverse of <see cref="ToTagAddress"/>. Each dotted part
     /// behind the tag is a member; whether the tag has one is the symbol table's question, not the

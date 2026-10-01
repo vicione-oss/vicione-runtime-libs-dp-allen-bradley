@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Booleans;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Strings;
@@ -235,6 +236,24 @@ public sealed class LogixDataPointsGroupMapperTests
             new TagPath(DefaultProgramName, startDelay.TagName, UdtMemberPath: null, ArrayElementIndex: null),
             startDelay.PollFrequency,
             startDelay.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ACounterTagBecomesACounterPoint()
+    {
+        // Arrange
+        var partCount = DefaultCounterNode with { PollFrequency = PollFrequency.FromMilliseconds(250) };
+        var deviceNode = DeviceNodeHoldingInProgramScope(partCount);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new CounterDataPoint(
+            new TagPath(DefaultProgramName, partCount.TagName, UdtMemberPath: null, ArrayElementIndex: null),
+            partCount.PollFrequency,
+            partCount.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

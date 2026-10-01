@@ -13,9 +13,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Ty
 /// </param>
 /// <param name="DataType">
 /// The atomic data type, <see cref="AllenBradleyDataType.String"/> for a string structure,
-/// <see cref="AllenBradleyDataType.Timer"/> for a timer, and <see cref="AllenBradleyDataType.Structure"/>
-/// for any other structure — a UDT, a <c>COUNTER</c>, an Add-On Instruction instance — which this
-/// dataport reads as members rather than as one value.
+/// <see cref="AllenBradleyDataType.Timer"/> for a timer, <see cref="AllenBradleyDataType.Counter"/> for a
+/// counter, and <see cref="AllenBradleyDataType.Structure"/> for any other structure — a UDT, a
+/// <c>CONTROL</c>, an Add-On Instruction instance — which this dataport reads as members rather than as
+/// one value.
 /// </param>
 /// <param name="MaxLength">The character capacity of a string structure; <c>null</c> for every other type.</param>
 /// <param name="DimensionCount">The array rank: scalar, or up to <c>3</c>.</param>

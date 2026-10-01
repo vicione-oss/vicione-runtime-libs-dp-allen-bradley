@@ -376,6 +376,11 @@ The predefined structure the `TON`, `TOF` and `RTO` instructions keep their stat
 with the `.EN`, `.TT` and `.DN` bits, then the preset and the accumulated value. A negative preset or
 accumulated value is a major fault as soon as an instruction runs the timer, and the controller stops.
 
+**`COUNTER`**:
+The predefined structure the `CTU` and `CTD` instructions keep their state in: a status word with the
+`.CU`, `.CD`, `.DN`, `.OV` and `.UN` bits, then the preset and the accumulated value. Both may be
+negative. A count that passes the end of the `DINT` range wraps and sets `.OV` or `.UN`.
+
 **Preset**:
 `.PRE`, the `DINT` a `TIMER` or a `COUNTER` counts towards: milliseconds for a timer, counts for a
 counter. A timer's is never negative; a counter's may be.

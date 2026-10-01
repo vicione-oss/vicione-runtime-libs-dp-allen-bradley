@@ -31,6 +31,8 @@ the wire layout of each type is in the
 | `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
 | **Timer**             |                  |                       |            |           |                        |             |
 | `TIMER` (`.ACC` only) | `TimerNode`      | `TimerDataPoint`      | `int`      | 4         | `TimerConverter`       | all         |
+| **Counter**           |                  |                       |            |           |                        |             |
+| `COUNTER` (`.ACC` only) | `CounterNode`  | `CounterDataPoint`    | `int`      | 4         | `CounterConverter`     | all         |
 | **Arrays**            |                  |                       |            |           |                        |             |
 | `BOOL[n]`             | `BoolArrayDataPointNode`  | `BoolArrayDataPoint`  | `bool[]`   | 4 × n/32  | `BoolArrayConverter`   | all         |
 | `SINT[n]`             | `SIntArrayDataPointNode`  | `SIntArrayDataPoint`  | `sbyte[]`  | n         | `SIntArrayConverter`   | all         |
@@ -162,6 +164,29 @@ To reach the other members, open the timer with a UDT Instance node instead (see
 An array of timers such as `Delays[3]` is not supported, because the port has no arrays of structures
 yet.
 
+### `COUNTER`
+
+A Logix `COUNTER` is a predefined structure of 12 bytes, built like a `TIMER`. A status word holds the
+`.CU`, `.CD`, `.DN`, `.OV` and `.UN` bits, and `.PRE` and `.ACC` follow as two `DINT`s that count
+events instead of milliseconds. `CTU` and `CTD` keep their state in the same structure, so one node
+serves both.
+
+The counter node works like the timer node. It carries the accumulated value, `.ACC`, and the user
+enters the name of the counter without a member. Verification checks that the controller declares a
+`COUNTER` at that address, and messages name the counter as it was entered. The handle reaches only
+`.ACC` (`CounterDataPoint.HandleAddress`), for the same reason as the timer's: a write of the whole
+structure would put back status bits and a preset that changed since the read.
+
+Unlike a timer, a counter accepts every `DINT`. `CTD` counts below zero, and the controller does not
+fault on a negative `.ACC` or `.PRE`. When the count passes the end of the `DINT` range, the controller
+wraps it and sets `.OV` or `.UN`. So the counter node checks no range.
+
+To reach the other members, open the counter with a UDT Instance node instead (see
+[Structure members](#structure-members)). `.PRE` is a `DINT` member there, and `.CU`, `.CD`, `.DN`,
+`.OV` and `.UN` are `BOOL` members.
+
+An array of counters such as `Counts[3]` is not supported, for the same reason as an array of timers.
+
 ### Arrays
 
 Two shapes. The first, and the one this section is about, is a **one-dimensional array of an
@@ -286,8 +311,8 @@ layer, which holds one whole operation per member and nothing smaller.
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | A range of elements as one value | `myArray[2..8]` as a single `short[7]` is neither whole-array nor per-element; needs its own shape |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
-| Arrays of `STRING`, `TIMER` or a UDT | Declared, and a string array's capacity known from its template; no data point has the shape |
-| `COUNTER` / `CONTROL`           | 12-byte predefined structures; a UDT Instance reaches their members                              |
+| Arrays of `STRING`, `TIMER`, `COUNTER` or a UDT | Declared, and a string array's capacity known from its template; no data point has the shape |
+| `CONTROL`                       | 12-byte predefined structure; a UDT Instance reaches its members                                 |
 | A UDT as one value              | A UDT is opened into members, each a data point of the member's own type (see [Structure members](#structure-members)); a whole structure as one data point has no converter |
 
 A shape, a type or a capacity that disagrees with the controller is reported at connect by
@@ -304,11 +329,11 @@ declared type, and the bit position of a packed `BOOL`. The wire layout of the t
 [reading a UDT definition](../../AllenBradley.Documentation/libplctag/reading-a-udt-definition.md);
 the decoder is `TemplateDecoder`, a pure function over the bytes, like `TagsDecoder`.
 
-`STRING` and `TIMER` are the two data types a template can give a structure, and the lookup is where
+`STRING`, `TIMER` and `COUNTER` are the three data types a template can give a structure, and the lookup is where
 it does: `SymbolTable.GetDeclaredTypeAtPath` walks to the tag or the member the path names (see
 [Structure members](#structure-members)), and if what it found names a template with a
 `.DATA : SINT[n]` member, hands it back as a `String` of capacity `n`; if the template is named `TIMER`, as
-a `Timer`. So a `STRING_20` tag and a `STRING_20` member inside a UDT both verify against a configured
+a `Timer`; if it is named `COUNTER`, as a `Counter`. So a `STRING_20` tag and a `STRING_20` member inside a UDT both verify against a configured
 capacity of 20, and a `TIMER` configured as a `STRING` is a data-type mismatch, not a capacity one: it
 comes back `TIMER`, and nothing turns it into a string. The listing's element length is not read at all. A system structure — one whose symbol type has bit `0x1000` set — names no template, because the
 controller serves none for it, and stays `STRUCTURE`. A template the controller will not serve, or one
@@ -334,10 +359,10 @@ under it the same way, gated by the same generation, so an array member is opene
 `MyMotor.Readings[3]` is one data point. The round trip of that address against a controller is not
 yet proved.
 
-A UDT Instance also opens a `TIMER`, and that is how the members the timer node leaves out are reached:
-`Timer1.PRE` under it resolves to a `DINT`, and `Timer1.DN` to a `BOOL`. Whether `COUNTER`, `CONTROL`
-and Add-On Instruction instances are opened the same way, or get a node of their own, is **not
-decided**. Nothing refuses one today, because the container states no type and the lookup follows
+A UDT Instance also opens a `TIMER` or a `COUNTER`, and that is how the members the timer node and the
+counter node leave out are reached: `Timer1.PRE` under it resolves to a `DINT`, and `Counter1.DN` to a
+`BOOL`. Whether `CONTROL` and Add-On Instruction instances are opened the same way, or get a node of
+their own, is **not decided**. Nothing refuses one today, because the container states no type and the lookup follows
 whatever template the tag names.
 
 The data point carries the member path. `TagPath` holds the program, the tag, the members reached

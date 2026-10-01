@@ -123,8 +123,8 @@ been confirmed against it.
 
 `Integration/CompactLogix5X80/` is the data-type suite that targets it. It does one write/read round
 trip per type the port implements (`BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`,
-`ULINT`, `REAL`, `LREAL`, `STRING`, and the `.ACC` of a `TIMER`), each driven to both ends of its range,
-and each also asserting the declaration the controller reports for its tag.
+`ULINT`, `REAL`, `LREAL`, `STRING`, and the `.ACC` of a `TIMER` and of a `COUNTER`), each driven to both
+ends of its range, and each also asserting the declaration the controller reports for its tag.
 
 It has to be a 5X80 because of `LREAL` and the unsigned integers. Those are the types in the vocabulary
 a 5X70 has not got, so the L32E could not host this suite even if it were ours; see
@@ -157,6 +157,7 @@ One tag per type, all program-scoped in `MainProgram`:
 | `LREAL` | `Program:MainProgram.testLreal` |
 | `STRING` | `Program:MainProgram.testString`, declared to hold 82 characters |
 | `TIMER` | `Program:MainProgram.testTimer`, used by no instruction |
+| `COUNTER` | `Program:MainProgram.testCounter`, used by no instruction |
 
 And one array per element type, every one of them ten elements long except the `BOOL` array:
 
@@ -192,8 +193,11 @@ prove.
 `testTimer` must stay out of every `TON`, `TOF` and `RTO`. The suite writes its `.ACC` and `.PRE` and
 expects `.DN` to read clear, which holds only while no instruction runs the timer.
 
-`Program:MainProgram.noSuchTimer` must not exist. The suite configures a timer there to see connect
-report it missing.
+`testCounter` must stay out of every `CTU` and `CTD`, for the same reason: the suite writes its `.ACC`
+and `.PRE` and expects `.DN` to read clear.
+
+`Program:MainProgram.noSuchTimer` and `Program:MainProgram.noSuchCounter` must not exist. The suite
+configures a timer and a counter there to see connect report them missing.
 
 ### `TestController.cs`, how the controller is reached
 

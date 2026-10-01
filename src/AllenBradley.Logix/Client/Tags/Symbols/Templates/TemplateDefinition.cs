@@ -57,4 +57,11 @@ internal readonly record struct TemplateDefinition(
     /// </summary>
     public bool IsTimer =>
         string.Equals(Name.Value, AllenBradleyDataType.Timer.Name.Value, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether this is the predefined <c>COUNTER</c>, told by its name, matched the way the controller
+    /// matches names. The name is reserved, so no UDT can carry it.
+    /// </summary>
+    public bool IsCounter =>
+        string.Equals(Name.Value, AllenBradleyDataType.Counter.Name.Value, StringComparison.OrdinalIgnoreCase);
 }
