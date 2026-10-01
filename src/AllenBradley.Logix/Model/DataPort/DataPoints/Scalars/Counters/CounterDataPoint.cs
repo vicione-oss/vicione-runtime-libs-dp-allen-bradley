@@ -22,7 +22,8 @@ public sealed record CounterDataPoint(TagPath TagPath, PollFrequency PollFrequen
     /// The counter's <c>.ACC</c> member, which is all this point reads and writes. Writing the whole
     /// structure would put back <c>.PRE</c> and status bits the scan has changed since they were read.
     /// </summary>
-    public override TagAddress HandleAddress => TagPath.AppendMember(AccumulatedValueMember).ToTagAddress();
+    // Appended to the rendered address, because a TagPath holds no member behind an element: Parts[3].ACC.
+    public override TagAddress HandleAddress => new($"{TagAddress.Value}.{AccumulatedValueMember.Value}");
 
     /// <inheritdoc />
     internal override ILogixDataPointValue<int> CreateLogixValue(int value) => new Value(this, value);

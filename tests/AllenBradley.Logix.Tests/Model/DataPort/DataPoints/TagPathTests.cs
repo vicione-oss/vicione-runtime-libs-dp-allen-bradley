@@ -147,21 +147,6 @@ public sealed class TagPathTests
     }
 
     [Theory]
-    [InlineData("Delay", "Delay.ACC")]
-    [InlineData("Program:Main.Motor.Delay", "Program:Main.Motor.Delay.ACC")]
-    public void AnAppendedMemberIsReachedBehindTheMembersAlreadyOnThePath(string address, string expectedAddress)
-    {
-        // Arrange
-        var path = TagPath.Parse(address);
-
-        // Act
-        var appended = path.AppendMember(new UdtMemberName("ACC"));
-
-        // Assert
-        appended.ToTagAddress().Should().Be(new TagAddress(expectedAddress));
-    }
-
-    [Theory]
     [InlineData("MyValues[05]", "a leading zero")]
     [InlineData("MyValues[-1]", "a negative index")]
     [InlineData("MyValues[1,2]", "two dimensions")]

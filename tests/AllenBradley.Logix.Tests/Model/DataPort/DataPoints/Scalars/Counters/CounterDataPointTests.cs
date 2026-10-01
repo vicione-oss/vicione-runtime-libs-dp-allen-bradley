@@ -37,6 +37,8 @@ public sealed class CounterDataPointTests
     [InlineData("Parts", "Parts.ACC")]
     [InlineData("Program:MainProgram.Parts", "Program:MainProgram.Parts.ACC")]
     [InlineData("Machine.Starts", "Machine.Starts.ACC")]
+    [InlineData("Parts[3]", "Parts[3].ACC")]
+    [InlineData("Program:MainProgram.Machine.Parts[3]", "Program:MainProgram.Machine.Parts[3].ACC")]
     public void ItsHandleReachesTheAccMemberOfTheCounter(string counterAddress, string expectedAddress)
     {
         // Arrange
