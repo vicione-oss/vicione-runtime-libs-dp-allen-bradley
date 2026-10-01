@@ -331,6 +331,23 @@ public sealed class SymbolTableTests
     }
 
     [Fact]
+    public void AnElementOfATimerArrayIsDeclaredATimer()
+    {
+        // Arrange
+        var delaysTag = new ListedTag(
+            new TagAddress("Delays"),
+            TimerTagDefinition with { DimensionCount = DimensionCount.OneDimensional, ElementCount = new ElementCount(10) });
+        var symbolTable = new SymbolTable([delaysTag], [TimerTemplate]);
+        var path = TagPath.Parse("Delays[3]");
+
+        // Act
+        var found = symbolTable.GetDeclaredTypeAtPath(path);
+
+        // Assert
+        found.Should().Be(TimerAt("Delays[3]"));
+    }
+
+    [Fact]
     public void AMemberOfATimerIsDeclaredAsTheTimerTemplateDescribesIt()
     {
         // Arrange

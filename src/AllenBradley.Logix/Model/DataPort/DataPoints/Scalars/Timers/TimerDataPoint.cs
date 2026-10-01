@@ -22,7 +22,8 @@ public sealed record TimerDataPoint(TagPath TagPath, PollFrequency PollFrequency
     /// The timer's <c>.ACC</c> member, which is all this point reads and writes. Writing the whole
     /// structure would put back <c>.PRE</c> and status bits the scan has changed since they were read.
     /// </summary>
-    public override TagAddress HandleAddress => TagPath.AppendMember(AccumulatedValueMember).ToTagAddress();
+    // Appended to the rendered address, because a TagPath holds no member behind an element: Delays[3].ACC.
+    public override TagAddress HandleAddress => new($"{TagAddress.Value}.{AccumulatedValueMember.Value}");
 
     /// <summary>
     /// Whether <paramref name="milliseconds"/> may be written: a negative accumulated time is a major

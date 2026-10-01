@@ -100,6 +100,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
         new DIntDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
         new CounterDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
         new TimerDataPoint(TagPath.Parse(TagAddresses.Counter), DefaultPollFrequency, NoChannels),
+        new TimerDataPoint(
+            TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.DIntArray, 3)), DefaultPollFrequency, NoChannels),
         new IntDataPoint(TagPath.Parse(TagAddresses.IntArray), DefaultPollFrequency, NoChannels),
         new IntArrayDataPoint(
             TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels, TagAddresses.ArrayElementCount),
@@ -122,6 +124,8 @@ public sealed class GeneralIntegrationTests(ITestOutputHelper output)
             TagPath.Parse(TagAddresses.String), DefaultPollFrequency, NoChannels, TagAddresses.StringCapacity),
         new TimerDataPoint(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels),
         new CounterDataPoint(TagPath.Parse(TagAddresses.Counter), DefaultPollFrequency, NoChannels),
+        new TimerDataPoint(
+            TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.TimerArray, 3)), DefaultPollFrequency, NoChannels),
         new SIntArrayDataPoint(
             TagPath.Parse(TagAddresses.SIntArray), DefaultPollFrequency, NoChannels,
             TagAddresses.ArrayElementCount),

@@ -31,6 +31,7 @@ the wire layout of each type is in the
 | `STRING`              | `StringNode`     | `StringDataPoint`     | `string`   | 4 + n     | `LogixStringConverter` | all         |
 | **Timer**             |                  |                       |            |           |                        |             |
 | `TIMER` (`.ACC` only) | `TimerNode`      | `TimerDataPoint`      | `int`      | 4         | `TimerConverter`       | all         |
+| `TIMER[n]`, per element (`.ACC` only) | `TimerNode` under `TimerArrayContainer` | `TimerDataPoint` | `int` | 4 | `TimerConverter` | all |
 | **Counter**           |                  |                       |            |           |                        |             |
 | `COUNTER` (`.ACC` only) | `CounterNode`  | `CounterDataPoint`    | `int`      | 4         | `CounterConverter`     | all         |
 | **Arrays**            |                  |                       |            |           |                        |             |
@@ -161,8 +162,11 @@ To reach the other members, open the timer with a UDT Instance node instead (see
 > **Warning:** nothing checks the values written through a UDT Instance. A negative `.PRE` or `.ACC`
 > written that way stops the controller as soon as an instruction runs the timer.
 
-An array of timers such as `Delays[3]` is not supported, because the port has no arrays of structures
-yet.
+An element of a timer array, such as `Delays[3]`, is a timer node under a `TimerArrayContainer` (see
+[Array elements](#array-elements)) and behaves like a single timer in every respect. Its handle
+address is `Delays[3].ACC`: the member comes behind the subscript, so `TimerDataPoint` appends `.ACC` to
+the address the path renders to, rather than adding a member to the path. A timer array as one value
+is not supported.
 
 ### `COUNTER`
 
@@ -251,6 +255,9 @@ composes a program-scoped tag's address from the program and the tag. From there
 a scalar `INT` in every respect: a one-element handle, `IntConverter`, a `short` in and out, and a
 write that touches that element and no other. Every element type but `BOOL` has a container; a
 `BOOL` element is a bit inside a word, and writing one is a read-modify-write the port has not proved.
+`TIMER` has one too, `TimerArrayContainer`, the first container for a structure. Its elements are
+timer nodes, and the lookup keeps the template of the array for the element, so `Delays[3]` is
+declared a `TIMER` as `Delays` would be.
 
 Each element is a data point of its own, with its own poll frequency and its own channels. Element 3
 at 100 ms and element 7 at 5 s fall into two poll groups of the same array. The cost is one libplctag
@@ -311,7 +318,8 @@ layer, which holds one whole operation per member and nothing smaller.
 |---------------------------------|--------------------------------------------------------------------------------------------------|
 | A range of elements as one value | `myArray[2..8]` as a single `short[7]` is neither whole-array nor per-element; needs its own shape |
 | Multi-dimensional arrays        | Rank 2 and 3; the model keeps the product of the dimensions, not the dimensions                  |
-| Arrays of `STRING`, `TIMER`, `COUNTER` or a UDT | Declared, and a string array's capacity known from its template; no data point has the shape |
+| Arrays of `STRING`, `COUNTER` or a UDT | Declared, and a string array's capacity known from its template; no data point has the shape |
+| A `TIMER` array as one value    | Each element is reached through a `TimerArrayContainer` instead; `Delays[3].PRE` and the status bits of an element are not reached at all |
 | `CONTROL`                       | 12-byte predefined structure; a UDT Instance reaches its members                                 |
 | A UDT as one value              | A UDT is opened into members, each a data point of the member's own type (see [Structure members](#structure-members)); a whole structure as one data point has no converter |
 

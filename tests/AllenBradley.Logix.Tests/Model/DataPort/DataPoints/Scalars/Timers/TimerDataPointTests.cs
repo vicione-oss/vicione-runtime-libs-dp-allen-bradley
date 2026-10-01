@@ -37,6 +37,8 @@ public sealed class TimerDataPointTests
     [InlineData("Delay", "Delay.ACC")]
     [InlineData("Program:MainProgram.Delay", "Program:MainProgram.Delay.ACC")]
     [InlineData("Machine.StartDelay", "Machine.StartDelay.ACC")]
+    [InlineData("Delays[3]", "Delays[3].ACC")]
+    [InlineData("Program:MainProgram.Machine.Delays[3]", "Program:MainProgram.Machine.Delays[3].ACC")]
     public void ItsHandleReachesTheAccMemberOfTheTimer(string timerAddress, string expectedAddress)
     {
         // Arrange

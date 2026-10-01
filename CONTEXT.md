@@ -285,8 +285,9 @@ library's object standing in for it
 **Handle address**:
 The address a data point's tag handle is created for. It is the tag address, except when the point
 stands for a structure but reads only one of its members: a timer point has the tag address
-`Delay1` and the handle address `Delay1.ACC`. Verification and every message use the tag address;
-only libplctag sees the handle address.
+`Delay1` and the handle address `Delay1.ACC`, and an element of a timer array has `Delays[3]` and
+`Delays[3].ACC`. Verification and every message use the tag address; only libplctag sees the handle
+address.
 _Avoid_: tag address (what the user configured), member address
 
 ### Data types

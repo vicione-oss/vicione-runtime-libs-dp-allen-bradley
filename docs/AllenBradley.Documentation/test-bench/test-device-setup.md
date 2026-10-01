@@ -174,6 +174,7 @@ And one array per element type, every one of them ten elements long except the `
 | `ULINT[10]` | `Program:MainProgram.testUlintArray` |
 | `REAL[10]` | `Program:MainProgram.testRealArray` |
 | `LREAL[10]` | `Program:MainProgram.testLrealArray` |
+| `TIMER[10]` | `Program:MainProgram.testTimerArray`, used by no instruction |
 
 The `BOOL` array is 32 rather than 10 because Studio 5000 will not declare one otherwise. It packs
 the bits into 32-bit words, so a length that is not a multiple of 32 is not a length it offers.
@@ -191,7 +192,8 @@ prove.
 > program for them to disturb.
 
 `testTimer` must stay out of every `TON`, `TOF` and `RTO`. The suite writes its `.ACC` and `.PRE` and
-expects `.DN` to read clear, which holds only while no instruction runs the timer.
+expects `.DN` to read clear, which holds only while no instruction runs the timer. The same goes for
+every element of `testTimerArray`, whose `.ACC` the suite writes element by element.
 
 `testCounter` must stay out of every `CTU` and `CTD`, for the same reason: the suite writes its `.ACC`
 and `.PRE` and expects `.DN` to read clear.

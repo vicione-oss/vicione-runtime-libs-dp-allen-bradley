@@ -35,6 +35,35 @@ public sealed class ArrayContainerNodeTests
     }
 
     [Fact]
+    public void ATimerNodeCanBeAnElementOfATimerArray()
+    {
+        // Arrange
+        var delays = DefaultTimerArrayContainerNode;
+        var timerNode = DefaultTimerNode;
+
+        // Act
+        var canBeAdded = delays.CanBeAdded(timerNode);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ADIntNodeCanNotBeAnElementOfATimerArray()
+    {
+        // Arrange
+        // The DINT a timer element carries its accumulated time in still makes no timer.
+        var delays = DefaultTimerArrayContainerNode;
+        var dIntNode = DefaultDIntNode;
+
+        // Act
+        var canBeAdded = delays.CanBeAdded(dIntNode);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
     public void OtherContainerNodesCanNotBeAdded()
     {
         // Arrange

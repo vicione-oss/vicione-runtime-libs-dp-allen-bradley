@@ -133,6 +133,12 @@ internal static class TagAddresses
     internal const string LRealArray = $"{Program}.testLrealArray";
 
     /// <summary>
+    /// The one-dimensional <c>TIMER</c> array test tag, to be declared <c>TIMER[10]</c>. No instruction may
+    /// use any of its elements, for the reason <see cref="Timer"/> gives.
+    /// </summary>
+    internal const string TimerArray = $"{Program}.testTimerArray";
+
+    /// <summary>
     /// How many elements every array test tag above is declared to hold. A count that disagrees with the
     /// controller aborts a connect, because a read of the first ten elements would not show a resized tag.
     /// </summary>

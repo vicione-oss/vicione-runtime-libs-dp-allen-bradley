@@ -20,7 +20,7 @@ internal sealed class ArrayContainerNodeMapper : IBranchConfigurationNodeMapper<
 
     /// <summary>One mapper per element type an array container can hold.</summary>
     internal static ArrayContainerNodeMapper[] All() =>
-        [SInt(), Int(), DInt(), LInt(), USInt(), UInt(), UDInt(), ULInt(), Real(), LReal()];
+        [SInt(), Int(), DInt(), LInt(), USInt(), UInt(), UDInt(), ULInt(), Real(), LReal(), Timer()];
 
     internal static ArrayContainerNodeMapper SInt() =>
         new(ArrayContainerNode.SIntLinkedNodeTypeId, AllenBradleyDataType.Sint);
@@ -51,6 +51,9 @@ internal sealed class ArrayContainerNodeMapper : IBranchConfigurationNodeMapper<
 
     internal static ArrayContainerNodeMapper LReal() =>
         new(ArrayContainerNode.LRealLinkedNodeTypeId, AllenBradleyDataType.Lreal);
+
+    internal static ArrayContainerNodeMapper Timer() =>
+        new(ArrayContainerNode.TimerLinkedNodeTypeId, AllenBradleyDataType.Timer);
 
     public ArrayContainerNode Map(LinkedNode node)
     {

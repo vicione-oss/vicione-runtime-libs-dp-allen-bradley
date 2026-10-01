@@ -84,6 +84,7 @@ internal static class TypedNodeTestDataFactory
     internal static readonly TagName DefaultUlIntArrayTagName = new("CycleCounts");
     internal static readonly TagName DefaultRealArrayTagName = new("Temperatures");
     internal static readonly TagName DefaultLRealArrayTagName = new("Positions");
+    internal static readonly TagName DefaultTimerArrayTagName = new("Delays");
     internal static readonly TagName DefaultUdtTagName = new("Motor");
 
     internal static readonly ElementCount DefaultElementCount = new(10);
@@ -316,6 +317,13 @@ internal static class TypedNodeTestDataFactory
             CreateLinkedNode(ArrayContainerNode.LRealLinkedNodeTypeId, DefaultLRealArrayTagName.Value),
             DefaultLRealArrayTagName,
             AllenBradleyDataType.Lreal);
+
+    /// <summary>A <c>TIMER</c> array opened for per-element access, holding no element yet.</summary>
+    internal static ArrayContainerNode DefaultTimerArrayContainerNode =>
+        new(
+            CreateLinkedNode(ArrayContainerNode.TimerLinkedNodeTypeId, DefaultTimerArrayTagName.Value),
+            DefaultTimerArrayTagName,
+            AllenBradleyDataType.Timer);
 
     /// <summary>
     /// A tag of another dataport, which every Logix container refuses whatever its own rule says.

@@ -29,6 +29,7 @@ public sealed class ArrayContainerNodeMapperTests
             { ArrayContainerNode.ULIntLinkedNodeTypeId, AllenBradleyDataType.Ulint },
             { ArrayContainerNode.RealLinkedNodeTypeId, AllenBradleyDataType.Real },
             { ArrayContainerNode.LRealLinkedNodeTypeId, AllenBradleyDataType.Lreal },
+            { ArrayContainerNode.TimerLinkedNodeTypeId, AllenBradleyDataType.Timer },
         };
 
     [Theory]

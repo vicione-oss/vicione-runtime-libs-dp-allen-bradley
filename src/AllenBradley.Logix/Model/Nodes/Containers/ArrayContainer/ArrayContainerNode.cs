@@ -30,11 +30,13 @@ internal sealed record ArrayContainerNode(
 
     internal const string LRealLinkedNodeTypeId = "LRealArrayContainer";
 
+    internal const string TimerLinkedNodeTypeId = "TimerArrayContainer";
+
     private static readonly FrozenSet<string> LinkedNodeTypeIds = FrozenSet.Create(
         StringComparer.Ordinal,
         SIntLinkedNodeTypeId, IntLinkedNodeTypeId, DIntLinkedNodeTypeId, LIntLinkedNodeTypeId,
         USIntLinkedNodeTypeId, UIntLinkedNodeTypeId, UDIntLinkedNodeTypeId, ULIntLinkedNodeTypeId,
-        RealLinkedNodeTypeId, LRealLinkedNodeTypeId);
+        RealLinkedNodeTypeId, LRealLinkedNodeTypeId, TimerLinkedNodeTypeId);
 
     internal static bool IsArrayContainer(LinkedNode node) => LinkedNodeTypeIds.Contains(node.DesignId);
 

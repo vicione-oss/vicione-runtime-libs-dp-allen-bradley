@@ -147,6 +147,8 @@ Nodes:
       - Id: DIntArrayContainer
       - Id: LIntArrayContainer
       - Id: RealArrayContainer
+      # Timer array container — one Timer node per element
+      - Id: TimerArrayContainer
       # UDT — a user-defined data type, one data point per member
       - Id: Udt5X70
 
@@ -207,6 +209,8 @@ Nodes:
       - Id: RealArrayContainer
       # LREAL array container — 5X80 only
       - Id: LRealArrayContainer
+      # Timer array container — one Timer node per element
+      - Id: TimerArrayContainer
       # UDT — a user-defined data type, one data point per member
       - Id: Udt5X80
 
@@ -552,7 +556,7 @@ Nodes:
       Logix-Type: TIMER (predefined structure, the same for TON, TOF and RTO)
       Value: the accumulated time (.ACC) in milliseconds, a DINT
       Access: reads and writes the .ACC member only; .PRE, .EN, .TT and .DN are left untouched
-      Tag name: the timer's own name, without a member, so "Delay1" and not "Delay1.ACC"
+      Tag name: the timer's own name, or its subscript ("[3]") under a Timer[i] container, without a member, so "Delay1" and not "Delay1.ACC"
       Range: 0..2 147 483 647; a negative value is refused, because it causes a major fault that stops the controller
       Other members: to reach .PRE, .EN, .TT or .DN, add a UDT Instance with the timer's name instead
     Namespace: "Scalar"
@@ -963,6 +967,7 @@ Nodes:
       - Id: DIntArrayContainer
       - Id: LIntArrayContainer
       - Id: RealArrayContainer
+      - Id: TimerArrayContainer
       - Id: Udt5X70
 
   - Id: Udt5X80
@@ -1009,6 +1014,7 @@ Nodes:
       - Id: ULIntArrayContainer
       - Id: RealArrayContainer
       - Id: LRealArrayContainer
+      - Id: TimerArrayContainer
       - Id: Udt5X80
 
   # ==================== ARRAY CONTAINER NODES ==========================
@@ -1018,6 +1024,7 @@ Nodes:
   # count: the controller does, and a subscript past it is reported at connect.
   # Same element types and the same order as the whole-array nodes above, except BOOL: an element of a
   # BOOL array is a bit inside a word, and writing one is a read-modify-write the port has not proved.
+  # TIMER comes last and has no whole-array node: an element is a Timer node, so it reaches .ACC alone.
 
   - Id: SIntArrayContainer
     MappingId: SIntArrayContainer
@@ -1132,6 +1139,17 @@ Nodes:
     PropertyCategories: *array-container-properties
     ChildNodes:
       - Id: LReal
+
+  - Id: TimerArrayContainer
+    MappingId: TimerArrayContainer
+    Type: DataPortTreeNode
+    Name: "Timer[i]"
+    Description: "Per-element access to a one-dimensional TIMER array. Each element is a separate Timer data point that reads and writes the element's accumulated time (.ACC)."
+    Icon: array-container
+    TransferModes: [ None ]
+    PropertyCategories: *array-container-properties
+    ChildNodes:
+      - Id: Timer
 
 # ==================== PROPERTY CATEGORIES ===========================
 

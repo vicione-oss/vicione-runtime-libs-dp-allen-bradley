@@ -344,6 +344,26 @@ public sealed class LogixDataPointsGroupMapperTests
     }
 
     [Fact]
+    public void AnElementOfATimerArrayBecomesATimerPointAtItsSubscript()
+    {
+        // Arrange
+        var delays = DefaultTimerArrayContainerNode;
+        var thirdDelay = DefaultTimerNode with { TagName = new TagName("[3]") };
+        delays.DataPointNodes.Add(thirdDelay);
+        var deviceNode = DeviceNodeHoldingInProgramScope(delays);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(deviceNode);
+
+        // Assert
+        var expected = new TimerDataPoint(
+            new TagPath(DefaultProgramName, delays.TagName, UdtMemberPath: null, new ElementIndex(3)),
+            thirdDelay.PollFrequency,
+            thirdDelay.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
     public void AnArrayContainerCanHoldSeveralElements()
     {
         // Arrange
