@@ -45,14 +45,14 @@
       },
       "ViciOne.Suite.DataPort.Extensions.Testing": {
         "type": "Direct",
-        "requested": "[1.0.1-ci2878897099, )",
-        "resolved": "1.0.1-ci2878897099",
-        "contentHash": "jaGWLiJQ1Zt33A74ytcPHNsCgw/zNTMC+mbWkJ2fDLOZPf9Rf5ZNS1Vu14amxb+czlQ+CHh60d9NEuGkmM4hNw==",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "qyx3CEf7mtGmSYia7nSCQhqfIjM6Ht19w0B4irTpdhHBvg4t7m28446JcsQuTev24K0Hmprmw9We6gns8ZZPWA==",
         "dependencies": {
           "AwesomeAssertions": "9.4.0",
           "Microsoft.Extensions.Logging.Console": "10.0.5",
-          "ViciOne.Suite.DataPort": "1.0.1-ci2878897099",
-          "ViciOne.Suite.DataPort.Extensions": "1.0.1-ci2878897099",
+          "ViciOne.Suite.DataPort": "1.0.0",
+          "ViciOne.Suite.DataPort.Extensions": "1.0.0",
           "ViciOne.Tree.Builder": "3.0.0",
           "xunit.v3.extensibility.core": "3.2.2"
         }
@@ -353,31 +353,31 @@
       "ViciOne.Suite.DataPort.AllenBradley.Logix": {
         "type": "Project",
         "dependencies": {
-          "ViciOne.Suite.DataPort": "[1.0.1-ci2878897099, )",
-          "ViciOne.Suite.DataPort.Extensions": "[1.0.1-ci2878897099, )",
+          "ViciOne.Suite.DataPort": "[1.0.0, )",
+          "ViciOne.Suite.DataPort.Extensions": "[1.0.0, )",
           "ViciOne.Tree.Builder": "[3.0.0, )",
           "libplctag": "[1.5.2, )"
         }
       },
       "ViciOne.Suite.DataPort": {
         "type": "CentralTransitive",
-        "requested": "[1.0.1-ci2878897099, )",
-        "resolved": "1.0.1-ci2878897099",
-        "contentHash": "L02DgJMT9OzAXauYi3lPrMObA/HnB2xLH8qj8as9a1DDjxslPOX41v3GQwZiYnyz3chXUbBFZCqoaV7+rw6PDg==",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "dZlaF2Rn64IRGGZokvA67RakHfGqLDrwalt7X7SbMjLep/mliSET6CNBDb9+/2TIm/nYK2HMFAz3Moja0xxTEQ==",
         "dependencies": {
           "ViciOne.ManagedEngine.Contracts": "1.0.0"
         }
       },
       "ViciOne.Suite.DataPort.Extensions": {
         "type": "CentralTransitive",
-        "requested": "[1.0.1-ci2878897099, )",
-        "resolved": "1.0.1-ci2878897099",
-        "contentHash": "Z/QRinDEGN7XB+aFyM4qkbYUIBWbqhSkoGVcPyrJJBKjeADV6y1tzs2MRvSWU4txRYbn1Xn/pf5zJFo4S/Jzvg==",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "k0342LIzxHP/BGV4TRHh6BGbpaV38FuUnxawMeWdEnSwtih/1q7G8STpr1cmvFpv3djk/j9/o52Evbluy7jjWw==",
         "dependencies": {
           "FluentValidation": "12.1.0",
           "Microsoft.Extensions.Logging.Abstractions": "10.0.5",
           "Polly": "8.6.6",
-          "ViciOne.Suite.DataPort": "1.0.1-ci2878897099"
+          "ViciOne.Suite.DataPort": "1.0.0"
         }
       },
       "ViciOne.Tree.Builder": {
