@@ -2,7 +2,7 @@
 
 Allen-Bradley DataPorts for .NET 10 that speak CIP over EtherNet/IP. Two dataports are planned:
 **Logix** (ControlLogix / CompactLogix, symbolic tag addressing) and **Legacy**
-(MicroLogix / Micro800, file-based addressing).
+(PLC-5 / SLC 500 / MicroLogix, data-file addressing over PCCC). Micro800 is symbolic and belongs to neither.
 
 ## Current state — read this first
 
@@ -18,7 +18,8 @@ Before you add a data type or a node, read these two pages:
 2. [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md) — how
    the tree is modelled.
 
-The **Legacy** dataport has no project yet.
+The **Legacy** dataport has no project yet. It will be a second project in this repo, versioned and published
+together with Logix. Its scope is in the [Legacy README](docs/AllenBradley.Legacy.Documentation/README.md).
 
 ## Quick Reference
 

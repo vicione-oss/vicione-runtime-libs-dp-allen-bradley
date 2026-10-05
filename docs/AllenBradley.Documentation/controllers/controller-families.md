@@ -46,7 +46,7 @@ route path that names them, is in [chassis and route paths](chassis-and-route-pa
 | **CompactLogix** (1769, 5370, 5380, 5480) | DIN-rail unit | Symbolic tags | Studio 5000 Logix Designer | Compact GuardLogix is the safety variant. The 5480 adds a Windows 10 IoT compute module |
 | **SoftLogix 5800** | PC, virtual chassis | Symbolic tags | Studio 5000 Logix Designer | Software controller presenting a virtual backplane |
 | **Micro800** (810-870) | DIN-rail unit | Symbolic tags, restricted | Connected Components Workbench | No program scope, no AOIs, tag listing only from firmware v10 |
-| **MicroLogix** (1000, 1100, 1200, 1400) | DIN-rail unit | PCCC data files | RSLogix 500 / RSLogix Micro | Legacy |
+| **MicroLogix** (1000, 1100, 1200, 1400, 1500) | DIN-rail unit | PCCC data files | RSLogix 500 / RSLogix Micro | Legacy |
 | **SLC 500** | Chassis or fixed | PCCC data files | RSLogix 500 | Legacy |
 | **PLC-5** | Chassis | PCCC data files | RSLogix 5 | Legacy |
 
@@ -65,6 +65,9 @@ GuardLogix and Compact GuardLogix are safety variants of their base line rather 
 families. Standard tags behave identically over CIP, but the safety task's tags cannot be written
 from outside. FlexLogix and DriveLogix were 2000s-era Logix variants, long discontinued.
 
+The table also leaves out the oldest file-era processors. The PLC-2 has octal word addresses
+(`010/07`) and no data files at all. The PLC-3 and the PLC-5/250 have data files but are rare.
+
 Studio 5000 Logix Emulate belongs on this list for a different reason. It presents a virtual chassis
 over CIP and answers symbolic reads and `@tags` listings like real hardware, so it is a route to
 integration testing without a physical controller.
@@ -81,6 +84,10 @@ Micro800 speaks the same tag services as Logix, but not all of them. It has no S
 Addressing and no Multiple Service Packet, so a client that batches requests falls back to one
 service per packet. Value encoding is little-endian in CIP and PCCC alike. What changes across the
 table is the addressing model and the service, never the byte order.
+
+A Logix controller can answer PCCC as well, when its project maps PLC/SLC messages onto Logix arrays
+so that an address such as `N7:0` reaches a tag. That mapping is a compatibility option for old HMIs
+and devices, and it does not make the controller file-addressed.
 
 CIP Security (ODVA Vol. 8, see
 [the networking overview](../protocol/cip/networking-overview.md#security-considerations)) is

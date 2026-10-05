@@ -15,11 +15,35 @@ handle the generic data-port machinery: connection lifecycle, polling, write que
 validation, the typed-node framework. That machinery is documented with the package, not here. These
 pages cover only what the Legacy port adds on top.
 
-> **Status.** Nothing here is planned work. The roadmap builds the Logix port and nothing else.
-> Whether the legacy families ever get a DataPort, and whether it lives here, in a separate port, or
-> in a separate repository, is an open decision with no owner yet. This project is scaffolded and the
-> content below is protocol background only. There is no addressing grammar in the repo. The Diátaxis
-> folders (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in only if the port is built.
+> **Status.** Planned, not started. The port will be a second project in this repo, beside the
+> Logix port, and the two are versioned and published together. The content below is protocol
+> background only, and there is no addressing grammar in the repo yet. The Diátaxis folders
+> (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in as the port is built.
+
+## Which controllers are in scope
+
+The port covers the families that store their data in data files and are addressed through PCCC:
+
+| Family | Addressing | In scope |
+|--------|------------|----------|
+| **PLC-5**, including the Ethernet `/xxE` models | `N7:0`, octal I/O (`I:012/07`) | Yes |
+| **SLC 500** (5/01 to 5/05) | `N7:0`, slot-based I/O (`I:1/3`) | Yes |
+| **MicroLogix** (1000, 1100, 1200, 1400, 1500) | Same as SLC 500 | Yes |
+| **PLC-2** | Octal word addresses (`010/07`), no data files | No |
+| **PLC-3**, **PLC-5/250** | Older, rare | No |
+
+PLC-5 and SLC 500 share the file notation but not the I/O notation, so how an address is checked
+depends on the family.
+
+The PLC-5/xxE, the SLC 5/05 and the MicroLogix 1100 and 1400 have Ethernet of their own, and they
+still speak PCCC with data files. Every other model is reached over DF1 serial, DH+ or DH-485. The
+port can reach those only through a bridge, because libplctag speaks nothing but EtherNet/IP.
+
+Two things look close and are not part of this port. Micro800 (810 to 870) is tag-based. Reading by
+tag name works, but it is a separate and simpler platform, and browsing and structure handling do not
+follow the Logix model. And a Logix controller can answer a legacy address such as `N7:0` when it is
+configured to map PLC/SLC messages. That is a compatibility option for old HMIs and devices, and
+supporting it is not a requirement.
 
 ## New here?
 

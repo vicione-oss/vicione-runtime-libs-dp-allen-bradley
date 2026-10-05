@@ -19,8 +19,20 @@ PLC-5 / SLC-500 generation, so it belongs to the Legacy world)
 
 **Logix**:
 The controller generation that addresses data by tag — ControlLogix, CompactLogix, GuardLogix,
-SoftLogix. Rockwell also writes Logix 5000, and uses it for the whole line rather than any one
-product.
+SoftLogix, and the discontinued FlexLogix and DriveLogix. Rockwell also writes Logix 5000, and uses
+it for the whole line rather than any one product.
+
+**Legacy**:
+The controller families that store data in data files and are addressed through PCCC: PLC-5, SLC
+500 and MicroLogix. Our word, not Rockwell's, and the name of the port that serves them. The PLC-2,
+PLC-3 and PLC-5/250 are file-era too, but outside it.
+_Avoid_: using it for Micro800, which is symbolic; using it for any controller merely because it is
+old
+
+**Micro800**:
+The small controller line from 810 to 870, programmed in Connected Components Workbench. It reads
+by tag name like Logix but is a separate, simpler platform: browsing and structures do not follow
+the Logix model. Neither Logix nor Legacy.
 
 **Controller family**:
 Which line a controller belongs to: ControlLogix, CompactLogix, Micro800. It says how the hardware

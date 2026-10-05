@@ -23,11 +23,12 @@ Rockwell's controllers address data in one of two ways, and the two ports follow
 | Port        | Controllers                                       | Addressing                                       | Programmed in                  | Status              |
 |-------------|---------------------------------------------------|--------------------------------------------------|--------------------------------|---------------------|
 | **Logix**   | ControlLogix, CompactLogix, GuardLogix, SoftLogix | Symbolic tags (`Motor.Speed`, `Arr[5]`)          | Studio 5000 Logix Designer     | Built, slice by slice |
-| **Legacy**  | PLC-5, SLC 500, MicroLogix                        | Data files (`N7:0`, `T4:0.PRE`) over PCCC        | RSLogix 5 · RSLogix 500        | Not started, no owner |
+| **Legacy**  | PLC-5, SLC 500, MicroLogix                        | Data files (`N7:0`, `T4:0.PRE`) over PCCC        | RSLogix 5 · RSLogix 500        | Planned, not started |
 
-Both ports speak CIP over EtherNet/IP on the wire. The Legacy port would tunnel PCCC, Rockwell's
-older command set, inside it. Micro800 belongs to neither yet. It addresses tags symbolically but has
-no program scope and a different type set, and where it lands is an open decision.
+Both ports speak CIP over EtherNet/IP on the wire. The Legacy port will tunnel PCCC, Rockwell's
+older command set, inside it. Micro800 is not a legacy controller. It addresses tags symbolically,
+but it has no program scope, a different type set and no browsing in the Logix sense, so it fits
+neither port as they are, and whether it is ever supported is an open decision.
 
 Inside the Logix line there is one more split the code leans on everywhere. The generation, 5X70
 versus 5X80, decides which data types a controller can declare at all.

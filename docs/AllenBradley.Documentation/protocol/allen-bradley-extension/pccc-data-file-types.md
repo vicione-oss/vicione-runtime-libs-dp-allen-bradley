@@ -10,7 +10,7 @@ the encoding is in the [CIP Data Types Reference](../cip/data-types.md) and is n
 The counterpart for the tag-addressed families is
 [Symbolic Tag Data Types](symbolic-tag-data-types.md).
 
-Who addresses by file: MicroLogix 1000/1100/1200/1400 and SLC 500 (RSLogix 500), and PLC-5
+Who addresses by file: MicroLogix 1000/1100/1200/1400/1500 and SLC 500 (RSLogix 500), and PLC-5
 (RSLogix 5). All three speak PCCC, tunneled inside EtherNet/IP where they have Ethernet at all. See
 [§6](#6-byte-order-and-transport) and
 [Controller families](../../controllers/controller-families.md#the-lines).
