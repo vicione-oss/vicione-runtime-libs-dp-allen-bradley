@@ -18,6 +18,8 @@
     <Project Path="docs/AllenBradley.Legacy.Documentation/AllenBradley.Legacy.Documentation.csproj" />
   </Folder>
   <Folder Name="/scripts/">
+    <File Path="scripts/deploy-legacy-to-local-vicione.cmd" />
+    <File Path="scripts/deploy-legacy-to-local-vicione.sh" />
     <File Path="scripts/deploy-logix-to-local-vicione.cmd" />
     <File Path="scripts/deploy-logix-to-local-vicione.sh" />
     <File Path="scripts/README.md" />

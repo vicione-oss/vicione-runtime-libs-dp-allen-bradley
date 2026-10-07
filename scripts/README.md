@@ -6,10 +6,12 @@ Utility scripts for deployment and automation.
 
 - `deploy-logix-to-local-vicione.*` — deploys **AllenBradley.Logix** (ControlLogix / CompactLogix,
   symbolic tag addressing)
+- `deploy-legacy-to-local-vicione.*` — deploys **AllenBradley.Legacy** (PLC-5 / SLC 500 / MicroLogix,
+  data-file addressing)
 
-The script cleans the project, builds and publishes it in the requested configuration, and copies the
+Each script cleans its project, builds and publishes it in the requested configuration, and copies the
 build outputs into the appropriate Vicione dependencies folder (creating the target directory if
-needed). A matching `deploy-legacy-to-local-vicione.*` arrives with the Legacy dataport project.
+needed). Both take the same parameters; the examples below use the Logix script.
 
 ### Parameters
 
@@ -52,8 +54,9 @@ Output lands under the suite's standalone cache, keyed by the version in the rep
 
 ```text
 <vo-suite>/src/Core.OS/bin/Debug/net10.0/Cache_Standalone/ViciOne.Suite.ClusterManagement/
-  Dependencies/ViciOne.Suite.DataPort.AllenBradley.Logix/<VERSION>/
+  Dependencies/ViciOne.Suite.DataPort.AllenBradley.<Logix|Legacy>/<VERSION>/
 ```
 
-`ViciOne.Suite.DataPort.AllenBradley.Logix` is the assembly name from the csproj and matches
-`FULLNAME_LOGIX` in `.gitlab-ci.yml`; keep the three in sync if the dataport is ever renamed.
+`ViciOne.Suite.DataPort.AllenBradley.Logix` and `ViciOne.Suite.DataPort.AllenBradley.Legacy` are the
+assembly names from the csproj files and match `FULLNAME_LOGIX` and `FULLNAME_LEGACY` in
+`.gitlab-ci.yml`; keep script, csproj and pipeline in sync if a dataport is ever renamed.
