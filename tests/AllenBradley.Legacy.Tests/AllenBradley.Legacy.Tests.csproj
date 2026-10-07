@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <RootNamespace>ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests</RootNamespace>
+    <!-- Without a Legacy test bench there are no integration tests, so an integration run finds none (exit code 8). -->
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <ItemGroup>
