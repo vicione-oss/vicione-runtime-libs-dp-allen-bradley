@@ -62,11 +62,12 @@ connection model. A legacy device would be reached the same way, through the Lin
 
 ## Components
 
-### Explanation *(planned)*
+### Explanation
 
 | Document | Covers |
 |----------|--------|
-| `explanation/architecture.md` | How the CIP/PCCC client, typed nodes, and the incoming/outgoing ports fit together |
+| [`explanation/addressing.md`](explanation/addressing.md) | What each part of a data-file address means, how SLC and PLC-5 I/O notation differ, and how an address becomes a PCCC request |
+| `explanation/architecture.md` *(planned)* | How the CIP/PCCC client, typed nodes, and the incoming/outgoing ports fit together |
 
 ### How-to *(planned)*
 
