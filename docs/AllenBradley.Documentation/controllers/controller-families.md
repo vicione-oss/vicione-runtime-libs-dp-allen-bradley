@@ -77,7 +77,7 @@ integration testing without a physical controller.
 | Access mechanism | Logix | Micro800 | MicroLogix | SLC 500 | PLC-5 |
 |------------------|-------|----------|------------|---------|-------|
 | [CIP symbolic tag services](../protocol/allen-bradley-extension/tag-services.md) (`0x4C` read, `0x4D` write, and their fragmented variants) | native | native | ❌ | ❌ | ❌ |
-| [PCCC over EtherNet/IP](../protocol/allen-bradley-extension/pccc-data-file-types.md#the-pccc-tunnel) (PCCC object, class `0x67`, service `0x4B`) | ❌ | ❌ | native | native (5/05) | native (`/xxE`) |
+| [PCCC over EtherNet/IP](../protocol/allen-bradley-extension/pccc.md#the-pccc-tunnel) (PCCC object, class `0x67`, service `0x4B`) | ❌ | ❌ | native | native (5/05) | native (`/xxE`) |
 | Reached through a bridge when there is no native Ethernet | n/a | n/a | 1000, 1200, 1500 | 5/01-5/04 | non-`E` models |
 
 Micro800 speaks the same tag services as Logix, but not all of them. It has no Symbol Instance

@@ -47,8 +47,8 @@ supporting it is not a requirement.
 
 ## New here?
 
-The [CIP / EtherNet/IP networking overview](../AllenBradley.Documentation/protocol/cip/networking-overview.md)
-explains how PCCC is tunneled over EtherNet/IP and how a data-file read is framed on the wire.
+[PCCC](../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc.md) explains how PCCC is
+tunneled over EtherNet/IP and how a data-file read is framed on the wire.
 [PCCC data-file types](../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc-data-file-types.md)
 lists which types each legacy family exposes, how the file letters map to CIP and .NET types, and
 how Timer, Counter, and string elements are laid out.

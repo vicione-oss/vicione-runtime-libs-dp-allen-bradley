@@ -103,7 +103,7 @@ They are reached through a ControlLogix gateway (an ENxT plus a 1756-DHRIO or 17
 DH+, the last hop names a channel and a node rather than a slot.
 
 Once the request arrives, the addressing is PCCC data files rather than tags. That layer is covered
-in [the PCCC tunnel](../protocol/allen-bradley-extension/pccc-data-file-types.md#the-pccc-tunnel).
+in [the PCCC tunnel](../protocol/allen-bradley-extension/pccc.md#the-pccc-tunnel).
 
 ## References
 

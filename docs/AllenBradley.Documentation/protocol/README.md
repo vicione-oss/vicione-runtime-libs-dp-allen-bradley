@@ -33,7 +33,8 @@ Read them in this order. Each one assumes the one before it.
 | [symbolic-tag-data-types.md](allen-bradley-extension/symbolic-tag-data-types.md) | Which types the tag-addressed families expose (Logix by generation, Micro800), the Logix `STRING`/`TIMER`/`COUNTER` structures, array layout, and BOOL packing |
 | [tag-browsing.md](allen-bradley-extension/tag-browsing.md) | The Symbol and Template objects, service `0x55` and its paging, the symbol-type bitfield, reading a template member by member, and the browse flow |
 | [tag-scoping.md](allen-bradley-extension/tag-scoping.md) | Where a Logix tag lives: controller scope and program scope, what the `Program:` prefix adds to an address, shadowing, which tags the firmware keeps in controller scope, and why a full listing is one pass per scope |
-| [pccc-data-file-types.md](allen-bradley-extension/pccc-data-file-types.md) | Which types the file-addressed families expose (MicroLogix, SLC 500, PLC-5): file letters and element sizes, Timer/Counter/Control layouts, the `ST` string element, what these families lack, and the PCCC tunnel that carries their commands inside CIP |
+| [pccc.md](allen-bradley-extension/pccc.md) | How the file-addressed families are reached: the PCCC object and its Execute PCCC service, the requestor ID and CMD/FNC command bytes, and bridging to controllers without Ethernet |
+| [pccc-data-file-types.md](allen-bradley-extension/pccc-data-file-types.md) | Which types the file-addressed families expose (MicroLogix, SLC 500, PLC-5): file letters and element sizes, Timer/Counter/Control layouts, the `ST` string element, and what these families lack |
 
 ## What this folder is not
 

@@ -298,9 +298,12 @@ contexts:
 
       - name: PCCC
         definition: >-
-          The older Allen-Bradley protocol that file-addressed controllers speak, tunnelled inside
-          CIP to reach them. The Legacy world's protocol, named here so it is not mistaken for a CIP
-          service.
+          Programmable Controller Communication Commands: the command set file-addressed controllers
+          (PLC-5, SLC 500, MicroLogix) use to read and write data files, carried over DF1 and DH+
+          before CIP existed. Over EtherNet/IP it travels as the payload of the Execute PCCC service
+          (`0x4B`) on the PCCC object (`0x67`). It is not a CIP service itself; Logix uses the CIP tag
+          services instead. See [the PCCC
+          tunnel](docs/AllenBradley.Documentation/protocol/allen-bradley-extension/pccc.md#the-pccc-tunnel).
 
       # ----------------------------------------------------------------------------------------
       # Tags

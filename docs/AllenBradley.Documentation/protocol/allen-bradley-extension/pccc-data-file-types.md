@@ -11,9 +11,8 @@ The counterpart for the tag-addressed families is
 [Symbolic Tag Data Types](symbolic-tag-data-types.md).
 
 Who addresses by file: MicroLogix 1000/1100/1200/1400/1500 and SLC 500 (RSLogix 500), and PLC-5
-(RSLogix 5). All three speak PCCC, tunneled inside EtherNet/IP where they have Ethernet at all. See
-[§6](#6-byte-order-and-transport) and
-[Controller families](../../controllers/controller-families.md#the-lines).
+(RSLogix 5). All three speak [PCCC](pccc.md), tunneled inside EtherNet/IP where they have Ethernet
+at all. See [Controller families](../../controllers/controller-families.md#the-lines).
 
 ---
 
@@ -161,33 +160,13 @@ ten-element integer array only because a client chooses to read ten words.
 
 ---
 
-## 6. Byte order and transport
+## 6. Byte order
 
 Values in PCCC payloads are little-endian, like CIP. The `ST` character swap of
 [§3](#string-elements) is the exception, and it is a swap inside each word rather than a different
 endianness for the value.
 
-Access is by typed read/write services naming a file, element, and word count (the SLC protected
-typed logical read/write family).
-
-### The PCCC tunnel
-
-These controllers do not speak the CIP [tag services](tag-services.md). Their application layer is
-PCCC (Programmable Controller Communication Commands), the same command set used over DF1 serial
-links. Over EtherNet/IP, a PCCC command is tunneled inside an ordinary CIP explicit message *(std,
-see [the message-router format](../cip/networking-overview.md#cip-message-router-requestreply-format))*.
-
-The message is sent to the PCCC object, class `0x67` in the vendor range, instance `1` (path
-`20 67 24 01`), using the Execute PCCC service `0x4B`, the first code of the object-class-specific
-range. The service data carries a requestor ID header followed by the PCCC command bytes: a CMD/FNC
-pair such as CMD `0x0F` / FNC `0xA2` for "protected typed logical read", or FNC `0xAA`/`0xAB` for a
-write. These address a data file by file number, element, and sub-element (`N7:0`, `T4:0.PRE`, and
-so on).
-
-Controllers without native Ethernet (older PLC-5, SLC 5/03·5/04, MicroLogix 1000/1200/1500) reach
-EtherNet/IP through a bridge, either a 1756-ENxT + 1756-DHRIO ControlLogix gateway or a 1761-NET-ENI
-serial converter, and the CIP route path hops through the bridge to the target node. See
-[Reaching a legacy controller through a bridge](../../controllers/chassis-and-route-paths.md#reaching-a-legacy-controller-through-a-bridge).
+How these bytes are requested and carried to the controller is in [PCCC](pccc.md).
 
 ---
 
@@ -218,5 +197,4 @@ serial converter, and the CIP route path hops through the bridge to the target n
 - [`../cip/data-types.md`](../cip/data-types.md), how each type is encoded on the wire
 - [`controller-families.md`](../../controllers/controller-families.md), which controller is which
   line, its programming tool, and its route path
-- [`../cip/networking-overview.md`](../cip/networking-overview.md), the standard wire stack and
-  message format the tunnel rides on
+- [`pccc.md`](pccc.md), how a data file is read and written on the wire
