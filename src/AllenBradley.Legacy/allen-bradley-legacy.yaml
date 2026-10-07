@@ -1,0 +1,219 @@
+Common:
+  Target: DataPort
+  ContentType: Rules
+  Version: 1.0
+  Date: 2026-10-07
+  Description: "Allen-Bradley Legacy DataPort - data-file addressing over PCCC"
+  Author: "ifm software gmbh"
+  MetadataType: YAML
+  Namespace: "ViciOne.DataPort.AllenBradley.Legacy"
+
+Root:
+  Id: "AllenBradley.Legacy"
+  Name: "Allen-Bradley Legacy"
+  Description: "DataPort for Allen-Bradley SLC 500 / MicroLogix controllers, addressed by data file over PCCC (EtherNet/IP)"
+  Icon: datapoint
+  ChildNodes:
+    - Id: DeviceSlc500
+      MaxDepth: 64
+      MaxInstances: 16
+    - Id: DeviceMicroLogix
+      MaxDepth: 64
+      MaxInstances: 16
+
+Nodes:
+
+  # ==================== DEVICE ===================================
+  # One node id per family: libplctag speaks to each as a different PLC type. CipRoutePath is optional,
+  # because only a controller behind a bridge has hops to name; one with Ethernet of its own is the
+  # endpoint itself.
+
+  - Id: DeviceSlc500
+    Type: DataPortNode
+    Name: "SLC 500"
+    Description: "Allen-Bradley SLC 500 controller (5/01 to 5/05), reached over EtherNet/IP directly (5/05) or through a bridge."
+    MetadataLength: 0
+    Icon: datapoint
+    TransferDirections: [ Inbound, Outbound ]
+    PropertyCategories: &device-properties
+      - Id: Connection
+        Properties:
+          - Id: ConnectionEndpoint
+            Required: true
+          - Id: TcpPort
+          - Id: CipRoutePath
+          - Id: OperationTimeout
+      - Id: QueueConfiguration
+        Properties:
+          - Id: MaxPendingMessages
+          - Id: Strategy
+    ChildNodes: &data-file-nodes
+      - Id: IntegerFile
+
+  - Id: DeviceMicroLogix
+    Type: DataPortNode
+    Name: "MicroLogix"
+    Description: "Allen-Bradley MicroLogix controller (1000 to 1500), reached over EtherNet/IP directly (1100, 1400) or through a bridge."
+    MetadataLength: 0
+    Icon: datapoint
+    TransferDirections: [ Inbound, Outbound ]
+    PropertyCategories: *device-properties
+    ChildNodes: *data-file-nodes
+
+  # ==================== DATA FILES ===================================
+  # One node per file type, because the file's letter fixes the type of every element in it. The file
+  # holds its number, and its children only the element, so the address composes to "N7:12".
+
+  - Id: IntegerFile
+    MappingId: IntegerFile
+    Type: DataPortTreeNode
+    Name: "Integer File (N)"
+    Description: "An integer data file, N7 or any other file the program declares as integer. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Integer
+
+  # ==================== ELEMENTS ======================================
+
+  - Id: Integer
+    MappingId: Integer
+    Type: DataPortTreeNode
+    Name: "Integer"
+    Description: >-
+      Data file type: N (integer)
+      Size: 1 word, 2 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 1 = MSB
+      Range: −32 768..32 767
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Int16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+# ==================== PROPERTY CATEGORIES ===========================
+
+PropertyCategories:
+
+  - Id: Connection
+    Name: "Connection"
+    Description: "Which controller to reach, and how long one operation against it may take"
+
+  - Id: QueueConfiguration
+    Name: "Queue Configuration"
+    Description: "How the outgoing write queue behaves when the controller cannot keep up"
+
+  - Id: DataFile
+    Name: "Data File"
+    Description: "Which data file, or which element in it, the node reaches, as numbered in RSLogix 500"
+
+  - Id: ReadConfiguration
+    Name: "Read configuration"
+    Description: "Configure properties for reading data points"
+
+# ==================== PROPERTIES ===================================
+
+Properties:
+
+  # ---- Connection Properties ----
+  - Id: ConnectionEndpoint
+    Name: "Connection endpoint"
+    Description: "IP address or host name of the controller's EtherNet/IP interface, or of the bridge in front of it"
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: ""
+    Validations:
+      - Type: Regex
+        Pattern: '\A\S+\z'
+        Message: "Connection endpoint must be the IP address or host name of the controller."
+
+  - Id: TcpPort
+    Name: "TCP port"
+    Description: "TCP port the EtherNet/IP interface listens on. 44818 is the registered one; change it only for a NAT rule or a tunnel that moved it"
+    DataType: UInt16
+    UiControl: NumericUpDown
+    DefaultValue: 44818
+    MinValue: 1
+
+  - Id: CipRoutePath
+    Name: "CIP route path"
+    Description: "Hops from a bridge to the controller, e.g. through a ControlLogix gateway onto DH+. Leave empty for a controller with Ethernet of its own"
+    DataType: String
+    UiControl: TextBox
+    DefaultValue: ""
+
+  - Id: OperationTimeout
+    Name: "Operation Timeout (ms)"
+    Description: "How long one request against this controller may take before it is aborted"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 5000
+    MinValue: 100
+
+  # ---- QueueConfiguration Properties ----
+  # Read by the outgoing port only; an inbound-only device carries the defaults and builds no queue.
+  - Id: MaxPendingMessages
+    Name: "Max pending messages"
+    Description: "How many write batches may wait for the controller before the strategy below applies"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 100000
+    MinValue: 1
+
+  - Id: Strategy
+    Name: "Queue overflow strategy"
+    Description: "What a full write queue drops: the oldest batch keeps the freshest value moving, the newest preserves write order"
+    DataType: UInt8
+    UiControl: NumericListBox
+    DefaultValue: 0
+    Elements: { 0: 'Drop Oldest', 1: 'Drop Newest' }
+    MinValue: 0
+    MaxValue: 1
+
+  # ---- DataFile Properties ----
+  # The default is only the lowest legal number, not a guess at the file: N7 and F8 are where RSLogix
+  # puts the first file of a type, and a program has as many more as it declares. 0 to 2 are the
+  # output, input and status files.
+  - Id: FileNumber
+    Name: "File number"
+    Description: "Number of the data file as RSLogix 500 lists it: 7 for N7, 10 for N10"
+    DataType: UInt16
+    UiControl: NumericUpDown
+    DefaultValue: 3
+    MinValue: 3
+    MaxValue: 255
+
+  - Id: ElementNumber
+    Name: "Element"
+    Description: "Element in the data file, counted from 0: 12 for N7:12"
+    DataType: UInt16
+    UiControl: NumericUpDown
+    DefaultValue: 0
+    MinValue: 0
+    MaxValue: 255
+
+  # ---- ReadConfiguration Properties ----
+  - Id: PollFrequency
+    Name: "Poll frequency (ms)"
+    Description: "Define how often the data point should be read from the controller"
+    DataType: Int32
+    UiControl: NumericUpDown
+    DefaultValue: 500
+    MinValue: 100
+
+# ==================== ICONS ========================================
+# Every node shows the engine's own 'datapoint' until the Legacy port has icons of its own.
