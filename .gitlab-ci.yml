@@ -1,6 +1,5 @@
-# Component-based pipeline modeled on the Siemens S7 repo, collapsed to the single
-# module that exists so far. Only AllenBradley.Logix has a project; the Legacy dataport
-# arrives later and gets its own module fan-out then.
+# Component-based pipeline modeled on the Siemens S7 repo. Each dataport (Logix, Legacy)
+# is packaged and published as its own module, from one shared version.
 #
 # Dropped versus S7, because the inputs don't exist in this repo yet:
 #   - "Verify licenses" — needs THIRD-PARTY-NOTICES.md and scripts/verify-licenses.sh
@@ -76,6 +75,7 @@ default:
 
 variables:
   FULLNAME_LOGIX: "ViciOne.Suite.DataPort.AllenBradley.Logix"
+  FULLNAME_LEGACY: "ViciOne.Suite.DataPort.AllenBradley.Legacy"
 
 stages:
   - metadata
@@ -88,6 +88,8 @@ include:
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/version/version-calc@v1.1.1
     inputs:
       rules: *rules_always
+  # One job for both modules: it writes a fixed runtime_identifiers.json, and both
+  # projects take their RIDs from Directory.Build.props.
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/module-packaging/runtime-identifier@v0.2.0
     inputs:
       project: "src/AllenBradley.Logix/AllenBradley.Logix.csproj"
@@ -101,6 +103,17 @@ include:
       module_version: "${Version}"
       metadata_json: "src/AllenBradley.Logix/metadata.json"
       metadata_dir: "metadata/logix"
+      min_core_version_file: "VERSION_CORE"
+      min_core_version_property: "MinCoreVersion"
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/module-packaging/metadata@v0.2.0
+    inputs:
+      name: "Generate packaging metadata (legacy-dataport)"
+      stage: metadata
+      rules: *rules_always
+      project: "src/AllenBradley.Legacy/AllenBradley.Legacy.csproj"
+      module_version: "${Version}"
+      metadata_json: "src/AllenBradley.Legacy/metadata.json"
+      metadata_dir: "metadata/legacy"
       min_core_version_file: "VERSION_CORE"
       min_core_version_property: "MinCoreVersion"
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@2
@@ -147,6 +160,19 @@ include:
         - *update_nuget_source_ro
         - dotnet restore
       execution_matrix: *exec_matrix
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-publish@2
+    inputs:
+      name: "dotnet publish (legacy-dataport)"
+      stage: pack
+      image: *sdk-image
+      rules: *rules_manual
+      project: "src/AllenBradley.Legacy/AllenBradley.Legacy.csproj"
+      output_directory: "artifacts/legacy/${OS}-${ARCH}"
+      self_contained: "true"
+      before_script:
+        - *update_nuget_source_ro
+        - dotnet restore
+      execution_matrix: *exec_matrix
 
   # Package binaries
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/module-packaging/package-module@v0.2.0
@@ -158,6 +184,18 @@ include:
       metadata_job: "Generate packaging metadata (logix-dataport)"
       build_dir: "artifacts/logix"
       metadata_dir: "metadata/logix"
+      before_script:
+        - apt update
+        - apt install jq zip -y
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/module-packaging/package-module@v0.2.0
+    inputs:
+      name: "create zip (legacy-dataport)"
+      stage: pack
+      rules: *rules_always
+      publish_job: "dotnet publish (legacy-dataport)"
+      metadata_job: "Generate packaging metadata (legacy-dataport)"
+      build_dir: "artifacts/legacy"
+      metadata_dir: "metadata/legacy"
       before_script:
         - apt update
         - apt install jq zip -y
@@ -176,6 +214,19 @@ include:
       artifacts:
         - "artifacts/logix/**/*json"
         - "artifacts/logix/**/*zip"
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/jfrog/release@v1.0.0
+    inputs:
+      name: "Upload to jfrog-dev (legacy-dataport)"
+      stage: publish
+      rules: *rules_not_tags_manual
+      repository: "vicione-suite-dev"
+      upload_path: "fbs/${FULLNAME_LEGACY}"
+      needs:
+        - "Generate packaging metadata (legacy-dataport)"
+        - "create zip (legacy-dataport)"
+      artifacts:
+        - "artifacts/legacy/**/*json"
+        - "artifacts/legacy/**/*zip"
 
   # Release to staging repository (on tag)
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/jfrog/release@v1.0.0
@@ -191,6 +242,19 @@ include:
       artifacts:
         - "artifacts/logix/**/*json"
         - "artifacts/logix/**/*zip"
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/jfrog/release@v1.0.0
+    inputs:
+      name: "Upload to jfrog-staging (legacy-dataport)"
+      stage: publish
+      rules: *rules_only_tags_manual
+      repository: "vicione-suite-staging"
+      upload_path: "fbs/${FULLNAME_LEGACY}"
+      needs:
+        - "Generate packaging metadata (legacy-dataport)"
+        - "create zip (legacy-dataport)"
+      artifacts:
+        - "artifacts/legacy/**/*json"
+        - "artifacts/legacy/**/*zip"
 
   # Promote staging to production (on tag) — moves the exact tested artifacts
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/jfrog/promote@v1.0.0
@@ -203,6 +267,16 @@ include:
       artifacts:
         - "artifacts/logix/**/*json"
         - "artifacts/logix/**/*zip"
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/jfrog/promote@v1.0.0
+    inputs:
+      name: "promote to jfrog-releases (legacy-dataport)"
+      stage: promote
+      rules: *rules_only_tags_manual
+      source_repository: "vicione-suite-staging"
+      destination_repository: "vicione-suite"
+      artifacts:
+        - "artifacts/legacy/**/*json"
+        - "artifacts/legacy/**/*zip"
 
 Lint markdown:
   stage: test
