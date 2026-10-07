@@ -1,0 +1,76 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "ViciOne.Suite.DataPort": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "dZlaF2Rn64IRGGZokvA67RakHfGqLDrwalt7X7SbMjLep/mliSET6CNBDb9+/2TIm/nYK2HMFAz3Moja0xxTEQ==",
+        "dependencies": {
+          "ViciOne.ManagedEngine.Contracts": "1.0.0"
+        }
+      },
+      "ViciOne.Suite.DataPort.Extensions": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "k0342LIzxHP/BGV4TRHh6BGbpaV38FuUnxawMeWdEnSwtih/1q7G8STpr1cmvFpv3djk/j9/o52Evbluy7jjWw==",
+        "dependencies": {
+          "FluentValidation": "12.1.0",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.5",
+          "Polly": "8.6.6",
+          "ViciOne.Suite.DataPort": "1.0.0"
+        }
+      },
+      "FluentValidation": {
+        "type": "Transitive",
+        "resolved": "12.1.0",
+        "contentHash": "FqWEn8BdbbFEHGanj9K8SVo+LyBeFWy2rolaE+e1TNUbifr8M7Iss+I1AqTSc8kjKtvjl/WN4XIHiRpslh42bA=="
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.5",
+        "contentHash": "iVMtq9eRvzyhx8949EGT0OCYJfXi737SbRVzWXE5GrOgGj5AaZ9eUuxA/BSUfmOMALKn/g8KfFaNQw0eiB3lyA=="
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.0.5",
+        "contentHash": "9HOdqlDtPptVcmKAjsQ/Nr5Rxfq6FMYLdhvZh1lVmeKR738qeYecQD7+ldooXf+u2KzzR1kafSphWngIM3C6ug==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.5"
+        }
+      },
+      "Polly": {
+        "type": "Transitive",
+        "resolved": "8.6.6",
+        "contentHash": "czKHYJ6uGowPijuZt4kgF4njfGvWxVZ8mKBcrZ9iEtwDe9HKdF0ug6p6TwUG8EHuuufgbDU//rSBFebt5/0Fyw==",
+        "dependencies": {
+          "Polly.Core": "8.6.6"
+        }
+      },
+      "Polly.Core": {
+        "type": "Transitive",
+        "resolved": "8.6.6",
+        "contentHash": "lCBL9mmhF9TZxHG3beVRkyjlLohkIC464xIAq7J7Y59C+z42hmsdUaeCKl2SIAYertOUU5TeBXyQDLDQGIKePQ=="
+      },
+      "ViciOne.ManagedEngine.Contracts": {
+        "type": "Transitive",
+        "resolved": "1.0.0",
+        "contentHash": "ZgFz7ZsM/2eZVAQIHoZU4P2YOJChGIgkm2MY6qT2wZkBpAgY/Gh09nvfMa8jYXfFdQJiJebNstpfnoFFn71deA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.3",
+          "ViciOne.ManagedEngine.Serialization": "1.0.0"
+        }
+      },
+      "ViciOne.ManagedEngine.Serialization": {
+        "type": "Transitive",
+        "resolved": "1.0.0",
+        "contentHash": "8ZwPSnqDn3lZODdhK2/7Qe54yNEWt3XIxmVDAd5IK86+OjsU3gSCcZdMOo1Zq2aqWja4KtlSzgvj3hQfMqiisQ=="
+      }
+    },
+    "net10.0/linux-arm64": {},
+    "net10.0/linux-x64": {},
+    "net10.0/win-x64": {}
+  }
+}

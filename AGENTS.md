@@ -18,7 +18,7 @@ Before you add a data type or a node, read these two pages:
 2. [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md) — how
    the tree is modelled.
 
-The **Legacy** dataport has no project yet. It will be a second project in this repo, versioned and published
+The **Legacy** dataport is a second project in this repo, `src/AllenBradley.Legacy`, versioned and published
 together with Logix. Its scope is in the [Legacy README](docs/AllenBradley.Legacy.Documentation/README.md).
 
 ## Quick Reference

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ViciOne.Suite.DataPort.AllenBradley.Legacy</RootNamespace>
+    <AssemblyName>ViciOne.Suite.DataPort.AllenBradley.Legacy</AssemblyName>
+    <Description>DataPort for Allen-Bradley legacy PLCs (PLC-5, SLC 500, MicroLogix) addressed by data file over PCCC.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ViciOne.Suite.DataPort" />
+    <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
+  </ItemGroup>
+
+  <!-- Configuration file - always copy to output -->
+  <ItemGroup>
+    <None Update="allen-bradley-legacy.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
