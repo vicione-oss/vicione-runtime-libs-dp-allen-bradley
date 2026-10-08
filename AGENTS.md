@@ -110,13 +110,9 @@ documentation ships inside the NuGet packages themselves.
 
 This project is hosted on **GitLab**. Always use the **`glab` CLI** for repository interactions.
 
-Some read commands (for example `glab mr view`) fail with 401 unless you pass
-`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. If you are
-in doubt, add `--repo`.
-
 | Task       | Command                                                         |
 |------------|-----------------------------------------------------------------|
-| View MR    | `glab mr view <id> --repo vicione-oss/addons/allen-bradley/cip` |
+| View MR    | `glab mr view <id>`                                             |
 | Update MR  | `glab mr update <id> --title "..." --description "..."`         |
 | Create MR  | `glab mr create`                                                |
 | List MRs   | `glab mr list`                                                  |

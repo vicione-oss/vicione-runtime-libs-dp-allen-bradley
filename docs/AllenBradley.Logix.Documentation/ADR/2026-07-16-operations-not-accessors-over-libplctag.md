@@ -6,7 +6,7 @@ The client talks to the controller through libplctag. The .NET wrapper gives one
 call this object a handle. A handle holds the connection state and the byte buffer of its tag. It has `ReadAsync` and
 `WriteAsync` for the device, and `GetBuffer` and `SetBuffer` for the buffer. The code is in
 `src/AllenBradley.Logix/Client/Tags/Access/`. This decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 We need our own interface over the handle, for two reasons:
 

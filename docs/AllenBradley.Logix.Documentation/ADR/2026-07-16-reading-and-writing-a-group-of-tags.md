@@ -5,7 +5,7 @@
 For a read, the framework gives the client a group of data points and expects a list of typed values back. For a
 write, it gives a list of typed values. The write returns no result, so only an exception can report a failure. The
 code is the read batch and the write batch in `src/AllenBradley.Logix/Client/`. This decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 The group has a different meaning in the two directions:
 

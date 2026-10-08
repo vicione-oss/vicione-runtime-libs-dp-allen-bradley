@@ -19,7 +19,7 @@ Thus, the client needs a handle cache that:
 3. Has one owner that creates and disposes the handles, in step with connect, disconnect and dispose.
 
 The code is in `src/AllenBradley.Logix/Client/Tags/Lifetime/`. This decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 ## Considered Options
 

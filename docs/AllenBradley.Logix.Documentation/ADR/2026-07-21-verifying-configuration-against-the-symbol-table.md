@@ -6,7 +6,7 @@ The framework runs a verification step after connect. In this step, the port com
 what the controller declares for its tag: data type, shape and size. The step reports each mismatch. Thus, a wrong
 configuration is found one time, at connect, and not as a bad read on each poll. The S7 dataport does the same with its
 symbol table. This decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 The question is where the client gets the declared types of the controller. These facts limit the answer:
 

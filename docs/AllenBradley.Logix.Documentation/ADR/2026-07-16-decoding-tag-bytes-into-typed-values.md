@@ -4,7 +4,7 @@
 
 A read gives the raw bytes of a tag. The client must change these bytes into the .NET value of the data point. A write
 must do the opposite. The code is in `src/AllenBradley.Logix/Client/TypeConversion/`. This decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 The conversion must be type-safe in two ways:
 

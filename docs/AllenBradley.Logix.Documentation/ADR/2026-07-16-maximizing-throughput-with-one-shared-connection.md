@@ -7,7 +7,7 @@ The client reads a group of tags as concurrent operations, one for each tag
 by poll frequency, for example a fast class, a slow class and a bulk class. This decision sets how many libplctag
 sessions these operations use. The code is the access factory in `src/AllenBradley.Logix/Client/Tags/Access/`. This
 decision was made under
-[issue #5: Client base design](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/5).
+issue #5: Client base design.
 
 In this ADR, "session" has the libplctag meaning. It is one EtherNet/IP session plus the CIP connection that a Forward
 Open opens over it.

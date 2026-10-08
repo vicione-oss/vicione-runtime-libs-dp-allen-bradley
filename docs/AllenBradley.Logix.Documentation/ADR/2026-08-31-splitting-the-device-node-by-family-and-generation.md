@@ -4,7 +4,7 @@
 
 The device node in `allen-bradley-logix.yaml` tells the dataport which controller it connects to. The C# types are in
 `Model/Nodes/Device/`. This decision was made under
-[issue #9: Split the device node by controller family and generation](https://gitlab.com/vicione-oss/addons/allen-bradley/cip/-/work_items/9).
+issue #9: Split the device node by controller family and generation.
 
 The walking skeleton had one node, `Device`, with a `ControllerType` property: ControlLogix or CompactLogix. This
 property changed nothing. libplctag has one PLC type for all Logix controllers, so the factory used

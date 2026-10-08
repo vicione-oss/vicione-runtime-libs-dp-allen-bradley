@@ -44,7 +44,6 @@
 
   <!-- For projects published as NuGet packages -->
   <PropertyGroup>
-    <PackageProjectUrl>https://gitlab.com/vicione-oss/addons/allen-bradley/cip</PackageProjectUrl>
     <Authors>$(Company)</Authors>
   </PropertyGroup>
 
