@@ -115,10 +115,12 @@ Some read commands (for example `glab mr view`) fail with 401 unless you pass
 `--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. If you are
 in doubt, add `--repo`.
 
-Write every MR description in the structure of
-[`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md). The web UI fills it in,
-but `glab mr create --description` does not, so read the template first and follow its section comments. Leave out
-the comments themselves.
+Write every issue in the structure of [`.gitlab/issue_templates/Default.md`](.gitlab/issue_templates/Default.md)
+and every MR description in the structure of
+[`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md). The web UI fills them
+in, but `glab issue create --description` and `glab mr create --description` do not, so read the template first and
+follow its section comments. Leave out the comments themselves. The issue says what should happen; the MR says what
+did happen and does not repeat the issue.
 
 | Task       | Command                                                         |
 |------------|-----------------------------------------------------------------|
