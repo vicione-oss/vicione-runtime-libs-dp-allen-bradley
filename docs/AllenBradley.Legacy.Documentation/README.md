@@ -15,10 +15,10 @@ handle the generic data-port machinery: connection lifecycle, polling, write que
 validation, the typed-node framework. That machinery is documented with the package, not here. These
 pages cover only what the Legacy port adds on top.
 
-> **Status.** Planned, not started. The port will be a second project in this repo, beside the
-> Logix port, and the two are versioned and published together. The content below is protocol
-> background only, and there is no addressing grammar in the repo yet. The Diátaxis folders
-> (`explanation/`, `how-to/`, `reference/`, `ADR/`) fill in as the port is built.
+> **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
+> Logix port. A user can configure integer (`N`) data points on an SLC 500 or MicroLogix by file
+> number and element. The port cannot read or write them yet, because the Legacy client does not
+> exist. The Diátaxis folders (`how-to/`, `reference/`, `ADR/`) fill in as the port is built.
 
 ## Which controllers are in scope
 
@@ -26,14 +26,15 @@ The port covers the families that store their data in data files and are address
 
 | Family | Addressing | In scope |
 |--------|------------|----------|
-| **PLC-5**, including the Ethernet `/xxE` models | `N7:0`, octal I/O (`I:012/07`) | Yes |
+| **PLC-5**, including the Ethernet `/xxE` models | `N7:0`, octal I/O (`I:012/07`) | Later |
 | **SLC 500** (5/01 to 5/05) | `N7:0`, slot-based I/O (`I:1/3`) | Yes |
 | **MicroLogix** (1000, 1100, 1200, 1400, 1500) | Same as SLC 500 | Yes |
 | **PLC-2** | Octal word addresses (`010/07`), no data files | No |
 | **PLC-3**, **PLC-5/250** | Older, rare | No |
 
 PLC-5 and SLC 500 share the file notation but not the I/O notation, so how an address is checked
-depends on the family.
+depends on the family. The PLC-5 comes after the SLC 500 and MicroLogix, because its files and
+elements run to 999 and the SLC limit is 255.
 
 The PLC-5/xxE, the SLC 5/05 and the MicroLogix 1100 and 1400 have Ethernet of their own, and they
 still speak PCCC with data files. Every other model is reached over DF1 serial, DH+ or DH-485. The
