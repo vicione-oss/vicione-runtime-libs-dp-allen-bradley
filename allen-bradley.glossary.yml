@@ -453,6 +453,9 @@ contexts:
         definition: >-
           One entry in an array, reached with brackets — `Arr[5]`. **Not a tag**, for the same
           reason a member is not.
+          In a Legacy data file, the entry after the colon: the `12` in `N7:12`. It is one or more
+          16-bit words, one for an integer and three for a timer. Rockwell uses the word in both
+          senses.
 
       - name: Scalar
         definition: >-
@@ -507,6 +510,32 @@ contexts:
           the timer node and its tests; a counter's accumulated value is a count, not a time.
         meta:
           "Avoid:": elapsed time, accumulated time for a counter
+
+      # ----------------------------------------------------------------------------------------
+      # Data files
+      # ----------------------------------------------------------------------------------------
+      - name: Data file
+        definition: >-
+          A numbered block in the data table of a Legacy controller, holding elements of one type.
+          Its file type and file number name it together: `N7`, `T4`, `B3`. Files 0 to 2 are always
+          output, input and status. From 3 up, the program decides which files exist.
+
+      - name: File type
+        definition: >-
+          The letter that fixes the type of every element in a data file: `N` integer, `F` float,
+          `T` timer, `B` binary. PCCC sends it as a type code, `0x89` for `N`.
+
+      - name: File number
+        definition: >-
+          The number of a data file, the `7` in `N7:0`. The controller identifies a file by its
+          number, and the letter only states the type, so `N7` and `F7` cannot both exist.
+
+      - name: Data-file address
+        definition: >-
+          The location of a value in a Legacy controller: file type, file number and element, plus a
+          sub-element or a bit where needed. RSLogix writes it as `N7:12`, `T4:0.ACC` or `B3:2/5`.
+          Legacy controllers have no tags on the wire, so the address is the only way to reach a
+          value.
 
       # ----------------------------------------------------------------------------------------
       # On the wire

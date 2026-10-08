@@ -367,6 +367,8 @@ One axis of an array. A tag has at most three.
 **Element**:
 One entry in an array, reached with brackets — `Arr[5]`. **Not a tag**, for the same reason a member
 is not.
+In a Legacy data file, the entry after the colon: the `12` in `N7:12`. It is one or more 16-bit
+words, one for an integer and three for a timer. Rockwell uses the word in both senses.
 
 **Subscript**:
 The bracketed part that selects an element — `[5]`, or `[2,3]` across two dimensions. Rockwell's
@@ -412,6 +414,26 @@ _Avoid_: current value
 A timer's accumulated value, in milliseconds. The word wherever only a timer is meant, as in the timer
 node and its tests; a counter's accumulated value is a count, not a time.
 _Avoid_: elapsed time, accumulated time for a counter
+
+### Data files
+
+**Data file**:
+A numbered block in the data table of a Legacy controller, holding elements of one type. Its file
+type and file number name it together: `N7`, `T4`, `B3`. Files 0 to 2 are always output, input and
+status. From 3 up, the program decides which files exist.
+
+**File type**:
+The letter that fixes the type of every element in a data file: `N` integer, `F` float, `T` timer,
+`B` binary. PCCC sends it as a type code, `0x89` for `N`.
+
+**File number**:
+The number of a data file, the `7` in `N7:0`. The controller identifies a file by its number, and
+the letter only states the type, so `N7` and `F7` cannot both exist.
+
+**Data-file address**:
+The location of a value in a Legacy controller: file type, file number and element, plus a
+sub-element or a bit where needed. RSLogix writes it as `N7:12`, `T4:0.ACC` or `B3:2/5`. Legacy
+controllers have no tags on the wire, so the address is the only way to reach a value.
 
 ### On the wire
 
