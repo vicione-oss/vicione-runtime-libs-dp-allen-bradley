@@ -111,6 +111,15 @@ documentation ships inside the NuGet packages themselves.
 
 This project is hosted on **GitLab**. Always use the **`glab` CLI** for repository interactions.
 
+Some read commands (for example `glab mr view`) fail with 401 unless you pass
+`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. If you are
+in doubt, add `--repo`.
+
+Write every MR description in the structure of
+[`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md). The web UI fills it in,
+but `glab mr create --description` does not, so read the template first and follow its section comments. Leave out
+the comments themselves.
+
 | Task       | Command                                                         |
 |------------|-----------------------------------------------------------------|
 | View MR    | `glab mr view <id>`                                             |
