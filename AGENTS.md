@@ -123,6 +123,11 @@ in, but `glab issue create --description` and `glab mr create --description` do 
 follow its section comments. Leave out the comments themselves. The issue says what should happen; the MR says what
 did happen and does not repeat the issue.
 
+Write every MR description in the structure of
+[`.gitlab/merge_request_templates/Default.md`](.gitlab/merge_request_templates/Default.md). The web UI fills it in,
+but `glab mr create --description` does not, so read the template first and follow its section comments. Leave out
+the comments themselves.
+
 | Task       | Command                                                         |
 |------------|-----------------------------------------------------------------|
 | View MR    | `glab mr view <id>`                                             |
