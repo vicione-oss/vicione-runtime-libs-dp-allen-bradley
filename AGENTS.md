@@ -112,8 +112,9 @@ documentation ships inside the NuGet packages themselves.
 This project is hosted on **GitLab**. Always use the **`glab` CLI** for repository interactions.
 
 Some read commands (for example `glab mr view`) fail with 401 unless you pass
-`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`) work without it. If you are
-in doubt, add `--repo`.
+`--repo vicione-oss/addons/allen-bradley/cip`. Write commands (`mr update`, `mr create`, `issue update`) work without
+it. Never pass `--repo` to a write command: `glab issue update --repo …` prints nothing, exits 0 and changes nothing.
+After a write, read the result back to confirm it landed.
 
 Write every issue in the structure of [`.gitlab/issue_templates/Default.md`](.gitlab/issue_templates/Default.md)
 and every MR description in the structure of
