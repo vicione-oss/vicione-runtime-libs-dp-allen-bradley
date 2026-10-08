@@ -71,7 +71,7 @@ one.
 
 On the wire there is no address string. The client takes the address apart and sends the parts as
 numbers in a PCCC command, which is in turn carried by a CIP explicit message
-([the PCCC tunnel](../../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc-data-file-types.md#the-pccc-tunnel)).
+([the PCCC tunnel](../../AllenBradley.Documentation/protocol/allen-bradley-extension/pccc.md#the-pccc-tunnel)).
 
 ![From address to PCCC request](diagrams/addressing-to-pccc.svg)
 
@@ -106,6 +106,15 @@ word write of a value read a moment earlier would overwrite any bit the program 
 A read is also not limited to one element. The byte count may span several elements, up to what fits
 in one reply, so `N7:0` with a byte count of 20 returns `N7:0` to `N7:9`. That is how these families
 do arrays, since a file is just its elements in sequence.
+
+## How the port takes an address
+
+RSLogix and program documentation write an address as a string, but the port's configuration takes
+its parts as separate fields. An integer-file node holds the file number, and each element node below
+it holds only the element number, so `N7:12` becomes file node 7 with element node 12. The fields
+match those of the PCCC request one to one. Nothing has to be parsed, and the tree editor checks each
+number against its range as it is entered. An address copied from the program has to be split by
+hand.
 
 ## What a client cannot address
 
