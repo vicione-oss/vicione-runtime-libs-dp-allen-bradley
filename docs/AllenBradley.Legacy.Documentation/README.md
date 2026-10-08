@@ -17,8 +17,10 @@ pages cover only what the Legacy port adds on top.
 
 > **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
 > Logix port. A user can configure integer (`N`) data points on an SLC 500 or MicroLogix by file
-> number and element. The port cannot read or write them yet, because the Legacy client does not
-> exist. The Diátaxis folders (`how-to/`, `reference/`, `ADR/`) fill in as the port is built.
+> number and element. The engine loads the incoming port, which groups those points by poll
+> frequency. Connecting fails with a message that the Legacy client is not implemented yet, so the
+> port reads nothing, and there is no outgoing port. The Diátaxis folders (`how-to/`, `reference/`,
+> `ADR/`) fill in as the port is built.
 
 ## Which controllers are in scope
 
