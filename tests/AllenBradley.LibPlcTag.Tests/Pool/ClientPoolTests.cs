@@ -1,29 +1,27 @@
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Pool;
+using ViciOne.Suite.DataPort.Extensions.Client;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
-using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixClientTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Pool;
+namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.Pool;
 
-public sealed class LogixClientPoolTests : IAsyncDisposable
+public sealed class ClientPoolTests : IAsyncDisposable
 {
     private const string NoRouteToHost = "no route to host";
 
     private readonly ILoggerFactory _loggerFactory = TestLogging.CreateLoggerFactory();
-    private readonly LogixClientInformation _clientInformation = DefaultClientInformation();
-    private readonly ILogixClient _client = Substitute.For<ILogixClient>();
-    private readonly LogixClientPool _pool;
+    private readonly FakeClientInformation _clientInformation = new("10.0.0.1", "1,0");
+    private readonly IConnectableClient _client = Substitute.For<IConnectableClient>();
+    private readonly ClientPool<IConnectableClient, FakeClientInformation> _pool;
 
-    public LogixClientPoolTests()
+    public ClientPoolTests()
     {
-        var factory = Substitute.For<ILogixClientFactory>();
-        factory.Create(Arg.Any<LogixClientInformation>()).Returns(_client);
-        _pool = LogixClientPool.CreateTestInstance(_loggerFactory, factory);
+        var createClient = Substitute.For<Func<FakeClientInformation, IConnectableClient>>();
+        createClient(Arg.Any<FakeClientInformation>()).Returns(_client);
+        _pool = CreatePool(createClient);
     }
 
     [Fact]
@@ -59,12 +57,12 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
     public async Task AcquiresOfDifferentControllersGetTheirOwnClients()
     {
         // Arrange
-        var otherInformation = _clientInformation with { ConnectionEndpoint = new ConnectionEndpoint("10.0.0.2") };
-        var otherClient = Substitute.For<ILogixClient>();
-        var factory = Substitute.For<ILogixClientFactory>();
-        factory.Create(_clientInformation).Returns(_client);
-        factory.Create(otherInformation).Returns(otherClient);
-        await using var pool = LogixClientPool.CreateTestInstance(_loggerFactory, factory);
+        var otherInformation = _clientInformation with { ConnectionEndpoint = "10.0.0.2" };
+        var otherClient = Substitute.For<IConnectableClient>();
+        var createClient = Substitute.For<Func<FakeClientInformation, IConnectableClient>>();
+        createClient(_clientInformation).Returns(_client);
+        createClient(otherInformation).Returns(otherClient);
+        await using var pool = CreatePool(createClient);
         await pool.AcquireConnectedAsync(_clientInformation, CancellationToken.None);
 
         // Act
@@ -95,12 +93,12 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
     public async Task AnAcquireAfterAFailedConnectBuildsAFreshClient()
     {
         // Arrange
-        var failing = Substitute.For<ILogixClient>();
+        var failing = Substitute.For<IConnectableClient>();
         failing.ConnectAsync(Arg.Any<CancellationToken>()).ThrowsAsync(new ConnectionFailureException(NoRouteToHost));
-        var succeeding = Substitute.For<ILogixClient>();
-        var factory = Substitute.For<ILogixClientFactory>();
-        factory.Create(_clientInformation).Returns(failing, succeeding);
-        await using var pool = LogixClientPool.CreateTestInstance(_loggerFactory, factory);
+        var succeeding = Substitute.For<IConnectableClient>();
+        var createClient = Substitute.For<Func<FakeClientInformation, IConnectableClient>>();
+        createClient(_clientInformation).Returns(failing, succeeding);
+        await using var pool = CreatePool(createClient);
 
         // ReSharper disable once AccessToDisposedClosure — Record invokes it before it returns
         _ = await Record.ExceptionAsync(
@@ -177,7 +175,7 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
     public async Task ReleasingAControllerThatWasNeverAcquiredDoesNothing()
     {
         // Arrange
-        var neverAcquired = _clientInformation with { ConnectionEndpoint = new ConnectionEndpoint("10.0.0.2") };
+        var neverAcquired = _clientInformation with { ConnectionEndpoint = "10.0.0.2" };
 
         // Act
         var releasing = _pool.Awaiting(p => p.ReleaseAsync(neverAcquired, CancellationToken.None));
@@ -359,4 +357,13 @@ public sealed class LogixClientPoolTests : IAsyncDisposable
         _client.Dispose();
         _loggerFactory.Dispose();
     }
+
+    private ClientPool<IConnectableClient, FakeClientInformation> CreatePool(
+        Func<FakeClientInformation, IConnectableClient> createClient) =>
+        new(_loggerFactory.CreateLogger<ClientPoolTests>(), createClient, AddressOf);
+
+    private static ClientAddress AddressOf(FakeClientInformation clientInformation) =>
+        new(clientInformation.ConnectionEndpoint, clientInformation.CipRoutePath);
+
+    private sealed record FakeClientInformation(string ConnectionEndpoint, string CipRoutePath) : IClientInformation;
 }

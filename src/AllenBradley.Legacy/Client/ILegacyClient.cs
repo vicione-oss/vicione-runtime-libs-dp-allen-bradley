@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.Extensions.Exceptions;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Pool;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 
@@ -6,17 +6,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 /// One controller connection with both directions on it: the read and write seams, plus the connect /
 /// disconnect / dispose lifecycle a client lifecycle manager drives them through.
 /// </summary>
-public interface ILegacyClient : ILegacyReadClient, ILegacyWriteClient, IDisposable
+public interface ILegacyClient : ILegacyReadClient, ILegacyWriteClient, IConnectableClient
 {
     /// <summary>Whether the client has connected and not since disconnected.</summary>
     bool IsConnected { get; }
-
-    /// <summary>Opens the connection to the controller. A no-op when already connected.</summary>
-    /// <exception cref="ConnectionFailureException">The controller could not be reached.</exception>
-    /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>
-    Task ConnectAsync(CancellationToken cancellationToken);
-
-    /// <summary>Closes the connection to the controller. A no-op when already disconnected.</summary>
-    /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>
-    Task DisconnectAsync(CancellationToken cancellationToken);
 }

@@ -11,9 +11,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;
 /// <see cref="LogixTagAccessFactory"/> → <see cref="SymbolTableLoader"/> →
 /// <see cref="CachingLogixTagManager"/> → <see cref="LogixClient"/>.
 /// </summary>
-internal sealed class LogixClientFactory(ILoggerFactory loggerFactory) : ILogixClientFactory
+internal sealed class LogixClientFactory(ILoggerFactory loggerFactory)
 {
-    /// <inheritdoc />
+    /// <summary>Builds a disconnected client for the controller, for the pool to connect.</summary>
     public ILogixClient Create(LogixClientInformation clientInformation)
     {
         var accessFactory = new LogixTagAccessFactory(clientInformation);
