@@ -8,8 +8,9 @@ Allen-Bradley DataPorts for .NET 10 that speak CIP over EtherNet/IP. Two datapor
 
 `src/AllenBradley.Logix` is a working dataport, built slice by slice. It reads and writes tags against a real
 controller. It contains the YAML manifest and the typed node model mapped from it, the incoming and outgoing ports,
-a pooled `LogixClient` over `libplctag`, per-type converters, and verification of a configuration against the
-controller's symbol table.
+the `LogixClient` with its symbol table and tag attributes, per-type converters, and verification of a configuration
+against the controller's symbol table. The client pool, the batches and the byte layout of the elementary types come
+from the shared client project (below).
 
 Before you add a data type or a node, read these two pages:
 
@@ -18,14 +19,32 @@ Before you add a data type or a node, read these two pages:
 2. [`explanation/model/node-model.md`](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md) — how
    the tree is modelled.
 
+A new elementary type also needs a codec in `src/AllenBradley.Client.Shared/TypeConversion/Codecs/` if there is none
+for its .NET type yet.
+
 The **Legacy** dataport is a second project in this repo, `src/AllenBradley.Legacy`, versioned and published
 together with Logix. Its scope is in the [Legacy README](docs/AllenBradley.Legacy.Documentation/README.md).
 
-Both dataports use `src/AllenBradley.Client.Shared` for the client code that names neither of them: the client pool, the
-tag cache, the read and write batches, the tag access and the codecs for the elementary types. It is not a package of
-its own. Its assembly is bundled into each dataport's publish output through the project reference. Put a type there
-only if it names no Logix or Legacy type
-([ADR](docs/AllenBradley.Logix.Documentation/ADR/2026-10-12-sharing-the-libplctag-client-code-with-legacy.md)).
+### The shared client
+
+`src/AllenBradley.Client.Shared` holds the client code that both dataports use around libplctag: the client pool, the
+tag cache, the read and write batches, the access to one handle, and the codecs for the elementary types. Read
+[the shared client](docs/AllenBradley.Documentation/client/README.md) before you change it or build a client on it.
+
+- **Where a change goes.** A fix to pooling, tag reuse, batching or handle access goes in the shared project, and it
+  fixes both dataports. Data points, converters, tag attributes, the symbol table and the structured types (strings,
+  timers, counters, bit arrays) stay in the dataport.
+- **What may go in.** Only a type that names no Logix or Legacy type.
+- **Failures are values.** The shared batches return their failures and never throw for a failed tag. Each dataport
+  turns them into its own exception, as `LogixReadBatch` and `LogixWriteBatch` do with `LogixTagException`. Do not
+  add a dataport exception to the shared code.
+- **Internal by default.** `IConnectableClient` is the only public type, because the public client interfaces extend
+  it. Keep everything else internal.
+- **Packaging.** It is not a package of its own. `dotnet publish` of a dataport copies its assembly through the project
+  reference, so CI and the deploy scripts need nothing extra.
+
+The decision is in the
+[ADR](docs/AllenBradley.Logix.Documentation/ADR/2026-10-12-sharing-the-libplctag-client-code-with-legacy.md).
 
 ## Quick Reference
 
@@ -36,6 +55,7 @@ only if it names no Logix or Legacy type
 | Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see test-device-setup.md)                                         |
 | Test (all)         | `dotnet test -p:test-suite=all`                                                                                                     |
 | Test (class)       | `dotnet test --project tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj --filter-class "<fully.qualified.ClassName>"` |
+| Test (shared)      | `dotnet test --project tests/AllenBradley.Client.Shared.Tests/AllenBradley.Client.Shared.Tests.csproj` — fakes only, no PLC        |
 | Format             | `dotnet format allen-bradley.slnx`                                                                                                  |
 | Clean build        | `dotnet clean allen-bradley.slnx && dotnet build allen-bradley.slnx -c Debug`                                                       |
 | Lint MD            | `markdownlint-cli2 "**/*.md"`                                                                                                       |
@@ -109,6 +129,7 @@ documentation ships inside the NuGet packages themselves.
 | Data types the port has   | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md)           |
 | Node model                | [docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md](docs/AllenBradley.Logix.Documentation/explanation/model/node-model.md)       |
 | Client architecture       | [docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md](docs/AllenBradley.Logix.Documentation/explanation/client/architecture.md) |
+| Shared client             | [docs/AllenBradley.Documentation/client/README.md](docs/AllenBradley.Documentation/client/README.md) — what both dataports share, and what each adds |
 | Decision records          | [docs/AllenBradley.Logix.Documentation/ADR/](docs/AllenBradley.Logix.Documentation/ADR/)                                                             |
 | Tree-editor icons         | [docs/AllenBradley.Logix.Documentation/logix-icons/README.md](docs/AllenBradley.Logix.Documentation/logix-icons/README.md) — edit the SVG and run the script, never a `Content:` line |
 | Deploy to a local ViciOne | [scripts/README.md](scripts/README.md)                                                                                                               |

@@ -53,7 +53,9 @@ versus 5X80, decides which data types a controller can declare at all.
    controller has and reads the definition of a structure.
 9. [libplctag behaviour](libplctag/README.md): the library the port drives the wire through, and
    the facts about it that shaped the client.
-10. [The test bench](test-bench/test-device-setup.md): the two controllers, how to reach them, and
+10. [The shared client](client/README.md): the client code both ports use around libplctag, and what
+    each port adds to it.
+11. [The test bench](test-bench/test-device-setup.md): the two controllers, how to reach them, and
     how to run the integration suite.
 
 Then move on to the [Logix port](../AllenBradley.Logix.Documentation/README.md). Its reference
@@ -62,8 +64,8 @@ section says which of the types above the port implements today.
 ## The map
 
 The folders are layered from the bottom up. Each one describes a layer the next one builds on, and a
-lower folder never mentions a higher one except to point at it. The `protocol/` and `libplctag/`
-folders have an index of their own. The others are small enough to open.
+lower folder never mentions a higher one except to point at it. The `protocol/`, `libplctag/` and
+`client/` folders have an index of their own. The others are small enough to open.
 
 | Folder | Layer | What it holds |
 |--------|-------|---------------|
@@ -71,6 +73,7 @@ folders have an index of their own. The others are small enough to open.
 | [`protocol/cip/`](protocol/README.md) | The ODVA standard | The wire stack, the object model and services, the data-type encodings. Nothing here names a Rockwell object |
 | [`protocol/allen-bradley-extension/`](protocol/README.md) | What Rockwell adds | The tag services, the Symbol and Template objects, controller and program scope, the types the tag-addressed and file-addressed families expose, and the PCCC tunnel |
 | [`libplctag/`](libplctag/README.md) | The library | What libplctag does that the spec does not dictate: session sharing and packing, the buffer contract, disposal, browsing pseudo-tags |
+| [`client/`](client/README.md) | Our code around the library | The client pool, tag cache, batches, tag access and codecs in `src/AllenBradley.Client.Shared`, and what a port supplies to use them |
 | [`test-bench/`](test-bench/) | Our devices | The borrowed L32E and our own L306ER: access, addresses, tags, and the environment variables the suites read |
 | [`conventions/`](conventions/) | How we write | The documentation principles these pages obey, and the modelling rule for the types we define |
 

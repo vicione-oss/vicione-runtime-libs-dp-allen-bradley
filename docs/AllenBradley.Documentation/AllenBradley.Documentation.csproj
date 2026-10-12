@@ -48,6 +48,7 @@
     <None Include="controllers/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="protocol/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="libplctag/**" Exclude="**/bin/**;**/obj/**" />
+    <None Include="client/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="test-bench/**" Exclude="**/bin/**;**/obj/**" />
     <None Include="conventions/**" Exclude="**/bin/**;**/obj/**" />
   </ItemGroup>

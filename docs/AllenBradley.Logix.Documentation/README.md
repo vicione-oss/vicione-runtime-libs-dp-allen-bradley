@@ -67,8 +67,9 @@ Architecture decision records land under [`ADR/`](ADR/) as design decisions are 
 
 ---
 
-Cross-port material (the controllers, the protocol background, libplctag behaviour and the test
-bench) lives in the [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These
+Cross-port material (the controllers, the protocol background, libplctag behaviour, the
+[shared client](../AllenBradley.Documentation/client/README.md) and the test bench) lives in the
+[AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These
 docs follow the [Diátaxis](https://diataxis.fr/) framework. Read the
 [documentation principles](../AllenBradley.Documentation/conventions/documentation-principles.md)
 before adding to them.

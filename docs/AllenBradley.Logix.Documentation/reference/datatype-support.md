@@ -53,7 +53,9 @@ converter keyed by that data point. Every row round-trips, the array whole: see 
 what "whole" rules out.
 
 Every converter decodes a raw little-endian span. CIP and .NET are both little-endian, so the
-atomic types need no byte swap. A `STRING`'s `n` is its declared capacity: 82 for the built-in type,
+atomic types need no byte swap. The byte layout of each atomic type is a codec in the
+[shared client](../../AllenBradley.Documentation/client/README.md), named after the .NET type
+(`Int32Codec` for `DINT`), and the scalar and array converters of a type use the same codec. A `STRING`'s `n` is its declared capacity: 82 for the built-in type,
 88 bytes on the wire once `.LEN` and the alignment pad are counted. An array's `n` is its declared
 element count, and both are configuration rather than type: the same converter serves every `n`.
 
