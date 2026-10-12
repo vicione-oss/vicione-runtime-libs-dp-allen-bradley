@@ -1,4 +1,5 @@
 using NSubstitute;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -41,8 +42,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)),
-            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), LogixTagReadResult.Failed(TagNotFound)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)),
+            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), TagReadResult.Failed(TagNotFound)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -57,10 +58,10 @@ public sealed class LogixClientTests
     public async Task AFailingTagDoesNotStopItsSiblingsFromBeingRead()
     {
         // Arrange
-        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint));
+        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint));
         var tagManager = TagManagerFor(
             speedTag,
-            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), LogixTagReadResult.Failed(TagNotFound)));
+            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), TagReadResult.Failed(TagNotFound)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -74,7 +75,7 @@ public sealed class LogixClientTests
     public async Task ACancelledReadThrowsTheCancellationAndTouchesNoTag()
     {
         // Arrange
-        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint));
+        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint));
         using var client = CreateClient(TagManagerFor(speedTag));
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -92,8 +93,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Failed(TagIsWriteOnly)),
-            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), LogixTagReadResult.Failed(TagNotFound)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Failed(TagIsWriteOnly)),
+            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), TagReadResult.Failed(TagNotFound)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -111,8 +112,8 @@ public sealed class LogixClientTests
         // Arrange
         var tooShortForADint = new byte[2];
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(tooShortForADint)),
-            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(tooShortForADint)),
+            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -128,8 +129,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)),
-            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(SevenAsDint)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)),
+            FakeTag.Reading(Level, DefaultAtomicDeclaredType(), TagReadResult.Ok(SevenAsDint)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -145,11 +146,11 @@ public sealed class LogixClientTests
     public async Task ADataPointWithoutAConverterIsRefusedBeforeAnyTagIsRead()
     {
         // Arrange
-        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint));
+        var speedTag = FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint));
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
             speedTag,
-            FakeTag.Reading(unconvertible, metadata: null, LogixTagReadResult.Ok(FortyTwoAsDint)));
+            FakeTag.Reading(unconvertible, metadata: null, TagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -170,7 +171,7 @@ public sealed class LogixClientTests
         structure[4] = (byte)'H';
         structure[5] = (byte)'i';
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Label, StringMetadataFor(Label), LogixTagReadResult.Ok(structure)));
+            FakeTag.Reading(Label, StringMetadataFor(Label), TagReadResult.Ok(structure)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -186,7 +187,7 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Failed(TagIsReadOnly)));
+            FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Failed(TagIsReadOnly)));
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values = [Speed.CreateLogixValue(42)];
 
@@ -203,8 +204,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Failed(TagIsReadOnly)),
-            FakeTag.Writing(Level, DefaultAtomicDeclaredType(), LogixTagWriteResult.Failed(TagNotFound)));
+            FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Failed(TagIsReadOnly)),
+            FakeTag.Writing(Level, DefaultAtomicDeclaredType(), TagWriteResult.Failed(TagNotFound)));
         using var client = CreateClient(tagManager);
         ILogixDataPointValue[] values = [Speed.CreateLogixValue(42), Level.CreateLogixValue(7)];
 
@@ -221,7 +222,7 @@ public sealed class LogixClientTests
     public async Task ACancelledWriteThrowsTheCancellationAndPutsNothingOnTheWire()
     {
         // Arrange
-        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Ok());
+        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(speedTag));
         ILogixDataPointValue[] values = [Speed.CreateLogixValue(42)];
         using var cts = new CancellationTokenSource();
@@ -241,8 +242,8 @@ public sealed class LogixClientTests
         // Arrange
         var shortLabel = ShortStringDataPoint("Line.Short");
         var shortCode = ShortStringDataPoint("Line.Code");
-        var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), LogixTagWriteResult.Ok());
-        var codeTag = FakeTag.Writing(shortCode, StringMetadataFor(shortCode), LogixTagWriteResult.Ok());
+        var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), TagWriteResult.Ok());
+        var codeTag = FakeTag.Writing(shortCode, StringMetadataFor(shortCode), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(labelTag, codeTag));
         ILogixDataPointValue[] values =
         [
@@ -265,8 +266,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var shortLabel = ShortStringDataPoint("Line.Short");
-        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Ok());
-        var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), LogixTagWriteResult.Ok());
+        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Ok());
+        var labelTag = FakeTag.Writing(shortLabel, StringMetadataFor(shortLabel), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(speedTag, labelTag));
         ILogixDataPointValue[] values = [Speed.CreateLogixValue(42), shortLabel.CreateLogixValue("far too long")];
 
@@ -283,7 +284,7 @@ public sealed class LogixClientTests
     public async Task AValueNoDataPointMadeIsRefusedUnderItsTagsName()
     {
         // Arrange
-        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Ok());
+        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(speedTag));
         ILogixDataPointValue[] values = [new ForeignDataPointValue(Speed)];
 
@@ -299,7 +300,7 @@ public sealed class LogixClientTests
     public async Task AWrittenValueReachesItsTagAsTheBytesItsConverterProduced()
     {
         // Arrange
-        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), LogixTagWriteResult.Ok());
+        var speedTag = FakeTag.Writing(Speed, DefaultAtomicDeclaredType(), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(speedTag));
         ILogixDataPointValue[] values = [Speed.CreateLogixValue(42)];
 
@@ -314,7 +315,7 @@ public sealed class LogixClientTests
     public async Task AWrittenStringReachesItsTagAsLenFollowedByItsWholeCapacityOfData()
     {
         // Arrange
-        var labelTag = FakeTag.Writing(Label, StringMetadataFor(Label), LogixTagWriteResult.Ok());
+        var labelTag = FakeTag.Writing(Label, StringMetadataFor(Label), TagWriteResult.Ok());
         using var client = CreateClient(TagManagerFor(labelTag));
         ILogixDataPointValue[] values = [Label.CreateLogixValue("Hi")];
 
@@ -335,8 +336,8 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)),
-            FakeTag.Reading(Label, metadata: null, LogixTagReadResult.Ok(new byte[StringStructureSize])));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)),
+            FakeTag.Reading(Label, metadata: null, TagReadResult.Ok(new byte[StringStructureSize])));
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
 
@@ -357,7 +358,7 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
 
         // Act
@@ -373,7 +374,7 @@ public sealed class LogixClientTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), LogixTagReadResult.Ok(FortyTwoAsDint)));
+            FakeTag.Reading(Speed, DefaultAtomicDeclaredType(), TagReadResult.Ok(FortyTwoAsDint)));
         using var client = CreateClient(tagManager);
         await client.ConnectAsync(CancellationToken.None);
         await client.DisconnectAsync(CancellationToken.None);
@@ -572,8 +573,8 @@ public sealed class LogixClientTests
 
     private sealed class FakeTag : ILogixTag
     {
-        private LogixTagReadResult _readResult = LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
-        private LogixTagWriteResult _writeResult = LogixTagWriteResult.Ok();
+        private TagReadResult _readResult = TagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
+        private TagWriteResult _writeResult = TagWriteResult.Ok();
 
         private FakeTag(ILogixDataPoint dataPoint, DeclaredType? metadata)
         {
@@ -590,22 +591,22 @@ public sealed class LogixClientTests
         public byte[]? Written { get; private set; }
 
         public static FakeTag Reading(
-            ILogixDataPoint dataPoint, DeclaredType? metadata, LogixTagReadResult result) =>
+            ILogixDataPoint dataPoint, DeclaredType? metadata, TagReadResult result) =>
             new(dataPoint, metadata) { _readResult = result };
 
         public static FakeTag Writing(
-            ILogixDataPoint dataPoint, DeclaredType? metadata, LogixTagWriteResult result) =>
+            ILogixDataPoint dataPoint, DeclaredType? metadata, TagWriteResult result) =>
             new(dataPoint, metadata) { _writeResult = result };
 
         // The real access honours cancellation by throwing rather than returning a failed result.
-        public Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
+        public Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             WasRead = true;
             return Task.FromResult(_readResult);
         }
 
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
+        public Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             Written = buffer;

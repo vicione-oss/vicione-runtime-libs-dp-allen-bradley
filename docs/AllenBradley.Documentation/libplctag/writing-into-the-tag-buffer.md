@@ -69,7 +69,7 @@ for it.
 
 ## What this means for the client
 
-`LogixTagAccess.WriteAsync` hands the converter's bytes to `SetBuffer` exactly as encoded, and the
+`LibPlcTagAccess.WriteAsync` hands the converter's bytes to `SetBuffer` exactly as encoded, and the
 client has no write-side call to `GetSize` at all. A payload longer than the handle is refused by the
 core and lands in the adapter's `catch (LibPlcTagException)`, so it comes home as a failed outcome
 naming the tag, the same way any device failure does. A shorter payload is a `STRING`'s `.LEN` plus

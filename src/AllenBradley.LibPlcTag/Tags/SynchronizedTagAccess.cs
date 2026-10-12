@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 
 /// <summary>
 /// Serializes operations on one shared access: libplctag rejects concurrent operations on a single
@@ -6,11 +6,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 /// whole operation joins (ADR/2026-07-16-operations-not-accessors-over-libplctag.md). Separate accesses
 /// do not contend, so fan-out across tags is untouched.
 /// </summary>
-internal sealed class SynchronizedLogixTagAccess(ILogixTagAccess inner) : ILogixTagAccess
+internal sealed class SynchronizedTagAccess(ITagAccess inner) : ITagAccess
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
 
-    public async Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
+    public async Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -23,7 +23,7 @@ internal sealed class SynchronizedLogixTagAccess(ILogixTagAccess inner) : ILogix
         }
     }
 
-    public async Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
+    public async Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
     {
         await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try

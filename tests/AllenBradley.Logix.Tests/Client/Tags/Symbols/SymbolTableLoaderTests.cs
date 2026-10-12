@@ -1,4 +1,5 @@
 using NSubstitute;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
@@ -314,10 +315,10 @@ public sealed class SymbolTableLoaderTests
     private sealed class FakeSymbolTableTagFactory : ILogixTagAccessFactory
     {
         private readonly Dictionary<string, byte[]> _listingsByTagName = [];
-        private readonly List<ILogixTagAccess> _created = [];
+        private readonly List<ITagAccess> _created = [];
         private readonly List<TagAddress> _requested = [];
 
-        public IReadOnlyList<ILogixTagAccess> Created => _created;
+        public IReadOnlyList<ITagAccess> Created => _created;
 
         /// <summary>Every schema tag the browse asked for, in the order it asked.</summary>
         public IReadOnlyList<TagAddress> Requested => _requested;
@@ -327,16 +328,16 @@ public sealed class SymbolTableLoaderTests
             set => _listingsByTagName[tagName] = value;
         }
 
-        public ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint) =>
+        public ITagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint) =>
             throw new NotSupportedException("The loader only reads schema tags.");
 
-        public ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress)
+        public ITagAccess CreateAccessForTagAddress(TagAddress tagAddress)
         {
-            var access = Substitute.For<ILogixTagAccess>();
+            var access = Substitute.For<ITagAccess>();
             access.ReadAsync(Arg.Any<CancellationToken>()).Returns(
                 _listingsByTagName.TryGetValue(tagAddress.Value, out var listing)
-                    ? LogixTagReadResult.Ok(listing)
-                    : LogixTagReadResult.Failed($"no such schema tag '{tagAddress.Value}'"));
+                    ? TagReadResult.Ok(listing)
+                    : TagReadResult.Failed($"no such schema tag '{tagAddress.Value}'"));
             _created.Add(access);
             _requested.Add(tagAddress);
             return access;

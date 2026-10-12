@@ -1,14 +1,14 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 
-public sealed class SynchronizedLogixTagAccessTests : IDisposable
+namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.Tags;
+
+public sealed class SynchronizedTagAccessTests : IDisposable
 {
     private readonly BlockingTagAccess _handle = new();
-    private readonly SynchronizedLogixTagAccess _access;
+    private readonly SynchronizedTagAccess _access;
 
-    public SynchronizedLogixTagAccessTests() => _access = new SynchronizedLogixTagAccess(_handle);
+    public SynchronizedTagAccessTests() => _access = new SynchronizedTagAccess(_handle);
 
     [Fact]
     public async Task AWriteStaysOutOfTheHandleWhileAReadIsInsideIt()
@@ -80,7 +80,7 @@ public sealed class SynchronizedLogixTagAccessTests : IDisposable
     }
 
     // Blocks inside every operation until Release, so overlap is observable rather than a race.
-    private sealed class BlockingTagAccess : ILogixTagAccess
+    private sealed class BlockingTagAccess : ITagAccess
     {
         private readonly TaskCompletionSource _released = new();
         private readonly TaskCompletionSource _entered = new();
@@ -94,16 +94,16 @@ public sealed class SynchronizedLogixTagAccessTests : IDisposable
 
         public void Release() => _released.TrySetResult();
 
-        public async Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
+        public async Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
             await RunAsync().ConfigureAwait(false);
-            return LogixTagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
+            return TagReadResult.Ok(ReadOnlyMemory<byte>.Empty);
         }
 
-        public async Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
+        public async Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
         {
             await RunAsync().ConfigureAwait(false);
-            return LogixTagWriteResult.Ok();
+            return TagWriteResult.Ok();
         }
 
         public void Dispose() => IsDisposed = true;

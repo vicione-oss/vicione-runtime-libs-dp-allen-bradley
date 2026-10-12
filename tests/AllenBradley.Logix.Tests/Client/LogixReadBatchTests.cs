@@ -1,4 +1,5 @@
 using NSubstitute;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
@@ -35,8 +36,8 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Level, TagReading(LogixTagReadResult.Ok(SevenAsDint))));
+            (Speed, TagReading(TagReadResult.Ok(FortyTwoAsDint))),
+            (Level, TagReading(TagReadResult.Ok(SevenAsDint))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
@@ -54,9 +55,9 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))),
-            (Torque, TagReading(LogixTagReadResult.Ok(SevenAsDint))));
+            (Speed, TagReading(TagReadResult.Ok(FortyTwoAsDint))),
+            (Level, TagReading(TagReadResult.Failed(TagNotFound))),
+            (Torque, TagReading(TagReadResult.Ok(SevenAsDint))));
         var batch = new LogixReadBatch([Speed, Level, Torque], tagManager);
 
         // Act
@@ -72,8 +73,8 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
+            (Speed, TagReading(TagReadResult.Ok(FortyTwoAsDint))),
+            (Level, TagReading(TagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
@@ -90,8 +91,8 @@ public sealed class LogixReadBatchTests
         // Arrange
         var tooShortForTenInts = new byte[12];
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))),
-            (Readings, TagReading(LogixTagReadResult.Ok(tooShortForTenInts))));
+            (Speed, TagReading(TagReadResult.Ok(FortyTwoAsDint))),
+            (Readings, TagReading(TagReadResult.Ok(tooShortForTenInts))));
         var batch = new LogixReadBatch([Speed, Readings], tagManager);
 
         // Act
@@ -107,8 +108,8 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Failed("tag is write-only"))),
-            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
+            (Speed, TagReading(TagReadResult.Failed("tag is write-only"))),
+            (Level, TagReading(TagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
@@ -126,8 +127,8 @@ public sealed class LogixReadBatchTests
         // Arrange
         var tooShortForADint = new byte[2];
         var tagManager = TagManagerFor(
-            (Speed, TagReading(LogixTagReadResult.Ok(tooShortForADint))),
-            (Level, TagReading(LogixTagReadResult.Failed(TagNotFound))));
+            (Speed, TagReading(TagReadResult.Ok(tooShortForADint))),
+            (Level, TagReading(TagReadResult.Failed(TagNotFound))));
         var batch = new LogixReadBatch([Speed, Level], tagManager);
 
         // Act
@@ -143,7 +144,7 @@ public sealed class LogixReadBatchTests
     public async Task ACancelledBatchThrowsTheCancellationRatherThanFailingItsTags()
     {
         // Arrange
-        var tagManager = TagManagerFor((Speed, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))));
+        var tagManager = TagManagerFor((Speed, TagReading(TagReadResult.Ok(FortyTwoAsDint))));
         var batch = new LogixReadBatch([Speed], tagManager);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -160,7 +161,7 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var handle = new OverlapRecordingTagAccess();
-        using var access = new SynchronizedLogixTagAccess(handle);
+        using var access = new SynchronizedTagAccess(handle);
         var tagManager = Substitute.For<ILogixTagManager>();
         tagManager.TagFor(Speed).Returns(new LogixTag(Speed, null, access));
         var batch = new LogixReadBatch([Speed, Speed, Speed, Speed], tagManager);
@@ -197,8 +198,8 @@ public sealed class LogixReadBatchTests
     public void ConstructingABatchResolvesTheTagForEveryDataPointWithoutReadingAnything()
     {
         // Arrange
-        var speedTag = TagReading(LogixTagReadResult.Ok(FortyTwoAsDint));
-        var levelTag = TagReading(LogixTagReadResult.Ok(SevenAsDint));
+        var speedTag = TagReading(TagReadResult.Ok(FortyTwoAsDint));
+        var levelTag = TagReading(TagReadResult.Ok(SevenAsDint));
         var tagManager = TagManagerFor((Speed, speedTag), (Level, levelTag));
 
         // Act
@@ -215,11 +216,11 @@ public sealed class LogixReadBatchTests
     public void ADataPointWithoutAConverterIsRefusedBeforeAnyReadIsPossible()
     {
         // Arrange
-        var speedTag = TagReading(LogixTagReadResult.Ok(FortyTwoAsDint));
+        var speedTag = TagReading(TagReadResult.Ok(FortyTwoAsDint));
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
             (Speed, speedTag),
-            (unconvertible, TagReading(LogixTagReadResult.Ok(FortyTwoAsDint))));
+            (unconvertible, TagReading(TagReadResult.Ok(FortyTwoAsDint))));
 
         // Act
         var construct = Record.Exception(() => new LogixReadBatch([Speed, unconvertible], tagManager));
@@ -233,7 +234,7 @@ public sealed class LogixReadBatchTests
     public async Task AnEntryWhoseTagAnswersComesHomeDecodedAndWithoutAnError()
     {
         // Arrange
-        var entry = EntryFor(Speed, LogixTagReadResult.Ok(FortyTwoAsDint));
+        var entry = EntryFor(Speed, TagReadResult.Ok(FortyTwoAsDint));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
@@ -247,7 +248,7 @@ public sealed class LogixReadBatchTests
     public async Task AnEntryWhoseTagFailsCarriesTheFailureHomeInsteadOfThrowing()
     {
         // Arrange
-        var entry = EntryFor(Speed, LogixTagReadResult.Failed(TagNotFound));
+        var entry = EntryFor(Speed, TagReadResult.Failed(TagNotFound));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
@@ -262,7 +263,7 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var converter = new SpyConverter();
-        var entry = EntryFor(Speed, LogixTagReadResult.Failed(TagNotFound), converter);
+        var entry = EntryFor(Speed, TagReadResult.Failed(TagNotFound), converter);
 
         // Act
         await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
@@ -276,7 +277,7 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var tooShortForADint = new byte[2];
-        var entry = EntryFor(Speed, LogixTagReadResult.Ok(tooShortForADint));
+        var entry = EntryFor(Speed, TagReadResult.Ok(tooShortForADint));
 
         // Act
         var outcome = await LogixReadBatch.ReadEntryAsync(entry, CancellationToken.None);
@@ -291,7 +292,7 @@ public sealed class LogixReadBatchTests
     {
         // Arrange
         var converter = new SpyConverter { OnDecode = () => throw new NotSupportedException("converter bug") };
-        var entry = EntryFor(Speed, LogixTagReadResult.Ok(FortyTwoAsDint), converter);
+        var entry = EntryFor(Speed, TagReadResult.Ok(FortyTwoAsDint), converter);
 
         // Act
         var read = await Record.ExceptionAsync(
@@ -305,7 +306,7 @@ public sealed class LogixReadBatchTests
     public async Task ACancelledEntryThrowsRatherThanComingHomeAsAFailedOutcome()
     {
         // Arrange
-        var entry = EntryFor(Speed, LogixTagReadResult.Ok(FortyTwoAsDint));
+        var entry = EntryFor(Speed, TagReadResult.Ok(FortyTwoAsDint));
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
@@ -317,13 +318,13 @@ public sealed class LogixReadBatchTests
     }
 
     private static LogixReadBatch.ReadEntry EntryFor(
-        ILogixDataPoint dataPoint, LogixTagReadResult result, IDataPointConverter? converter = null) =>
+        ILogixDataPoint dataPoint, TagReadResult result, IDataPointConverter? converter = null) =>
         new(dataPoint,
             converter ?? DataPointConverterRegistry.GetConverter(dataPoint),
             TagReading(result));
 
     // The real access honours cancellation by throwing rather than returning a failed result.
-    private static ILogixTag TagReading(LogixTagReadResult result)
+    private static ILogixTag TagReading(TagReadResult result)
     {
         var tag = Substitute.For<ILogixTag>();
         tag.ReadAsync(Arg.Any<CancellationToken>()).Returns(call =>
@@ -355,7 +356,7 @@ public sealed class LogixReadBatchTests
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
 
-    private sealed class OverlapRecordingTagAccess : ILogixTagAccess
+    private sealed class OverlapRecordingTagAccess : ITagAccess
     {
         private int _inFlight;
         private int _reads;
@@ -364,17 +365,17 @@ public sealed class LogixReadBatchTests
 
         public int MaxConcurrentReads { get; private set; }
 
-        public async Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken)
+        public async Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
             MaxConcurrentReads = Math.Max(MaxConcurrentReads, Interlocked.Increment(ref _inFlight));
             Interlocked.Increment(ref _reads);
             await Task.Yield();
             Interlocked.Decrement(ref _inFlight);
 
-            return LogixTagReadResult.Ok(FortyTwoAsDint);
+            return TagReadResult.Ok(FortyTwoAsDint);
         }
 
-        public Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
+        public Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken) =>
             throw new NotSupportedException();
 
         public void Dispose()

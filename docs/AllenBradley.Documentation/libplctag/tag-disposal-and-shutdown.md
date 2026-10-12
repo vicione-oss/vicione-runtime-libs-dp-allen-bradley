@@ -22,7 +22,7 @@ process, hid the same bug. See [`AGENTS.md`](../../../AGENTS.md) for the suite-l
 The reusable unit is the warm handle (see [the-shared-session.md](the-shared-session.md)), so handles
 live as long as the tag cache. But that cache must own their disposal, not leave it to the GC. The
 Logix ADR on [reusing and releasing tag handles](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-reusing-and-releasing-tag-handles.md)
-makes `ILogixTagAccess` `IDisposable` and has the lifecycle manager dispose every tag on release.
+makes `ITagAccess` `IDisposable` and has the lifecycle manager dispose every tag on release.
 Acquiring warms the cache, and releasing frees every native handle deterministically. Any code that
 creates a `Tag`, whether production, spike, or one-off probe, owns disposing it before the process
 exits.

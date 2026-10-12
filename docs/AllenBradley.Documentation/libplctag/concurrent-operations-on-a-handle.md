@@ -37,9 +37,9 @@ Neither race is defensible by locking individual accessors. A lock over `ReadAsy
 "write = SetBuffer + issue + wait" mutually exclusive as units.
 
 The Logix ADR on [Operations, not accessors](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md)
-responds by making each `ILogixTagAccess` member one whole operation. `ReadAsync` returns status plus
+responds by making each `ITagAccess` member one whole operation. `ReadAsync` returns status plus
 raw bytes, `WriteAsync` takes raw bytes plus status, and there are no separate buffer accessors on
-the interface, so `SynchronizedLogixTagAccess` can gate the entire sequence as a unit and close both
+the interface, so `SynchronizedTagAccess` can gate the entire sequence as a unit and close both
 races at once. Folding the exchange together also retires a standalone `GetStatus`. A status queried
 after the fact on a shared handle is not reliably this operation's status, so status rides home on
 the result instead.

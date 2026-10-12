@@ -1,7 +1,8 @@
+using System.Globalization;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTypes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.TagsListing;
-using System.Globalization;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.Templates;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
@@ -9,7 +10,7 @@ using ViciOne.Suite.DataPort.Extensions.Exceptions;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 
 /// <summary>
-/// Browses the controller's symbol table over the <see cref="ILogixTagAccess"/> seam: the <c>@tags</c>
+/// Browses the controller's symbol table over the <see cref="ITagAccess"/> seam: the <c>@tags</c>
 /// listing, then each program's, then every template a structured tag names, assembled into a
 /// <see cref="SymbolTable"/> keyed by qualified name (<c>Program:Main.Count</c>) and by template id.
 /// Nested programs are not walked, and no browse handle outlives the read it was opened for.

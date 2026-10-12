@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -356,17 +357,17 @@ public sealed class CachingLogixTagManagerTests
 
     private sealed class CountingAccessFactory : ILogixTagAccessFactory
     {
-        private readonly List<ILogixTagAccess> _created = [];
+        private readonly List<ITagAccess> _created = [];
 
-        public IReadOnlyList<ILogixTagAccess> Created => _created;
+        public IReadOnlyList<ITagAccess> Created => _created;
 
         public int CreatedCount => _created.Count;
 
         public TagAddress? ThrowOnDisposeFor { get; init; }
 
-        public ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint)
+        public ITagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint)
         {
-            var access = Substitute.For<ILogixTagAccess>();
+            var access = Substitute.For<ITagAccess>();
             if (dataPoint.TagAddress == ThrowOnDisposeFor)
             {
                 access.When(a => a.Dispose()).Do(_ => throw new LogixTagException("Access refused to free."));
@@ -376,7 +377,7 @@ public sealed class CachingLogixTagManagerTests
             return access;
         }
 
-        public ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress) =>
+        public ITagAccess CreateAccessForTagAddress(TagAddress tagAddress) =>
             throw new NotSupportedException("The manager browses through the injected ISymbolTableLoader.");
     }
 }

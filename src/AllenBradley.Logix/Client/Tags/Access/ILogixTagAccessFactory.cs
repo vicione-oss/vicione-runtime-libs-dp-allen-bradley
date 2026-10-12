@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
@@ -10,11 +11,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 internal interface ILogixTagAccessFactory
 {
     /// <summary>Creates access to <paramref name="dataPoint"/>'s tag.</summary>
-    ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint);
+    ITagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint);
 
     /// <summary>
     /// Creates access to a given tag-address. Used to browse the symbol table for
     /// configuration verification.
     /// </summary>
-    ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress);
+    ITagAccess CreateAccessForTagAddress(TagAddress tagAddress);
 }

@@ -1,0 +1,26 @@
+namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
+
+/// <summary>
+/// The outcome of one <see cref="Access.ITagAccess.ReadAsync"/>: the raw bytes it read, or why it
+/// failed.
+/// </summary>
+internal readonly record struct TagReadResult
+{
+    private TagReadResult(ReadOnlyMemory<byte> buffer, string? error)
+    {
+        Buffer = buffer;
+        Error = error;
+    }
+
+    /// <summary>The raw tag bytes; empty when the read failed.</summary>
+    public ReadOnlyMemory<byte> Buffer { get; }
+
+    /// <summary>Why the read failed; <c>null</c> when it succeeded.</summary>
+    public string? Error { get; }
+
+    public bool Succeeded => Error is null;
+
+    public static TagReadResult Ok(ReadOnlyMemory<byte> buffer) => new(buffer, null);
+
+    public static TagReadResult Failed(string error) => new(default, error);
+}

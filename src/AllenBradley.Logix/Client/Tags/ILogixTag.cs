@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
 
@@ -25,8 +26,8 @@ internal interface ILogixTag : IDisposable
     ResolvedDataPoint Resolved => new(DataPoint, DeclaredType);
 
     /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
-    Task<LogixTagReadResult> ReadAsync(CancellationToken cancellationToken);
+    Task<TagReadResult> ReadAsync(CancellationToken cancellationToken);
 
     /// <summary>Writes <paramref name="buffer"/> to the tag on the controller.</summary>
-    Task<LogixTagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken);
+    Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken);
 }

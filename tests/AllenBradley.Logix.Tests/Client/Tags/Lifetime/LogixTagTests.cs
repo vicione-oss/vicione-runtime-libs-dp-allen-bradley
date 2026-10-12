@@ -1,6 +1,5 @@
 using NSubstitute;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -16,7 +15,7 @@ public sealed class LogixTagTests
 
     private static readonly DeclaredType SpeedDeclaredType = DefaultAtomicDeclaredType();
 
-    private readonly ILogixTagAccess _handle = Substitute.For<ILogixTagAccess>();
+    private readonly ITagAccess _handle = Substitute.For<ITagAccess>();
 
     [Fact]
     public void ATagSurfacesTheDataPointAndDefinitionItWasBuiltWith()
@@ -47,7 +46,7 @@ public sealed class LogixTagTests
     public async Task AReadHandsBackTheBytesTheHandleAnswered()
     {
         // Arrange
-        _handle.ReadAsync(Arg.Any<CancellationToken>()).Returns(LogixTagReadResult.Ok(new byte[] { 42, 0, 0, 0 }));
+        _handle.ReadAsync(Arg.Any<CancellationToken>()).Returns(TagReadResult.Ok(new byte[] { 42, 0, 0, 0 }));
         using var tag = new LogixTag(Speed, SpeedDeclaredType, _handle);
 
         // Act

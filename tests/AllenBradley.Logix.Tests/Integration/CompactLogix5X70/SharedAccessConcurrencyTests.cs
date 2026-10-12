@@ -1,5 +1,5 @@
 using libplctag;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access.LibPlcTag;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -8,7 +8,7 @@ using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataP
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
 
 /// <summary>
-/// The two device facts that justify <c>SynchronizedLogixTagAccess</c>, rather than taking the word of
+/// The two device facts that justify <c>SynchronizedTagAccess</c>, rather than taking the word of
 /// <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> for them. The suite writes the DINT's
 /// own current value straight back, so the tag is never actually changed.
 /// </summary>
@@ -61,7 +61,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     public async Task AGatedAccessUnderConcurrentReadsAndWritesNeverSelfInflictsAnError()
     {
         // Arrange
-        using ILogixTagAccess access = new SynchronizedLogixTagAccess(new LogixTagAccess(NewRawTag()));
+        using ITagAccess access = new SynchronizedTagAccess(new LibPlcTagAccess(NewRawTag()));
 
         // Act
         var outcomes = await HammerAsync(access, TestContext.Current.CancellationToken);
@@ -75,7 +75,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     public async Task AnUngatedAccessUnderConcurrentReadsAndWritesRacesOnItsOneNativeBuffer()
     {
         // Arrange
-        using ILogixTagAccess access = new LogixTagAccess(NewRawTag());
+        using ITagAccess access = new LibPlcTagAccess(NewRawTag());
         var payload = await SeedPayloadAsync(access);
 
         // Act
@@ -110,7 +110,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     private static Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
 
     // The tag's own current bytes, so every write the probes issue is a no-op on the device.
-    private static async Task<byte[]> SeedPayloadAsync(ILogixTagAccess access)
+    private static async Task<byte[]> SeedPayloadAsync(ITagAccess access)
     {
         using var seedCts = new CancellationTokenSource(SeedTimeout);
         var seed = await access.ReadAsync(seedCts.Token);
@@ -120,7 +120,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     }
 
     private static async Task<IReadOnlyList<OperationOutcome>> HammerAsync(
-        ILogixTagAccess access, CancellationToken cancellationToken)
+        ITagAccess access, CancellationToken cancellationToken)
     {
         var payload = await SeedPayloadAsync(access).ConfigureAwait(false);
 
@@ -145,7 +145,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     }
 
     private static async Task<OperationOutcome> ReadOnceAsync(
-        ILogixTagAccess access, CancellationToken cancellationToken)
+        ITagAccess access, CancellationToken cancellationToken)
     {
         try
         {
@@ -159,7 +159,7 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
     }
 
     private static async Task<OperationOutcome> WriteOnceAsync(
-        ILogixTagAccess access, byte[] payload, CancellationToken cancellationToken)
+        ITagAccess access, byte[] payload, CancellationToken cancellationToken)
     {
         try
         {

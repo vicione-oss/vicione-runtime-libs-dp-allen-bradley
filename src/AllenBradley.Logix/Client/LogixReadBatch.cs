@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -68,7 +69,7 @@ internal sealed class LogixReadBatch
         var result = await entry.Tag.ReadAsync(cancellationToken).ConfigureAwait(false);
         if (!result.Succeeded)
         {
-            // Non-null by construction: LogixTagReadResult.Succeeded is defined as having no error.
+            // Non-null by construction: TagReadResult.Succeeded is defined as having no error.
             return ReadOutcome.Failed(entry.DataPoint.TagAddress, result.Error!);
         }
 

@@ -1,4 +1,5 @@
 using libplctag;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
@@ -25,10 +26,10 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint) => CreateSynchronizedLogixTagFrom(CreateTagForDataPoint(dataPoint));
+    public ITagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint) => CreateSynchronizedLogixTagFrom(CreateTagForDataPoint(dataPoint));
 
     /// <inheritdoc />
-    public ILogixTagAccess CreateAccessForTagAddress(TagAddress tagAddress) => CreateSynchronizedLogixTagFrom(CreateTagForAddress(tagAddress));
+    public ITagAccess CreateAccessForTagAddress(TagAddress tagAddress) => CreateSynchronizedLogixTagFrom(CreateTagForAddress(tagAddress));
 
     // Internal rather than private because nothing above the factory exposes a handle's attributes, and
     // the element count is the difference between reading an array and reading its first element.
@@ -65,6 +66,6 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
             AllowPacking = true
         };
 
-    private static SynchronizedLogixTagAccess CreateSynchronizedLogixTagFrom(Tag tag) =>
-        new(new LogixTagAccess(tag));
+    private static SynchronizedTagAccess CreateSynchronizedLogixTagFrom(Tag tag) =>
+        new(new LibPlcTagAccess(tag));
 }

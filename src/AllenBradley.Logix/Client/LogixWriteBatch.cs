@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
@@ -101,7 +102,7 @@ internal sealed class LogixWriteBatch
             return;
         }
 
-        // Non-null by construction: LogixTagWriteResult.Succeeded is defined as having no error.
+        // Non-null by construction: TagWriteResult.Succeeded is defined as having no error.
         var reasons = failures.Select(failure => $"{failure.TagAddress}: {failure.Result.Error}");
         throw new LogixTagException($"Write failed for {string.Join("; ", reasons)}.");
     }
@@ -121,5 +122,5 @@ internal sealed class LogixWriteBatch
     }
 
     /// <summary>What the controller answered for one entry's write.</summary>
-    private readonly record struct WriteOutcome(TagAddress TagAddress, LogixTagWriteResult Result);
+    private readonly record struct WriteOutcome(TagAddress TagAddress, TagWriteResult Result);
 }

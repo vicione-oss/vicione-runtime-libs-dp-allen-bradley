@@ -1,4 +1,5 @@
 using NSubstitute;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
@@ -42,8 +43,8 @@ public sealed class LogixWriteBatchTests
         var speedWrites = new List<byte[]>();
         var levelWrites = new List<byte[]>();
         var tagManager = TagManagerFor(
-            (Speed, TagWriting(LogixTagWriteResult.Ok(), speedWrites)),
-            (Level, TagWriting(LogixTagWriteResult.Ok(), levelWrites)));
+            (Speed, TagWriting(TagWriteResult.Ok(), speedWrites)),
+            (Level, TagWriting(TagWriteResult.Ok(), levelWrites)));
         var batch = new LogixWriteBatch([Speed.CreateLogixValue(42), Level.CreateLogixValue(7)], tagManager);
 
         // Act
@@ -60,8 +61,8 @@ public sealed class LogixWriteBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagWriting(LogixTagWriteResult.Ok())),
-            (Level, TagWriting(LogixTagWriteResult.Failed(TagIsReadOnly))));
+            (Speed, TagWriting(TagWriteResult.Ok())),
+            (Level, TagWriting(TagWriteResult.Failed(TagIsReadOnly))));
         var batch = new LogixWriteBatch([Speed.CreateLogixValue(42), Level.CreateLogixValue(7)], tagManager);
 
         // Act
@@ -76,11 +77,11 @@ public sealed class LogixWriteBatchTests
     public async Task ABatchWithAFailingTagStillWritesEverySibling()
     {
         // Arrange
-        var speedTag = TagWriting(LogixTagWriteResult.Ok());
-        var torqueTag = TagWriting(LogixTagWriteResult.Ok());
+        var speedTag = TagWriting(TagWriteResult.Ok());
+        var torqueTag = TagWriting(TagWriteResult.Ok());
         var tagManager = TagManagerFor(
             (Speed, speedTag),
-            (Level, TagWriting(LogixTagWriteResult.Failed(TagNotFound))),
+            (Level, TagWriting(TagWriteResult.Failed(TagNotFound))),
             (Torque, torqueTag));
         var batch = new LogixWriteBatch(
             [Speed.CreateLogixValue(42), Level.CreateLogixValue(7), Torque.CreateLogixValue(7)], tagManager);
@@ -98,8 +99,8 @@ public sealed class LogixWriteBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Speed, TagWriting(LogixTagWriteResult.Failed(TagIsReadOnly))),
-            (Level, TagWriting(LogixTagWriteResult.Failed(TagNotFound))));
+            (Speed, TagWriting(TagWriteResult.Failed(TagIsReadOnly))),
+            (Level, TagWriting(TagWriteResult.Failed(TagNotFound))));
         var batch = new LogixWriteBatch([Speed.CreateLogixValue(42), Level.CreateLogixValue(7)], tagManager);
 
         // Act
@@ -116,7 +117,7 @@ public sealed class LogixWriteBatchTests
     {
         // Arrange
         var speedWrites = new List<byte[]>();
-        var tagManager = TagManagerFor((Speed, TagWriting(LogixTagWriteResult.Ok(), speedWrites)));
+        var tagManager = TagManagerFor((Speed, TagWriting(TagWriteResult.Ok(), speedWrites)));
         var batch = new LogixWriteBatch([Speed.CreateLogixValue(42)], tagManager);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -149,8 +150,8 @@ public sealed class LogixWriteBatchTests
     public void ConstructingABatchEncodesEveryValueAndResolvesItsTagWithoutWritingAnything()
     {
         // Arrange
-        var speedTag = TagWriting(LogixTagWriteResult.Ok());
-        var levelTag = TagWriting(LogixTagWriteResult.Ok());
+        var speedTag = TagWriting(TagWriteResult.Ok());
+        var levelTag = TagWriting(TagWriteResult.Ok());
         var tagManager = TagManagerFor((Speed, speedTag), (Level, levelTag));
 
         // Act
@@ -167,10 +168,10 @@ public sealed class LogixWriteBatchTests
     public void AValueThatWillNotEncodeIsRefusedWithoutASiblingReachingItsTag()
     {
         // Arrange
-        var speedTag = TagWriting(LogixTagWriteResult.Ok());
+        var speedTag = TagWriting(TagWriteResult.Ok());
         var tagManager = TagManagerFor(
             (Speed, speedTag),
-            (Label, TagWriting(LogixTagWriteResult.Ok())));
+            (Label, TagWriting(TagWriteResult.Ok())));
 
         // Act
         var construct = Record.Exception(() => new LogixWriteBatch(
@@ -186,11 +187,11 @@ public sealed class LogixWriteBatchTests
     public void ANegativeAccumulatedTimeRefusesTheWholeBatchNamingTheTimer()
     {
         // Arrange
-        var speedTag = TagWriting(LogixTagWriteResult.Ok());
+        var speedTag = TagWriting(TagWriteResult.Ok());
         var delay = new TimerDataPoint(TagPath.Parse("Line.Delay"), DefaultPollFrequency, NoChannels);
         var tagManager = TagManagerFor(
             (Speed, speedTag),
-            (delay, TagWriting(LogixTagWriteResult.Ok())));
+            (delay, TagWriting(TagWriteResult.Ok())));
 
         // Act
         var construct = Record.Exception(() => new LogixWriteBatch(
@@ -207,8 +208,8 @@ public sealed class LogixWriteBatchTests
     {
         // Arrange
         var tagManager = TagManagerFor(
-            (Label, TagWriting(LogixTagWriteResult.Ok())),
-            (Recipe, TagWriting(LogixTagWriteResult.Ok())));
+            (Label, TagWriting(TagWriteResult.Ok())),
+            (Recipe, TagWriting(TagWriteResult.Ok())));
 
         // Act
         var construct = Record.Exception(() => new LogixWriteBatch(
@@ -224,11 +225,11 @@ public sealed class LogixWriteBatchTests
     public void ADataPointWithoutAConverterIsRefusedBeforeAnyWriteIsPossible()
     {
         // Arrange
-        var speedTag = TagWriting(LogixTagWriteResult.Ok());
+        var speedTag = TagWriting(TagWriteResult.Ok());
         var unconvertible = new UnregisteredDataPoint();
         var tagManager = TagManagerFor(
             (Speed, speedTag),
-            (unconvertible, TagWriting(LogixTagWriteResult.Ok())));
+            (unconvertible, TagWriting(TagWriteResult.Ok())));
 
         // Act
         var construct = Record.Exception(() => new LogixWriteBatch(
@@ -240,7 +241,7 @@ public sealed class LogixWriteBatchTests
     }
 
     // The real access honours cancellation by throwing rather than returning a failed result.
-    private static ILogixTag TagWriting(LogixTagWriteResult result, List<byte[]>? writtenBuffers = null)
+    private static ILogixTag TagWriting(TagWriteResult result, List<byte[]>? writtenBuffers = null)
     {
         var tag = Substitute.For<ILogixTag>();
         tag.WriteAsync(Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(call =>
