@@ -10,7 +10,7 @@ addressing differ. A copy of this code in Legacy would mean that every later fix
 
 ## Considered Options
 
-* **Option 1: A shared internal project** (`AllenBradley.LibPlcTag`, referenced by both dataports and bundled into
+* **Option 1: A shared internal project** (`AllenBradley.Client.Shared`, referenced by both dataports and bundled into
   each of their packages)
 * **Option 2: Legacy references Logix** (Legacy uses the Logix client types directly)
 * **Option 3: A copy in Legacy** (Legacy starts from a copy of the Logix client and the two drift apart)
@@ -42,7 +42,7 @@ Three details of the shared code follow from this decision:
 
 ### Consequences
 
-* A type moves into `AllenBradley.LibPlcTag` only when it names no dataport type. Anything specific to one protocol
+* A type moves into `AllenBradley.Client.Shared` only when it names no dataport type. Anything specific to one protocol
   stays in that dataport.
 * Every package and deploy script must contain the shared assembly. Both publish the dataport project, so the
   assembly is included as long as the project reference stays.

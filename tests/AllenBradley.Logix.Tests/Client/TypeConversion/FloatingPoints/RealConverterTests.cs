@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;

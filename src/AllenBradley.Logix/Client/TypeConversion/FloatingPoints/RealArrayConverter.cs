@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion.Codecs;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.FloatingPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;

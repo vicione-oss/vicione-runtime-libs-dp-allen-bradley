@@ -21,7 +21,7 @@ Before you add a data type or a node, read these two pages:
 The **Legacy** dataport is a second project in this repo, `src/AllenBradley.Legacy`, versioned and published
 together with Logix. Its scope is in the [Legacy README](docs/AllenBradley.Legacy.Documentation/README.md).
 
-Both dataports use `src/AllenBradley.LibPlcTag` for the client code that names neither of them: the client pool, the
+Both dataports use `src/AllenBradley.Client.Shared` for the client code that names neither of them: the client pool, the
 tag cache, the read and write batches, the tag access and the codecs for the elementary types. It is not a package of
 its own. Its assembly is bundled into each dataport's publish output through the project reference. Put a type there
 only if it names no Logix or Legacy type

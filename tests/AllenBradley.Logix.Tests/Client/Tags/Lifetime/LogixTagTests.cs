@@ -1,5 +1,5 @@
 using NSubstitute;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;

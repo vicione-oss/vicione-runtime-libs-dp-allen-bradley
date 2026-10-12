@@ -1,5 +1,5 @@
 using System.Text;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;

@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Batches;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Batches;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;

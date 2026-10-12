@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AllenBradley.LibPlcTag\AllenBradley.LibPlcTag.csproj" />
+    <ProjectReference Include="..\AllenBradley.Client.Shared\AllenBradley.Client.Shared.csproj" />
   </ItemGroup>
 
   <!-- Configuration file - always copy to output -->

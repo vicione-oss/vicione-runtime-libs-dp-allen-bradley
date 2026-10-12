@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ViciOne.Suite.DataPort.AllenBradley.Client.Shared</RootNamespace>
+    <AssemblyName>ViciOne.Suite.DataPort.AllenBradley.Client.Shared</AssemblyName>
+    <Description>The libplctag client mechanics the Allen-Bradley dataports share. Bundled into each dataport, never published on its own.</Description>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="libplctag" />
+    <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ViciOne.Suite.DataPort.AllenBradley.Logix" />
+    <InternalsVisibleTo Include="ViciOne.Suite.DataPort.AllenBradley.Legacy" />
+    <InternalsVisibleTo Include="AllenBradley.Logix.Tests" />
+    <InternalsVisibleTo Include="AllenBradley.Legacy.Tests" />
+  </ItemGroup>
+
+</Project>

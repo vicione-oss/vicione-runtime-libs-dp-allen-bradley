@@ -102,7 +102,7 @@
         "resolved": "16.3.0",
         "contentHash": "SgMOdxbz8X65z8hraIs6hOEdnkH6hESTAIUa7viEngHOYaH+6q5XJmwr1+yb9vJpNQ19hCQY69xbFsLtXpobQA=="
       },
-      "ViciOne.Suite.DataPort.AllenBradley.LibPlcTag": {
+      "ViciOne.Suite.DataPort.AllenBradley.Client.Shared": {
         "type": "Project",
         "dependencies": {
           "ViciOne.Suite.DataPort.Extensions": "[1.0.0, )",

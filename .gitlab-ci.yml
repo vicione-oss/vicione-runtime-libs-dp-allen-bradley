@@ -1,6 +1,6 @@
 # Component-based pipeline modeled on the Siemens S7 repo. Each dataport (Logix, Legacy)
 # is packaged and published as its own module, from one shared version. The shared
-# AllenBradley.LibPlcTag assembly has no job of its own: publishing a dataport copies it
+# AllenBradley.Client.Shared assembly has no job of its own: publishing a dataport copies it
 # into that dataport's output through the project reference.
 #
 # Dropped versus S7, because the inputs don't exist in this repo yet:

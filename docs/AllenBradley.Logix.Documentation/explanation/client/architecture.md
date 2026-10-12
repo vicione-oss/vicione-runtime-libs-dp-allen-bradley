@@ -31,7 +31,7 @@ to the controller.
 
 ![Which client classes the Logix and Legacy dataports share](../../../AllenBradley.Documentation/libplctag/diagrams/libplctag-client-design.svg)
 
-Most of the client does not depend on the Logix model. That part is in `src/AllenBradley.LibPlcTag`, and the Legacy
+Most of the client does not depend on the Logix model. That part is in `src/AllenBradley.Client.Shared`, and the Legacy
 dataport uses it too: the client pool, the tag cache, the read and write batches, the access to one handle, and the
 byte layout of the elementary types. Logix keeps what only Logix has. That is the symbol table, the tag attributes for
 `ab_eip`, the converters for each data point type, and the `LogixTagException` that its batches throw. The
@@ -54,7 +54,7 @@ The framework uses the client in this sequence:
 ## The pages
 
 Each page explains one part of the design. The source folders have the same division. A shared folder is in
-`src/AllenBradley.LibPlcTag`.
+`src/AllenBradley.Client.Shared`.
 
 | Page                                                | What it explains                                                                                            | Folder                                                         |
 |-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|

@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Pool;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Pool;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 

@@ -1,5 +1,5 @@
 using System.Globalization;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.SymbolTypes;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols.TagsListing;

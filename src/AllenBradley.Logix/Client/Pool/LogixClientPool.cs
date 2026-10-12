@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Pool;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Pool;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.Device;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Pool;

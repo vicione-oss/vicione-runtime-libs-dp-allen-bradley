@@ -26,13 +26,13 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/AllenBradley.Legacy/AllenBradley.Legacy.csproj" />
-    <Project Path="src/AllenBradley.LibPlcTag/AllenBradley.LibPlcTag.csproj" />
+    <Project Path="src/AllenBradley.Client.Shared/AllenBradley.Client.Shared.csproj" />
     <Project Path="src/AllenBradley.Logix/AllenBradley.Logix.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <Project Path="tests/AllenBradley.Legacy.Tests/AllenBradley.Legacy.Tests.csproj" />
-    <Project Path="tests/AllenBradley.LibPlcTag.Tests/AllenBradley.LibPlcTag.Tests.csproj" />
+    <Project Path="tests/AllenBradley.Client.Shared.Tests/AllenBradley.Client.Shared.Tests.csproj" />
     <Project Path="tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj" />
   </Folder>
 </Solution>

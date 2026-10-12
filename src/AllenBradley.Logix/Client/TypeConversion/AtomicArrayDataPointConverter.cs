@@ -1,5 +1,5 @@
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion.Codecs;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 

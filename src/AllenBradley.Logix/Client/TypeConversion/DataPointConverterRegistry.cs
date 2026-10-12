@@ -1,5 +1,5 @@
 using System.Collections.Frozen;
-using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
