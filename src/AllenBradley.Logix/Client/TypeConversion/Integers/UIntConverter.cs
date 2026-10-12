@@ -9,9 +9,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class UIntConverter : DataPointConverter<UIntDataPoint, ushort>
 {
+    private readonly UInt16Codec _codec = new();
+
     protected override ushort DecodeValue(UIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        UInt16Codec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     protected override byte[] EncodeValue(UIntDataPoint dataPoint, ushort value) =>
-        UInt16Codec.Instance.Encode(value);
+        _codec.Encode(value);
 }

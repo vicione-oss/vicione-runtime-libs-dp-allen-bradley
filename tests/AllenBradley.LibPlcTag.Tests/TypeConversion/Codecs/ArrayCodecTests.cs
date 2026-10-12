@@ -4,7 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.TypeConversion.Cod
 
 public sealed class ArrayCodecTests
 {
-    private static readonly ArrayCodec<short> ThreeShorts = new(Int16Codec.Instance, 3);
+    private static readonly ArrayCodec<short> ThreeShorts = new(new Int16Codec(), 3);
 
     // Least significant byte first, each element asymmetric in its bytes.
     private static readonly byte[] StoredShorts = [0x01, 0x00, 0x34, 0x12, 0xFF, 0xFF];

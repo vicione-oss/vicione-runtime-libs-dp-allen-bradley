@@ -9,5 +9,5 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class LRealArrayConverter : AtomicArrayDataPointConverter<LRealArrayDataPoint, double>
 {
-    protected override ElementCodec<double> Element => DoubleCodec.Instance;
+    protected override ElementCodec<double> Element { get; } = new DoubleCodec();
 }

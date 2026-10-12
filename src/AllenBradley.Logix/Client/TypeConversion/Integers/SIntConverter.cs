@@ -9,9 +9,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class SIntConverter : DataPointConverter<SIntDataPoint, sbyte>
 {
+    private readonly SByteCodec _codec = new();
+
     protected override sbyte DecodeValue(SIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        SByteCodec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     protected override byte[] EncodeValue(SIntDataPoint dataPoint, sbyte value) =>
-        SByteCodec.Instance.Encode(value);
+        _codec.Encode(value);
 }

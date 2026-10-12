@@ -5,12 +5,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 /// <summary>A 64-bit unsigned integer, little-endian.</summary>
 internal sealed class UInt64Codec : ElementCodec<ulong>
 {
-    internal static readonly UInt64Codec Instance = new();
-
-    private UInt64Codec()
-    {
-    }
-
     internal override int Size => sizeof(ulong);
 
     internal override ulong Decode(ReadOnlySpan<byte> buffer) => BinaryPrimitives.ReadUInt64LittleEndian(buffer);

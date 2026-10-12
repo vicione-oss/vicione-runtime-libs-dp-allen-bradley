@@ -6,12 +6,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 /// </summary>
 internal sealed class SByteCodec : ElementCodec<sbyte>
 {
-    internal static readonly SByteCodec Instance = new();
-
-    private SByteCodec()
-    {
-    }
-
     internal override int Size => sizeof(sbyte);
 
     internal override sbyte Decode(ReadOnlySpan<byte> buffer) => (sbyte)buffer[0];

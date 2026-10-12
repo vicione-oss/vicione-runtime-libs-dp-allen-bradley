@@ -5,12 +5,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 /// <summary>A 16-bit signed integer, little-endian, in two's complement.</summary>
 internal sealed class Int16Codec : ElementCodec<short>
 {
-    internal static readonly Int16Codec Instance = new();
-
-    private Int16Codec()
-    {
-    }
-
     internal override int Size => sizeof(short);
 
     internal override short Decode(ReadOnlySpan<byte> buffer) => BinaryPrimitives.ReadInt16LittleEndian(buffer);

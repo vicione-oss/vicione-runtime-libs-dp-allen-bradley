@@ -4,7 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.TypeConversion.Cod
 
 public sealed class Int16CodecTests
 {
-    private static readonly Int16Codec Codec = Int16Codec.Instance;
+    private static readonly Int16Codec Codec = new();
 
     [Theory]
     [InlineData(0x0000, (short)0)]

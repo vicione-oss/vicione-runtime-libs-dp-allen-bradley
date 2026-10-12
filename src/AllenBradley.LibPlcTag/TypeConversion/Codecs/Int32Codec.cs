@@ -5,12 +5,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 /// <summary>A 32-bit signed integer, little-endian, in two's complement.</summary>
 internal sealed class Int32Codec : ElementCodec<int>
 {
-    internal static readonly Int32Codec Instance = new();
-
-    private Int32Codec()
-    {
-    }
-
     internal override int Size => sizeof(int);
 
     internal override int Decode(ReadOnlySpan<byte> buffer) => BinaryPrimitives.ReadInt32LittleEndian(buffer);

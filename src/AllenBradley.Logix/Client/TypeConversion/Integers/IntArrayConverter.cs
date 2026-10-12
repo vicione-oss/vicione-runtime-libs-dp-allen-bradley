@@ -9,5 +9,5 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class IntArrayConverter : AtomicArrayDataPointConverter<IntArrayDataPoint, short>
 {
-    protected override ElementCodec<short> Element => Int16Codec.Instance;
+    protected override ElementCodec<short> Element { get; } = new Int16Codec();
 }

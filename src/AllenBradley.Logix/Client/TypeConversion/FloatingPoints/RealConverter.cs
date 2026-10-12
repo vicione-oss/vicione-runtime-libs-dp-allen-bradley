@@ -8,9 +8,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class RealConverter : DataPointConverter<RealDataPoint, float>
 {
+    private readonly SingleCodec _codec = new();
+
     protected override float DecodeValue(RealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        SingleCodec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     protected override byte[] EncodeValue(RealDataPoint dataPoint, float value) =>
-        SingleCodec.Instance.Encode(value);
+        _codec.Encode(value);
 }

@@ -9,8 +9,10 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Timers
 /// </summary>
 internal sealed class TimerConverter : DataPointConverter<TimerDataPoint, int>
 {
+    private readonly Int32Codec _codec = new();
+
     protected override int DecodeValue(TimerDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        Int32Codec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     // Checked again here, not only by the outgoing port's range validation, because the client can be
     // written to directly.
@@ -23,6 +25,6 @@ internal sealed class TimerConverter : DataPointConverter<TimerDataPoint, int>
                 "a negative accumulated time is a major fault on the controller.");
         }
 
-        return Int32Codec.Instance.Encode(value);
+        return _codec.Encode(value);
     }
 }

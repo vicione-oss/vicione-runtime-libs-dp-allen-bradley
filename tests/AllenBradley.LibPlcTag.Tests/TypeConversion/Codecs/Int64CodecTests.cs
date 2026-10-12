@@ -4,7 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.TypeConversion.Cod
 
 public sealed class Int64CodecTests
 {
-    private static readonly Int64Codec Codec = Int64Codec.Instance;
+    private static readonly Int64Codec Codec = new();
 
     [Theory]
     [InlineData(0UL, 0L)]

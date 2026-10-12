@@ -9,5 +9,5 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class SIntArrayConverter : AtomicArrayDataPointConverter<SIntArrayDataPoint, sbyte>
 {
-    protected override ElementCodec<sbyte> Element => SByteCodec.Instance;
+    protected override ElementCodec<sbyte> Element { get; } = new SByteCodec();
 }

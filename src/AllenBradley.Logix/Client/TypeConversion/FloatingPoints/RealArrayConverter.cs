@@ -9,5 +9,5 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class RealArrayConverter : AtomicArrayDataPointConverter<RealArrayDataPoint, float>
 {
-    protected override ElementCodec<float> Element => SingleCodec.Instance;
+    protected override ElementCodec<float> Element { get; } = new SingleCodec();
 }

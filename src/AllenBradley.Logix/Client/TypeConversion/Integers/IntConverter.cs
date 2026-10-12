@@ -9,9 +9,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class IntConverter : DataPointConverter<IntDataPoint, short>
 {
+    private readonly Int16Codec _codec = new();
+
     protected override short DecodeValue(IntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        Int16Codec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     protected override byte[] EncodeValue(IntDataPoint dataPoint, short value) =>
-        Int16Codec.Instance.Encode(value);
+        _codec.Encode(value);
 }

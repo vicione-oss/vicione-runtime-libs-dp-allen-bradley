@@ -9,9 +9,11 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Counte
 /// </summary>
 internal sealed class CounterConverter : DataPointConverter<CounterDataPoint, int>
 {
+    private readonly Int32Codec _codec = new();
+
     protected override int DecodeValue(CounterDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        Int32Codec.Instance.Decode(buffer);
+        _codec.Decode(buffer);
 
     protected override byte[] EncodeValue(CounterDataPoint dataPoint, int value) =>
-        Int32Codec.Instance.Encode(value);
+        _codec.Encode(value);
 }

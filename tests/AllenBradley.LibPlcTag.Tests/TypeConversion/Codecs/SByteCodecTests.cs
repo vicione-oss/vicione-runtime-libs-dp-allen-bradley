@@ -4,7 +4,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tests.TypeConversion.Cod
 
 public sealed class SByteCodecTests
 {
-    private static readonly SByteCodec Codec = SByteCodec.Instance;
+    private static readonly SByteCodec Codec = new();
 
     [Theory]
     [InlineData(0x00, (sbyte)0)]
