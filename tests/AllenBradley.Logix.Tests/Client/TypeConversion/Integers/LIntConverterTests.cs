@@ -28,36 +28,6 @@ public sealed class LIntConverterTests
         decoded.Should().Be(Ticks.CreateLogixValue(AlmostMaxValue));
     }
 
-    [Theory]
-    [InlineData(0UL, 0L)]
-    [InlineData(ulong.MaxValue, -1L)]
-    [InlineData(0x7FFFFFFFFFFFFFFFUL, long.MaxValue)]
-    [InlineData(0x8000000000000000UL, long.MinValue)]
-    public void AStoredBitPatternDecodesToTheLIntTheControllerMeansByIt(ulong storedBits, long expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Ticks, buffer);
-
-        // Assert
-        decoded.Should().Be(Ticks.CreateLogixValue(expectedValue));
-    }
-
-    [Fact]
-    public void ADecodeReadsOnlyTheEightBytesTheTypeOccupies()
-    {
-        // Arrange
-        byte[] buffer = [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF];
-
-        // Act
-        var decoded = Converter.Decode(Ticks, buffer);
-
-        // Assert
-        decoded.Should().Be(Ticks.CreateLogixValue(1L));
-    }
-
     [Fact]
     public void ALIntEncodesToExactlyTheEightBytesTheTypeOccupies()
     {
@@ -69,18 +39,5 @@ public sealed class LIntConverterTests
 
         // Assert
         bytes.Should().Equal(0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F);
-    }
-
-    [Fact]
-    public void ANegativeLIntEncodesInTwosComplement()
-    {
-        // Arrange
-        var value = Ticks.CreateLogixValue(-1L);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     }
 }

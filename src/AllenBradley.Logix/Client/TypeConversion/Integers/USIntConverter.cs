@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -8,15 +9,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class USIntConverter : DataPointConverter<USIntDataPoint, byte>
 {
-    internal const int ElementSize = sizeof(byte);
-
-    internal static byte DecodeElement(ReadOnlySpan<byte> buffer) => buffer[0];
-
-    internal static byte[] EncodeElement(byte value) => [value];
-
     protected override byte DecodeValue(USIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        DecodeElement(buffer);
+        ByteCodec.Instance.Decode(buffer);
 
     protected override byte[] EncodeValue(USIntDataPoint dataPoint, byte value) =>
-        EncodeElement(value);
+        ByteCodec.Instance.Encode(value);
 }

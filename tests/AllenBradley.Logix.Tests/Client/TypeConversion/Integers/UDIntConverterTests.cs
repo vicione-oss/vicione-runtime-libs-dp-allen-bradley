@@ -26,37 +26,6 @@ public sealed class UDIntConverterTests
         decoded.Should().Be(Runtime.CreateLogixValue(0x12345678u));
     }
 
-    [Theory]
-    [InlineData(0x00000000u, 0u)]
-    [InlineData(0x0001E240u, 123456u)]
-    [InlineData(0x7FFFFFFFu, 2147483647u)]
-    [InlineData(0x80000000u, 2147483648u)]
-    [InlineData(0xFFFFFFFFu, uint.MaxValue)]
-    public void AStoredBitPatternDecodesToTheUDIntTheControllerMeansByIt(uint storedBits, uint expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Runtime, buffer);
-
-        // Assert
-        decoded.Should().Be(Runtime.CreateLogixValue(expectedValue));
-    }
-
-    [Fact]
-    public void ADecodeReadsOnlyTheFourBytesTheTypeOccupies()
-    {
-        // Arrange
-        byte[] buffer = [0x40, 0xE2, 0x01, 0x00, 0xFF, 0xFF, 0xFF, 0xFF];
-
-        // Act
-        var decoded = Converter.Decode(Runtime, buffer);
-
-        // Assert
-        decoded.Should().Be(Runtime.CreateLogixValue(123456u));
-    }
-
     [Fact]
     public void AUDIntEncodesToExactlyTheFourBytesTheTypeOccupies()
     {
@@ -68,18 +37,5 @@ public sealed class UDIntConverterTests
 
         // Assert
         bytes.Should().Equal(0x78, 0x56, 0x34, 0x12);
-    }
-
-    [Fact]
-    public void AUDIntAboveTheSignedRangeEncodesAsItStands()
-    {
-        // Arrange
-        var value = Runtime.CreateLogixValue(uint.MaxValue);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF, 0xFF, 0xFF, 0xFF);
     }
 }

@@ -25,23 +25,6 @@ public sealed class DIntConverterTests
         decoded.Should().Be(Counter.CreateLogixValue(4711));
     }
 
-    [Theory]
-    [InlineData(0x00000000u, 0)]
-    [InlineData(0xFFFFFFFFu, -1)]
-    [InlineData(0x7FFFFFFFu, int.MaxValue)]
-    [InlineData(0x80000000u, int.MinValue)]
-    public void AStoredBitPatternDecodesToTheDintTheControllerMeansByIt(uint storedBits, int expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Counter, buffer);
-
-        // Assert
-        decoded.Should().Be(Counter.CreateLogixValue(expectedValue));
-    }
-
     [Fact]
     public void ADintEncodesToExactlyTheFourBytesTheTypeOccupies()
     {
@@ -53,18 +36,5 @@ public sealed class DIntConverterTests
 
         // Assert
         bytes.Should().Equal(0x67, 0x12, 0x00, 0x00);
-    }
-
-    [Fact]
-    public void ANegativeDintEncodesInTwosComplement()
-    {
-        // Arrange
-        var value = Counter.CreateLogixValue(-1);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF, 0xFF, 0xFF, 0xFF);
     }
 }

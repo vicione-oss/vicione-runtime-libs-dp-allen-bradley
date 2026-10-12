@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
@@ -8,21 +8,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Floati
 /// </summary>
 internal sealed class RealConverter : DataPointConverter<RealDataPoint, float>
 {
-    internal const int ElementSize = sizeof(float);
-
-    internal static float DecodeElement(ReadOnlySpan<byte> buffer) =>
-        BinaryPrimitives.ReadSingleLittleEndian(buffer);
-
-    internal static byte[] EncodeElement(float value)
-    {
-        var bytes = new byte[ElementSize];
-        BinaryPrimitives.WriteSingleLittleEndian(bytes, value);
-        return bytes;
-    }
-
     protected override float DecodeValue(RealDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        DecodeElement(buffer);
+        SingleCodec.Instance.Decode(buffer);
 
     protected override byte[] EncodeValue(RealDataPoint dataPoint, float value) =>
-        EncodeElement(value);
+        SingleCodec.Instance.Encode(value);
 }

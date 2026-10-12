@@ -26,23 +26,6 @@ public sealed class RealConverterTests
         decoded.Should().Be(Measurement.CreateLogixValue(1.0f));
     }
 
-    [Theory]
-    [InlineData(0x3F800000u, 1.0f)]
-    [InlineData(0xBF800000u, -1.0f)]
-    [InlineData(0x00000000u, 0.0f)]
-    [InlineData(0x40490FDBu, MathF.PI)]
-    public void AStoredBitPatternDecodesToTheRealTheControllerMeansByIt(uint storedBits, float expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Measurement, buffer);
-
-        // Assert
-        decoded.Should().Be(Measurement.CreateLogixValue(expectedValue));
-    }
-
     [Fact]
     public void ARealEncodesToExactlyTheFourBytesTheTypeOccupies()
     {

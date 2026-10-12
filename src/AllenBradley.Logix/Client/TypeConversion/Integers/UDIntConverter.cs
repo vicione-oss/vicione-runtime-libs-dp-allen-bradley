@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion.Codecs;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
@@ -9,21 +9,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Intege
 /// </summary>
 internal sealed class UDIntConverter : DataPointConverter<UDIntDataPoint, uint>
 {
-    internal const int ElementSize = sizeof(uint);
-
-    internal static uint DecodeElement(ReadOnlySpan<byte> buffer) =>
-        BinaryPrimitives.ReadUInt32LittleEndian(buffer);
-
-    internal static byte[] EncodeElement(uint value)
-    {
-        var bytes = new byte[ElementSize];
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes, value);
-        return bytes;
-    }
-
     protected override uint DecodeValue(UDIntDataPoint dataPoint, ReadOnlySpan<byte> buffer) =>
-        DecodeElement(buffer);
+        UInt32Codec.Instance.Decode(buffer);
 
     protected override byte[] EncodeValue(UDIntDataPoint dataPoint, uint value) =>
-        EncodeElement(value);
+        UInt32Codec.Instance.Encode(value);
 }

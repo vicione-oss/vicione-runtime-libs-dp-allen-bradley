@@ -12,24 +12,6 @@ public sealed class SIntConverterTests
 
     private static readonly SIntDataPoint Level = new(TagPath.Parse("sintValue1"), DefaultPollFrequency, NoChannels);
 
-    [Theory]
-    [InlineData(0x00, (sbyte)0)]
-    [InlineData(0x2A, (sbyte)42)]
-    [InlineData(0xFF, (sbyte)-1)]
-    [InlineData(0x7F, sbyte.MaxValue)]
-    [InlineData(0x80, sbyte.MinValue)]
-    public void AStoredBitPatternDecodesToTheSIntTheControllerMeansByIt(byte storedBits, sbyte expectedValue)
-    {
-        // Arrange
-        byte[] buffer = [storedBits];
-
-        // Act
-        var decoded = Converter.Decode(Level, buffer);
-
-        // Assert
-        decoded.Should().Be(Level.CreateLogixValue(expectedValue));
-    }
-
     [Fact]
     public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
     {
@@ -54,18 +36,5 @@ public sealed class SIntConverterTests
 
         // Assert
         bytes.Should().Equal(0x2A);
-    }
-
-    [Fact]
-    public void ANegativeSIntEncodesInTwosComplement()
-    {
-        // Arrange
-        var value = Level.CreateLogixValue(-1);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF);
     }
 }

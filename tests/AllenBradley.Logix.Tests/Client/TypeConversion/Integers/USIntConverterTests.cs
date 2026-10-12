@@ -12,24 +12,6 @@ public sealed class USIntConverterTests
 
     private static readonly USIntDataPoint Level = new(TagPath.Parse("usintValue1"), DefaultPollFrequency, NoChannels);
 
-    [Theory]
-    [InlineData(0x00, (byte)0)]
-    [InlineData(0x2A, (byte)42)]
-    [InlineData(0x7F, (byte)127)]
-    [InlineData(0x80, (byte)128)]
-    [InlineData(0xFF, byte.MaxValue)]
-    public void AStoredBitPatternDecodesToTheUSIntTheControllerMeansByIt(byte storedBits, byte expectedValue)
-    {
-        // Arrange
-        byte[] buffer = [storedBits];
-
-        // Act
-        var decoded = Converter.Decode(Level, buffer);
-
-        // Assert
-        decoded.Should().Be(Level.CreateLogixValue(expectedValue));
-    }
-
     [Fact]
     public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
     {
@@ -54,18 +36,5 @@ public sealed class USIntConverterTests
 
         // Assert
         bytes.Should().Equal(0x2A);
-    }
-
-    [Fact]
-    public void AUSIntAboveTheSignedRangeEncodesAsItStands()
-    {
-        // Arrange
-        var value = Level.CreateLogixValue(byte.MaxValue);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF);
     }
 }

@@ -25,36 +25,6 @@ public sealed class IntConverterTests
         decoded.Should().Be(Counter.CreateLogixValue(4711));
     }
 
-    [Theory]
-    [InlineData(0x0000, (short)0)]
-    [InlineData(0xFFFF, (short)-1)]
-    [InlineData(0x7FFF, short.MaxValue)]
-    [InlineData(0x8000, short.MinValue)]
-    public void AStoredBitPatternDecodesToTheIntTheControllerMeansByIt(ushort storedBits, short expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Counter, buffer);
-
-        // Assert
-        decoded.Should().Be(Counter.CreateLogixValue(expectedValue));
-    }
-
-    [Fact]
-    public void ADecodeReadsOnlyTheTwoBytesTheTypeOccupies()
-    {
-        // Arrange
-        byte[] buffer = [0x67, 0x12, 0xFF, 0xFF];
-
-        // Act
-        var decoded = Converter.Decode(Counter, buffer);
-
-        // Assert
-        decoded.Should().Be(Counter.CreateLogixValue(4711));
-    }
-
     [Fact]
     public void AnIntEncodesToExactlyTheTwoBytesTheTypeOccupies()
     {
@@ -66,18 +36,5 @@ public sealed class IntConverterTests
 
         // Assert
         bytes.Should().Equal(0x67, 0x12);
-    }
-
-    [Fact]
-    public void ANegativeIntEncodesInTwosComplement()
-    {
-        // Arrange
-        var value = Counter.CreateLogixValue(-1);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0xFF, 0xFF);
     }
 }

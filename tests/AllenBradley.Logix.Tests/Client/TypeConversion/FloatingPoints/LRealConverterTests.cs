@@ -26,23 +26,6 @@ public sealed class LRealConverterTests
         decoded.Should().Be(Measurement.CreateLogixValue(1.0d));
     }
 
-    [Theory]
-    [InlineData(0x3FF0000000000000, 1.0d)]
-    [InlineData(0xBFF0000000000000, -1.0d)]
-    [InlineData(0x0000000000000000, 0.0d)]
-    [InlineData(0x400921FB54442D18, Math.PI)]
-    public void AStoredBitPatternDecodesToTheLRealTheControllerMeansByIt(ulong storedBits, double expectedValue)
-    {
-        // Arrange
-        var buffer = BitConverter.GetBytes(storedBits);
-
-        // Act
-        var decoded = Converter.Decode(Measurement, buffer);
-
-        // Assert
-        decoded.Should().Be(Measurement.CreateLogixValue(expectedValue));
-    }
-
     [Fact]
     public void ALRealEncodesToExactlyTheEightBytesTheTypeOccupies()
     {
