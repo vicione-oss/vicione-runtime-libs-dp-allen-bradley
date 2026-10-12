@@ -3,10 +3,10 @@ using ViciOne.Suite.DataPort.Extensions.Exceptions;
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 
 /// <summary>
-/// One controller connection with the read seam on it, plus the connect / disconnect / dispose lifecycle a
-/// client lifecycle manager drives it through.
+/// One controller connection with both directions on it: the read and write seams, plus the connect /
+/// disconnect / dispose lifecycle a client lifecycle manager drives them through.
 /// </summary>
-public interface ILegacyClient : ILegacyReadClient, IDisposable
+public interface ILegacyClient : ILegacyReadClient, ILegacyWriteClient, IDisposable
 {
     /// <summary>Whether the client has connected and not since disconnected.</summary>
     bool IsConnected { get; }
