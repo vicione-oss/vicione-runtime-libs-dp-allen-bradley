@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -15,7 +16,7 @@ public sealed class UIntArrayConverterTests
 {
     private const int DeclaredElementCount = 10;
 
-    private static readonly IDataPointConverter Converter = new UIntArrayConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new UIntArrayConverter();
 
     private static readonly UIntArrayDataPoint Speeds = new(
         TagPath.Parse("uintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));

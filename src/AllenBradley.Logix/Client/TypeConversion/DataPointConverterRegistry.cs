@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
@@ -15,18 +16,18 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 /// </summary>
 internal static class DataPointConverterRegistry
 {
-    private static readonly FrozenDictionary<Type, IDataPointConverter> Converters = Build();
+    private static readonly FrozenDictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>> Converters = Build();
 
-    internal static IDataPointConverter GetConverter(ILogixDataPoint dataPoint) =>
+    internal static IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> GetConverter(ILogixDataPoint dataPoint) =>
         Converters.TryGetValue(dataPoint.GetType(), out var converter)
             ? converter
             : throw new InvalidOperationException(
                 $"No converter is registered for data point type {dataPoint.GetType().Name}. " +
                 "Add a Register call in DataPointConverterRegistry.Build.");
 
-    private static FrozenDictionary<Type, IDataPointConverter> Build()
+    private static FrozenDictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>> Build()
     {
-        var converters = new Dictionary<Type, IDataPointConverter>();
+        var converters = new Dictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>>();
 
         RegisterScalarConverters(converters);
         RegisterArrayConverters(converters);
@@ -34,7 +35,7 @@ internal static class DataPointConverterRegistry
         return converters.ToFrozenDictionary();
     }
 
-    private static void RegisterArrayConverters(Dictionary<Type, IDataPointConverter> converters)
+    private static void RegisterArrayConverters(Dictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>> converters)
     {
         Register(converters, new BoolArrayConverter());
         Register(converters, new SIntArrayConverter());
@@ -49,7 +50,7 @@ internal static class DataPointConverterRegistry
         Register(converters, new LRealArrayConverter());
     }
 
-    private static void RegisterScalarConverters(Dictionary<Type, IDataPointConverter> converters)
+    private static void RegisterScalarConverters(Dictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>> converters)
     {
         Register(converters, new BoolConverter());
         Register(converters, new SIntConverter());
@@ -70,7 +71,7 @@ internal static class DataPointConverterRegistry
     // Infers the key from the converter's own type parameter rather than taking it, so filing a converter
     // under a data point it does not handle is a compile error rather than a run-time routing failure.
     private static void Register<TDataPoint, TDomain>(
-        Dictionary<Type, IDataPointConverter> converters,
+        Dictionary<Type, IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>> converters,
         DataPointConverter<TDataPoint, TDomain> converter)
         where TDataPoint : LogixDataPoint<TDomain> =>
         converters.Add(typeof(TDataPoint), converter);

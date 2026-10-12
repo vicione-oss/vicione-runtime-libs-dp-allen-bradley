@@ -26,6 +26,8 @@
     <Using Include="Xunit"/>
     <Using Include="AwesomeAssertions"/>
     <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute"/>
+    <!-- The fake data point is internal, and substitutes of the generic seams are closed over it. -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
   </ItemGroup>
 
 </Project>

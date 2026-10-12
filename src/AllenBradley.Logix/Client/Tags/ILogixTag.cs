@@ -9,7 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags;
 /// <see cref="DeclaredType"/> for its path, and the read/write handle. The batches, decode and verification
 /// all project off this one object.
 /// </summary>
-internal interface ILogixTag : IDisposable
+internal interface ILogixTag : ITagAccess
 {
     /// <summary>The configured data point this tag reads and writes.</summary>
     ILogixDataPoint DataPoint { get; init; }
@@ -24,10 +24,4 @@ internal interface ILogixTag : IDisposable
     /// immutable getters above, so it is the same pair every time it is asked for.
     /// </summary>
     ResolvedDataPoint Resolved => new(DataPoint, DeclaredType);
-
-    /// <summary>Reads the tag from the controller and returns its raw bytes.</summary>
-    Task<TagReadResult> ReadAsync(CancellationToken cancellationToken);
-
-    /// <summary>Writes <paramref name="buffer"/> to the tag on the controller.</summary>
-    Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken);
 }

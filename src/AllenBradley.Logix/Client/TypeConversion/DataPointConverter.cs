@@ -1,13 +1,15 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 
 /// <summary>
-/// Typed base for <see cref="IDataPointConverter"/>. Subclasses work entirely in their own data-point and
+/// Typed base for the Logix <see cref="IDataPointConverter{TDataPoint, TValue}"/>. Subclasses work entirely in their own data-point and
 /// .NET types (DIntDataPoint to int) and never touch <c>object</c>; the single boundary cast lives here, so
 /// a failed cast can only mean the registry routed the wrong converter.
 /// </summary>
-internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConverter
+internal abstract class DataPointConverter<TDataPoint, TDomain>
+    : IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>
     where TDataPoint : LogixDataPoint<TDomain>
 {
     protected abstract TDomain DecodeValue(TDataPoint dataPoint, ReadOnlySpan<byte> buffer);
@@ -18,13 +20,13 @@ internal abstract class DataPointConverter<TDataPoint, TDomain> : IDataPointConv
     /// </summary>
     protected abstract byte[] EncodeValue(TDataPoint dataPoint, TDomain value);
 
-    ILogixDataPointValue IDataPointConverter.Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
+    ILogixDataPointValue IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>.Decode(ILogixDataPoint dataPoint, ReadOnlySpan<byte> buffer)
     {
         var typedDataPoint = Cast(dataPoint);
         return typedDataPoint.CreateLogixValue(DecodeValue(typedDataPoint, buffer));
     }
 
-    byte[] IDataPointConverter.Encode(ILogixDataPointValue dataPointValue)
+    byte[] IDataPointConverter<ILogixDataPoint, ILogixDataPointValue>.Encode(ILogixDataPointValue dataPointValue)
     {
         var typedDataPoint = Cast(dataPointValue.DataPoint);
 

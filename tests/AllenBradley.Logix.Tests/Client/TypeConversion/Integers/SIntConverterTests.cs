@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.
 
 public sealed class SIntConverterTests
 {
-    private static readonly IDataPointConverter Converter = new SIntConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new SIntConverter();
 
     private static readonly SIntDataPoint Level = new(TagPath.Parse("sintValue1"), DefaultPollFrequency, NoChannels);
 

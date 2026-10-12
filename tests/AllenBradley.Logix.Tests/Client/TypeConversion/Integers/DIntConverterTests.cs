@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.
 
 public sealed class DIntConverterTests
 {
-    private static readonly IDataPointConverter Converter = new DIntConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new DIntConverter();
 
     private static readonly DIntDataPoint Counter = new(TagPath.Parse("dintValue1"), DefaultPollFrequency, NoChannels);
 

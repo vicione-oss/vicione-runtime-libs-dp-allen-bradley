@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Client.TypeConversion.
 
 public sealed class LRealConverterTests
 {
-    private static readonly IDataPointConverter Converter = new LRealConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new LRealConverter();
 
     private static readonly LRealDataPoint Measurement =
         new(TagPath.Parse("PrecisionValue"), DefaultPollFrequency, NoChannels);

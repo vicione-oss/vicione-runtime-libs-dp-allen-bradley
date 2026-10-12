@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
@@ -11,7 +11,7 @@ public sealed class IntArrayConverterTests
 {
     private const int DeclaredElementCount = 10;
 
-    private static readonly IDataPointConverter Converter = new IntArrayConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new IntArrayConverter();
 
     private static readonly IntArrayDataPoint Readings = new(
         TagPath.Parse("intArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));
@@ -47,7 +47,7 @@ public sealed class IntArrayConverterTests
         var decoding = Converter.Invoking(converter => converter.Decode(Readings, elevenInts));
 
         // Assert
-        decoding.Should().Throw<LogixDecodeException>()
+        decoding.Should().Throw<DecodeException>()
             .WithMessage("*intArray1*returned 22 bytes*configured with 10 elements of 2 bytes*");
     }
 
@@ -61,7 +61,7 @@ public sealed class IntArrayConverterTests
         var decoding = Converter.Invoking(converter => converter.Decode(Readings, tenIntsAndAStrayByte));
 
         // Assert
-        decoding.Should().Throw<LogixDecodeException>()
+        decoding.Should().Throw<DecodeException>()
             .WithMessage("*intArray1*returned 21 bytes*configured with 10 elements of 2 bytes*");
     }
 
@@ -75,7 +75,7 @@ public sealed class IntArrayConverterTests
         var decoding = Converter.Invoking(converter => converter.Decode(Readings, sixInts));
 
         // Assert
-        decoding.Should().Throw<LogixDecodeException>()
+        decoding.Should().Throw<DecodeException>()
             .WithMessage("*intArray1*returned 12 bytes*configured with 10 elements of 2 bytes*");
     }
 

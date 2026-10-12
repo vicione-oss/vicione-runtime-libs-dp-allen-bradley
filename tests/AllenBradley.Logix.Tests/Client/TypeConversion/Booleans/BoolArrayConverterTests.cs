@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
@@ -11,7 +11,7 @@ public sealed class BoolArrayConverterTests
 {
     private const int DeclaredBitCount = 32;
 
-    private static readonly IDataPointConverter Converter = new BoolArrayConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new BoolArrayConverter();
 
     private static readonly BoolArrayDataPoint Flags = new(
         TagPath.Parse("boolArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredBitCount));
@@ -61,7 +61,7 @@ public sealed class BoolArrayConverterTests
         var decoding = Converter.Invoking(converter => converter.Decode(Flags, halfAWord));
 
         // Assert
-        decoding.Should().Throw<LogixDecodeException>()
+        decoding.Should().Throw<DecodeException>()
             .WithMessage("*boolArray1*returned 2 bytes*32 elements packed into 4 bytes*");
     }
 
@@ -75,7 +75,7 @@ public sealed class BoolArrayConverterTests
         var decoding = Converter.Invoking(converter => converter.Decode(Flags, twoWords));
 
         // Assert
-        decoding.Should().Throw<LogixDecodeException>()
+        decoding.Should().Throw<DecodeException>()
             .WithMessage("*boolArray1*returned 8 bytes*32 elements packed into 4 bytes*");
     }
 

@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -15,7 +16,7 @@ public sealed class SIntArrayConverterTests
 {
     private const int DeclaredElementCount = 10;
 
-    private static readonly IDataPointConverter Converter = new SIntArrayConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new SIntArrayConverter();
 
     private static readonly SIntArrayDataPoint Samples = new(
         TagPath.Parse("sintArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));

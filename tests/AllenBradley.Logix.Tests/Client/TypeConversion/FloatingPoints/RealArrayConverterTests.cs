@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -15,7 +16,7 @@ public sealed class RealArrayConverterTests
 {
     private const int DeclaredElementCount = 10;
 
-    private static readonly IDataPointConverter Converter = new RealArrayConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new RealArrayConverter();
 
     private static readonly RealArrayDataPoint Temperatures = new(
         TagPath.Parse("realArray1"), DefaultPollFrequency, NoChannels, new ElementCount(DeclaredElementCount));

@@ -22,7 +22,6 @@ public sealed class LogixWriteBatchTests
 
     private static readonly DIntDataPoint Speed = new(TagPath.Parse("Motor.Speed"), DefaultPollFrequency, NoChannels);
     private static readonly DIntDataPoint Level = new(TagPath.Parse("Tank.Level"), DefaultPollFrequency, NoChannels);
-    private static readonly DIntDataPoint Torque = new(TagPath.Parse("Motor.Torque"), DefaultPollFrequency, NoChannels);
 
     private static readonly StringDataPoint Label =
         new(TagPath.Parse("Line.Label"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
@@ -30,31 +29,7 @@ public sealed class LogixWriteBatchTests
     private static readonly StringDataPoint Recipe =
         new(TagPath.Parse("Line.Recipe"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);
 
-    // Not BitConverter: that would re-derive them through the assumption the converter itself makes.
-    private static readonly byte[] FortyTwoAsDint = [42, 0, 0, 0];
-    private static readonly byte[] SevenAsDint = [7, 0, 0, 0];
-
     private static readonly string TooLongForAString = new('X', StringMaxLength.Standard.Value + 1);
-
-    [Fact]
-    public async Task EveryValueReachesItsOwnTagAsTheBytesItsConverterProduced()
-    {
-        // Arrange
-        var speedWrites = new List<byte[]>();
-        var levelWrites = new List<byte[]>();
-        var tagManager = TagManagerFor(
-            (Speed, TagWriting(TagWriteResult.Ok(), speedWrites)),
-            (Level, TagWriting(TagWriteResult.Ok(), levelWrites)));
-        var batch = new LogixWriteBatch([Speed.CreateLogixValue(42), Level.CreateLogixValue(7)], tagManager);
-
-        // Act
-        await batch.WriteAsync(CancellationToken.None);
-
-        // Assert
-        // The writes are fanned out concurrently, so the pairing made at construction is what holds.
-        speedWrites.Should().ContainSingle().Which.Should().Equal(FortyTwoAsDint);
-        levelWrites.Should().ContainSingle().Which.Should().Equal(SevenAsDint);
-    }
 
     [Fact]
     public async Task ATagThatWillNotTakeItsValueIsNamedInTheThrowWithItsReason()
@@ -74,27 +49,6 @@ public sealed class LogixWriteBatchTests
     }
 
     [Fact]
-    public async Task ABatchWithAFailingTagStillWritesEverySibling()
-    {
-        // Arrange
-        var speedTag = TagWriting(TagWriteResult.Ok());
-        var torqueTag = TagWriting(TagWriteResult.Ok());
-        var tagManager = TagManagerFor(
-            (Speed, speedTag),
-            (Level, TagWriting(TagWriteResult.Failed(TagNotFound))),
-            (Torque, torqueTag));
-        var batch = new LogixWriteBatch(
-            [Speed.CreateLogixValue(42), Level.CreateLogixValue(7), Torque.CreateLogixValue(7)], tagManager);
-
-        // Act
-        _ = await Record.ExceptionAsync(() => batch.WriteAsync(CancellationToken.None));
-
-        // Assert
-        await speedTag.Received(1).WriteAsync(Arg.Any<byte[]>(), Arg.Any<CancellationToken>());
-        await torqueTag.Received(1).WriteAsync(Arg.Any<byte[]>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
     public async Task EveryTagThatWillNotTakeItsValueIsNamedInOneThrow()
     {
         // Arrange
@@ -110,58 +64,6 @@ public sealed class LogixWriteBatchTests
         var message = (await writing.Should().ThrowAsync<LogixTagException>()).Which.Message;
         message.Should().Contain(Speed.TagAddress.Value).And.Contain(TagIsReadOnly);
         message.Should().Contain(Level.TagAddress.Value).And.Contain(TagNotFound);
-    }
-
-    [Fact]
-    public async Task ACancelledBatchThrowsTheCancellationAndPutsNothingOnTheWire()
-    {
-        // Arrange
-        var speedWrites = new List<byte[]>();
-        var tagManager = TagManagerFor((Speed, TagWriting(TagWriteResult.Ok(), speedWrites)));
-        var batch = new LogixWriteBatch([Speed.CreateLogixValue(42)], tagManager);
-        using var cts = new CancellationTokenSource();
-        await cts.CancelAsync();
-
-        // Act
-        var write = await Record.ExceptionAsync(() => batch.WriteAsync(cts.Token));
-
-        // Assert
-        // DidNotReceive replays the call, which would throw the very cancellation being asserted.
-        write.Should().BeAssignableTo<OperationCanceledException>();
-        speedWrites.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task AnEmptyGroupWritesNothingAndTouchesNoTag()
-    {
-        // Arrange
-        var tagManager = TagManagerFor();
-        var batch = new LogixWriteBatch([], tagManager);
-
-        // Act
-        var write = await Record.ExceptionAsync(() => batch.WriteAsync(CancellationToken.None));
-
-        // Assert
-        write.Should().BeNull();
-        tagManager.DidNotReceiveWithAnyArgs().TagFor(default!);
-    }
-
-    [Fact]
-    public void ConstructingABatchEncodesEveryValueAndResolvesItsTagWithoutWritingAnything()
-    {
-        // Arrange
-        var speedTag = TagWriting(TagWriteResult.Ok());
-        var levelTag = TagWriting(TagWriteResult.Ok());
-        var tagManager = TagManagerFor((Speed, speedTag), (Level, levelTag));
-
-        // Act
-        _ = new LogixWriteBatch([Speed.CreateLogixValue(42), Level.CreateLogixValue(7)], tagManager);
-
-        // Assert
-        tagManager.Received(1).TagFor(Speed);
-        tagManager.Received(1).TagFor(Level);
-        speedTag.ReceivedCalls().Should().BeEmpty();
-        levelTag.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
@@ -241,13 +143,12 @@ public sealed class LogixWriteBatchTests
     }
 
     // The real access honours cancellation by throwing rather than returning a failed result.
-    private static ILogixTag TagWriting(TagWriteResult result, List<byte[]>? writtenBuffers = null)
+    private static ILogixTag TagWriting(TagWriteResult result)
     {
         var tag = Substitute.For<ILogixTag>();
         tag.WriteAsync(Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(call =>
         {
             call.Arg<CancellationToken>().ThrowIfCancellationRequested();
-            writtenBuffers?.Add(call.Arg<byte[]>());
             return Task.FromResult(result);
         });
 

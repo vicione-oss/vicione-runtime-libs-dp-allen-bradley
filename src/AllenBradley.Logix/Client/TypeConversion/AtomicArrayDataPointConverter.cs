@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays;
 
@@ -27,7 +28,7 @@ internal abstract class AtomicArrayDataPointConverter<TDataPoint, TElement>
         // same disagreement, and dividing it away would decode the elements that did fit.
         if (buffer.Length != configuredElementCount * ElementSize)
         {
-            throw new LogixDecodeException(
+            throw new DecodeException(
                 $"Cannot read {TagNameOf(dataPoint)}; the controller returned {buffer.Length} bytes, " +
                 $"but the tag is configured with {configuredElementCount} elements of {ElementSize} bytes.");
         }

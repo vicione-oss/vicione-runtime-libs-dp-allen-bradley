@@ -1,4 +1,5 @@
 using System.Text;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -21,7 +22,7 @@ public sealed class LogixStringConverterTests
     // The padding up to Logix's 32-bit structure boundary is the tag buffer's, not the converter's.
     private const int PayloadSize = LengthPrefixSize + 82;
 
-    private static readonly IDataPointConverter Converter = new LogixStringConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new LogixStringConverter();
 
     private static readonly StringDataPoint Label = new(
         TagPath.Parse("Program:MainProgram.strValue1"), DefaultPollFrequency, NoChannels, StringMaxLength.Standard);

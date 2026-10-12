@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Booleans;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Booleans;
@@ -59,7 +60,7 @@ internal sealed class BoolArrayConverter : DataPointConverter<BoolArrayDataPoint
         var declaredWidth = WidthInBytes(dataPoint);
         if (bufferLength != declaredWidth)
         {
-            throw new LogixDecodeException(
+            throw new DecodeException(
                 $"Cannot read {dataPoint.TagAddress}; the controller returned {bufferLength} bytes, " +
                 $"but the tag is configured with {dataPoint.ElementCount.Value} elements packed into " +
                 $"{declaredWidth} bytes.");

@@ -1,4 +1,4 @@
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -11,7 +11,7 @@ public sealed class LIntConverterTests
     // One below long.MaxValue, so a swapped byte order cannot pass by symmetry.
     private const long AlmostMaxValue = 9223372036854775806L;
 
-    private static readonly IDataPointConverter Converter = new LIntConverter();
+    private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new LIntConverter();
 
     private static readonly LIntDataPoint Ticks = new(TagPath.Parse("lintValue1"), DefaultPollFrequency, NoChannels);
 
