@@ -21,6 +21,12 @@ Before you add a data type or a node, read these two pages:
 The **Legacy** dataport is a second project in this repo, `src/AllenBradley.Legacy`, versioned and published
 together with Logix. Its scope is in the [Legacy README](docs/AllenBradley.Legacy.Documentation/README.md).
 
+Both dataports use `src/AllenBradley.LibPlcTag` for the client code that names neither of them: the client pool, the
+tag cache, the read and write batches, the tag access and the codecs for the elementary types. It is not a package of
+its own. Its assembly is bundled into each dataport's publish output through the project reference. Put a type there
+only if it names no Logix or Legacy type
+([ADR](docs/AllenBradley.Logix.Documentation/ADR/2026-10-12-sharing-the-libplctag-client-code-with-legacy.md)).
+
 ## Quick Reference
 
 | Task               | Command                                                                                                                             |
@@ -75,7 +81,7 @@ Adopted wholesale from the S7 repo, so that a dataport developer who moves betwe
 - **`NuGet.Config`** — JFrog proxy for everything, JFrog ViciOne for `ViciOne.*`
 - **`.editorconfig`** — S7's, verbatim
 - **`NSubstitute`** for interaction tests only — where every assertion is "the caller did this to its
-  collaborator", as in `LogixClientPoolTests`. Keep stateful fakes (a tag lookup, a captured write buffer)
+  collaborator", as in `ClientPoolTests`. Keep stateful fakes (a tag lookup, a captured write buffer)
   hand-rolled; a substitute makes those longer, not shorter
 - **Model types are `readonly record struct`s or `enum`s — never bare primitives.** Every domain concept we define
   gets its own named value type; see

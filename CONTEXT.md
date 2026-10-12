@@ -291,7 +291,7 @@ it when we are done. It holds the tag's connection state and its byte buffer, so
 the same handle are two operations on the same buffer — which is why access to one is serialized
 (see [Operations, not
 accessors](docs/AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md)).
-One `LogixTagAccess` wraps exactly one handle, so "a shared handle" and "a shared access" name the
+One `LibPlcTagAccess` wraps exactly one handle, so "a shared handle" and "a shared access" name the
 same thing from the library's side and ours.
 _Avoid_: Session Handle — that is the EtherNet/IP header field above, and unrelated
 _Avoid_: saying "tag" for the handle — the tag is the controller's memory, the handle is the

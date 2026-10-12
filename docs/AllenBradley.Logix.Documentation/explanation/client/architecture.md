@@ -27,6 +27,16 @@ batches is one tag manager for each controller. It owns the symbol table and one
 tag object holds the access to one handle. The verifier uses the same tag objects as the polls, and has no second path
 to the controller.
 
+## The parts shared with Legacy
+
+![Which client classes the Logix and Legacy dataports share](../../../AllenBradley.Documentation/libplctag/diagrams/libplctag-client-design.svg)
+
+Most of the client does not depend on the Logix model. That part is in `src/AllenBradley.LibPlcTag`, and the Legacy
+dataport uses it too: the client pool, the tag cache, the read and write batches, the access to one handle, and the
+byte layout of the elementary types. Logix keeps what only Logix has. That is the symbol table, the tag attributes for
+`ab_eip`, the converters for each data point type, and the `LogixTagException` that its batches throw. The
+[decision record](../../ADR/2026-10-12-sharing-the-libplctag-client-code-with-legacy.md) gives the reasons.
+
 ## The client during the life of a port
 
 The framework uses the client in this sequence:
@@ -43,16 +53,17 @@ The framework uses the client in this sequence:
 
 ## The pages
 
-Each page explains one part of the design. The source folders have the same division.
+Each page explains one part of the design. The source folders have the same division. A shared folder is in
+`src/AllenBradley.LibPlcTag`.
 
-| Page                                                | What it explains                                                                                   | Folder                                         |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------|------------------------------------------------|
-| [Reading and writing](reading-and-writing.md)       | How a poll and a write go through the client, and why a failed tag has a different result in each  | `Client/`                                      |
-| [Values and their types](values-and-their-types.md) | Why only a data point can make its value, and why a converter knows nothing about the tag          | `Client/TypeConversion/`                       |
-| [Connecting](connecting.md)                         | What connect does, which state it makes, and what the client pool shares between the two ports     | `Client/Pool/`                                 |
-| [Tags and handles](tags-and-handles.md)             | Why there is one handle for each data point, who disposes it, and why one operation at a time is sufficient | `Client/Tags/Lifetime/`, `Client/Tags/Access/` |
-| [The symbol table](symbol-table.md)                 | What the client reads at connect, why it reads all of it, and which question the table answers     | `Client/Tags/Symbols/`                         |
-| [Verification](verification.md)                     | Why the port compares its configuration with the controller one time, at connect, in both ports    | `Verification/`                                |
+| Page                                                | What it explains                                                                                            | Folder                                                         |
+|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| [Reading and writing](reading-and-writing.md)       | How a poll and a write go through the client, and why a failed tag has a different result in each           | `Client/`, shared `Batches/`                                   |
+| [Values and their types](values-and-their-types.md) | Why only a data point can make its value, and why a converter knows nothing about the tag                   | `Client/TypeConversion/`, shared `TypeConversion/`             |
+| [Connecting](connecting.md)                         | What connect does, which state it makes, and what the client pool shares between the two ports              | `Client/Pool/`, shared `Pool/`                                 |
+| [Tags and handles](tags-and-handles.md)             | Why there is one handle for each data point, who disposes it, and why one operation at a time is sufficient | `Client/Tags/Lifetime/`, `Client/Tags/Access/`, shared `Tags/` |
+| [The symbol table](symbol-table.md)                 | What the client reads at connect, why it reads all of it, and which question the table answers              | `Client/Tags/Symbols/`                                         |
+| [Verification](verification.md)                     | Why the port compares its configuration with the controller one time, at connect, in both ports             | `Verification/`                                                |
 
 The diagrams are in [`diagrams/`](diagrams/). Each diagram is an Excalidraw source and the SVG export of it. To edit a
 diagram, obey the
