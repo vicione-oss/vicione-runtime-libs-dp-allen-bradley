@@ -6,6 +6,29 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData;
 /// <summary>Builds a configured <c>Integer</c> element node as the engine delivers it, before it is mapped.</summary>
 internal static class IntegerNodeTestDataFactory
 {
+    /// <summary>
+    /// An <c>Integer</c> element inside the integer file <paramref name="integerFileId"/>, routed to
+    /// <see cref="ElementChannel"/>.
+    /// </summary>
+    internal static Node IntegerElement(Guid integerFileId, ushort elementNumber, int pollFrequencyInMilliseconds) =>
+        new()
+        {
+            DesignId = IntegerNode.LinkedNodeTypeId,
+            Name = ElementChannel(elementNumber),
+            Id = Guid.NewGuid(),
+            ParentId = integerFileId,
+            AffectedChannels = [ElementChannel(elementNumber)],
+            TransferredChannels = [ElementChannel(elementNumber)],
+            Properties = new Dictionary<string, Property>
+            {
+                [ILegacyDataPointNode.ElementNumberPropertyName] = new() { Value = elementNumber },
+                [ILegacyDataPointNode.PollFrequencyPropertyName] = new() { Value = pollFrequencyInMilliseconds },
+            },
+        };
+
+    /// <summary>The channel <see cref="IntegerElement"/> routes element <paramref name="elementNumber"/> to.</summary>
+    internal static string ElementChannel(ushort elementNumber) => $"Element{elementNumber}";
+
     /// <summary>An <c>Integer</c> node carrying exactly <paramref name="properties"/>.</summary>
     internal static LinkedNode IntegerElementWith(params KeyValuePair<string, Property>[] properties) =>
         LinkedNodeFactory.Create(

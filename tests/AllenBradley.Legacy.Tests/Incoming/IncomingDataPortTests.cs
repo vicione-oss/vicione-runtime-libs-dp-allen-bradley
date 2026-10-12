@@ -5,14 +5,12 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Incoming;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
-using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
-using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
-using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
-using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Client;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
+using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.IntegerFileNodeTestDataFactory;
+using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.IntegerNodeTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyCommunicationTestDataFactory;
 using static ViciOne.Suite.DataPort.Extensions.Testing.Assertions.EventualAssertions;
 
@@ -20,7 +18,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Incoming;
 
 public sealed class IncomingDataPortTests
 {
-    private const ushort IntegerFileNumber = 7;
     private const int FastPollFrequencyMilliseconds = 100;
     private const int SlowPollFrequencyMilliseconds = 200;
 
@@ -109,32 +106,4 @@ public sealed class IncomingDataPortTests
 
         return DefaultTestCommunication() with { Nodes = [integerFile, .. elements] };
     }
-
-    private static Node IntegerFile() =>
-        new()
-        {
-            DesignId = IntegerFileNode.LinkedNodeTypeId,
-            Name = IntegerFileNode.LinkedNodeTypeId,
-            Id = Guid.NewGuid(),
-            Properties = new Dictionary<string, Property>
-            {
-                [DataFileNode.FileNumberPropertyName] = new() { Value = IntegerFileNumber },
-            },
-        };
-
-    private static Node IntegerElement(Guid integerFileId, ushort elementNumber, int pollFrequencyInMilliseconds) =>
-        new()
-        {
-            DesignId = IntegerNode.LinkedNodeTypeId,
-            Name = $"N{IntegerFileNumber}:{elementNumber}",
-            Id = Guid.NewGuid(),
-            ParentId = integerFileId,
-            AffectedChannels = [$"Element{elementNumber}"],
-            TransferredChannels = [$"Element{elementNumber}"],
-            Properties = new Dictionary<string, Property>
-            {
-                [ILegacyDataPointNode.ElementNumberPropertyName] = new() { Value = elementNumber },
-                [ILegacyDataPointNode.PollFrequencyPropertyName] = new() { Value = pollFrequencyInMilliseconds },
-            },
-        };
 }
