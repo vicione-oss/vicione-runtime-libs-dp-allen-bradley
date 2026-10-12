@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
@@ -136,42 +135,6 @@ public sealed class CachingLogixTagManagerTests
     }
 
     [Fact]
-    public async Task TwoEqualDataPointsShareOneTag()
-    {
-        // Arrange
-        // Distinct instances, equal by record value
-        // (ADR/2026-07-16-reusing-and-releasing-tag-handles.md).
-        var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
-        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
-        var first = manager.TagFor(DataPointNamed(SpeedTagAddress));
-
-        // Act
-        var second = manager.TagFor(DataPointNamed(SpeedTagAddress));
-
-        // Assert
-        second.Should().BeSameAs(first);
-        factory.CreatedCount.Should().Be(1);
-    }
-
-    [Fact]
-    public async Task DifferentDataPointsGetATagEach()
-    {
-        // Arrange
-        var factory = new CountingAccessFactory();
-        using var manager = CreateManager(factory, new FakeSymbolTableLoader());
-        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
-        var speed = manager.TagFor(DataPointNamed(SpeedTagAddress));
-
-        // Act
-        var level = manager.TagFor(DataPointNamed(LevelTagAddress));
-
-        // Assert
-        level.Should().NotBeSameAs(speed);
-        factory.CreatedCount.Should().Be(2);
-    }
-
-    [Fact]
     public void AskingForATagBeforeTheDefinitionsAreLoadedIsRefused()
     {
         // Arrange
@@ -201,41 +164,6 @@ public sealed class CachingLogixTagManagerTests
 
         // Assert
         // A libplctag handle left to its finalizer fail-fasts the process (0xC0000602).
-        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
-    }
-
-    [Fact]
-    public async Task AManagerDisposedTwiceFreesEachTagOnce()
-    {
-        // Arrange
-        var factory = new CountingAccessFactory();
-        var manager = CreateManager(factory, new FakeSymbolTableLoader());
-        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
-        manager.TagFor(DataPointNamed(SpeedTagAddress));
-        manager.Dispose();
-
-        // Act
-        manager.Dispose();
-
-        // Assert
-        factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
-    }
-
-    [Fact]
-    public async Task ATagThatWillNotFreeDoesNotStopTheOthersFromBeingFreed()
-    {
-        // Arrange
-        var factory = new CountingAccessFactory { ThrowOnDisposeFor = SpeedTagAddress };
-        var manager = CreateManager(factory, new FakeSymbolTableLoader());
-        await manager.LoadSymbolTableAsync(TestContext.Current.CancellationToken);
-        manager.TagFor(DataPointNamed(SpeedTagAddress));
-        manager.TagFor(DataPointNamed(LevelTagAddress));
-
-        // Act
-        var dispose = Record.Exception(manager.Dispose);
-
-        // Assert
-        dispose.Should().BeNull();
         factory.Created.Should().AllSatisfy(access => access.Received(1).Dispose());
     }
 
@@ -363,16 +291,9 @@ public sealed class CachingLogixTagManagerTests
 
         public int CreatedCount => _created.Count;
 
-        public TagAddress? ThrowOnDisposeFor { get; init; }
-
         public ITagAccess CreateAccessForDatapoint(ILogixDataPoint dataPoint)
         {
             var access = Substitute.For<ITagAccess>();
-            if (dataPoint.TagAddress == ThrowOnDisposeFor)
-            {
-                access.When(a => a.Dispose()).Do(_ => throw new LogixTagException("Access refused to free."));
-            }
-
             _created.Add(access);
             return access;
         }

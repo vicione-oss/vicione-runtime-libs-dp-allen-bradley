@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using ViciOne.Suite.DataPort.AllenBradley.LibPlcTag.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Access;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Symbols;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
@@ -6,11 +7,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 
 /// <summary>
-/// Owns the controller's symbol table and hands out one <see cref="ILogixTag"/> per data point, kept for
-/// this manager's lifetime because an initialised tag is the expensive, reusable resource
-/// (<c>ADR/2026-07-16-reusing-and-releasing-tag-handles.md</c>). Data points are records, so the whole
-/// data point is the key: poll frequency is part of it, and one tag configured at two frequencies is two
-/// points and two tags.
+/// Owns the controller's symbol table and hands out one <see cref="ILogixTag"/> per data point, kept in a
+/// <see cref="TagCache{TDataPoint, TTag}"/> for this manager's lifetime. Data points are records, so the
+/// whole data point is the key: poll frequency is part of it, and one tag configured at two frequencies
+/// is two points and two tags.
 /// </summary>
 internal sealed class CachingLogixTagManager(
     ILogixTagAccessFactory factory,
@@ -18,7 +18,7 @@ internal sealed class CachingLogixTagManager(
     ILogger<CachingLogixTagManager> logger)
     : ILogixTagManager
 {
-    private readonly Dictionary<ILogixDataPoint, ILogixTag> _tagByDataPoint = [];
+    private readonly TagCache<ILogixDataPoint, ILogixTag> _tags = new(logger);
     private readonly Lock _gate = new();
 
     // A sync Lock cannot be held across the browse, so the wait for it needs its own async gate. Never
@@ -64,9 +64,8 @@ internal sealed class CachingLogixTagManager(
     /// <inheritdoc />
     public ILogixTag TagFor(ILogixDataPoint dataPoint)
     {
-        // Creation happens under the same lock that guards disposal, so a tag can never be created and
-        // then abandoned to its finalizer. The lock is cheap to hold: CreateAccessForDatapoint only allocates, since
-        // libplctag initialises the handle on its first read.
+        // Held across the cache lookup, so a drain cannot drop the symbol table between the check below
+        // and the tag that is created from it.
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
@@ -78,16 +77,8 @@ internal sealed class CachingLogixTagManager(
                     "connect calls LoadSymbolTableAsync before the first TagFor.");
             }
 
-            if (_tagByDataPoint.TryGetValue(dataPoint, out var cached))
-            {
-                return cached;
-            }
-
-            var declaredType = symbolTable.GetDeclaredTypeAtPath(dataPoint.TagPath);
-            var access = factory.CreateAccessForDatapoint(dataPoint);
-            var tag = new LogixTag(dataPoint, declaredType, access);
-            _tagByDataPoint.Add(dataPoint, tag);
-            return tag;
+            return _tags.GetOrAdd(dataPoint, point => new LogixTag(
+                point, symbolTable.GetDeclaredTypeAtPath(point.TagPath), factory.CreateAccessForDatapoint(point)));
         }
     }
 
@@ -97,14 +88,12 @@ internal sealed class CachingLogixTagManager(
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            DrainCore();
+            _tags.Drain();
+            _symbolTable = null;
         }
     }
 
-    /// <summary>
-    /// Drains the manager and ends its life. Every libplctag handle must be freed: one left to its
-    /// finalizer is freed after CLR teardown, which fail-fasts the process (0xC0000602).
-    /// </summary>
+    /// <summary>Drains the manager and ends its life, freeing every libplctag handle it created.</summary>
     public void Dispose()
     {
         lock (_gate)
@@ -115,28 +104,8 @@ internal sealed class CachingLogixTagManager(
             }
 
             _disposed = true;
-            DrainCore();
+            _tags.Dispose();
+            _symbolTable = null;
         }
-    }
-
-    /// <summary>Caller must hold <see cref="_gate"/>.</summary>
-    private void DrainCore()
-    {
-        // A throwing Dispose must not strand the tags queued behind it, so the reason is logged, not
-        // raised: an unfreed handle is exactly what this drain exists to prevent.
-        foreach (var (dataPoint, tag) in _tagByDataPoint)
-        {
-            try
-            {
-                tag.Dispose();
-            }
-            catch (Exception ex)
-            {
-                logger.FailedToFreeTagForDataPoint(dataPoint, ex);
-            }
-        }
-
-        _tagByDataPoint.Clear();
-        _symbolTable = null;
     }
 }
