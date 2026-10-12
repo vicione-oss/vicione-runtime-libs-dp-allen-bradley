@@ -11,6 +11,10 @@
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AllenBradley.LibPlcTag\AllenBradley.LibPlcTag.csproj" />
+  </ItemGroup>
+
   <!-- Configuration file - always copy to output -->
   <ItemGroup>
     <None Update="allen-bradley-legacy.yaml">

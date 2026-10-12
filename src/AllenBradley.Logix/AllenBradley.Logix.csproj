@@ -13,6 +13,10 @@
     <PackageReference Include="ViciOne.Tree.Builder" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AllenBradley.LibPlcTag\AllenBradley.LibPlcTag.csproj" />
+  </ItemGroup>
+
   <!-- Configuration file - always copy to output -->
   <ItemGroup>
     <None Update="allen-bradley-logix.yaml">
