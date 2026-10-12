@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.ManagedEngine.ExternalCommunication;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Pool;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Incoming;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
@@ -25,6 +27,7 @@ public sealed class OutgoingDataPortTests : IDisposable
 {
     private const ushort ElementNumber = 3;
     private const int PollFrequencyMilliseconds = 100;
+    private const string SharedControllerEndpoint = "10.0.0.2";
 
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
     private readonly ILegacyClient _client = Substitute.For<ILegacyClient>();
@@ -95,16 +98,21 @@ public sealed class OutgoingDataPortTests : IDisposable
     }
 
     [Fact]
-    public async Task ConnectingWithoutALegacyClientSaysTheClientIsNotImplemented()
+    public async Task AnOutgoingPortSharesOneClientWithAnIncomingPortForTheSameController()
     {
         // Arrange
-        await using var outgoing = new OutgoingDataPort(DeviceWithOneIntegerElement(), _loggerFactory);
+        // No other test uses this endpoint, so no other test adds a reference to this client.
+        var communication = DeviceWithOneIntegerElement() with { ConnectionEndpoint = SharedControllerEndpoint };
+        await using var incoming = new IncomingDataPort(communication, _loggerFactory);
+        await incoming.ConnectAsync(CancellationToken.None);
+        await using var outgoing = new OutgoingDataPort(communication, _loggerFactory);
 
         // Act
-        var connecting = outgoing.Awaiting(port => port.ConnectAsync(CancellationToken.None));
+        await outgoing.ConnectAsync(CancellationToken.None);
 
         // Assert
-        await connecting.Should().ThrowAsync<ConnectionFailureException>().WithMessage("*not implemented*");
+        var pooledClient = LegacyClientPool.GetInstance(_loggerFactory).PooledClients[outgoing.ClientInformation];
+        pooledClient.RefCount.Should().Be(2);
     }
 
     public void Dispose()

@@ -75,7 +75,7 @@ public sealed class DeviceNodeMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void AControllerThatNamesNoRoutePathIsReachedAtTheEndpointItself(string? cipRoutePath)
+    public void AControllerWithoutARoutePathHasTheRoutePathDirect(string? cipRoutePath)
     {
         // Arrange
         var communication = DefaultTestCommunication() with { CipRoutePath = cipRoutePath };
@@ -84,7 +84,7 @@ public sealed class DeviceNodeMapperTests
         var clientInformation = _mapper.CreateRootNode(communication).ClientInformation;
 
         // Assert
-        clientInformation.CipRoutePath.Should().BeNull();
+        clientInformation.CipRoutePath.Should().Be(CipRoutePath.Direct);
     }
 
     [Fact]

@@ -53,5 +53,5 @@ public sealed record DeviceNode(
     /// <inheritdoc />
     public DeviceIdentifier DeviceIdentifier =>
         new($"{ClientInformation.ConnectionEndpoint.Value}:{ClientInformation.TcpPort.Value}"
-            + $"/{ClientInformation.CipRoutePath?.Value}");
+            + $"/{ClientInformation.CipRoutePath.Value}");
 }

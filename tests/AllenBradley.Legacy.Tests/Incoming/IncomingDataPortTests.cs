@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Pool;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Incoming;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
@@ -82,17 +83,18 @@ public sealed class IncomingDataPortTests
     }
 
     [Fact]
-    public async Task ConnectingWithoutALegacyClientSaysTheClientIsNotImplemented()
+    public async Task AnIncomingPortAcquiresAConnectedClientFromTheSharedPool()
     {
         // Arrange
         await using var incoming = new IncomingDataPort(
             DeviceWithElementsPolledAt(FastPollFrequencyMilliseconds), _loggerFactory);
 
         // Act
-        var connecting = incoming.Awaiting(port => port.ConnectAsync(CancellationToken.None));
+        await incoming.ConnectAsync(CancellationToken.None);
 
         // Assert
-        await connecting.Should().ThrowAsync<ConnectionFailureException>().WithMessage("*not implemented*");
+        var pooledClient = LegacyClientPool.GetInstance(_loggerFactory).PooledClients[incoming.ClientInformation];
+        pooledClient.Client.IsConnected.Should().BeTrue();
     }
 
     private IncomingDataPort CreatePort(LegacyCommunication communication) =>

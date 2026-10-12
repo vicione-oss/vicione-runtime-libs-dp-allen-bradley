@@ -16,11 +16,12 @@ validation, the typed-node framework. That machinery is documented with the pack
 pages cover only what the Legacy port adds on top.
 
 > **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
-> Logix port. A user can configure integer (`N`) data points on an SLC 500 or MicroLogix by file
-> number and element. The engine loads the incoming port, which groups those points by poll
-> frequency, and the outgoing port, which queues writes to them. Connecting either port fails with a
-> message that the Legacy client is not implemented yet, so nothing is read or written. The Diátaxis
-> folders (`how-to/`, `reference/`, `ADR/`) fill in as the port is built.
+> Logix port. The port reads and writes integer (`N`) data points on an SLC 500 or MicroLogix,
+> configured by file number and element. The incoming port polls each group of points at its poll
+> frequency, and the outgoing port writes the values it receives. Both ports share one client per
+> controller. A connect sends nothing to the controller, so an unreachable controller or a missing
+> data file shows up at the first read or write. No other data-file type and no PLC-5 is supported
+> yet. The Diátaxis folders (`how-to/`, `reference/`, `ADR/`) fill in as the port is built.
 
 ## Which controllers are in scope
 

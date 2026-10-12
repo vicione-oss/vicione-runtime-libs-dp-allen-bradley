@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Pool;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
@@ -38,7 +39,7 @@ public sealed class IncomingDataPort : IncomingDataPortBase<
             new LegacyDataPointsGroupsMapper(),
             timeProvider)
     {
-        ClientLifecycleManager = clientLifecycleManager ?? new UnimplementedLegacyClientLifecycleManager();
+        ClientLifecycleManager = clientLifecycleManager ?? LegacyClientPool.GetInstance(loggerFactory);
         ClientInformation = DeviceNode.ClientInformation;
     }
 

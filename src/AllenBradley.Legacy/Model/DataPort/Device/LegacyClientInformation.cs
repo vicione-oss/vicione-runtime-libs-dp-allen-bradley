@@ -10,14 +10,15 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 /// <param name="ConnectionEndpoint">IP address or host name of the controller, or of the bridge in front of it.</param>
 /// <param name="TcpPort">The TCP port that endpoint listens on, 44818 unless something moved it.</param>
 /// <param name="CipRoutePath">
-/// The hops from a bridge to the controller, or <c>null</c> for a controller with Ethernet of its own.
+/// The hops from a bridge to the controller, or <see cref="Device.CipRoutePath.Direct"/> for a controller with
+/// Ethernet of its own.
 /// </param>
 /// <param name="OperationTimeout">How long one read or write against this controller may take.</param>
 public record LegacyClientInformation(
     LegacyControllerFamily Family,
     ConnectionEndpoint ConnectionEndpoint,
     TcpPort TcpPort,
-    CipRoutePath? CipRoutePath,
+    CipRoutePath CipRoutePath,
     OperationTimeout OperationTimeout) : IClientInformation;
 
 /// <summary>
@@ -40,7 +41,14 @@ public readonly record struct TcpPort(ushort Value)
 /// How a request travels from a bridge to the controller behind it, as a sequence of hops — through a
 /// ControlLogix gateway onto DH+, for example.
 /// </summary>
-public readonly record struct CipRoutePath(string Value);
+public readonly record struct CipRoutePath(string Value)
+{
+    /// <summary>
+    /// No hops. The controller has its own Ethernet port and is the connection endpoint. libplctag sends
+    /// each PCCC request to it as an unconnected message, without a route path.
+    /// </summary>
+    public static CipRoutePath Direct => new(string.Empty);
+}
 
 /// <summary>How long one read or write may take before libplctag aborts it.</summary>
 public readonly record struct OperationTimeout(TimeSpan Value);

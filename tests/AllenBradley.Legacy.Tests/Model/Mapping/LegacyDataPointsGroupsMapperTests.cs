@@ -39,7 +39,7 @@ public sealed class LegacyDataPointsGroupsMapperTests
                 LegacyControllerFamily.Slc500,
                 new ConnectionEndpoint("192.168.1.10"),
                 TcpPort.EtherNetIp,
-                CipRoutePath: null,
+                CipRoutePath.Direct,
                 new OperationTimeout(TimeSpan.FromSeconds(5))));
 
     private static LinkedNode LinkedNodeOf(string designId) =>

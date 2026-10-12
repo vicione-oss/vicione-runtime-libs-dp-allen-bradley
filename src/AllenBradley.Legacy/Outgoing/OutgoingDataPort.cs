@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ViciOne.ManagedEngine.ExternalCommunication;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Pool;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
@@ -45,7 +46,7 @@ public sealed class OutgoingDataPort : OutgoingDataPortBase<
                 new QueueSize(communication.MaxPendingMessages)),
             delayProvider ?? new DefaultDelayProvider())
     {
-        ClientLifecycleManager = clientLifecycleManager ?? new UnimplementedLegacyClientLifecycleManager();
+        ClientLifecycleManager = clientLifecycleManager ?? LegacyClientPool.GetInstance(loggerFactory);
         ClientInformation = DeviceNode.ClientInformation;
     }
 
