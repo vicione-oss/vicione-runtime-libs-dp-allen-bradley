@@ -15,7 +15,14 @@ internal sealed class LegacyTagSource(ILegacyTagAccessFactory factory, ILogger<L
     private readonly TagCache<ILegacyDataPoint, ITagAccess> _tags = new(logger);
 
     /// <inheritdoc />
-    public ITagAccess TagFor(ILegacyDataPoint dataPoint) => _tags.GetOrAdd(dataPoint, factory.CreateAccessForDataPoint);
+    public ITagAccess TagFor(ILegacyDataPoint dataPoint) =>
+        _tags.GetOrAdd(dataPoint, point => factory.CreateAccessForAddress(point.Address));
+
+    /// <summary>
+    /// Creates a tag handle for <paramref name="address"/> that the source does not keep. The caller
+    /// disposes it.
+    /// </summary>
+    internal ITagAccess CreateUncachedAccess(DataFileAddress address) => factory.CreateAccessForAddress(address);
 
     /// <summary>Disposes every tag handle. The next request for a data point creates a new handle.</summary>
     internal void Drain() => _tags.Drain();

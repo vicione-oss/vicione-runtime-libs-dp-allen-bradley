@@ -24,7 +24,7 @@ public sealed class LegacyTagAccessFactoryTests
         var factory = new LegacyTagAccessFactory(ClientInformation with { Family = family });
 
         // Act
-        using var tagHandle = factory.CreateTagForDataPoint(N7Element(0));
+        using var tagHandle = factory.CreateTagForAddress(N7Element(0).Address);
 
         // Assert
         tagHandle.PlcType.Should().Be(expectedPlcType);
@@ -38,7 +38,7 @@ public sealed class LegacyTagAccessFactoryTests
         var dataPoint = N7Element(12);
 
         // Act
-        using var tagHandle = factory.CreateTagForDataPoint(dataPoint);
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
 
         // Assert
         tagHandle.Name.Should().Be("N7:12");
@@ -56,7 +56,7 @@ public sealed class LegacyTagAccessFactoryTests
         var factory = new LegacyTagAccessFactory(clientInformation);
 
         // Act
-        using var tagHandle = factory.CreateTagForDataPoint(N7Element(0));
+        using var tagHandle = factory.CreateTagForAddress(N7Element(0).Address);
 
         // Assert
         tagHandle.Gateway.Should().Be("10.0.0.1:2222");
@@ -78,7 +78,7 @@ public sealed class LegacyTagAccessFactoryTests
         var factory = new LegacyTagAccessFactory(ClientInformation with { CipRoutePath = cipRoutePath });
 
         // Act
-        using var tagHandle = factory.CreateTagForDataPoint(N7Element(0));
+        using var tagHandle = factory.CreateTagForAddress(N7Element(0).Address);
 
         // Assert
         tagHandle.Path.Should().Be(expectedPath);

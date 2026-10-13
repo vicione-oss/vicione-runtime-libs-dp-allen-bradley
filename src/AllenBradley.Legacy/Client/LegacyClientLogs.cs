@@ -16,6 +16,10 @@ internal static partial class LegacyClientLogs
     [LoggerMessage(204, LogLevel.Debug, "Already disconnected from the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
     internal static partial void AlreadyDisconnected(this ILogger<LegacyClient> logger, string connectionEndpoint, string cipRoutePath);
 
+    [LoggerMessage(230, LogLevel.Error, "Failed to connect to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}: {Error}")]
+    internal static partial void ConnectFailed(
+        this ILogger<LegacyClient> logger, string connectionEndpoint, string cipRoutePath, string? error);
+
     [LoggerMessage(205, LogLevel.Debug, "Reading a batch of {DataPointCount} data points from the controller at {ConnectionEndpoint}")]
     internal static partial void ReadingBatch(this ILogger<LegacyClient> logger, int dataPointCount, string connectionEndpoint);
 

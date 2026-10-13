@@ -2,6 +2,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyClientTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDataPointTestDataFactory;
@@ -11,6 +12,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Client;
 public sealed class LegacyClientTests : IDisposable
 {
     private const string Timeout = "timeout";
+
+    private static readonly DataFileAddress FirstWordOfTheStatusFile =
+        new(DataFileType.Status, new FileNumber(2), new ElementNumber(0));
 
     private readonly FakeTagAccessFactory _tagAccessFactory = new();
     private readonly LegacyClient _client;
@@ -160,10 +164,65 @@ public sealed class LegacyClientTests : IDisposable
     }
 
     [Fact]
+    public async Task ConnectReadsTheFirstWordOfTheStatusFile()
+    {
+        // Arrange
+        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+
+        // Act
+        await _client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        _tagAccessFactory.ReadCount(FirstWordOfTheStatusFile).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task AClientWhoseStatusFileCouldNotBeReadReportsAConnectionFailureAndStaysDisconnected()
+    {
+        // Arrange
+        _tagAccessFactory.FailOnRead(FirstWordOfTheStatusFile, Timeout);
+
+        // Act
+        var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
+
+        // Assert
+        connect.Should().BeOfType<ConnectionFailureException>();
+        _client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ConnectDisposesTheTagHandleOfTheStatusFile()
+    {
+        // Arrange
+        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+
+        // Act
+        await _client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        _tagAccessFactory.IsDisposed(FirstWordOfTheStatusFile).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ASecondConnectDoesNotReadTheStatusFileAgain()
+    {
+        // Arrange
+        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+        await _client.ConnectAsync(CancellationToken.None);
+
+        // Act
+        await _client.ConnectAsync(CancellationToken.None);
+
+        // Assert
+        _tagAccessFactory.ReadCount(FirstWordOfTheStatusFile).Should().Be(1);
+    }
+
+    [Fact]
     public async Task DisconnectDisposesEveryTagHandleOfTheClient()
     {
         // Arrange
         var element = N7Element(0);
+        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
         _tagAccessFactory.ReturnOnRead(element, [0x2A, 0x00]);
         await _client.ConnectAsync(CancellationToken.None);
         await _client.ReadAsync(GroupOf(element), CancellationToken.None);
@@ -182,20 +241,28 @@ public sealed class LegacyClientTests : IDisposable
     {
         private readonly Dictionary<DataFileAddress, FakeTagHandle> _handles = [];
 
-        internal void ReturnOnRead(ILegacyDataPoint dataPoint, byte[] bytes) =>
-            HandleFor(dataPoint.Address).ReadResult = TagReadResult.Ok(bytes);
+        internal void ReturnOnRead(ILegacyDataPoint dataPoint, byte[] bytes) => ReturnOnRead(dataPoint.Address, bytes);
 
-        internal void FailOnRead(ILegacyDataPoint dataPoint, string error) =>
-            HandleFor(dataPoint.Address).ReadResult = TagReadResult.Failed(error);
+        internal void ReturnOnRead(DataFileAddress address, byte[] bytes) =>
+            HandleFor(address).ReadResult = TagReadResult.Ok(bytes);
+
+        internal void FailOnRead(ILegacyDataPoint dataPoint, string error) => FailOnRead(dataPoint.Address, error);
+
+        internal void FailOnRead(DataFileAddress address, string error) =>
+            HandleFor(address).ReadResult = TagReadResult.Failed(error);
 
         internal void FailOnWrite(ILegacyDataPoint dataPoint, string error) =>
             HandleFor(dataPoint.Address).WriteResult = TagWriteResult.Failed(error);
 
         internal byte[]? BytesWrittenTo(ILegacyDataPoint dataPoint) => HandleFor(dataPoint.Address).Written;
 
-        internal bool IsDisposed(ILegacyDataPoint dataPoint) => HandleFor(dataPoint.Address).IsDisposed;
+        internal int ReadCount(DataFileAddress address) => HandleFor(address).ReadCount;
 
-        public ITagAccess CreateAccessForDataPoint(ILegacyDataPoint dataPoint) => HandleFor(dataPoint.Address);
+        internal bool IsDisposed(ILegacyDataPoint dataPoint) => IsDisposed(dataPoint.Address);
+
+        internal bool IsDisposed(DataFileAddress address) => HandleFor(address).IsDisposed;
+
+        public ITagAccess CreateAccessForAddress(DataFileAddress address) => HandleFor(address);
 
         private FakeTagHandle HandleFor(DataFileAddress address)
         {
@@ -217,9 +284,15 @@ public sealed class LegacyClientTests : IDisposable
 
         internal byte[]? Written { get; private set; }
 
+        internal int ReadCount { get; private set; }
+
         internal bool IsDisposed { get; private set; }
 
-        public Task<TagReadResult> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(ReadResult);
+        public Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
+        {
+            ReadCount++;
+            return Task.FromResult(ReadResult);
+        }
 
         public Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
         {

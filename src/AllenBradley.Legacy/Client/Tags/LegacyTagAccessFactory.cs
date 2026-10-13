@@ -6,7 +6,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 
 /// <summary>
-/// Creates the libplctag tag handles for the data points of one controller. The caller disposes each
+/// Creates the libplctag tag handles for the data-file addresses of one controller. The caller disposes each
 /// handle. In production, the caller is <see cref="LegacyTagSource"/>.
 /// </summary>
 internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInformation) : ILegacyTagAccessFactory
@@ -19,17 +19,17 @@ internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInfor
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 
     /// <inheritdoc />
-    public ITagAccess CreateAccessForDataPoint(ILegacyDataPoint dataPoint) =>
-        new SynchronizedTagAccess(new LibPlcTagAccess(CreateTagForDataPoint(dataPoint)));
+    public ITagAccess CreateAccessForAddress(DataFileAddress address) =>
+        new SynchronizedTagAccess(new LibPlcTagAccess(CreateTagForAddress(address)));
 
     // Internal so that tests can check the attributes of the handle. ITagAccess does not expose them.
-    internal Tag CreateTagForDataPoint(ILegacyDataPoint dataPoint) =>
+    internal Tag CreateTagForAddress(DataFileAddress address) =>
         new()
         {
             Gateway = _gateway,
             Path = _path,
             PlcType = _plcType,
-            Name = dataPoint.Address.ToString(),
+            Name = address.ToString(),
             Protocol = Protocol.ab_eip,
             Timeout = _timeout,
         };

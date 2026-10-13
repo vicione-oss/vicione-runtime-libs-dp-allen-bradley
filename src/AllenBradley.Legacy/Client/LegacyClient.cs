@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Logging;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.Extensions.Exceptions;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 
@@ -32,9 +34,12 @@ internal sealed class LegacyClient(
         }
     }
 
-    // A connect sends nothing to the controller. The pool connects the client before any port has given
-    // it a data point, so there is no data-file address to check yet.
-    public Task ConnectAsync(CancellationToken cancellationToken)
+    // Every PCCC controller has the status file S2, and nobody can delete it. A read of its first word goes
+    // the same route as the data points, so it is the smallest request that shows the controller answers.
+    private static readonly DataFileAddress FirstWordOfTheStatusFile =
+        new(DataFileType.Status, new FileNumber(2), new ElementNumber(0));
+
+    public async Task ConnectAsync(CancellationToken cancellationToken)
     {
         lock (_gate)
         {
@@ -42,14 +47,29 @@ internal sealed class LegacyClient(
             if (_connected)
             {
                 logger.AlreadyConnected(_connectionEndpoint, _cipRoutePath);
-                return Task.CompletedTask;
+                return;
             }
+        }
 
+        TagReadResult statusWord;
+        using (var statusWordAccess = tagSource.CreateUncachedAccess(FirstWordOfTheStatusFile))
+        {
+            statusWord = await statusWordAccess.ReadAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!statusWord.Succeeded)
+        {
+            logger.ConnectFailed(_connectionEndpoint, _cipRoutePath, statusWord.Error);
+            throw new ConnectionFailureException(
+                $"Could not connect to the Legacy controller at '{_connectionEndpoint}' via CIP route path '{_cipRoutePath}'. {statusWord.Error}");
+        }
+
+        lock (_gate)
+        {
             _connected = true;
         }
 
         logger.Connected(_connectionEndpoint, _cipRoutePath);
-        return Task.CompletedTask;
     }
 
     public Task DisconnectAsync(CancellationToken cancellationToken)

@@ -46,7 +46,8 @@ The framework then decides what occurs: its circuit breaker limits the polls, an
 again ([Connecting](../../AllenBradley.Logix.Documentation/explanation/client/connecting.md#what-this-means-at-run-time)).
 
 The client does not read `connection_status` and does not listen for the events. Its `IsConnected` tells only that the
-symbol table was loaded.
+check at connect succeeded: the load of the symbol table for Logix, the read of `S2:0` for Legacy
+([checking that the controller answers](checking-that-the-controller-answers.md)).
 
 ## How it was checked
 

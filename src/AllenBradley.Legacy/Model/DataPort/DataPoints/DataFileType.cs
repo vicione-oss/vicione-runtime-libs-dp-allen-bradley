@@ -12,4 +12,7 @@ public readonly record struct DataFileType(string Letter, DataTypeName Name)
 {
     /// <summary><c>N</c> — 16-bit signed integers, one word per element.</summary>
     public static readonly DataFileType Integer = new("N", new DataTypeName("Integer"));
+
+    /// <summary><c>S</c> — the status file of the controller, always file 2, one word per element.</summary>
+    public static readonly DataFileType Status = new("S", new DataTypeName("Status"));
 }
