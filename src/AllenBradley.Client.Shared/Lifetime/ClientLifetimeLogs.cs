@@ -1,0 +1,22 @@
+using Microsoft.Extensions.Logging;
+
+namespace ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Lifetime;
+
+internal static partial class ClientLifetimeLogs
+{
+    [LoggerMessage(201, LogLevel.Information, "Connected to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void Connected(this ILogger logger, string connectionEndpoint, string cipRoutePath);
+
+    [LoggerMessage(202, LogLevel.Debug, "Already connected to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void AlreadyConnected(this ILogger logger, string connectionEndpoint, string cipRoutePath);
+
+    [LoggerMessage(203, LogLevel.Information, "Disconnected from the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void Disconnected(this ILogger logger, string connectionEndpoint, string cipRoutePath);
+
+    [LoggerMessage(204, LogLevel.Debug, "Already disconnected from the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void AlreadyDisconnected(this ILogger logger, string connectionEndpoint, string cipRoutePath);
+
+    [LoggerMessage(230, LogLevel.Error, "Failed to connect to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void ConnectFailed(
+        this ILogger logger, Exception exception, string connectionEndpoint, string cipRoutePath);
+}

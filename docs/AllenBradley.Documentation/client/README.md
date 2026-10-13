@@ -12,8 +12,9 @@ The reasons for the split are in the
 
 | Part                | Types                                                         | Folder            |
 |---------------------|---------------------------------------------------------------|-------------------|
-| Client pool         | `ClientPool`, `IConnectableClient`, `ClientAddress`           | `Pool/`           |
-| Read and write      | `ReadBatch`, `WriteBatch`                                     | `Batches/`        |
+| Client pool         | `ClientPool`, `ProcessClientPool`, `IConnectableClient`, `ClientAddress` | `Pool/` |
+| Client lifetime     | `ClientLifetime`                                              | `Lifetime/`       |
+| Read and write      | `ReadBatch`, `WriteBatch`, `LoggedBatches`                    | `Batches/`        |
 | Tags and handles    | `ITagAccess`, `LibPlcTagAccess`, `SynchronizedTagAccess`, `TagReadResult`, `TagWriteResult`, `TagCache`, `ITagSource`, `GatewayAttribute` | `Tags/` |
 | Values and bytes    | `IDataPointConverter`, `DecodeException`, `ElementCodec` and one codec for each .NET type, `ArrayCodec` | `TypeConversion/` |
 
@@ -37,8 +38,11 @@ model or on the addressing stays in the dataport:
 
 A dataport uses the shared parts by supplying these pieces:
 
-1. **A client** that implements `IConnectableClient`, so that the pool can connect, disconnect and dispose it.
-2. **A process-wide pool.** The dataport keeps one `ClientPool` in a static field of a class of its own, such as
+1. **A client** that implements `IConnectableClient`, so that the pool can connect, disconnect and dispose it. The
+   client keeps its state in a `ClientLifetime` and gives it only the work that is its own: Logix loads the symbol
+   table at connect, and Legacy reads `S2:0`. It runs its batches through `LoggedBatches`, so both clients log the
+   same messages.
+2. **A process-wide pool.** The dataport gets its pool from `ProcessClientPool` through a class of its own, such as
    `LogixClientPool`, and tells the pool how to create a client and how to name a controller in the log.
 3. **A tag source** that implements `ITagSource`. It creates the access to a handle for a data point, and keeps it in
    a `TagCache`.
