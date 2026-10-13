@@ -11,8 +11,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 /// </summary>
 internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInformation) : ILegacyTagAccessFactory
 {
-    private readonly string _gateway =
-        $"{clientInformation.ConnectionEndpoint.Value}:{clientInformation.TcpPort.Value}";
+    private readonly string _gateway = GatewayAttribute.For(
+        clientInformation.ConnectionEndpoint.Value,
+        clientInformation.TcpPort.Value).Value;
 
     private readonly string? _path = PathOf(clientInformation.CipRoutePath);
     private readonly PlcType _plcType = PlcTypeOf(clientInformation.Family);

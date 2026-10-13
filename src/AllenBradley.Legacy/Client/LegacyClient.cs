@@ -36,7 +36,7 @@ internal sealed class LegacyClient(
 
     // Every PCCC controller has the status file S2, and nobody can delete it. A read of its first word goes
     // the same route as the data points, so it is the smallest request that shows the controller answers.
-    private static readonly DataFileAddress FirstWordOfTheStatusFile =
+    internal static readonly DataFileAddress FirstWordOfTheStatusFile =
         new(DataFileType.Status, new FileNumber(2), new ElementNumber(0));
 
     public async Task ConnectAsync(CancellationToken cancellationToken)
@@ -52,9 +52,18 @@ internal sealed class LegacyClient(
         }
 
         TagReadResult statusWord;
-        using (var statusWordAccess = tagSource.CreateUncachedAccess(FirstWordOfTheStatusFile))
+        try
         {
+            using var statusWordAccess = tagSource.CreateUncachedAccess(FirstWordOfTheStatusFile);
             statusWord = await statusWordAccess.ReadAsync(cancellationToken).ConfigureAwait(false);
+        }
+        // A cancellation is the caller's own shutdown, and a disposal during the read is a caller bug. Every
+        // other exception reaches the framework as the one exception it expects from an acquire.
+        catch (Exception ex) when (ex is not (OperationCanceledException or ObjectDisposedException))
+        {
+            logger.ConnectThrew(ex, _connectionEndpoint, _cipRoutePath);
+            throw new ConnectionFailureException(
+                $"Could not connect to the Legacy controller at '{_connectionEndpoint}' via CIP route path '{_cipRoutePath}'.", ex);
         }
 
         if (!statusWord.Succeeded)

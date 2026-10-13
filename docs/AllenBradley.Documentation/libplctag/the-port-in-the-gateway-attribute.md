@@ -30,9 +30,9 @@ so the colon is invisible until the connect.
 ## What it means for the client
 
 The manifest asks for the two apart, `ConnectionEndpoint` for the address and `TcpPort` for the port,
-defaulted to 44818, and `GatewayAttribute` joins them. It sits next to `LogixTagAccessFactory` in the
-libplctag layer rather than on `LogixClientInformation`, because the joining is the library's rule and
-nothing else in the port has a use for the joined string.
+defaulted to 44818, and `GatewayAttribute` joins them. It sits in the shared client next to
+`LibPlcTagAccess` rather than on the client information of a dataport, because the joining is the
+library's rule, both dataports need it, and nothing else in a port has a use for the joined string.
 
 Splitting what the library joins buys three things.
 

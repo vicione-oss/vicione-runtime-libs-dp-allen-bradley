@@ -25,7 +25,7 @@ internal sealed class DeviceNodeMapper : IRootConfigurationNodeMapper<DeviceNode
             ToFamily(communication.DesignId),
             new ConnectionEndpoint(communication.ConnectionEndpoint),
             new TcpPort(communication.TcpPort),
-            string.IsNullOrEmpty(communication.CipRoutePath) ? CipRoutePath.Direct : new CipRoutePath(communication.CipRoutePath),
+            string.IsNullOrWhiteSpace(communication.CipRoutePath) ? CipRoutePath.Direct : new CipRoutePath(communication.CipRoutePath),
             new OperationTimeout(TimeSpan.FromMilliseconds(communication.OperationTimeout)));
 
     private static LegacyControllerFamily ToFamily(string designId) =>

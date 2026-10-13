@@ -75,6 +75,7 @@ public sealed class DeviceNodeMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("  ")]
     public void AControllerWithoutARoutePathHasTheRoutePathDirect(string? cipRoutePath)
     {
         // Arrange

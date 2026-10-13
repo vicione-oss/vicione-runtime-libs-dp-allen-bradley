@@ -14,7 +14,7 @@ The reasons for the split are in the
 |---------------------|---------------------------------------------------------------|-------------------|
 | Client pool         | `ClientPool`, `IConnectableClient`, `ClientAddress`           | `Pool/`           |
 | Read and write      | `ReadBatch`, `WriteBatch`                                     | `Batches/`        |
-| Tags and handles    | `ITagAccess`, `LibPlcTagAccess`, `SynchronizedTagAccess`, `TagReadResult`, `TagWriteResult`, `TagCache`, `ITagSource` | `Tags/` |
+| Tags and handles    | `ITagAccess`, `LibPlcTagAccess`, `SynchronizedTagAccess`, `TagReadResult`, `TagWriteResult`, `TagCache`, `ITagSource`, `GatewayAttribute` | `Tags/` |
 | Values and bytes    | `IDataPointConverter`, `DecodeException`, `ElementCodec` and one codec for each .NET type, `ArrayCodec` | `TypeConversion/` |
 
 Every type is internal except `IConnectableClient`. The client interface of each dataport is public and extends it, and
@@ -28,7 +28,8 @@ model or on the addressing stays in the dataport:
 - The data points, their values, and the converter for each data point type. A converter uses the shared codecs for
   the elementary types.
 - The structured types whose layout differs between the two families: strings, timers, counters and bit arrays.
-- The tag attributes that libplctag gets: the protocol, the PLC type and the tag name.
+- The tag attributes that libplctag gets: the protocol, the PLC type and the tag name. Only the gateway attribute
+  is shared.
 - The symbol table and the configuration verification, which only Logix has.
 - The exception that a failed read or write throws to the framework.
 

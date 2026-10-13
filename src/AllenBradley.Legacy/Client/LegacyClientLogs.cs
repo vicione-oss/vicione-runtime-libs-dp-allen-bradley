@@ -20,6 +20,10 @@ internal static partial class LegacyClientLogs
     internal static partial void ConnectFailed(
         this ILogger<LegacyClient> logger, string connectionEndpoint, string cipRoutePath, string? error);
 
+    [LoggerMessage(233, LogLevel.Error, "Failed to connect to the controller at {ConnectionEndpoint} via CIP route path {CipRoutePath}")]
+    internal static partial void ConnectThrew(
+        this ILogger<LegacyClient> logger, Exception exception, string connectionEndpoint, string cipRoutePath);
+
     [LoggerMessage(205, LogLevel.Debug, "Reading a batch of {DataPointCount} data points from the controller at {ConnectionEndpoint}")]
     internal static partial void ReadingBatch(this ILogger<LegacyClient> logger, int dataPointCount, string connectionEndpoint);
 

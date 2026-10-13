@@ -21,7 +21,9 @@ internal sealed class LogixTagAccessFactory(LogixClientInformation clientInforma
     /// </summary>
     private const PlcType LogixPlcType = PlcType.ControlLogix;
 
-    private readonly string _gateway = GatewayAttribute.For(clientInformation).Value;
+    private readonly string _gateway = GatewayAttribute.For(
+        clientInformation.ConnectionEndpoint.Value,
+        clientInformation.TcpPort.Value).Value;
     private readonly string _cipRoutePath = clientInformation.CipRoutePath.Value;
     private readonly TimeSpan _timeout = clientInformation.OperationTimeout.Value;
 

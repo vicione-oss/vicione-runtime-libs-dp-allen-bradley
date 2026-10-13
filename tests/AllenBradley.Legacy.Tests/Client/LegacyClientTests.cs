@@ -4,6 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Exceptions;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
+using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.LegacyClient;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyClientTestDataFactory;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDataPointTestDataFactory;
 
@@ -12,9 +13,6 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Client;
 public sealed class LegacyClientTests : IDisposable
 {
     private const string Timeout = "timeout";
-
-    private static readonly DataFileAddress FirstWordOfTheStatusFile =
-        new(DataFileType.Status, new FileNumber(2), new ElementNumber(0));
 
     private readonly FakeTagAccessFactory _tagAccessFactory = new();
     private readonly LegacyClient _client;
@@ -191,6 +189,35 @@ public sealed class LegacyClientTests : IDisposable
     }
 
     [Fact]
+    public async Task AClientWhoseStatusFileReadThrewReportsAConnectionFailureAndStaysDisconnected()
+    {
+        // Arrange
+        _tagAccessFactory.ThrowOnRead(FirstWordOfTheStatusFile, new DllNotFoundException("plctag"));
+
+        // Act
+        var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
+
+        // Assert
+        connect.Should().BeOfType<ConnectionFailureException>()
+            .Which.InnerException.Should().BeOfType<DllNotFoundException>();
+        _client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ACancelledConnectThrowsTheCancellationRatherThanAConnectionFailure()
+    {
+        // Arrange
+        _tagAccessFactory.ThrowOnRead(FirstWordOfTheStatusFile, new OperationCanceledException());
+
+        // Act
+        var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
+
+        // Assert
+        connect.Should().BeAssignableTo<OperationCanceledException>();
+        _client.IsConnected.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ConnectDisposesTheTagHandleOfTheStatusFile()
     {
         // Arrange
@@ -251,6 +278,9 @@ public sealed class LegacyClientTests : IDisposable
         internal void FailOnRead(DataFileAddress address, string error) =>
             HandleFor(address).ReadResult = TagReadResult.Failed(error);
 
+        internal void ThrowOnRead(DataFileAddress address, Exception exception) =>
+            HandleFor(address).ReadException = exception;
+
         internal void FailOnWrite(ILegacyDataPoint dataPoint, string error) =>
             HandleFor(dataPoint.Address).WriteResult = TagWriteResult.Failed(error);
 
@@ -280,6 +310,8 @@ public sealed class LegacyClientTests : IDisposable
     {
         internal TagReadResult ReadResult { get; set; } = TagReadResult.Failed("no value configured");
 
+        internal Exception? ReadException { get; set; }
+
         internal TagWriteResult WriteResult { get; set; } = TagWriteResult.Ok();
 
         internal byte[]? Written { get; private set; }
@@ -291,7 +323,7 @@ public sealed class LegacyClientTests : IDisposable
         public Task<TagReadResult> ReadAsync(CancellationToken cancellationToken)
         {
             ReadCount++;
-            return Task.FromResult(ReadResult);
+            return ReadException is null ? Task.FromResult(ReadResult) : Task.FromException<TagReadResult>(ReadException);
         }
 
         public Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
