@@ -13,7 +13,7 @@
     <PackageVersion Include="ViciOne.Suite.DataPort" Version="$(DataPortVersion)" />
     <PackageVersion Include="ViciOne.Suite.DataPort.Extensions" Version="$(DataPortVersion)" />
     <PackageVersion Include="ViciOne.Suite.DataPort.Extensions.Testing" Version="$(DataPortVersion)" />
-    <PackageVersion Include="ViciOne.Tree.Builder" Version="3.0.0" />
+    <PackageVersion Include="ViciOne.Tree.Builder" Version="3.1.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
   </ItemGroup>
 </Project>
