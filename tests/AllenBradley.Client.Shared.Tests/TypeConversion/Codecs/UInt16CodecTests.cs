@@ -49,4 +49,17 @@ public sealed class UInt16CodecTests
         // Assert
         bytes.Should().Equal(0xFF, 0xFF);
     }
+
+    [Fact]
+    public void AValueEncodesLeastSignificantByteFirst()
+    {
+        // Arrange
+        ushort value = 0x1234;
+
+        // Act
+        var bytes = Codec.Encode(value);
+
+        // Assert
+        bytes.Should().Equal(0x34, 0x12);
+    }
 }

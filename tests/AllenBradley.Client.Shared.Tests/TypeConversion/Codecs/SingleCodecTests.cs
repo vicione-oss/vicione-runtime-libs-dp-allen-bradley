@@ -22,4 +22,17 @@ public sealed class SingleCodecTests
         // Assert
         decoded.Should().Be(expectedValue);
     }
+
+    [Fact]
+    public void AValueEncodesLeastSignificantByteFirst()
+    {
+        // Arrange
+        float value = 1.0f;
+
+        // Act
+        var bytes = Codec.Encode(value);
+
+        // Assert
+        bytes.Should().Equal(0x00, 0x00, 0x80, 0x3F);
+    }
 }

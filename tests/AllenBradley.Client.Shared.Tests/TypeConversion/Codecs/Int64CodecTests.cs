@@ -48,4 +48,17 @@ public sealed class Int64CodecTests
         // Assert
         bytes.Should().Equal(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     }
+
+    [Fact]
+    public void AValueEncodesLeastSignificantByteFirst()
+    {
+        // Arrange
+        long value = 0x0102030405060708;
+
+        // Act
+        var bytes = Codec.Encode(value);
+
+        // Assert
+        bytes.Should().Equal(0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01);
+    }
 }
