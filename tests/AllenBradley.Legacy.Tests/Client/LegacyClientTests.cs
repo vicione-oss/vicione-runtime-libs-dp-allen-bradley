@@ -67,6 +67,21 @@ public sealed class LegacyClientTests : IDisposable
     }
 
     [Fact]
+    public async Task ReadReturnsTheValueOfALongElement()
+    {
+        // Arrange
+        var element = L9Element(0);
+        _tagAccessFactory.ReturnOnRead(element, [0xA0, 0x86, 0x01, 0x00]);
+
+        // Act
+        var values = await _client.ReadAsync(GroupOf(element), CancellationToken.None);
+
+        // Assert
+        ILegacyDataPointValue[] expected = [element.CreateLegacyValue(100_000)];
+        values.Should().Equal(expected);
+    }
+
+    [Fact]
     public async Task ReadReturnsTheValueOfAFloatElement()
     {
         // Arrange

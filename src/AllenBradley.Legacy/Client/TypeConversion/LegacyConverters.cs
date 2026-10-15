@@ -10,6 +10,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.TypeConversion;
 internal static class LegacyConverters
 {
     private static readonly IntegerConverter Integer = new();
+    private static readonly LongConverter Long = new();
     private static readonly FloatConverter Float = new();
     private static readonly BitDataPointConverter Bit = new();
 
@@ -18,6 +19,7 @@ internal static class LegacyConverters
         dataPoint switch
         {
             IntegerDataPoint => Integer,
+            LongDataPoint => Long,
             FloatDataPoint => Float,
             BitDataPoint => Bit,
             _ => throw new InvalidOperationException(
