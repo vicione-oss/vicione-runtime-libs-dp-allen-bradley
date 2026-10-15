@@ -13,7 +13,7 @@ public sealed class DoubleCodecTests
     [InlineData(0x400921FB54442D18, Math.PI)]
     [InlineData(0x7FEFFFFFFFFFFFFF, double.MaxValue)]
     [InlineData(0xFFEFFFFFFFFFFFFF, double.MinValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(ulong storedBits, double expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(ulong storedBits, double expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -26,7 +26,7 @@ public sealed class DoubleCodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         double value = 1.0d;

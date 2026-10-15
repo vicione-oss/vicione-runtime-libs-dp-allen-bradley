@@ -13,7 +13,7 @@ public sealed class SingleCodecTests
     [InlineData(0x40490FDBu, MathF.PI)]
     [InlineData(0x7F7FFFFFu, float.MaxValue)]
     [InlineData(0xFF7FFFFFu, float.MinValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(uint storedBits, float expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(uint storedBits, float expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -26,7 +26,7 @@ public sealed class SingleCodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         float value = 1.0f;

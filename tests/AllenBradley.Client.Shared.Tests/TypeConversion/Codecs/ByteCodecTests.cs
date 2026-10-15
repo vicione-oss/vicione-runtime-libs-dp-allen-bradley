@@ -12,7 +12,7 @@ public sealed class ByteCodecTests
     [InlineData(0x7F, (byte)127)]
     [InlineData(0x80, (byte)128)]
     [InlineData(0xFF, byte.MaxValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(byte storedBits, byte expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(byte storedBits, byte expectedValue)
     {
         // Arrange
         byte[] buffer = [storedBits];
@@ -25,7 +25,7 @@ public sealed class ByteCodecTests
     }
 
     [Fact]
-    public void AValueAboveTheSignedRangeEncodesAsItStands()
+    public void ALargeUnsignedValueIsWrittenUnchanged()
     {
         // Arrange
         byte value = byte.MaxValue;
@@ -38,7 +38,7 @@ public sealed class ByteCodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
+    public void OnlyTheFirstByteOfTheBufferIsRead()
     {
         // Arrange
         byte[] buffer = [0x2A, 0xFF, 0xFF, 0xFF];
@@ -51,7 +51,7 @@ public sealed class ByteCodecTests
     }
 
     [Fact]
-    public void AValueEncodesToTheSingleByteItOccupies()
+    public void AValueIsWrittenAsOneByte()
     {
         // Arrange
         byte value = 42;

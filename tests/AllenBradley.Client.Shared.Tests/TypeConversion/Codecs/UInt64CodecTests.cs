@@ -12,7 +12,7 @@ public sealed class UInt64CodecTests
     [InlineData(0x8000000000000000ul, 9223372036854775808ul)]
     [InlineData(0xFFFFFFFFFFFFFFFEul, 18446744073709551614ul)]
     [InlineData(0xFFFFFFFFFFFFFFFFul, ulong.MaxValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(ulong storedBits, ulong expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(ulong storedBits, ulong expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -25,7 +25,7 @@ public sealed class UInt64CodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheEightBytesTheTypeOccupies()
+    public void OnlyTheFirstEightBytesOfTheBufferAreRead()
     {
         // Arrange
         byte[] buffer = [0x2A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF];
@@ -38,7 +38,7 @@ public sealed class UInt64CodecTests
     }
 
     [Fact]
-    public void AValueAboveTheSignedRangeEncodesAsItStands()
+    public void ALargeUnsignedValueIsWrittenUnchanged()
     {
         // Arrange
         ulong value = ulong.MaxValue;
@@ -51,7 +51,7 @@ public sealed class UInt64CodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         ulong value = 0x0102030405060708;

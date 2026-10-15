@@ -12,7 +12,7 @@ public sealed class Int64CodecTests
     [InlineData(0x7FFFFFFFFFFFFFFFUL, long.MaxValue)]
     [InlineData(0x8000000000000000UL, long.MinValue)]
     [InlineData(0x7FFFFFFFFFFFFFFEUL, long.MaxValue - 1)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(ulong storedBits, long expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(ulong storedBits, long expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -25,7 +25,7 @@ public sealed class Int64CodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheEightBytesTheTypeOccupies()
+    public void OnlyTheFirstEightBytesOfTheBufferAreRead()
     {
         // Arrange
         byte[] buffer = [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF];
@@ -38,7 +38,7 @@ public sealed class Int64CodecTests
     }
 
     [Fact]
-    public void ANegativeValueEncodesInTwosComplement()
+    public void ANegativeValueIsWrittenInTwosComplement()
     {
         // Arrange
         long value = -1L;
@@ -51,7 +51,7 @@ public sealed class Int64CodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         long value = 0x0102030405060708;

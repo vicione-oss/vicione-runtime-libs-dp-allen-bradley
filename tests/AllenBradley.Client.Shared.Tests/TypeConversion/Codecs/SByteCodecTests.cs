@@ -12,7 +12,7 @@ public sealed class SByteCodecTests
     [InlineData(0xFF, (sbyte)-1)]
     [InlineData(0x7F, sbyte.MaxValue)]
     [InlineData(0x80, sbyte.MinValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(byte storedBits, sbyte expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(byte storedBits, sbyte expectedValue)
     {
         // Arrange
         byte[] buffer = [storedBits];
@@ -25,7 +25,7 @@ public sealed class SByteCodecTests
     }
 
     [Fact]
-    public void ANegativeValueEncodesInTwosComplement()
+    public void ANegativeValueIsWrittenInTwosComplement()
     {
         // Arrange
         sbyte value = -1;
@@ -38,7 +38,7 @@ public sealed class SByteCodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
+    public void OnlyTheFirstByteOfTheBufferIsRead()
     {
         // Arrange
         byte[] buffer = [0x2A, 0xFF, 0xFF, 0xFF];
@@ -51,7 +51,7 @@ public sealed class SByteCodecTests
     }
 
     [Fact]
-    public void AValueEncodesToTheSingleByteItOccupies()
+    public void AValueIsWrittenAsOneByte()
     {
         // Arrange
         sbyte value = 42;

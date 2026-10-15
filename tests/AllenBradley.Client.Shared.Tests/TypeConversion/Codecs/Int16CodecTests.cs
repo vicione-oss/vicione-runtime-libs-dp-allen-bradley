@@ -11,7 +11,7 @@ public sealed class Int16CodecTests
     [InlineData(0xFFFF, (short)-1)]
     [InlineData(0x7FFF, short.MaxValue)]
     [InlineData(0x8000, short.MinValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(ushort storedBits, short expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(ushort storedBits, short expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -24,7 +24,7 @@ public sealed class Int16CodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheTwoBytesTheTypeOccupies()
+    public void OnlyTheFirstTwoBytesOfTheBufferAreRead()
     {
         // Arrange
         byte[] buffer = [0x67, 0x12, 0xFF, 0xFF];
@@ -37,7 +37,7 @@ public sealed class Int16CodecTests
     }
 
     [Fact]
-    public void ANegativeValueEncodesInTwosComplement()
+    public void ANegativeValueIsWrittenInTwosComplement()
     {
         // Arrange
         short value = -1;
@@ -50,7 +50,7 @@ public sealed class Int16CodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         short value = 0x1234;

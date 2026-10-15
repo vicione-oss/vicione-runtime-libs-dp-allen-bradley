@@ -10,7 +10,7 @@ public sealed class ArrayCodecTests
     private static readonly byte[] StoredShorts = [0x01, 0x00, 0x34, 0x12, 0xFF, 0xFF];
 
     [Fact]
-    public void AnArrayOccupiesItsElementWidthOnceForEveryElement()
+    public void TheSizeOfAnArrayIsTheElementSizeTimesTheCount()
     {
         // Arrange
 
@@ -22,7 +22,7 @@ public sealed class ArrayCodecTests
     }
 
     [Fact]
-    public void TheStoredBytesDecodeToTheElementsInIndexOrder()
+    public void TheStoredBytesDecodeToTheElementsInOrder()
     {
         // Arrange
 
@@ -34,7 +34,7 @@ public sealed class ArrayCodecTests
     }
 
     [Fact]
-    public void TheElementsEncodeToTheStoredBytesInIndexOrder()
+    public void TheElementsAreWrittenAsBytesInOrder()
     {
         // Arrange
         short[] values = [1, 0x1234, -1];
@@ -50,7 +50,7 @@ public sealed class ArrayCodecTests
     [InlineData(4)]
     [InlineData(5)]
     [InlineData(8)]
-    public void ABufferThatIsNotExactlyTheArraysWidthIsRefused(int bufferLength)
+    public void ABufferOfTheWrongLengthIsRefused(int bufferLength)
     {
         // Arrange
         var buffer = new byte[bufferLength];
@@ -65,7 +65,7 @@ public sealed class ArrayCodecTests
     [Theory]
     [InlineData(2)]
     [InlineData(4)]
-    public void AValueThatDoesNotHoldTheCountedElementsIsRefused(int elementCount)
+    public void AValueWithTheWrongNumberOfElementsIsRefused(int elementCount)
     {
         // Arrange
         var values = new short[elementCount];

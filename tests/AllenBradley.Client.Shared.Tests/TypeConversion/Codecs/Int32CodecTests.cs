@@ -11,7 +11,7 @@ public sealed class Int32CodecTests
     [InlineData(0xFFFFFFFFu, -1)]
     [InlineData(0x7FFFFFFFu, int.MaxValue)]
     [InlineData(0x80000000u, int.MinValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(uint storedBits, int expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(uint storedBits, int expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -24,7 +24,7 @@ public sealed class Int32CodecTests
     }
 
     [Fact]
-    public void ANegativeValueEncodesInTwosComplement()
+    public void ANegativeValueIsWrittenInTwosComplement()
     {
         // Arrange
         int value = -1;
@@ -37,7 +37,7 @@ public sealed class Int32CodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         int value = 0x12345678;
@@ -50,7 +50,7 @@ public sealed class Int32CodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheFourBytesTheTypeOccupies()
+    public void OnlyTheFirstFourBytesOfTheBufferAreRead()
     {
         // Arrange
         byte[] buffer = [0x67, 0x12, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF];

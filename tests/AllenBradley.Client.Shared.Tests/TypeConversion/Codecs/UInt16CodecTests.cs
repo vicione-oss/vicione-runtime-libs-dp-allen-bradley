@@ -12,7 +12,7 @@ public sealed class UInt16CodecTests
     [InlineData(0x7FFF, (ushort)32767)]
     [InlineData(0x8000, (ushort)32768)]
     [InlineData(0xFFFF, ushort.MaxValue)]
-    public void AStoredBitPatternDecodesToTheValueItStandsFor(ushort storedBits, ushort expectedValue)
+    public void TheStoredBitsDecodeToTheirValue(ushort storedBits, ushort expectedValue)
     {
         // Arrange
         var buffer = BitConverter.GetBytes(storedBits);
@@ -25,7 +25,7 @@ public sealed class UInt16CodecTests
     }
 
     [Fact]
-    public void ADecodeReadsOnlyTheTwoBytesTheTypeOccupies()
+    public void OnlyTheFirstTwoBytesOfTheBufferAreRead()
     {
         // Arrange
         byte[] buffer = [0x92, 0x10, 0xFF, 0xFF];
@@ -38,7 +38,7 @@ public sealed class UInt16CodecTests
     }
 
     [Fact]
-    public void AValueAboveTheSignedRangeEncodesAsItStands()
+    public void ALargeUnsignedValueIsWrittenUnchanged()
     {
         // Arrange
         ushort value = ushort.MaxValue;
@@ -51,7 +51,7 @@ public sealed class UInt16CodecTests
     }
 
     [Fact]
-    public void AValueEncodesLeastSignificantByteFirst()
+    public void AValueIsWrittenWithItsLeastSignificantByteFirst()
     {
         // Arrange
         ushort value = 0x1234;
