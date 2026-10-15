@@ -15,8 +15,8 @@ The reasons for the split are in the
 | Client pool         | `ClientPool`, `ProcessClientPool`, `IConnectableClient`, `ClientAddress` | `Pool/` |
 | Client lifetime     | `ClientLifetime`                                              | `Lifetime/`       |
 | Read and write      | `ReadBatch`, `WriteBatch`, `LoggedBatches`                    | `Batches/`        |
-| Tags and handles    | `ITagAccess`, `LibPlcTagAccess`, `SynchronizedTagAccess`, `TagReadResult`, `TagWriteResult`, `TagCache`, `ITagSource`, `GatewayAttribute` | `Tags/` |
-| Values and bytes    | `IDataPointConverter`, `DecodeException`, `ElementCodec` and one codec for each .NET type, `ArrayCodec` | `TypeConversion/` |
+| Tags and handles    | `ITagAccess`, `LibPlcTagAccess`, `LibPlcBitTagAccess`, `SynchronizedTagAccess`, `TagReadResult`, `TagWriteResult`, `TagCache`, `ITagSource`, `GatewayAttribute` | `Tags/` |
+| Values and bytes    | `IDataPointConverter`, `DecodeException`, `ElementCodec` and one codec for each .NET type, `BitCodec`, `ArrayCodec` | `TypeConversion/` |
 
 Every type is internal except `IConnectableClient`. The client interface of each dataport is public and extends it, and
 a public interface cannot extend an internal one.
