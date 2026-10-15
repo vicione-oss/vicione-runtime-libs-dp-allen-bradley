@@ -17,7 +17,7 @@ public sealed class LegacyDataPointsGroupsMapperTests
     private readonly LegacyDataPointsGroupsMapper _mapper = new();
 
     [Fact]
-    public void AnIntegerElementIsAddressedInTheFileItSitsIn()
+    public void AnIntegerElementBecomesAnIntegerDataPointWithTheFileNumberOfItsIntegerFile()
     {
         // Arrange
         var file = new IntegerFileNode(LinkedNodeOf(IntegerFileNode.LinkedNodeTypeId), new FileNumber(10));
