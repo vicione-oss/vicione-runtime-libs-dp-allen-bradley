@@ -25,6 +25,27 @@ public sealed class DataFileAddressTests
         text.Should().Be(expectedText);
     }
 
+    /// <summary>Each long element with the address RSLogix 500 shows for it.</summary>
+    public static TheoryData<DataFileAddress, string> LongElements =>
+        new()
+        {
+            { new DataFileAddress(DataFileType.Long, new FileNumber(9), new ElementNumber(0)), "L9:0" },
+            { new DataFileAddress(DataFileType.Long, new FileNumber(255), new ElementNumber(255)), "L255:255" },
+        };
+
+    [Theory]
+    [MemberData(nameof(LongElements))]
+    public void ALongElementIsWrittenTheWayRsLogixWritesIt(DataFileAddress address, string expectedText)
+    {
+        // Arrange
+
+        // Act
+        var text = address.ToString();
+
+        // Assert
+        text.Should().Be(expectedText);
+    }
+
     /// <summary>Each float element with the address RSLogix 500 shows for it.</summary>
     public static TheoryData<DataFileAddress, string> FloatElements =>
         new()

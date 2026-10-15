@@ -7,9 +7,11 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.LongFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -35,6 +37,25 @@ public sealed class LegacyDataPointsGroupsMapperTests
 
         // Assert
         var expected = new IntegerDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ALongElementBecomesALongDataPointWithTheFileNumberOfItsLongFile()
+    {
+        // Arrange
+        var file = new LongFileNode(LinkedNodeOf(LongFileNode.LinkedNodeTypeId), new FileNumber(9));
+        var element = new LongNode(
+            LinkedNodeOf(LongNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(250));
+        file.DataPointNodes.Add(element);
+        var device = Device();
+        device.ConfigurationNodes.Add(file);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(device);
+
+        // Assert
+        var expected = new LongDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

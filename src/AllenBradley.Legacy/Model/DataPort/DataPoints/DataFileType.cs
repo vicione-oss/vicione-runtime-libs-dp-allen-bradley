@@ -13,6 +13,9 @@ public readonly record struct DataFileType(string Letter, DataTypeName Name)
     /// <summary><c>N</c> — 16-bit signed integers, one word per element.</summary>
     public static readonly DataFileType Integer = new("N", new DataTypeName("Integer"));
 
+    /// <summary><c>L</c> — 32-bit signed integers, two words per element.</summary>
+    public static readonly DataFileType Long = new("L", new DataTypeName("Long"));
+
     /// <summary><c>F</c> — 32-bit IEEE 754 floating-point values, two words per element.</summary>
     public static readonly DataFileType Float = new("F", new DataTypeName("Float"));
 

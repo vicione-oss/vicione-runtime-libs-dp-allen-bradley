@@ -49,6 +49,7 @@ Nodes:
           - Id: Strategy
     ChildNodes: &data-file-nodes
       - Id: IntegerFile
+      - Id: LongFile
       - Id: FloatFile
       - Id: BinaryFile
 
@@ -80,6 +81,21 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: Integer
+
+  - Id: LongFile
+    MappingId: LongFile
+    Type: DataPortTreeNode
+    Name: "Long File (L)"
+    Description: "A 32-bit integer data file, which only a MicroLogix 1400 or a newer SLC processor has. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Long
 
   - Id: FloatFile
     MappingId: FloatFile
@@ -126,6 +142,30 @@ Nodes:
     Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Long
+    MappingId: Long
+    Type: DataPortTreeNode
+    Name: "Long"
+    Description: >-
+      Data file type: L (long)
+      Size: 2 words, 4 bytes
+      Encoding: little-endian two's complement
+      Layout: byte 0 = LSB, byte 3 = MSB
+      Range: −2 147 483 648..2 147 483 647
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Int32 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: DataFile
