@@ -49,6 +49,7 @@ Nodes:
           - Id: Strategy
     ChildNodes: &data-file-nodes
       - Id: IntegerFile
+      - Id: FloatFile
       - Id: BinaryFile
 
   - Id: DeviceMicroLogix
@@ -80,6 +81,21 @@ Nodes:
     ChildNodes:
       - Id: Integer
 
+  - Id: FloatFile
+    MappingId: FloatFile
+    Type: DataPortTreeNode
+    Name: "Float File (F)"
+    Description: "A floating-point data file, F8 or any other file the program declares as float. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Float
+
   - Id: BinaryFile
     MappingId: BinaryFile
     Type: DataPortTreeNode
@@ -110,6 +126,31 @@ Nodes:
     Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Int16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Float
+    MappingId: Float
+    Type: DataPortTreeNode
+    Name: "Float"
+    Description: >-
+      Data file type: F (float)
+      Size: 2 words, 4 bytes
+      Encoding: IEEE 754 single-precision float, little-endian
+      Layout: byte 0 = LSB (low mantissa), byte 3 = MSB (sign + high exponent)
+      Bits: 1 sign + 8 exponent + 23 mantissa
+      Range: ±1.18e−38..±3.40e+38
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Float32 ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: DataFile

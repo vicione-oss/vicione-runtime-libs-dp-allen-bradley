@@ -25,6 +25,27 @@ public sealed class DataFileAddressTests
         text.Should().Be(expectedText);
     }
 
+    /// <summary>Each float element with the address RSLogix 500 shows for it.</summary>
+    public static TheoryData<DataFileAddress, string> FloatElements =>
+        new()
+        {
+            { new DataFileAddress(DataFileType.Float, new FileNumber(8), new ElementNumber(12)), "F8:12" },
+            { new DataFileAddress(DataFileType.Float, new FileNumber(255), new ElementNumber(255)), "F255:255" },
+        };
+
+    [Theory]
+    [MemberData(nameof(FloatElements))]
+    public void AFloatElementIsWrittenTheWayRsLogixWritesIt(DataFileAddress address, string expectedText)
+    {
+        // Arrange
+
+        // Act
+        var text = address.ToString();
+
+        // Assert
+        text.Should().Be(expectedText);
+    }
+
     /// <summary>Each bit of a binary element with the address RSLogix 500 shows for it.</summary>
     public static TheoryData<DataFileAddress, string> BinaryBits =>
         new()
