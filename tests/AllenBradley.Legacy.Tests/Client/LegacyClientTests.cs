@@ -66,6 +66,23 @@ public sealed class LegacyClientTests : IDisposable
         values.Should().Equal(expected);
     }
 
+    [Theory]
+    [InlineData(0x01, true)]
+    [InlineData(0x00, false)]
+    public async Task ReadReturnsTheValueOfABit(byte bitByte, bool expectedValue)
+    {
+        // Arrange
+        var bit = B3Bit(2, 0);
+        _tagAccessFactory.ReturnOnRead(bit, [bitByte]);
+
+        // Act
+        var values = await _client.ReadAsync(GroupOf(bit), CancellationToken.None);
+
+        // Assert
+        ILegacyDataPointValue[] expected = [bit.CreateLegacyValue(expectedValue)];
+        values.Should().Equal(expected);
+    }
+
     [Fact]
     public async Task ReadReturnsTheOtherValuesWhenOneElementFails()
     {
@@ -135,6 +152,21 @@ public sealed class LegacyClientTests : IDisposable
 
         // Assert
         _tagAccessFactory.BytesWrittenTo(element).Should().Equal(expectedBytes);
+    }
+
+    [Theory]
+    [InlineData(true, 0x01)]
+    [InlineData(false, 0x00)]
+    public async Task WriteSendsABitAsOneByte(bool value, byte expectedByte)
+    {
+        // Arrange
+        var bit = B3Bit(2, 0);
+
+        // Act
+        await _client.WriteAsync([bit.CreateLegacyValue(value)], CancellationToken.None);
+
+        // Assert
+        _tagAccessFactory.BytesWrittenTo(bit).Should().Equal(expectedByte);
     }
 
     [Fact]

@@ -21,7 +21,13 @@ internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInfor
 
     /// <inheritdoc />
     public ITagAccess CreateAccessForAddress(DataFileAddress address) =>
-        new SynchronizedTagAccess(new LibPlcTagAccess(CreateTagForAddress(address)));
+        new SynchronizedTagAccess(CreateLibPlcAccess(address));
+
+    // Internal so that tests can check which access a bit address gets. The synchronized wrapper hides it.
+    internal ITagAccess CreateLibPlcAccess(DataFileAddress address) =>
+        address.BitNumber is null
+            ? new LibPlcTagAccess(CreateTagForAddress(address))
+            : new LibPlcBitTagAccess(CreateTagForAddress(address));
 
     // Internal so that tests can check the attributes of the handle. ITagAccess does not expose them.
     internal Tag CreateTagForAddress(DataFileAddress address) =>

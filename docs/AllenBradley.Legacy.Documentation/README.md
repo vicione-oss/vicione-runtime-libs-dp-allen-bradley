@@ -16,14 +16,17 @@ validation, the typed-node framework. That machinery is documented with the pack
 pages cover only what the Legacy port adds on top.
 
 > **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
-> Logix port. The port reads and writes integer (`N`) data points on an SLC 500 or MicroLogix,
-> configured by file number and element. The incoming port polls each group of points at its poll
-> frequency, and the outgoing port writes the values it receives. Both ports share one client per
-> controller. A connect reads the first word of the status file, `S2:0`, so an unreachable
+> Logix port. The port reads and writes integer (`N`) data points and single bits of binary (`B`)
+> files on an SLC 500 or MicroLogix, configured by file number, element and bit. A bit write changes
+> only that bit in the controller, but only on a controller with its own Ethernet port
+> ([writing a single bit](../AllenBradley.Documentation/libplctag/writing-a-single-bit.md)). The
+> incoming port polls each group of points at its poll frequency, and the outgoing port writes the
+> values it receives. Both ports share one client per controller. A connect reads the first word of the status file, `S2:0`, so an unreachable
 > controller stops the connect
 > ([checking that the controller answers](../AllenBradley.Documentation/libplctag/checking-that-the-controller-answers.md)).
-> A missing data file shows up at the first read or write. No other data-file type and no PLC-5 is supported
-> yet. The Diátaxis folders (`how-to/`, `reference/`, `ADR/`) fill in as the port is built.
+> A missing data file shows up at the first read or write. No other data-file type, no bit of
+> another file type, and no PLC-5 is supported yet. The Diátaxis folders (`how-to/`, `reference/`,
+> `ADR/`) fill in as the port is built.
 
 ## Which controllers are in scope
 

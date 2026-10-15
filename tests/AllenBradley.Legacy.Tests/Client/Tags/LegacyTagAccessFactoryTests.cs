@@ -1,4 +1,5 @@
 using libplctag;
+using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyClientTestDataFactory;
@@ -42,6 +43,46 @@ public sealed class LegacyTagAccessFactoryTests
 
         // Assert
         tagHandle.Name.Should().Be("N7:12");
+    }
+
+    [Fact]
+    public void TheTagHandleOfABitIsNamedAfterTheElementAndTheBit()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+        var dataPoint = B3Bit(2, 0);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
+
+        // Assert
+        tagHandle.Name.Should().Be("B3:2/0");
+    }
+
+    [Fact]
+    public void ABitAddressGetsTheAccessThatReadsAndWritesOneBit()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+
+        // Act
+        using var access = factory.CreateLibPlcAccess(B3Bit(2, 0).Address);
+
+        // Assert
+        access.Should().BeOfType<LibPlcBitTagAccess>();
+    }
+
+    [Fact]
+    public void AnElementAddressGetsTheAccessThatReadsAndWritesTheBuffer()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+
+        // Act
+        using var access = factory.CreateLibPlcAccess(N7Element(0).Address);
+
+        // Assert
+        access.Should().BeOfType<LibPlcTagAccess>();
     }
 
     [Fact]

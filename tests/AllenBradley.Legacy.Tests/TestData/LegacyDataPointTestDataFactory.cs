@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binary;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -8,6 +9,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData;
 internal static class LegacyDataPointTestDataFactory
 {
     internal static readonly FileNumber DefaultIntegerFile = new(7);
+    internal static readonly FileNumber DefaultBinaryFile = new(3);
     internal static readonly PollFrequency DefaultPollFrequency = PollFrequency.FromMilliseconds(100);
     internal static readonly Channels NoChannels = new([], []);
 
@@ -17,4 +19,11 @@ internal static class LegacyDataPointTestDataFactory
     /// </summary>
     internal static IntegerDataPoint N7Element(ushort elementNumber) =>
         new(DefaultIntegerFile, new ElementNumber(elementNumber), DefaultPollFrequency, NoChannels);
+
+    /// <summary>
+    /// Bit <paramref name="bitNumber"/> of element <paramref name="elementNumber"/> in the binary file <c>B3</c>.
+    /// For another bit, create a new data point. <c>with</c> does not update the data-file address.
+    /// </summary>
+    internal static BitDataPoint B3Bit(ushort elementNumber, ushort bitNumber) =>
+        new(DefaultBinaryFile, new ElementNumber(elementNumber), new BitNumber(bitNumber), DefaultPollFrequency, NoChannels);
 }
