@@ -18,13 +18,12 @@ internal sealed class LegacyClient(
     LegacyClientInformation clientInformation,
     ILogger<LegacyClient> logger) : ILegacyClient
 {
-    // Every PCCC controller has the status file S2, and nobody can delete it. A read of its first word goes
-    // the same route as the data points, so it is the smallest request that shows the controller answers.
-    internal static readonly DataFileAddress FirstWordOfTheStatusFile =
-        new(DataFileType.Status, new FileNumber(2), new ElementNumber(0));
+    // The current libplctag version has no request to check a connection. Every PCCC controller has the status file S2.
+    // We read it once to verify that the plc is reachable.
+    internal static readonly DataFileAddress StatusFile = new(DataFileType.Status, new FileNumber(2),
+        new ElementNumber(0));
 
-    private readonly ClientLifetime _lifetime = new(
-        logger,
+    private readonly ClientLifetime _lifetime = new(logger,
         new ClientAddress(clientInformation.ConnectionEndpoint.Value, clientInformation.CipRoutePath.Value));
 
     private readonly LoggedBatches _batches = new(logger, clientInformation.ConnectionEndpoint.Value);
@@ -32,16 +31,15 @@ internal sealed class LegacyClient(
     public bool IsConnected => _lifetime.IsConnected;
 
     public Task ConnectAsync(CancellationToken cancellationToken) =>
-        _lifetime.ConnectAsync(ReadTheStatusWordAsync, cancellationToken);
+        _lifetime.ConnectAsync(CheckThatTheControllerIsReachable, cancellationToken);
 
-    /// <exception cref="DataRetrievalException">The controller did not give the status word.</exception>
-    private async Task ReadTheStatusWordAsync(CancellationToken cancellationToken)
+    private async Task CheckThatTheControllerIsReachable(CancellationToken cancellationToken)
     {
-        using var statusWordAccess = tagSource.CreateUncachedAccess(FirstWordOfTheStatusFile);
+        using var statusWordAccess = tagSource.CreateUncachedAccess(StatusFile);
         var statusWord = await statusWordAccess.ReadAsync(cancellationToken).ConfigureAwait(false);
         if (!statusWord.Succeeded)
         {
-            throw new DataRetrievalException($"Read failed for {FirstWordOfTheStatusFile}: {statusWord.Error}");
+            throw new DataRetrievalException($"Read failed for {StatusFile}: {statusWord.Error}");
         }
     }
 

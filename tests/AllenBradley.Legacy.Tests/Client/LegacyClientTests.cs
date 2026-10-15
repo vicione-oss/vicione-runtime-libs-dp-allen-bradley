@@ -165,20 +165,20 @@ public sealed class LegacyClientTests : IDisposable
     public async Task ConnectReadsTheFirstWordOfTheStatusFile()
     {
         // Arrange
-        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+        _tagAccessFactory.ReturnOnRead(StatusFile, [0x00, 0x00]);
 
         // Act
         await _client.ConnectAsync(CancellationToken.None);
 
         // Assert
-        _tagAccessFactory.ReadCount(FirstWordOfTheStatusFile).Should().Be(1);
+        _tagAccessFactory.ReadCount(StatusFile).Should().Be(1);
     }
 
     [Fact]
     public async Task AClientWhoseStatusFileCouldNotBeReadReportsAConnectionFailureAndStaysDisconnected()
     {
         // Arrange
-        _tagAccessFactory.FailOnRead(FirstWordOfTheStatusFile, Timeout);
+        _tagAccessFactory.FailOnRead(StatusFile, Timeout);
 
         // Act
         var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
@@ -192,7 +192,7 @@ public sealed class LegacyClientTests : IDisposable
     public async Task AClientWhoseStatusFileReadThrewReportsAConnectionFailureAndStaysDisconnected()
     {
         // Arrange
-        _tagAccessFactory.ThrowOnRead(FirstWordOfTheStatusFile, new DllNotFoundException("plctag"));
+        _tagAccessFactory.ThrowOnRead(StatusFile, new DllNotFoundException("plctag"));
 
         // Act
         var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
@@ -207,7 +207,7 @@ public sealed class LegacyClientTests : IDisposable
     public async Task ACancelledConnectThrowsTheCancellationRatherThanAConnectionFailure()
     {
         // Arrange
-        _tagAccessFactory.ThrowOnRead(FirstWordOfTheStatusFile, new OperationCanceledException());
+        _tagAccessFactory.ThrowOnRead(StatusFile, new OperationCanceledException());
 
         // Act
         var connect = await Record.ExceptionAsync(() => _client.ConnectAsync(CancellationToken.None));
@@ -221,27 +221,27 @@ public sealed class LegacyClientTests : IDisposable
     public async Task ConnectDisposesTheTagHandleOfTheStatusFile()
     {
         // Arrange
-        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+        _tagAccessFactory.ReturnOnRead(StatusFile, [0x00, 0x00]);
 
         // Act
         await _client.ConnectAsync(CancellationToken.None);
 
         // Assert
-        _tagAccessFactory.IsDisposed(FirstWordOfTheStatusFile).Should().BeTrue();
+        _tagAccessFactory.IsDisposed(StatusFile).Should().BeTrue();
     }
 
     [Fact]
     public async Task ASecondConnectDoesNotReadTheStatusFileAgain()
     {
         // Arrange
-        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+        _tagAccessFactory.ReturnOnRead(StatusFile, [0x00, 0x00]);
         await _client.ConnectAsync(CancellationToken.None);
 
         // Act
         await _client.ConnectAsync(CancellationToken.None);
 
         // Assert
-        _tagAccessFactory.ReadCount(FirstWordOfTheStatusFile).Should().Be(1);
+        _tagAccessFactory.ReadCount(StatusFile).Should().Be(1);
     }
 
     [Fact]
@@ -249,7 +249,7 @@ public sealed class LegacyClientTests : IDisposable
     {
         // Arrange
         var element = N7Element(0);
-        _tagAccessFactory.ReturnOnRead(FirstWordOfTheStatusFile, [0x00, 0x00]);
+        _tagAccessFactory.ReturnOnRead(StatusFile, [0x00, 0x00]);
         _tagAccessFactory.ReturnOnRead(element, [0x2A, 0x00]);
         await _client.ConnectAsync(CancellationToken.None);
         await _client.ReadAsync(GroupOf(element), CancellationToken.None);
