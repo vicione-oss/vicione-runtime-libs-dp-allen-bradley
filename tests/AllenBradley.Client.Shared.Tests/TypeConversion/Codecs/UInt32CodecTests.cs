@@ -11,6 +11,7 @@ public sealed class UInt32CodecTests
     [InlineData(0x0001E240u, 123456u)]
     [InlineData(0x7FFFFFFFu, 2147483647u)]
     [InlineData(0x80000000u, 2147483648u)]
+    [InlineData(0xEE6B2800u, 4000000000u)]
     [InlineData(0xFFFFFFFFu, uint.MaxValue)]
     public void AStoredBitPatternDecodesToTheValueItStandsFor(uint storedBits, uint expectedValue)
     {

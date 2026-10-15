@@ -11,6 +11,8 @@ public sealed class DoubleCodecTests
     [InlineData(0xBFF0000000000000, -1.0d)]
     [InlineData(0x0000000000000000, 0.0d)]
     [InlineData(0x400921FB54442D18, Math.PI)]
+    [InlineData(0x7FEFFFFFFFFFFFFF, double.MaxValue)]
+    [InlineData(0xFFEFFFFFFFFFFFFF, double.MinValue)]
     public void AStoredBitPatternDecodesToTheValueItStandsFor(ulong storedBits, double expectedValue)
     {
         // Arrange

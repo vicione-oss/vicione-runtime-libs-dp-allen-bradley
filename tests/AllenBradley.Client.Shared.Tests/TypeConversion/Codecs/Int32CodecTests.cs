@@ -48,4 +48,17 @@ public sealed class Int32CodecTests
         // Assert
         bytes.Should().Equal(0x78, 0x56, 0x34, 0x12);
     }
+
+    [Fact]
+    public void ADecodeReadsOnlyTheFourBytesTheTypeOccupies()
+    {
+        // Arrange
+        byte[] buffer = [0x67, 0x12, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF];
+
+        // Act
+        var decoded = Codec.Decode(buffer);
+
+        // Assert
+        decoded.Should().Be(4711);
+    }
 }

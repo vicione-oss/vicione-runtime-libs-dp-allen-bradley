@@ -11,6 +11,8 @@ public sealed class SingleCodecTests
     [InlineData(0xBF800000u, -1.0f)]
     [InlineData(0x00000000u, 0.0f)]
     [InlineData(0x40490FDBu, MathF.PI)]
+    [InlineData(0x7F7FFFFFu, float.MaxValue)]
+    [InlineData(0xFF7FFFFFu, float.MinValue)]
     public void AStoredBitPatternDecodesToTheValueItStandsFor(uint storedBits, float expectedValue)
     {
         // Arrange

@@ -11,6 +11,7 @@ public sealed class Int64CodecTests
     [InlineData(ulong.MaxValue, -1L)]
     [InlineData(0x7FFFFFFFFFFFFFFFUL, long.MaxValue)]
     [InlineData(0x8000000000000000UL, long.MinValue)]
+    [InlineData(0x7FFFFFFFFFFFFFFEUL, long.MaxValue - 1)]
     public void AStoredBitPatternDecodesToTheValueItStandsFor(ulong storedBits, long expectedValue)
     {
         // Arrange

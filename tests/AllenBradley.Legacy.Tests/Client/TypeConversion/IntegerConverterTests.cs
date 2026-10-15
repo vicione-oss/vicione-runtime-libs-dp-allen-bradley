@@ -6,37 +6,10 @@ using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDat
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Client.TypeConversion;
 
+/// <summary>The byte layout has no test here, because the codec tests pin it.</summary>
 public sealed class IntegerConverterTests
 {
     private static readonly IDataPointConverter<ILegacyDataPoint, ILegacyDataPointValue> Converter = new IntegerConverter();
-
-    private static readonly ILegacyDataPoint Element = N7Element(0);
-
-    [Fact]
-    public void TwoStoredBytesDecodeToAShortWithTheLeastSignificantByteFirst()
-    {
-        // Arrange
-        byte[] buffer = [0x67, 0x12];
-
-        // Act
-        var decoded = Converter.Decode(Element, buffer);
-
-        // Assert
-        decoded.Should().Be(N7Element(0).CreateLegacyValue(4711));
-    }
-
-    [Fact]
-    public void AShortEncodesToTwoBytesWithTheLeastSignificantByteFirst()
-    {
-        // Arrange
-        var value = N7Element(0).CreateLegacyValue(4711);
-
-        // Act
-        var bytes = Converter.Encode(value);
-
-        // Assert
-        bytes.Should().Equal(0x67, 0x12);
-    }
 
     [Fact]
     public void ADataPointOfAnotherTypeIsRefusedWhenDecoding()
@@ -56,7 +29,7 @@ public sealed class IntegerConverterTests
     {
         // Arrange
         var foreignValue = Substitute.For<ILegacyDataPointValue>();
-        foreignValue.DataPoint.Returns(Element);
+        foreignValue.DataPoint.Returns(N7Element(0));
 
         // Act
         var encoding = Converter.Invoking(converter => converter.Encode(foreignValue));

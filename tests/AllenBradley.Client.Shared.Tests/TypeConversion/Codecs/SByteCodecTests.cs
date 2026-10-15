@@ -36,4 +36,30 @@ public sealed class SByteCodecTests
         // Assert
         bytes.Should().Equal(0xFF);
     }
+
+    [Fact]
+    public void ADecodeReadsOnlyTheOneByteTheTypeOccupies()
+    {
+        // Arrange
+        byte[] buffer = [0x2A, 0xFF, 0xFF, 0xFF];
+
+        // Act
+        var decoded = Codec.Decode(buffer);
+
+        // Assert
+        decoded.Should().Be(42);
+    }
+
+    [Fact]
+    public void AValueEncodesToTheSingleByteItOccupies()
+    {
+        // Arrange
+        sbyte value = 42;
+
+        // Act
+        var bytes = Codec.Encode(value);
+
+        // Assert
+        bytes.Should().Equal(0x2A);
+    }
 }
