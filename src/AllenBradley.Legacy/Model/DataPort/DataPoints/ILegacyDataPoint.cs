@@ -8,7 +8,7 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 /// </summary>
 public interface ILegacyDataPoint : IPollingDataPoint
 {
-    /// <summary>Where the value lives: the data file and the element inside it.</summary>
+    /// <summary>Where the value lives: the data file, the element inside it, and the bit where there is one.</summary>
     DataFileAddress Address { get; }
 
     /// <summary>

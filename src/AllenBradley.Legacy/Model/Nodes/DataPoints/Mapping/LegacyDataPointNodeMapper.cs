@@ -7,8 +7,8 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Mapp
 
 /// <summary>
 /// What every element node mapper does whatever the file type: validate the configured node and read the
-/// element number and poll frequency off it. A concrete mapper adds only the <c>LinkedNodeTypeId</c> it
-/// claims and the constructor call.
+/// element number and poll frequency off it. A concrete mapper adds the <c>LinkedNodeTypeId</c> it claims
+/// and the constructor call, and checks and reads any property of its own.
 /// </summary>
 /// <typeparam name="TNode">The node the mapper produces.</typeparam>
 internal abstract class LegacyDataPointNodeMapper<TNode> : IDataPointNodeMapper<TNode>
@@ -23,7 +23,7 @@ internal abstract class LegacyDataPointNodeMapper<TNode> : IDataPointNodeMapper<
     public TNode Map(LinkedNode node) => CreateNode(node, GetElementNumber(node), GetPollFrequency(node));
 
     /// <inheritdoc />
-    public ValidationResult Validate(LinkedNode linkedNode) => Validator.Validate(linkedNode);
+    public virtual ValidationResult Validate(LinkedNode linkedNode) => Validator.Validate(linkedNode);
 
     protected abstract TNode CreateNode(LinkedNode originalNode, ElementNumber elementNumber, PollFrequency pollFrequency);
 

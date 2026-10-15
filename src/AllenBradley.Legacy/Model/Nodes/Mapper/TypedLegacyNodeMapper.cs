@@ -1,4 +1,6 @@
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device.Mapping;
@@ -14,5 +16,8 @@ internal static class TypedLegacyNodeMapper
 {
     /// <summary>Builds the mapper for the tree <c>allen-bradley-legacy.yaml</c> declares.</summary>
     internal static TypedNodeMapper<LegacyCommunication, DeviceNode> Instance() =>
-        new(new DeviceNodeMapper(), [new IntegerFileNodeMapper()], [new IntegerNodeMapper()]);
+        new(
+            new DeviceNodeMapper(),
+            [new IntegerFileNodeMapper(), new BinaryFileNodeMapper()],
+            [new IntegerNodeMapper(), new BitNodeMapper()]);
 }

@@ -1,8 +1,11 @@
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binary;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
@@ -29,6 +32,25 @@ public sealed class LegacyDataPointsGroupsMapperTests
 
         // Assert
         var expected = new IntegerDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ABitBecomesABitDataPointWithTheFileNumberOfItsBinaryFile()
+    {
+        // Arrange
+        var file = new BinaryFileNode(LinkedNodeOf(BinaryFileNode.LinkedNodeTypeId), new FileNumber(3));
+        var bit = new BitNode(
+            LinkedNodeOf(BitNode.LinkedNodeTypeId), new ElementNumber(2), new BitNumber(5), PollFrequency.FromMilliseconds(250));
+        file.DataPointNodes.Add(bit);
+        var device = Device();
+        device.ConfigurationNodes.Add(file);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(device);
+
+        // Assert
+        var expected = new BitDataPoint(file.FileNumber, bit.ElementNumber, bit.BitNumber, bit.PollFrequency, bit.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

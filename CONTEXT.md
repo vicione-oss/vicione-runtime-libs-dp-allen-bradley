@@ -430,6 +430,10 @@ The letter that fixes the type of every element in a data file: `N` integer, `F`
 The number of a data file, the `7` in `N7:0`. The controller identifies a file by its number, and
 the letter only states the type, so `N7` and `F7` cannot both exist.
 
+**Bit number**:
+The position of one bit in a 16-bit element, the `5` in `B3:2/5`. It counts from 0, the least
+significant bit, to 15.
+
 **Data-file address**:
 The location of a value in a Legacy controller: file type, file number and element, plus a
 sub-element or a bit where needed. RSLogix writes it as `N7:12`, `T4:0.ACC` or `B3:2/5`. Legacy

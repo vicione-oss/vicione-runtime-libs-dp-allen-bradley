@@ -49,6 +49,7 @@ Nodes:
           - Id: Strategy
     ChildNodes: &data-file-nodes
       - Id: IntegerFile
+      - Id: BinaryFile
 
   - Id: DeviceMicroLogix
     Type: DataPortNode
@@ -62,7 +63,7 @@ Nodes:
 
   # ==================== DATA FILES ===================================
   # One node per file type, because the file's letter fixes the type of every element in it. The file
-  # holds its number, and its children only the element, so the address composes to "N7:12".
+  # holds its number, and its children the rest of the address, so it composes to "N7:12" or "B3:2/5".
 
   - Id: IntegerFile
     MappingId: IntegerFile
@@ -78,6 +79,21 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: Integer
+
+  - Id: BinaryFile
+    MappingId: BinaryFile
+    Type: DataPortTreeNode
+    Name: "Binary File (B)"
+    Description: "A binary data file, B3 or any other file the program declares as binary. Each bit is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Bit
 
   # ==================== ELEMENTS ======================================
 
@@ -99,6 +115,31 @@ Nodes:
       - Id: DataFile
         Properties:
           - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Bit
+    MappingId: Bit
+    Type: DataPortTreeNode
+    Name: "Bit"
+    Description: >-
+      Data file type: B (binary)
+      Size: 1 bit of a 1-word element
+      Encoding: 0 = false, 1 = true
+      Layout: bit 0 = LSB, bit 15 = MSB
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Bool ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+          - Id: BitNumber
             Required: true
       - Id: ReadConfiguration
         Properties:
@@ -185,12 +226,12 @@ Properties:
     MaxValue: 1
 
   # ---- DataFile Properties ----
-  # The default is only the lowest legal number, not a guess at the file: N7 and F8 are where RSLogix
+  # The default is only the lowest legal number, not a guess at the file: B3, N7 and F8 are where RSLogix
   # puts the first file of a type, and a program has as many more as it declares. 0 to 2 are the
   # output, input and status files.
   - Id: FileNumber
     Name: "File number"
-    Description: "Number of the data file as RSLogix 500 lists it: 7 for N7, 10 for N10"
+    Description: "Number of the data file as RSLogix 500 lists it: 3 for B3, 7 for N7, 10 for N10"
     DataType: UInt16
     UiControl: NumericUpDown
     DefaultValue: 3
@@ -205,6 +246,15 @@ Properties:
     DefaultValue: 0
     MinValue: 0
     MaxValue: 255
+
+  - Id: BitNumber
+    Name: "Bit"
+    Description: "Bit in the element, from 0 (least significant) to 15: 5 for B3:2/5"
+    DataType: UInt16
+    UiControl: NumericUpDown
+    DefaultValue: 0
+    MinValue: 0
+    MaxValue: 15
 
   # ---- ReadConfiguration Properties ----
   - Id: PollFrequency
