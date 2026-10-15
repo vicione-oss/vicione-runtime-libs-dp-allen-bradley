@@ -66,6 +66,21 @@ public sealed class LegacyClientTests : IDisposable
         values.Should().Equal(expected);
     }
 
+    [Fact]
+    public async Task ReadReturnsTheValueOfAFloatElement()
+    {
+        // Arrange
+        var element = F8Element(12);
+        _tagAccessFactory.ReturnOnRead(element, [0x00, 0x00, 0xC0, 0x3F]);
+
+        // Act
+        var values = await _client.ReadAsync(GroupOf(element), CancellationToken.None);
+
+        // Assert
+        ILegacyDataPointValue[] expected = [element.CreateLegacyValue(1.5f)];
+        values.Should().Equal(expected);
+    }
+
     [Theory]
     [InlineData(0x01, true)]
     [InlineData(0x00, false)]

@@ -46,6 +46,20 @@ public sealed class LegacyTagAccessFactoryTests
     }
 
     [Fact]
+    public void TheTagHandleOfAFloatElementIsNamedAfterTheDataFileAddress()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+        var dataPoint = F8Element(12);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
+
+        // Assert
+        tagHandle.Name.Should().Be("F8:12");
+    }
+
+    [Fact]
     public void TheTagHandleOfABitIsNamedAfterTheElementAndTheBit()
     {
         // Arrange

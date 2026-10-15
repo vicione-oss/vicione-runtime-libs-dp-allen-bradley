@@ -16,8 +16,10 @@ validation, the typed-node framework. That machinery is documented with the pack
 pages cover only what the Legacy port adds on top.
 
 > **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
-> Logix port. The port reads and writes integer (`N`) data points and single bits of binary (`B`)
-> files on an SLC 500 or MicroLogix, configured by file number, element and bit. A bit write changes
+> Logix port. The port reads and writes integer (`N`) and float (`F`) data points and single bits of
+> binary (`B`) files on an SLC 500 or MicroLogix, configured by file number, element and bit. An SLC
+> 5/03 before OS301 has no float file, and its first read of one fails like that of any other missing
+> file. A bit write changes
 > only that bit in the controller, but only on a controller with its own Ethernet port
 > ([writing a single bit](../AllenBradley.Documentation/libplctag/writing-a-single-bit.md)). The
 > incoming port polls each group of points at its poll frequency, and the outgoing port writes the
