@@ -1,3 +1,4 @@
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile.Mapping;
@@ -26,7 +27,10 @@ internal static class TypedLegacyNodeMapper
             new DeviceNodeMapper(),
             [
                 new IntegerFileNodeMapper(), new LongFileNodeMapper(), new FloatFileNodeMapper(),
-                new StringFileNodeMapper(), new BinaryFileNodeMapper(),
+                new StringFileNodeMapper(), new AsciiFileNodeMapper(), new BinaryFileNodeMapper(),
             ],
-            [new IntegerNodeMapper(), new LongNodeMapper(), new FloatNodeMapper(), new StringNodeMapper(), new BitNodeMapper()]);
+            [
+                new IntegerNodeMapper(), new LongNodeMapper(), new FloatNodeMapper(), new StringNodeMapper(),
+                new AsciiNodeMapper(), new BitNodeMapper(),
+            ]);
 }

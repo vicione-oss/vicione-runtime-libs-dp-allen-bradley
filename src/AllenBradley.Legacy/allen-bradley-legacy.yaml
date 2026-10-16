@@ -52,6 +52,7 @@ Nodes:
       - Id: LongFile
       - Id: FloatFile
       - Id: StringFile
+      - Id: AsciiFile
       - Id: BinaryFile
 
   - Id: DeviceMicroLogix
@@ -127,6 +128,21 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: String
+
+  - Id: AsciiFile
+    MappingId: AsciiFile
+    Type: DataPortTreeNode
+    Name: "ASCII File (A)"
+    Description: "An ASCII data file, which the program declares at file 9 or above. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Ascii
 
   - Id: BinaryFile
     MappingId: BinaryFile
@@ -228,6 +244,30 @@ Nodes:
       Encoding: ASCII, one byte per character; the length word little-endian
       Layout: bytes 0..1 = length, bytes 2..83 = characters, the two characters of each word swapped
       Range: 0..82 ASCII characters; a longer value or one with a character outside ASCII is refused, never truncated
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ String ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Ascii
+    MappingId: Ascii
+    Type: DataPortTreeNode
+    Name: "ASCII"
+    Description: >-
+      Data file type: A (ASCII)
+      Size: 1 word, 2 bytes
+      Encoding: ASCII, one byte per character
+      Layout: two characters, swapped inside the word as in a string element
+      Range: 0..2 ASCII characters; a longer value or one with a character outside ASCII is refused, never truncated; a trailing NUL character is not part of the value
     Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ String ]

@@ -1,4 +1,5 @@
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
@@ -27,6 +28,9 @@ public sealed class DataFileNodeTests
     private readonly StringFileNode _stringFile =
         new(LinkedNodeOf(StringFileNode.LinkedNodeTypeId), new FileNumber(9));
 
+    private readonly AsciiFileNode _asciiFile =
+        new(LinkedNodeOf(AsciiFileNode.LinkedNodeTypeId), new FileNumber(10));
+
     private readonly BinaryFileNode _binaryFile =
         new(LinkedNodeOf(BinaryFileNode.LinkedNodeTypeId), new FileNumber(3));
 
@@ -41,6 +45,9 @@ public sealed class DataFileNodeTests
 
     private readonly StringNode _stringElement = new(
         LinkedNodeOf(StringNode.LinkedNodeTypeId), new ElementNumber(1), PollFrequency.FromMilliseconds(500));
+
+    private readonly AsciiNode _asciiElement = new(
+        LinkedNodeOf(AsciiNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(500));
 
     private readonly BitNode _bit = new(
         LinkedNodeOf(BitNode.LinkedNodeTypeId), new ElementNumber(2), new BitNumber(5), PollFrequency.FromMilliseconds(500));
@@ -172,6 +179,42 @@ public sealed class DataFileNodeTests
 
         // Act
         var canBeAdded = _integerFile.CanBeAdded(_stringElement);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AnAsciiFileHoldsAsciiElements()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _asciiFile.CanBeAdded(_asciiElement);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AnAsciiFileHoldsNoStringElement()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _asciiFile.CanBeAdded(_stringElement);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AStringFileHoldsNoAsciiElement()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _stringFile.CanBeAdded(_asciiElement);
 
         // Assert
         canBeAdded.Should().BeFalse();

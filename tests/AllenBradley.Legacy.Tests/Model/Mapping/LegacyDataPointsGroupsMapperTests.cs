@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integ
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
@@ -78,6 +79,25 @@ public sealed class LegacyDataPointsGroupsMapperTests
 
         // Assert
         var expected = new StringDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AnAsciiElementBecomesAnAsciiDataPointWithTheFileNumberOfItsAsciiFile()
+    {
+        // Arrange
+        var file = new AsciiFileNode(LinkedNodeOf(AsciiFileNode.LinkedNodeTypeId), new FileNumber(9));
+        var element = new AsciiNode(
+            LinkedNodeOf(AsciiNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(250));
+        file.DataPointNodes.Add(element);
+        var device = Device();
+        device.ConfigurationNodes.Add(file);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(device);
+
+        // Assert
+        var expected = new AsciiDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

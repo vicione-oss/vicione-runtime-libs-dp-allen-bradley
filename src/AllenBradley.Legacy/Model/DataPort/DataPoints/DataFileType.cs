@@ -22,6 +22,9 @@ public readonly record struct DataFileType(string Letter, DataTypeName Name)
     /// <summary><c>ST</c> — strings of up to 82 ASCII characters, 42 words per element.</summary>
     public static readonly DataFileType String = new("ST", new DataTypeName("String"));
 
+    /// <summary><c>A</c> — two ASCII characters, one word per element.</summary>
+    public static readonly DataFileType Ascii = new("A", new DataTypeName("ASCII"));
+
     /// <summary><c>B</c> — 16 bits per element, each addressed on its own.</summary>
     public static readonly DataFileType Binary = new("B", new DataTypeName("Binary"));
 

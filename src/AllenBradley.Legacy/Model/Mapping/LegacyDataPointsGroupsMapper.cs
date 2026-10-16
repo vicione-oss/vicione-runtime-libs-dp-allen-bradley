@@ -41,6 +41,7 @@ internal sealed class LegacyDataPointsGroupsMapper : IDataPointGroupsMapper<ILeg
         LongNode => new LongDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         FloatNode => new FloatDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         StringNode => new StringDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
+        AsciiNode => new AsciiDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         BitNode bit => new BitDataPoint(fileNumber, bit.ElementNumber, bit.BitNumber, bit.PollFrequency, bit.Channels),
         _ => throw UnsupportedNode(element),
     };

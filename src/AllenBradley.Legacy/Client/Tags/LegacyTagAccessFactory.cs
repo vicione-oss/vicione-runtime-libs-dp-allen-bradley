@@ -1,6 +1,7 @@
 using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Client.Tags;
@@ -37,9 +38,15 @@ internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInfor
             Path = _path,
             PlcType = _plcType,
             Name = address.ToString(),
+            ElementCount = ElementCountOf(address),
             Protocol = Protocol.ab_eip,
             Timeout = _timeout,
         };
+
+    // libplctag sizes an A element as 1 byte (pccc.c:711), but an A element is a word with two characters.
+    // Two such elements give the handle the 2 bytes of one element.
+    private static int? ElementCountOf(DataFileAddress address) =>
+        address.FileType == DataFileType.Ascii ? AsciiDataPoint.MaxLength : null;
 
     // For PCCC, libplctag uses a route path only when it ends in a DH+ address such as A:1:5, and logs a
     // warning for any other route path. A direct controller gets no path, so libplctag only gets a route

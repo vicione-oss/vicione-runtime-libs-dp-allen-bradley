@@ -14,6 +14,7 @@ internal static class LegacyConverters
     private static readonly LongConverter Long = new();
     private static readonly FloatConverter Float = new();
     private static readonly StringConverter String = new();
+    private static readonly AsciiConverter Ascii = new();
     private static readonly BitDataPointConverter Bit = new();
 
     /// <exception cref="InvalidOperationException">The data point has a type without a converter.</exception>
@@ -24,6 +25,7 @@ internal static class LegacyConverters
             LongDataPoint => Long,
             FloatDataPoint => Float,
             StringDataPoint => String,
+            AsciiDataPoint => Ascii,
             BitDataPoint => Bit,
             _ => throw new InvalidOperationException(
                 $"No converter is known for data point type {dataPoint.GetType().Name}. Add it to LegacyConverters.For."),

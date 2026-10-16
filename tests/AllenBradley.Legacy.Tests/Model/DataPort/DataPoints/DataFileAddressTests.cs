@@ -67,6 +67,27 @@ public sealed class DataFileAddressTests
         text.Should().Be(expectedText);
     }
 
+    /// <summary>Each ASCII element with the address RSLogix 500 shows for it.</summary>
+    public static TheoryData<DataFileAddress, string> AsciiElements =>
+        new()
+        {
+            { new DataFileAddress(DataFileType.Ascii, new FileNumber(9), new ElementNumber(0)), "A9:0" },
+            { new DataFileAddress(DataFileType.Ascii, new FileNumber(255), new ElementNumber(255)), "A255:255" },
+        };
+
+    [Theory]
+    [MemberData(nameof(AsciiElements))]
+    public void AnAsciiElementIsWrittenTheWayRsLogixWritesIt(DataFileAddress address, string expectedText)
+    {
+        // Arrange
+
+        // Act
+        var text = address.ToString();
+
+        // Assert
+        text.Should().Be(expectedText);
+    }
+
     /// <summary>Each float element with the address RSLogix 500 shows for it.</summary>
     public static TheoryData<DataFileAddress, string> FloatElements =>
         new()

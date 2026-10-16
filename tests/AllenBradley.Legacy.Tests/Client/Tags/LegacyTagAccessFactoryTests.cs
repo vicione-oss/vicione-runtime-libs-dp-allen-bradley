@@ -74,6 +74,47 @@ public sealed class LegacyTagAccessFactoryTests
     }
 
     [Fact]
+    public void TheTagHandleOfAnAsciiElementIsNamedAfterTheDataFileAddress()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+        var dataPoint = A9Element(0);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
+
+        // Assert
+        tagHandle.Name.Should().Be("A9:0");
+    }
+
+    [Fact]
+    public void TheTagHandleOfAnAsciiElementHoldsBothCharactersOfTheWord()
+    {
+        // Arrange
+        // libplctag counts one byte per element of an ASCII file, so two elements make the one word.
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(A9Element(0).Address);
+
+        // Assert
+        tagHandle.ElementCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void TheTagHandleOfAnIntegerElementKeepsTheElementCountOfLibPlcTag()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(N7Element(0).Address);
+
+        // Assert
+        tagHandle.ElementCount.Should().BeNull();
+    }
+
+    [Fact]
     public void TheTagHandleOfAFloatElementIsNamedAfterTheDataFileAddress()
     {
         // Arrange

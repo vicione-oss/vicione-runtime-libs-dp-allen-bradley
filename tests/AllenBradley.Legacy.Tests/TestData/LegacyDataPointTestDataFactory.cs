@@ -14,6 +14,7 @@ internal static class LegacyDataPointTestDataFactory
     internal static readonly FileNumber DefaultLongFile = new(9);
     internal static readonly FileNumber DefaultFloatFile = new(8);
     internal static readonly FileNumber DefaultStringFile = new(9);
+    internal static readonly FileNumber DefaultAsciiFile = new(9);
     internal static readonly FileNumber DefaultBinaryFile = new(3);
     internal static readonly PollFrequency DefaultPollFrequency = PollFrequency.FromMilliseconds(100);
     internal static readonly Channels NoChannels = new([], []);
@@ -45,6 +46,13 @@ internal static class LegacyDataPointTestDataFactory
     /// </summary>
     internal static StringDataPoint ST9Element(ushort elementNumber) =>
         new(DefaultStringFile, new ElementNumber(elementNumber), DefaultPollFrequency, NoChannels);
+
+    /// <summary>
+    /// Element <paramref name="elementNumber"/> of the ASCII file <c>A9</c>. For another element, create a
+    /// new data point. <c>with</c> does not update the data-file address.
+    /// </summary>
+    internal static AsciiDataPoint A9Element(ushort elementNumber) =>
+        new(DefaultAsciiFile, new ElementNumber(elementNumber), DefaultPollFrequency, NoChannels);
 
     /// <summary>
     /// Bit <paramref name="bitNumber"/> of element <paramref name="elementNumber"/> in the binary file <c>B3</c>.

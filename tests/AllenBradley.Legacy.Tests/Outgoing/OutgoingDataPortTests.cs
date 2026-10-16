@@ -5,6 +5,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
@@ -83,12 +84,26 @@ public sealed class OutgoingDataPortTests : IDisposable
     public async Task AStringOf83CharactersIsRefusedAndNothingIsWritten()
     {
         // Arrange
-        await using var outgoing = CreatePort(DeviceWithOneStringElement());
+        await using var outgoing = CreatePort(DeviceWithOneElement(StringFileNode.LinkedNodeTypeId, StringNode.LinkedNodeTypeId));
         await outgoing.ConnectAsync(CancellationToken.None);
 
         // Act
         await outgoing.SendAsync(
             1, [ExternalValue(ElementChannel(ElementNumber), new string('x', 83))], CancellationToken.None);
+
+        // Assert
+        await NothingIsWritten(outgoing);
+    }
+
+    [Fact]
+    public async Task AnAsciiValueWithACharacterOutsideAsciiIsRefusedAndNothingIsWritten()
+    {
+        // Arrange
+        await using var outgoing = CreatePort(DeviceWithOneElement(AsciiFileNode.LinkedNodeTypeId, AsciiNode.LinkedNodeTypeId));
+        await outgoing.ConnectAsync(CancellationToken.None);
+
+        // Act
+        await outgoing.SendAsync(1, [ExternalValue(ElementChannel(ElementNumber), "ü")], CancellationToken.None);
 
         // Assert
         await NothingIsWritten(outgoing);
@@ -128,24 +143,24 @@ public sealed class OutgoingDataPortTests : IDisposable
         };
     }
 
-    private static LegacyCommunication DeviceWithOneStringElement()
+    private static LegacyCommunication DeviceWithOneElement(string fileTypeId, string elementTypeId)
     {
-        var stringFile = new Node
+        var file = new Node
         {
-            DesignId = StringFileNode.LinkedNodeTypeId,
-            Name = StringFileNode.LinkedNodeTypeId,
+            DesignId = fileTypeId,
+            Name = fileTypeId,
             Id = Guid.NewGuid(),
             Properties = new Dictionary<string, Property>
             {
                 [DataFileNode.FileNumberPropertyName] = new() { Value = (ushort)9 },
             },
         };
-        var stringElement = new Node
+        var element = new Node
         {
-            DesignId = StringNode.LinkedNodeTypeId,
+            DesignId = elementTypeId,
             Name = ElementChannel(ElementNumber),
             Id = Guid.NewGuid(),
-            ParentId = stringFile.Id,
+            ParentId = file.Id,
             AffectedChannels = [ElementChannel(ElementNumber)],
             TransferredChannels = [ElementChannel(ElementNumber)],
             Properties = new Dictionary<string, Property>
@@ -154,7 +169,7 @@ public sealed class OutgoingDataPortTests : IDisposable
                 [ILegacyDataPointNode.PollFrequencyPropertyName] = new() { Value = PollFrequencyMilliseconds },
             },
         };
-        return DefaultTestCommunication() with { Nodes = [stringFile, stringElement] };
+        return DefaultTestCommunication() with { Nodes = [file, element] };
     }
 
     private static ExternalValue ExternalValue(string channel, object value) =>
