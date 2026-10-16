@@ -19,6 +19,9 @@ public readonly record struct DataFileType(string Letter, DataTypeName Name)
     /// <summary><c>F</c> — 32-bit IEEE 754 floating-point values, two words per element.</summary>
     public static readonly DataFileType Float = new("F", new DataTypeName("Float"));
 
+    /// <summary><c>ST</c> — strings of up to 82 ASCII characters, 42 words per element.</summary>
+    public static readonly DataFileType String = new("ST", new DataTypeName("String"));
+
     /// <summary><c>B</c> — 16 bits per element, each addressed on its own.</summary>
     public static readonly DataFileType Binary = new("B", new DataTypeName("Binary"));
 

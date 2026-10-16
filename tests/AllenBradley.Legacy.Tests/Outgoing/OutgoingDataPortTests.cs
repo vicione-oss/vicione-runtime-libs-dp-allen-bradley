@@ -4,6 +4,10 @@ using ViciOne.ManagedEngine.ExternalCommunication;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Client;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Outgoing;
 using ViciOne.Suite.DataPort.Extensions.Client;
@@ -76,6 +80,21 @@ public sealed class OutgoingDataPortTests : IDisposable
     }
 
     [Fact]
+    public async Task AStringOf83CharactersIsRefusedAndNothingIsWritten()
+    {
+        // Arrange
+        await using var outgoing = CreatePort(DeviceWithOneStringElement());
+        await outgoing.ConnectAsync(CancellationToken.None);
+
+        // Act
+        await outgoing.SendAsync(
+            1, [ExternalValue(ElementChannel(ElementNumber), new string('x', 83))], CancellationToken.None);
+
+        // Assert
+        await NothingIsWritten(outgoing);
+    }
+
+    [Fact]
     public async Task AWriteThatFailsTwiceIsRetriedUntilItLands()
     {
         // Arrange
@@ -107,6 +126,35 @@ public sealed class OutgoingDataPortTests : IDisposable
         {
             Nodes = [integerFile, IntegerElement(integerFile.Id, ElementNumber, PollFrequencyMilliseconds)],
         };
+    }
+
+    private static LegacyCommunication DeviceWithOneStringElement()
+    {
+        var stringFile = new Node
+        {
+            DesignId = StringFileNode.LinkedNodeTypeId,
+            Name = StringFileNode.LinkedNodeTypeId,
+            Id = Guid.NewGuid(),
+            Properties = new Dictionary<string, Property>
+            {
+                [DataFileNode.FileNumberPropertyName] = new() { Value = (ushort)9 },
+            },
+        };
+        var stringElement = new Node
+        {
+            DesignId = StringNode.LinkedNodeTypeId,
+            Name = ElementChannel(ElementNumber),
+            Id = Guid.NewGuid(),
+            ParentId = stringFile.Id,
+            AffectedChannels = [ElementChannel(ElementNumber)],
+            TransferredChannels = [ElementChannel(ElementNumber)],
+            Properties = new Dictionary<string, Property>
+            {
+                [ILegacyDataPointNode.ElementNumberPropertyName] = new() { Value = ElementNumber },
+                [ILegacyDataPointNode.PollFrequencyPropertyName] = new() { Value = PollFrequencyMilliseconds },
+            },
+        };
+        return DefaultTestCommunication() with { Nodes = [stringFile, stringElement] };
     }
 
     private static ExternalValue ExternalValue(string channel, object value) =>

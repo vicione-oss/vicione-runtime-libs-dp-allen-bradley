@@ -51,6 +51,7 @@ Nodes:
       - Id: IntegerFile
       - Id: LongFile
       - Id: FloatFile
+      - Id: StringFile
       - Id: BinaryFile
 
   - Id: DeviceMicroLogix
@@ -111,6 +112,21 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: Float
+
+  - Id: StringFile
+    MappingId: StringFile
+    Type: DataPortTreeNode
+    Name: "String File (ST)"
+    Description: "A string data file, which the program declares at file 9 or above. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: String
 
   - Id: BinaryFile
     MappingId: BinaryFile
@@ -191,6 +207,30 @@ Nodes:
     Namespace: "Scalar"
     Icon: datapoint
     DataTypes: [ Float32 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: String
+    MappingId: String
+    Type: DataPortTreeNode
+    Name: "String"
+    Description: >-
+      Data file type: ST (string)
+      Size: 42 words, 84 bytes
+      Encoding: ASCII, one byte per character; the length word little-endian
+      Layout: bytes 0..1 = length, bytes 2..83 = characters, the two characters of each word swapped
+      Range: 0..82 ASCII characters; a longer value or one with a character outside ASCII is refused, never truncated
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ String ]
     TransferModes: [ OnChange, Periodic ]
     PropertyCategories:
       - Id: DataFile

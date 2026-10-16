@@ -2,12 +2,14 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binary;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.Mapping;
@@ -38,6 +40,7 @@ internal sealed class LegacyDataPointsGroupsMapper : IDataPointGroupsMapper<ILeg
         IntegerNode => new IntegerDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         LongNode => new LongDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         FloatNode => new FloatDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
+        StringNode => new StringDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         BitNode bit => new BitDataPoint(fileNumber, bit.ElementNumber, bit.BitNumber, bit.PollFrequency, bit.Channels),
         _ => throw UnsupportedNode(element),
     };

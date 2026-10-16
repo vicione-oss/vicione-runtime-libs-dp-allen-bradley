@@ -60,6 +60,20 @@ public sealed class LegacyTagAccessFactoryTests
     }
 
     [Fact]
+    public void TheTagHandleOfAStringElementIsNamedAfterTheDataFileAddress()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+        var dataPoint = ST9Element(1);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
+
+        // Assert
+        tagHandle.Name.Should().Be("ST9:1");
+    }
+
+    [Fact]
     public void TheTagHandleOfAFloatElementIsNamedAfterTheDataFileAddress()
     {
         // Arrange

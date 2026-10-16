@@ -2,16 +2,19 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binary;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.BinaryFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.LongFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -56,6 +59,25 @@ public sealed class LegacyDataPointsGroupsMapperTests
 
         // Assert
         var expected = new LongDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void AStringElementBecomesAStringDataPointWithTheFileNumberOfItsStringFile()
+    {
+        // Arrange
+        var file = new StringFileNode(LinkedNodeOf(StringFileNode.LinkedNodeTypeId), new FileNumber(9));
+        var element = new StringNode(
+            LinkedNodeOf(StringNode.LinkedNodeTypeId), new ElementNumber(1), PollFrequency.FromMilliseconds(250));
+        file.DataPointNodes.Add(element);
+        var device = Device();
+        device.ConfigurationNodes.Add(file);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(device);
+
+        // Assert
+        var expected = new StringDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 
