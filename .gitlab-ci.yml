@@ -125,8 +125,9 @@ include:
         - *update_nuget_source_ro
       rules: *rules_always
   # Runs on every pipeline, tags included, so a release never ships without the
-  # tests having run. The unit suite is PLC-safe by default; the integration suite
-  # needs the L32E and is not exercised in CI.
+  # tests having run. The unit suite is PLC-safe by default; the Logix integration
+  # suite needs the L32E and is not exercised in CI. The Legacy integration suite
+  # has its own manual job below.
   #
   # The NuGet auth is required even though the build passes --no-restore: the docs
   # projects use the NuGet-resolved MSBuild SDK Microsoft.Build.NoTargets, which
@@ -289,3 +290,14 @@ Lint markdown:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - markdownlint-cli2 "${CI_PROJECT_DIR}/**/*.md"
+
+# The Legacy integration suite needs no hardware: the AbServer fixture starts libplctag's ab_server on a
+# free loopback port. Manual until the suite has proved stable on the runners.
+Legacy integration tests:
+  stage: test
+  needs: []
+  rules: *rules_manual
+  before_script:
+    - *update_nuget_source_ro
+  script:
+    - dotnet test --project tests/AllenBradley.Legacy.Tests/AllenBradley.Legacy.Tests.csproj -p:test-suite=integration

@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <RootNamespace>ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests</RootNamespace>
-    <!-- Without a Legacy test bench there are no integration tests, so an integration run finds none (exit code 8). -->
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +14,10 @@
     <PackageReference Include="NSubstitute"/>
     <PackageReference Include="ViciOne.Suite.DataPort.Extensions.Testing"/>
     <PackageReference Include="xunit.v3.mtp-v2"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Integration\ab_server\binaries\*\ab_server*" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
   <ItemGroup>
