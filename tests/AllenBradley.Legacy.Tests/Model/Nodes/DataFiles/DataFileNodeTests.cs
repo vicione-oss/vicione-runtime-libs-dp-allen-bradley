@@ -5,11 +5,13 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.LongFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.TimerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Timers.Timer;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Model.Nodes.DataFiles;
@@ -34,6 +36,9 @@ public sealed class DataFileNodeTests
     private readonly BinaryFileNode _binaryFile =
         new(LinkedNodeOf(BinaryFileNode.LinkedNodeTypeId), new FileNumber(3));
 
+    private readonly TimerFileNode _timerFile =
+        new(LinkedNodeOf(TimerFileNode.LinkedNodeTypeId), new FileNumber(4));
+
     private readonly IntegerNode _integerElement = new(
         LinkedNodeOf(IntegerNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(500));
 
@@ -51,6 +56,9 @@ public sealed class DataFileNodeTests
 
     private readonly BitNode _bit = new(
         LinkedNodeOf(BitNode.LinkedNodeTypeId), new ElementNumber(2), new BitNumber(5), PollFrequency.FromMilliseconds(500));
+
+    private readonly TimerNode _timerElement = new(
+        LinkedNodeOf(TimerNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(500));
 
     [Fact]
     public void AnIntegerFileHoldsIntegerElements()
@@ -239,6 +247,42 @@ public sealed class DataFileNodeTests
 
         // Act
         var canBeAdded = _binaryFile.CanBeAdded(_integerElement);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ATimerFileHoldsTimerElements()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _timerFile.CanBeAdded(_timerElement);
+
+        // Assert
+        canBeAdded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ATimerFileHoldsNoIntegerElement()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _timerFile.CanBeAdded(_integerElement);
+
+        // Assert
+        canBeAdded.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AnIntegerFileHoldsNoTimerElement()
+    {
+        // Arrange
+
+        // Act
+        var canBeAdded = _integerFile.CanBeAdded(_timerElement);
 
         // Assert
         canBeAdded.Should().BeFalse();

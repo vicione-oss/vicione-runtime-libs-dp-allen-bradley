@@ -54,6 +54,7 @@ Nodes:
       - Id: StringFile
       - Id: AsciiFile
       - Id: BinaryFile
+      - Id: TimerFile
 
   - Id: DeviceMicroLogix
     Type: DataPortNode
@@ -67,7 +68,8 @@ Nodes:
 
   # ==================== DATA FILES ===================================
   # One node per file type, because the file's letter fixes the type of every element in it. The file
-  # holds its number, and its children the rest of the address, so it composes to "N7:12" or "B3:2/5".
+  # holds its number, and its children the rest of the address, so it composes to "N7:12", "B3:2/5" or
+  # "T4:0.ACC".
 
   - Id: IntegerFile
     MappingId: IntegerFile
@@ -158,6 +160,21 @@ Nodes:
             Required: true
     ChildNodes:
       - Id: Bit
+
+  - Id: TimerFile
+    MappingId: TimerFile
+    Type: DataPortTreeNode
+    Name: "Timer File (T)"
+    Description: "A timer data file, T4 or any other file the program declares as timer. Each element is a separate data point."
+    Icon: datapoint
+    TransferModes: [ None ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: FileNumber
+            Required: true
+    ChildNodes:
+      - Id: Timer
 
   # ==================== ELEMENTS ======================================
 
@@ -301,6 +318,31 @@ Nodes:
           - Id: ElementNumber
             Required: true
           - Id: BitNumber
+            Required: true
+      - Id: ReadConfiguration
+        Properties:
+          - Id: PollFrequency
+            Required: true
+
+  - Id: Timer
+    MappingId: Timer
+    Type: DataPortTreeNode
+    Name: "Timer"
+    Description: >-
+      Data file type: T (timer)
+      Value: the accumulated value (.ACC) in ticks of the time base, a 16-bit word
+      Time base: set in the timer instruction and not stored in the data file; multiply by it to get a time
+      Access: reads and writes the .ACC word only; .PRE, .EN, .TT and .DN are left untouched
+      Encoding: little-endian two's complement
+      Range: 0..32 767; a negative value is refused
+    Namespace: "Scalar"
+    Icon: datapoint
+    DataTypes: [ Int16 ]
+    TransferModes: [ OnChange, Periodic ]
+    PropertyCategories:
+      - Id: DataFile
+        Properties:
+          - Id: ElementNumber
             Required: true
       - Id: ReadConfiguration
         Properties:

@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binar
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Timers;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData;
@@ -16,6 +17,7 @@ internal static class LegacyDataPointTestDataFactory
     internal static readonly FileNumber DefaultStringFile = new(9);
     internal static readonly FileNumber DefaultAsciiFile = new(9);
     internal static readonly FileNumber DefaultBinaryFile = new(3);
+    internal static readonly FileNumber DefaultTimerFile = new(4);
     internal static readonly PollFrequency DefaultPollFrequency = PollFrequency.FromMilliseconds(100);
     internal static readonly Channels NoChannels = new([], []);
 
@@ -60,4 +62,11 @@ internal static class LegacyDataPointTestDataFactory
     /// </summary>
     internal static BitDataPoint B3Bit(ushort elementNumber, ushort bitNumber) =>
         new(DefaultBinaryFile, new ElementNumber(elementNumber), new BitNumber(bitNumber), DefaultPollFrequency, NoChannels);
+
+    /// <summary>
+    /// The accumulated value of element <paramref name="elementNumber"/> in the timer file <c>T4</c>. For another
+    /// element, create a new data point. <c>with</c> does not update the data-file address.
+    /// </summary>
+    internal static TimerDataPoint T4Element(ushort elementNumber) =>
+        new(DefaultTimerFile, new ElementNumber(elementNumber), DefaultPollFrequency, NoChannels);
 }

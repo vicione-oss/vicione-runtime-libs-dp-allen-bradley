@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binar
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile;
@@ -11,11 +12,13 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.LongFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.TimerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Timers.Timer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 
@@ -136,6 +139,25 @@ public sealed class LegacyDataPointsGroupsMapperTests
 
         // Assert
         var expected = new BitDataPoint(file.FileNumber, bit.ElementNumber, bit.BitNumber, bit.PollFrequency, bit.Channels);
+        dataPoints.Should().ContainSingle().Which.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ATimerElementBecomesATimerDataPointWithTheFileNumberOfItsTimerFile()
+    {
+        // Arrange
+        var file = new TimerFileNode(LinkedNodeOf(TimerFileNode.LinkedNodeTypeId), new FileNumber(4));
+        var element = new TimerNode(
+            LinkedNodeOf(TimerNode.LinkedNodeTypeId), new ElementNumber(0), PollFrequency.FromMilliseconds(250));
+        file.DataPointNodes.Add(element);
+        var device = Device();
+        device.ConfigurationNodes.Add(file);
+
+        // Act
+        var dataPoints = _mapper.ToDataPoints(device);
+
+        // Assert
+        var expected = new TimerDataPoint(file.FileNumber, element.ElementNumber, element.PollFrequency, element.Channels);
         dataPoints.Should().ContainSingle().Which.Should().Be(expected);
     }
 

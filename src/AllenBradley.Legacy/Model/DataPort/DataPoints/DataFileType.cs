@@ -28,6 +28,9 @@ public readonly record struct DataFileType(string Letter, DataTypeName Name)
     /// <summary><c>B</c> — 16 bits per element, each addressed on its own.</summary>
     public static readonly DataFileType Binary = new("B", new DataTypeName("Binary"));
 
+    /// <summary><c>T</c> — timers, three words per element: the status bits, the preset and the accumulated value.</summary>
+    public static readonly DataFileType Timer = new("T", new DataTypeName("Timer"));
+
     /// <summary><c>S</c> — the status file of the controller, always file 2, one word per element.</summary>
     public static readonly DataFileType Status = new("S", new DataTypeName("Status"));
 }

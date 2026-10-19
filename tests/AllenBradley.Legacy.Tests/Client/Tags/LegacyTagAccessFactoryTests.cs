@@ -46,6 +46,20 @@ public sealed class LegacyTagAccessFactoryTests
     }
 
     [Fact]
+    public void TheTagHandleOfATimerIsNamedAfterItsAccumulatedValue()
+    {
+        // Arrange
+        var factory = new LegacyTagAccessFactory(ClientInformation);
+        var dataPoint = T4Element(0);
+
+        // Act
+        using var tagHandle = factory.CreateTagForAddress(dataPoint.Address);
+
+        // Assert
+        tagHandle.Name.Should().Be("T4:0.ACC");
+    }
+
+    [Fact]
     public void TheTagHandleOfALongElementIsNamedAfterTheDataFileAddress()
     {
         // Arrange

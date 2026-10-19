@@ -3,6 +3,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binar
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit;
@@ -10,6 +11,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.F
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Timers.Timer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.Extensions.Model.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Model.Mapping;
@@ -43,6 +45,7 @@ internal sealed class LegacyDataPointsGroupsMapper : IDataPointGroupsMapper<ILeg
         StringNode => new StringDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         AsciiNode => new AsciiDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         BitNode bit => new BitDataPoint(fileNumber, bit.ElementNumber, bit.BitNumber, bit.PollFrequency, bit.Channels),
+        TimerNode => new TimerDataPoint(fileNumber, element.ElementNumber, element.PollFrequency, element.Channels),
         _ => throw UnsupportedNode(element),
     };
 

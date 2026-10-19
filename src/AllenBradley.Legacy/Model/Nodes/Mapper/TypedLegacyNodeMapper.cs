@@ -4,11 +4,13 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.FloatFile
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.IntegerFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.LongFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.TimerFile.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Binary.Bit.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Floats.Float.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Integer.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Integers.Long.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings.Mapping;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Timers.Timer.Mapping;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device.Mapping;
 using ViciOne.Suite.DataPort.Extensions.Model.TypedNodes.Mapping;
@@ -28,9 +30,10 @@ internal static class TypedLegacyNodeMapper
             [
                 new IntegerFileNodeMapper(), new LongFileNodeMapper(), new FloatFileNodeMapper(),
                 new StringFileNodeMapper(), new AsciiFileNodeMapper(), new BinaryFileNodeMapper(),
+                new TimerFileNodeMapper(),
             ],
             [
                 new IntegerNodeMapper(), new LongNodeMapper(), new FloatNodeMapper(), new StringNodeMapper(),
-                new AsciiNodeMapper(), new BitNodeMapper(),
+                new AsciiNodeMapper(), new BitNodeMapper(), new TimerNodeMapper(),
             ]);
 }

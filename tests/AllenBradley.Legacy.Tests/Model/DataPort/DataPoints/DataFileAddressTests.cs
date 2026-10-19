@@ -129,4 +129,25 @@ public sealed class DataFileAddressTests
         // Assert
         text.Should().Be(expectedText);
     }
+
+    /// <summary>Each accumulated value of a timer element with the address RSLogix 500 shows for it.</summary>
+    public static TheoryData<DataFileAddress, string> TimerAccumulatedValues =>
+        new()
+        {
+            { new DataFileAddress(DataFileType.Timer, new FileNumber(4), new ElementNumber(0), SubElement: SubElement.Accumulated), "T4:0.ACC" },
+            { new DataFileAddress(DataFileType.Timer, new FileNumber(255), new ElementNumber(255), SubElement: SubElement.Accumulated), "T255:255.ACC" },
+        };
+
+    [Theory]
+    [MemberData(nameof(TimerAccumulatedValues))]
+    public void ASubElementIsWrittenTheWayRsLogixWritesIt(DataFileAddress address, string expectedText)
+    {
+        // Arrange
+
+        // Act
+        var text = address.ToString();
+
+        // Assert
+        text.Should().Be(expectedText);
+    }
 }

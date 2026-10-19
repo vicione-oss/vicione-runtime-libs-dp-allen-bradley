@@ -7,8 +7,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.AsciiFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.StringFile;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataFiles.TimerFile;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Strings;
+using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.DataPoints.Timers.Timer;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.Nodes.Device;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Outgoing;
 using ViciOne.Suite.DataPort.Extensions.Client;
@@ -104,6 +106,20 @@ public sealed class OutgoingDataPortTests : IDisposable
 
         // Act
         await outgoing.SendAsync(1, [ExternalValue(ElementChannel(ElementNumber), "ü")], CancellationToken.None);
+
+        // Assert
+        await NothingIsWritten(outgoing);
+    }
+
+    [Fact]
+    public async Task ANegativeAccumulatedValueOfATimerIsRefusedAndNothingIsWritten()
+    {
+        // Arrange
+        await using var outgoing = CreatePort(DeviceWithOneElement(TimerFileNode.LinkedNodeTypeId, TimerNode.LinkedNodeTypeId));
+        await outgoing.ConnectAsync(CancellationToken.None);
+
+        // Act
+        await outgoing.SendAsync(1, [ExternalValue(ElementChannel(ElementNumber), (short)-1)], CancellationToken.None);
 
         // Assert
         await NothingIsWritten(outgoing);
