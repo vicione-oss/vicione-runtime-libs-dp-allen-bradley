@@ -1,51 +1,48 @@
 # Writing into the Tag Buffer
 
-`Tag.SetBuffer(byte[])` is a bounds-checked copy into the handle's buffer, and the handle's width
-does not change to fit what you pass. The wrapper forwards the array straight to
-`plc_tag_set_raw_bytes` (`Tag.cs:976`) and turns the returned status into an exception. The buffer
-it copies into is `tag->data`, whose size is the tag's size as the core settled it at creation, from
-`elem_size * elem_count` or from the first read. The array you hand in is measured against that
-size, not the other way round.
+`Tag.SetBuffer(byte[])` resizes the handle to the length of the array and then copies the array into
+it. The wrapper calls `plc_tag_set_size` with the length of the array first, and `plc_tag_set_raw_bytes`
+after it (`NativeTagWrapper.cs:563-570`). A failed status from either call becomes a
+`LibPlcTagException`. Thus, the handle always has the length of the array that was set last, and
+`plc_tag_write` sends exactly that many bytes.
 
-This is the write-side mirror of [what the tag buffer holds](what-the-tag-buffer-holds.md), and it
-has the same shape: no decode step, no resize, one bounds check.
+The bounds check of `plc_tag_set_raw_bytes` cannot refuse the array, because the size check runs
+against the size that `plc_tag_set_size` has just set. Nothing in the wrapper or in the core compares
+the array with the width of the tag on the controller.
 
-## A longer array is refused, and nothing moves
+## A longer array is sent to the controller
 
-The core checks `start_offset + buffer_length > tag->size` before copying a byte. If it fails, the
-call returns `PLCTAG_ERR_OUT_OF_BOUNDS` (`-27`), the buffer is untouched, and the wrapper throws
-`LibPlcTagException` with `Status.ErrorOutOfBounds`. The throw is synchronous and comes out of
-`SetBuffer` itself. `WriteAsync` is never reached and nothing goes to the controller.
+The core grows the handle and sends the full array. What happens next depends on the controller.
+Measured with core 2.6.0 against `ab_server` 2.7.2:
 
-Measured against a 30-byte tag, core 2.6.3:
+| Tag on the controller | Handle before | Array | Write | The controller afterwards |
+|-----------------------|---------------|-------|-------|---------------------------|
+| Logix `DINT[3]` | 1 element, 4 bytes | 8 bytes | `PLCTAG_ERR_BAD_PARAM` | unchanged |
+| PCCC `N7:3` | 1 element, 2 bytes | 4 bytes | `PLCTAG_STATUS_OK` | `N7:3` **and `N7:4`** written |
 
-| Call | Result |
-|------|--------|
-| `plc_tag_set_raw_bytes`, 30 bytes | `0` (`PLCTAG_STATUS_OK`) |
-| `plc_tag_set_raw_bytes`, 31 bytes | `-27` (`PLCTAG_ERR_OUT_OF_BOUNDS`) |
-| `plc_tag_set_raw_bytes`, 130 bytes | `-27` |
-| buffer afterwards | all zero, unchanged |
+A PCCC write addresses a data file and a byte count, so a longer array writes into the next element
+and reports success. `ab_server` only simulates a controller. How a real SLC 500 or a real Logix
+controller answers has not been measured.
 
-There is no short-copy. It is all or nothing, exactly as `plc_tag_get_raw_bytes` is on the read side.
+## A shorter array is a shorter write
 
-## A shorter array fills from the start and leaves the tail
+The core shrinks the handle and sends only the bytes of the array:
 
-The same check lets a shorter array through. The core copies `buffer_length` bytes at the offset and
-leaves the rest of `tag->data` as it was: zero on a handle that has never been read, or whatever the
-last read brought back. `plc_tag_write` then sends the whole `tag->size`, tail included.
+| Tag on the controller | Handle before | Array | Write | The controller afterwards |
+|-----------------------|---------------|-------|-------|---------------------------|
+| Logix `DINT[3]` | 1 element, 4 bytes | 2 bytes | `PLCTAG_STATUS_OK` | only the first 2 bytes written |
+| PCCC `N7:3` | 1 element, 2 bytes | 1 byte | `PLCTAG_STATUS_OK` | only the low byte written |
 
-So a short array is not an error, and it is not a partial write either. The controller receives a
-full-width value whose tail you did not supply. For a Logix `STRING` that tail is the alignment
-padding after `.DATA`, which is not a member and does not matter. For anything else it is stale
-member bytes going out under your name.
+No stale bytes from an earlier read go to the controller, because the handle no longer holds them.
+The bytes that the array does not cover keep their value on the controller.
 
-## The typed `Tag<M,T>` path is worse
+## The typed `Tag<M,T>` path
 
-Our client does not use the typed wrapper, and this is one reason to keep it that way.
-`Tag<M,T>.WriteAsync` calls `EncodeAll()` before it hands off to the native write
-(`TagOfT.cs:195-202`), and `PlcMapperBase.EncodeArray` encodes element by element through
-`plc_tag_set_int8`, `plc_tag_set_int32` and their siblings (`PlcMapperBase.cs:49-62`). Each of those
-carries the same per-call bounds check:
+Our client does not use the typed wrapper. `Tag<M,T>.WriteAsync` initializes the handle if it is
+new, then calls `EncodeAll()` before it hands off to the native write (`TagOfT.cs:194-201`), and
+`PlcMapperBase.EncodeArray` encodes element by element through `plc_tag_set_int8`, `plc_tag_set_int32`
+and their siblings (`PlcMapperBase.cs:47-60`). These setters do not resize the handle. Each of them checks its offset
+against the size of the handle:
 
 | Call | Result |
 |------|--------|
@@ -58,14 +55,6 @@ of `EncodeAll()`. The controller write still never happens, because the exceptio
 returned task before the native write starts. The local buffer is now the head of your oversized
 array, though. Catch the exception and write again, or have `AutoSyncWriteInterval` running, and that
 partial data is what goes out. Anyone using the typed path has to guard the length themselves.
-
-## Unverified: an array that fits the handle but not the controller's tag
-
-If the handle was created with an explicit `elem_count` and `elem_size` that overstate the tag on
-the controller, the local copy passes and the mismatch can only surface from the device, as a
-protocol-level status on the write. That case needs the L32E and has not been pinned. The client
-never sets those attributes, so its handles are sized when they are initialized and the case does
-not arise for it.
 
 ## A handle that is not initialized refuses the buffer
 
@@ -80,28 +69,33 @@ initialized yet. The integration tests of the Legacy dataport against `ab_server
 ## What this means for the client
 
 `LibPlcTagAccess.WriteAsync` hands the converter's bytes to `SetBuffer` exactly as encoded, and the
-client has no write-side call to `GetSize` at all. A payload longer than the handle is refused by the
-core and lands in the adapter's `catch (LibPlcTagException)`, so it comes home as a failed outcome
-naming the tag, the same way any device failure does. A shorter payload is a `STRING`'s `.LEN` plus
-`.DATA` going into a handle two bytes wider, and the two bytes the core keeps are padding.
+client has no write-side call to `GetSize` at all. Thus, the converter alone decides how many bytes
+go to the controller. The core does not refuse a payload of the wrong length. A payload that is too
+long can write into the next element of a PCCC data file, and the write reports success.
 
-Both of those rely on the tag on the controller being the type the configuration says. That is what
+For a Logix `STRING`, the payload is `.LEN` plus `.DATA`, and the handle shrinks from the full width
+of the type to that length. The alignment padding after `.DATA` is not sent.
+
+All of this relies on the tag on the controller being the type the configuration says, and on each
+converter encoding the exact width of its type. For Logix, that is what
 [configuration verification](../../AllenBradley.Logix.Documentation/ADR/2026-07-21-verifying-configuration-against-the-symbol-table.md)
-settles at connect, and the reason the write path does not check widths of its own. The interface
-decision that removed the client's own write buffer is recorded in
+settles at connect. The interface decision that removed the client's own write buffer is recorded in
 [Operations, not accessors](../../AllenBradley.Logix.Documentation/ADR/2026-07-16-operations-not-accessors-over-libplctag.md).
 
 ## How it was checked
 
-The numbers above come from a throwaway probe over `libplctag.NativeImport` against the native core
-2.6.3 that ships in the `libplctag` 1.5.2 package this repository builds with. The probe is not
-checked in. The wrapper line numbers are from the libplctag.NET source at that version.
+The behaviour of `SetBuffer` was read from the libplctag.NET source at tag `libplctag-v1.5.2`. The
+tables of the longer and the shorter array come from a probe that makes the same two native calls as
+`SetBuffer`, with the core 2.6.0 that the `libplctag` 1.5.2 package ships, against `ab_server` 2.7.2.
+The table of the typed path comes from a probe that calls `plc_tag_set_int8` on a 30-byte handle,
+with the same core 2.6.0, against `ab_server` 2.7.2. Neither probe is checked in.
 
 ## Source references
 
 | Location | Role |
 |----------|------|
-| `Tag.cs:976` | `Tag.SetBuffer` forwards to `plc_tag_set_raw_bytes`; `ThrowIfStatusNotOk` turns the status into `LibPlcTagException` |
+| `NativeTagWrapper.cs:563-570` | `SetBuffer` calls `plc_tag_set_size` with the length of the array, then `plc_tag_set_raw_bytes` |
+| `plc_tag_set_size` (core) | Resizes `tag->data` to the new length |
 | `plc_tag_set_raw_bytes` (core) | The bounds check `start_offset + buffer_length > tag->size`, then a copy into `tag->data` with no type inspection |
-| `TagOfT.cs:195-202` | `Tag<M,T>.WriteAsync` runs `EncodeAll()` before the native write |
-| `PlcMapperBase.cs:49-62` | `EncodeArray` encodes element by element through the typed setters, each bounds-checked on its own |
+| `TagOfT.cs:194-201` | `Tag<M,T>.WriteAsync` initializes a new handle and runs `EncodeAll()` before the native write |
+| `PlcMapperBase.cs:47-60` | `EncodeArray` encodes element by element through the typed setters, each bounds-checked on its own |

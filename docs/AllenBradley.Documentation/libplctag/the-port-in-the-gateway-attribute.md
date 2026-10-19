@@ -11,7 +11,7 @@ way down.
 
 ## Where the split happens
 
-In the 2.6.3 core, the gateway string reaches the socket by way of `str_split(host, ":")`. Both
+In the 2.6.0 core, the gateway string reaches the socket by way of `str_split(host, ":")`. Both
 messaging paths do it, `session_handler` for unconnected requests and `conn_handler` for connected
 ones. The second part of the split goes through `str_to_int` and straight into
 `socket_connect_tcp_start(sock, host, port)`.
@@ -60,6 +60,7 @@ have logged *"Using default port"*, and connects to the same socket either way.
 | `modbus_plc_handler`                | Same rule for Modbus TCP, default **502**                          |
 | Default when no colon is present    | **44818**, EtherNet/IP's registered port                           |
 
-Verified against the native binary in this tree: `plctag.dll` from
-`libplctag.NativeImport 2.0.0-alpha.5` reports core 2.6.3 and carries both log strings,
-`Using default port` and `Using special port %d.`
+Verified against the native binary that this repository builds with: `libplctag.so` from
+`libplctag.NativeImport` 1.0.41 reports core 2.6.0 and carries both log strings,
+`Using default port %d.` and `Using special port %d.` The Legacy integration tests reach `ab_server` on
+a free port that is not 44818, so the port in the gateway attribute works with that core.

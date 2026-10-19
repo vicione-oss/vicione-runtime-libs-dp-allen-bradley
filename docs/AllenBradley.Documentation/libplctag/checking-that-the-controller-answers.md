@@ -13,7 +13,7 @@ by itself on the first request ([the shared session](the-shared-session.md)).
 | Read `@identity`  | core 2.6.14 or later, `plc=generic`, `NativeImport`     | All EtherNet/IP devices               | The EtherNet/IP endpoint answers. It also gives the product name, revision and serial number. |
 | Tag `@connection` | core 2.7.0 or later, `NativeImport`                     | All AB types (PCCC is not documented) | The TCP connection and the EtherNet/IP session are open.                                |
 
-The `libplctag` 1.5.2 package ships core 2.6.3. Thus, only the first two methods are available today. There is no
+The `libplctag` 1.5.2 package ships core 2.6.0. Thus, only the first two methods are available today. There is no
 newer release of the package, and we do not build our own bindings to a newer core
 ([waiting for a libplctag.NET release](../../AllenBradley.Logix.Documentation/ADR/2026-10-13-waiting-for-a-libplctag-net-release-to-upgrade-the-c-library.md)).
 

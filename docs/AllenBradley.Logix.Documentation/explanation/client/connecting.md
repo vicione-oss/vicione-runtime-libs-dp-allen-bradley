@@ -27,8 +27,9 @@ If the load fails, connect throws a `ConnectionFailureException`, and the port d
 cancellation, because the caller decided it.
 
 `IsConnected` tells what the client did, not the state of the network. It is true from a successful load until the
-disconnect. libplctag gives the state of its session in the `connection_status` tag attribute, but the client does not
-read it.
+disconnect. The core 2.6.0 that the client uses does not report the state of its session. Core 2.7.0 and later give it
+in the `connection_status` attribute
+([reconnecting the session](../../../AllenBradley.Documentation/libplctag/reconnecting-the-session.md)).
 
 ## What the connection owns
 

@@ -23,7 +23,7 @@ synthesises from the attribute reply, followed by the raw template payload.
 
 ## `@tags` identifies, it does not describe
 
-Each listing entry is a fixed 22-byte header followed by the tag's name (`eip_cip_special.c:133-140`):
+Each listing entry is a fixed 22-byte header followed by the tag's name (`eip_cip_special.c:121-128`):
 
 | Offset | Size | Field          | Notes                                                                                     |
 |--------|------|----------------|-------------------------------------------------------------------------------------------|
@@ -49,12 +49,12 @@ separately via `Program:<name>.@tags`.
 ## `@udt/<id>` returns a synthesised header, then raw template bytes
 
 One `@udt/` handle performs two CIP exchanges behind a single read: a metadata request for the
-template's attributes (`eip_cip_special.c:2241`), then a fielded template read that may fragment
-across several round-trips (`:2517`).
+template's attributes (`eip_cip_special.c:1672`), then a fielded template read that may fragment
+across several round-trips (`:1974`).
 
 The buffer you get back is not a wire structure. libplctag builds a 14-byte header of its own from
-the `Get_Attribute_List` reply (`eip_cip_special.c:2130-2179`) and appends the raw template payload
-after it (`:2455`):
+the `Get_Attribute_List` reply (`eip_cip_special.c:1567-1607`) and appends the raw template payload
+after it (`:1903`):
 
 | Offset | Size | Field |
 |--------|------|-------|
@@ -80,17 +80,17 @@ Everything is little-endian and reachable with the ordinary typed accessors on t
 A member's type word carries the same encoding as a listing entry's. A member with `0x8000` set and
 `0x1000` clear is itself a structure, and `type & 0x0FFF` is the child template's id, which means
 another `@udt/` read. Discovery is therefore a graph walk, not a single pass.
-`list_tags_logix.c:834-840` does it with a worklist plus a memo array so each id is fetched once.
+`list_tags_logix.c:780-786` does it with a worklist plus a memo array so each id is fetched once.
 
 ## Limits
 
 Ids are 0 to 4095. `@udt/` parses the id and rejects anything outside that range with
-`PLCTAG_ERR_OUT_OF_BOUNDS` (`eip_cip_special.c:1943-1947`), the same 12-bit space the symbol type
+`PLCTAG_ERR_OUT_OF_BOUNDS` (`eip_cip_special.c:1360-1363`), the same 12-bit space the symbol type
 encodes.
 
-Logix and Micro800 only. The `@raw` / `@tags` / `@udt/` names are recognised as special only for
-those two PLC types (`ab_common.c:674-688`). On any other type the string is never treated as
-special and is parsed as an ordinary tag address.
+Logix, Micro800 and Omron NJ/NX only. The `@raw` / `@tags` / `@udt/` names are recognised as special
+only for those three PLC types (`ab_common.c:605-629`). On any other type the string is never
+treated as special and is parsed as an ordinary tag address.
 
 Program scope needs its own listing. `@tags` returns controller-scoped tags. A program's tags come
 from `Program:<name>.@tags`, discovered from the `Program:`-prefixed entries in the controller-scoped
@@ -98,9 +98,9 @@ listing.
 
 ## Working reference
 
-`src/tools/list_tags_logix/list_tags_logix.c` in the libplctag tree is the end-to-end implementation
-of both halves. `process_tag_entry()` (line 510) decodes a listing entry, and `get_udt_definition()`
-(line 704) decodes a template and queues the nested ids it finds.
+`src/examples/list_tags_logix.c` in the libplctag tree is the end-to-end implementation
+of both halves. `process_tag_entry()` (line 482) decodes a listing entry, and `get_udt_definition()`
+(line 658) decodes a template and queues the nested ids it finds.
 
 In this tree the same two halves are
 [`TagsDecoder.cs`](../../../src/AllenBradley.Logix/Client/Tags/Symbols/TagsListing/TagsDecoder.cs) and
@@ -108,14 +108,18 @@ In this tree the same two halves are
 both pure functions over the buffer, and the worklist walk is in
 [`SymbolTableLoader.cs`](../../../src/AllenBradley.Logix/Client/Tags/Symbols/SymbolTableLoader.cs).
 
+## How it was checked
+
+The line numbers below refer to core `v2.6.0`, the version that the `libplctag` 1.5.2 package ships.
+
 ## Source references
 
 | Location | Role |
 |----------|------|
-| `eip_cip_special.c:133-140` | `tag_list_entry`, the `@tags` listing entry layout |
-| `eip_cip_special.c:1928-1960` | `setup_udt_tag`, id parsing, the 0-4095 range check |
-| `eip_cip_special.c:2241` / `:2517` | The two request builders: template metadata, then fields |
-| `eip_cip_special.c:2130-2179` | The 14-byte header libplctag synthesises |
-| `eip_cip_special.c:2455` | Template payload appended after the header, fragment by fragment |
-| `ab_common.c:674-688` | `@`-tag recognition, gated on Logix / Micro800 |
-| `list_tags_logix.c:510` / `:704` / `:834-840` | Entry decode, template decode, nested-UDT worklist |
+| `eip_cip_special.c:121-128` | `tag_list_entry`, the `@tags` listing entry layout |
+| `eip_cip_special.c:1345-1379` | `setup_udt_tag`, id parsing, the 0-4095 range check |
+| `eip_cip_special.c:1672` / `:1974` | The two request builders: template metadata, then fields |
+| `eip_cip_special.c:1567-1607` | The 14-byte header libplctag synthesises |
+| `eip_cip_special.c:1903` | Template payload appended after the header, fragment by fragment |
+| `ab_common.c:605-629` | `@`-tag recognition, gated on Logix / Micro800 / Omron NJ/NX |
+| `list_tags_logix.c:482` / `:658` / `:780-786` | Entry decode, template decode, nested-UDT worklist |

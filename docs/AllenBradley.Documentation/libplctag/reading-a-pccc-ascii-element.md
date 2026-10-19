@@ -5,17 +5,18 @@ each `A` element, one word. A handle for `A9:0` with the default element count t
 byte, and gets at most one of the two characters. A client that wants the whole word sets
 `elem_count=2`.
 
-All line numbers refer to the native core 2.6.3, the version this repository builds with.
+All line numbers refer to the source of the native core at tag `v2.6.0`, the version that the
+`libplctag` 1.5.2 package ships, and of `ab_server` 2.7.2.
 
 ## The size of the handle
 
-`parse_pccc_file_type` (`pccc.c:707-713`) gives the letter `A` the file type `PCCC_FILE_ASCII` and an
-element size of 1 byte. The comment at the top of the file (`pccc.c:75`) describes the file as "1 byte
-per character". The tag size is `elem_count * elem_size` (`ab_common.c:448`, `:469`), and
+`parse_pccc_file_type` (`pccc.c:702-708`) gives the letter `A` the file type `PCCC_FILE_ASCII` and an
+element size of 1 byte. The comment at the top of the file (`pccc.c:73`) describes the file as "1 byte
+per character". The tag size is `elem_count * elem_size` (`ab_common.c:442`, `:463`), and
 `elem_count` is 1 unless the tag string sets it.
 
 The read request asks for `elem_size * elem_count` bytes (`eip_slc_pccc.c:314`), and the reply must
-have exactly `tag->size` bytes (`eip_slc_pccc.c:420`). The write request sends `tag->size` bytes
+have exactly `tag->size` bytes (`eip_slc_pccc.c:419`). The write request sends `tag->size` bytes
 (`eip_slc_pccc.c:584`).
 
 ## Why the element count is 2
@@ -37,8 +38,8 @@ second on the wire. No manual says this for `A` files.
 
 ## What a real controller must confirm
 
-`ab_server` knows only the files `N7`, `F8`, `ST18` and `L19` (`main.c:443-462`). It has no `A`
-file, so only a controller can answer these questions:
+`ab_server` knows only the files `B3`, `N7`, `F8`, `ST18` and `L19` (`main.c:611-635`). It has no
+`A` file, so only a controller can answer these questions:
 
 1. Does a 2-byte read of `A9:0` return the word of element 0, and not two half-words?
 2. Is the first character in the high byte, as in an `ST` element?
@@ -49,8 +50,8 @@ To check both, write `Hi` to `A9:0` in RSLogix 500 and read the element. The byt
 
 | Location | Role |
 |----------|------|
-| `pccc.c:75`, `:707-713` | `A` is `PCCC_FILE_ASCII`, with 1 byte per element |
-| `ab_common.c:448`, `:469` | `elem_count` defaults to 1, and the tag size is `elem_count * elem_size` |
-| `eip_slc_pccc.c:314`, `:420` | Read request size and the reply size check |
+| `pccc.c:73`, `:702-708` | `A` is `PCCC_FILE_ASCII`, with 1 byte per element |
+| `ab_common.c:442`, `:463` | `elem_count` defaults to 1, and the tag size is `elem_count * elem_size` |
+| `eip_slc_pccc.c:314`, `:419` | Read request size and the reply size check |
 | `eip_slc_pccc.c:584` | Size of the write request |
-| `ab_server/src/main.c:443-462` | The data files of the simulator, with no `A` file |
+| `ab_server/main.c:611-635` | The data files of the simulator, with no `A` file |

@@ -12,9 +12,9 @@ namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client;
 public interface ILogixClient : ILogixReadClient, ILogixWriteClient, IConnectableClient
 {
     /// <summary>
-    /// Whether a schema has been browsed and not since dropped. Not a transport check: libplctag's
-    /// <c>connection_status</c> attribute is not read, so this reports what the client did, not what the
-    /// network is doing.
+    /// Whether a schema has been browsed and not since dropped. Not a transport check: libplctag core 2.6.0
+    /// does not report the state of its session, so this reports what the client did, not what the network
+    /// is doing.
     /// </summary>
     bool IsConnected { get; }
 

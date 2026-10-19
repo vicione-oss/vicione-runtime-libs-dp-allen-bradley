@@ -108,10 +108,13 @@ comparison as `Int != Dint`. There is nothing special about the unsigned types t
 
 What is different is how little else there is. A type configured *wider* than its tag has a second tell
 even if verification never ran: the decode runs out of buffer and `LogixReadBatch` reports it as that
-tag's failure, and a write is refused by `SetBuffer` as out of bounds. A type configured *narrower*
-loses that tell but still misreads as soon as the tag holds a value outside the narrow range. Two types
-of equal width have neither — every byte pattern is legal for both, in both directions, and the value
-that comes back is always the value that went in. Verification is the only thing standing there.
+tag's failure, and a write sends more bytes than the tag holds. `ab_server` refuses such a write, but a
+real controller has not been measured
+([writing into the tag buffer](../../AllenBradley.Documentation/libplctag/writing-into-the-tag-buffer.md)).
+A type configured *narrower* loses that tell but still misreads as soon as the tag holds a value
+outside the narrow range. Two types of equal width have neither — every byte pattern is legal for
+both, in both directions, and the value that comes back is always the value that went in. Verification
+is the only thing standing there.
 
 An array of one of them is that case one element at a time, and no worse: the array converter is the
 scalar's element codec and a stride, so a `USINT[10]` configured over a `SINT[10]` is the same
@@ -212,9 +215,9 @@ scalar converter: `IntArrayConverter` asks `IntConverter`, so a scalar `INT` and
 element is read, which turns a reply too short for the count into that tag's named failure rather than
 an array filled as far as the bytes went.
 
-A written value is checked the same way and for a sharper reason: `SetBuffer` fills the handle from
-the start, so a `short[6]` sent to an `INT[10]` would leave the last four elements as the controller
-had them. A value of any other length is refused while the batch is being built, with the tag in the
+A written value is checked the same way and for a sharper reason: `SetBuffer` sends only the bytes it
+gets, so a `short[6]` sent to an `INT[10]` would leave the last four elements as the controller had
+them. A value of any other length is refused while the batch is being built, with the tag in the
 message, and nothing is sent for any tag in the batch.
 
 The configured count also sizes the libplctag handle. Without it the handle reads a single element

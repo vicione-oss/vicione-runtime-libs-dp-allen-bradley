@@ -43,7 +43,7 @@ internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInfor
             Timeout = _timeout,
         };
 
-    // libplctag sizes an A element as 1 byte (pccc.c:711), but an A element is a word with two characters.
+    // libplctag sizes an A element as 1 byte (pccc.c:706), but an A element is a word with two characters.
     // Two such elements give the handle the 2 bytes of one element.
     private static int? ElementCountOf(DataFileAddress address) =>
         address.FileType == DataFileType.Ascii ? AsciiDataPoint.MaxLength : null;

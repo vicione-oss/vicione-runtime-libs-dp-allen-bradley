@@ -25,10 +25,8 @@ internal sealed class LibPlcTagAccess(Tag tag) : ITagAccess
         }
     }
 
-    // SetBuffer copies into the handle's own buffer, which is the controller's width for the tag. The
-    // core bounds-checks the copy (plc_tag_set_raw_bytes, libplctag 2.6.3), so a buffer longer than the
-    // handle is refused before anything is sent and lands in the catch below; a shorter one fills the
-    // handle from the start and leaves the rest as it was.
+    // SetBuffer resizes the handle to the length of the buffer, so the controller receives exactly these bytes.
+    // Nothing here checks them against the width of the tag. The converters encode the exact width.
     public async Task<TagWriteResult> WriteAsync(byte[] buffer, CancellationToken cancellationToken)
     {
         try

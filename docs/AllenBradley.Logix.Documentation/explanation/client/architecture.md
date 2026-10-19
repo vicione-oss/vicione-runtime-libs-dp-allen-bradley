@@ -14,7 +14,8 @@ It also sets what a read can return and what a write can throw. These pages do n
 
 The second constraint is `libplctag`. It has no connect call and no connection object, and it opens a dropped session
 again by itself. It has one handle for each tag.
-All handles to the same connection endpoint, route path and PLC type share one session. The first read of a handle
+All handles to the same connection endpoint and route path share one session, because the client does not set a
+connection group. The first read of a handle
 does an expensive setup, and each handle must be disposed explicitly. The
 [library notes](../../../AllenBradley.Documentation/libplctag/README.md) give the source of each fact.
 

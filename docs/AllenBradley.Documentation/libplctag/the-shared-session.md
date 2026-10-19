@@ -2,8 +2,8 @@
 
 libplctag has no session or connection object you open and hand around. You create per-tag handles
 (`Tag`), and the native core transparently shares one CIP session (one EtherNet/IP registration plus
-one Forward Open) across every handle that targets the same gateway, path, and PLC type. Sharing is
-on by default (`share_session = 1`).
+one Forward Open) across every handle that targets the same gateway, path, and connection group.
+Sharing is on by default (`share_session = 1`).
 
 That shared session is where packing happens. Several CIP requests are combined into one Multiple
 Service Packet (CIP service `0x0A`, `AB_EIP_CMD_CIP_MULTI`, addressed to the Connection Manager at
@@ -24,7 +24,7 @@ can tune to make packing happen. Requests co-pack only because they arrive while
 is busy with the previous packet. Every throughput question about this library reduces to how many
 requests are in flight at once. Hold that while reading the rest.
 
-## One session, shared by gateway/path/PLC
+## One session, shared by gateway/path/connection group
 
 Two independent `Tag` handles for two different tags on the same controller do not each get their own
 connection. They enqueue onto one shared request queue and are serviced by one session thread. This
@@ -33,12 +33,14 @@ packer to bundle.
 
 | Attribute | Effect |
 |-----------|--------|
-| `share_session` (default `1`) | Handles to the same gateway/path/PLC share one session + Forward Open |
-| Gateway + path + PLC type | The identity the core matches on to decide sharing |
+| `share_session` (default `1`) | Handles to the same gateway/path/connection group share one session + Forward Open |
+| Gateway + path + `connection_group_id` | The identity the core matches on to decide sharing (`find_session_by_host_unsafe`) |
 
-Because sharing is keyed on those three attributes, handles that differ in gateway, path, or PLC type
-get separate sessions and cannot co-pack. That detail matters if a single client ever spans more than
-one controller.
+Because sharing is keyed on those three attributes, handles that differ in gateway, path, or
+`connection_group_id` get separate sessions and cannot co-pack. That detail matters if a single
+client ever spans more than one controller. The PLC type is not part of the key. Two handles with
+different PLC types on the same gateway and path share one session, and the session keeps the payload
+size that the PLC type of the first handle set.
 
 ## The reusable unit is the warm handle
 
@@ -50,7 +52,9 @@ away discards that setup cost.
 The client design leans on two consequences. Handles are keyed by the tag they address, so two data
 points naming the same tag with the same shape can share one handle and one warm connection. This is
 why the handle-reuse ADR caches tags by the data point itself and scopes the cache by device (gateway plus path
-plus PLC type), the same three attributes the core uses to decide session sharing. And the
+plus PLC type). The core shares sessions on gateway plus path plus `connection_group_id`, so with the
+default group each device scope maps onto one session, and two scopes that differ only in PLC type
+share one. And the
 connection is a shared resource with a finite in-flight ceiling. Because every handle to a controller
 funnels through one session thread, the useful degree of parallelism is bounded by that connection,
 not by the number of handles. Sizing it is one of the ADR's open questions for the device probe.
@@ -59,34 +63,41 @@ not by the number of handles. Sizing it is one of the ADR's open questions for t
 
 ### The per-tag default is set by PLC type
 
-`ab_common.c:254-304`. Only ControlLogix/CompactLogix actually honors the attribute:
+`ab_common.c:219-266`, in `ab_tag_create()`. ControlLogix/CompactLogix is the only type that honors
+the attribute with packing on by default:
 
 ```c
 case AB_PLC_LGX:
     tag->allow_packing = attr_get_int(attribs, "allow_packing", 1);  // default ON
 ```
 
-Every other type hard-forces `allow_packing = 0`: PLC5, SLC, MLGX, LGX_PCCC, Micro800, and the
-Generic CIP type (`ab_common.c:257,262,267,272,287,296`). Passing `allow_packing=1` to a Micro800
-or generic device therefore has no effect. Each read/write setup site in `eip_cip.c` then copies the
-tag's flag onto its request (`req->allow_packing = tag->allow_packing`, e.g. lines 458, 606, 759).
+PLC5, SLC, MLGX, LGX_PCCC and Micro800 hard-force `allow_packing = 0`
+(`ab_common.c:222,227,232,237,252`). Passing `allow_packing=1` to a Micro800 therefore has no
+effect. Omron NJ/NX also reads the attribute, but defaults it to `0` (`ab_common.c:262`). Core
+v2.6.0 has no Generic CIP type. A second switch in the same function sets the same values again
+(`ab_common.c:300-428`). Each read/write setup site in `eip_cip.c` then copies the tag's flag onto
+its request (`req->allow_packing = tag->allow_packing`, e.g. lines 494, 633, 783).
 
 ### Combining happens in the session thread, not at the tag
 
-The decision lives in `process_requests()` (`session.c:1760`), the loop that drains the shared queue
+The decision lives in `process_requests()` (`session.c:1383`), the loop that drains the shared queue
 each `SESSION_IDLE` cycle. Packing only bundles requests sitting in the queue at that same instant.
-The bundling logic (`session.c:1821-1868`):
+The bundling logic (`session.c:1407-1443`):
 
-1. Always pull request #0. If it does not even fit the available payload, nothing is sent this cycle.
-2. Start packing only if request #0's `allow_packing` is true and more requests are queued.
-3. Subtract multi-request overhead (the `cip_multi_req_header` plus a 2-byte offset entry per request).
-4. Loop over the remaining queued requests, breaking on the first one that is not packable, does
-   not fit remaining space, or once `MAX_REQUESTS` (400) is hit.
+1. Start with the Forward-Open-negotiated payload minus the `cip_multi_req_header`.
+2. Always pull request #0, even if it does not fit the available payload.
+3. Charge each request its CIP data size plus a 2-byte offset entry (`get_payload_size`,
+   `session.c:1673`). A request that is not a connected message counts as `INT_MAX`, so it never
+   packs.
+4. Keep pulling only while request #0 and every following request is packable, the space left
+   stays above zero, and fewer than `MAX_REQUESTS` (200) are bundled. The loop stops at the first
+   request that is not packable or does not fit.
 
-Available space is the Forward-Open-negotiated payload minus CPF/path overhead
-(`session_get_available_cip_payload_space`, `session.c:306`). Then `pack_requests()` (`session.c:2283`)
-writes the multi-header and per-request offsets, and `unpack_response()` (`session.c:2085`) splits the
-single response back out by offset, so per-request status survives packing.
+There is no separate space budget function in v2.6.0. The budget is the session's
+`max_payload_size`, set by the Forward Open, and the calculation is inline (`session.c:1417`). Then
+`pack_requests()` (`session.c:1701`) writes the multi-header and per-request offsets, and
+`unpack_response()` (`session.c:1549`) splits the single response back out by offset, so
+per-request status survives packing. A bundle of one is sent as is, without a Multiple Service Packet.
 
 ## When and how large a pack is
 
@@ -96,7 +107,7 @@ There is no linger window and no batch timer. You cannot configure libplctag to 
 milliseconds and collect more requests." The thread's cycle is to grab the front request, greedily
 pack every following packable request that still fits, send one packet, await the round-trip, and
 repeat. It does not sleep between a request arriving and sending it. A newly enqueued request wakes
-the thread immediately (`session.c:1260`). The only idle wait, `SESSION_IDLE_WAIT_TIME` (100 ms),
+the thread immediately (`session.c:972`). The only idle wait, `SESSION_IDLE_WAIT_TIME` (100 ms),
 applies when the queue is empty, and it is a housekeeping poll, not a batching delay.
 
 ### Why requests batch at all
@@ -119,8 +130,8 @@ Once the thread decides to pack, the batch grows until the first of these stops 
 
 | Bound | Value / rule |
 |-------|--------------|
-| Packing enabled | `allow_packing` on (default for ControlLogix/CompactLogix), forced off for PLC5, SLC, MicroLogix, Micro800, and Generic CIP |
-| Request count | up to `MAX_REQUESTS` = 400 (`session.c:53`) |
+| Packing enabled | `allow_packing` on (default for ControlLogix/CompactLogix), forced off for PLC5, SLC, MicroLogix, LGX_PCCC, and Micro800 |
+| Request count | up to `MAX_REQUESTS` = 200 (`session.c:46`) |
 | Payload size | must all fit one negotiated CIP payload (~504 B connected, or ~4000 B with the extended Forward Open) |
 | First request | always sent even if it is unpackable or fills the packet alone (a batch of one) |
 | Contiguity | packing stops at the first non-packable request from the front of the queue, even if packable requests sit behind it |
@@ -139,7 +150,7 @@ control.
 | `allow_packing` (`AllowPacking`) | Per-tag on/off. `false` → the tag is never bundled; it is always sent alone. `true` (default for ControlLogix/CompactLogix) → eligible, nothing more. The only direct switch. | Yes |
 | `connection_group_id` | Per-tag session selector. Different id ⇒ different session/socket ⇒ guaranteed separate packets, even to the same PLC. The only hard segregation. | No, needs the raw attribute string |
 | Submission timing | Soft and indirect. Firing tags concurrently lets them pack; awaiting each in turn keeps them apart. No guarantee, it only changes what sits in the queue in one thread cycle. | n/a |
-| Size bounds | Implicit ceilings, not knobs: `MAX_REQUESTS` = 400 and one CIP payload (~504 B / ~4000 B extended). | n/a |
+| Size bounds | Implicit ceilings, not knobs: `MAX_REQUESTS` = 200 and one CIP payload (~504 B / ~4000 B extended). | n/a |
 
 Setting `allow_packing = false` excludes one tag, which is then sent in its own packet every time.
 Use it to stop a known-pathological tag (one that always fragments, or whose latency you want
@@ -163,28 +174,34 @@ per-access reads awaited together, because firing the whole group at once is the
 sees enough queued requests to pack them. A loop of blocking reads would keep one request in the
 queue and never pack.
 
-The cache key mirrors the sharing key. The handle-reuse ADR caches tags by the data point and scopes
-them by device (gateway + path + PLC type), the same identity the core shares sessions on.
+The cache key is close to the sharing key. The handle-reuse ADR caches tags by the data point and
+scopes them by device (gateway + path + PLC type). The core shares sessions on gateway + path +
+`connection_group_id`, so with the default group the device key only adds the PLC type.
 
 The group is not, and cannot be made into, a packing unit. There is no call mapping a group onto a
 packet, so the group is a delivery/partial-failure unit. Throughput is a property of how saturated
 the shared queue is. The shared-connection ADR settles the session topology (one shared session per
 controller, with `connection_group_id` segregation deferred) on exactly these facts.
 
+## How it was checked
+
+The file and line references on this page refer to core `v2.6.0`, the version that the `libplctag`
+1.5.2 package ships.
+
 ## Source references
 
 | Location | Role |
 |----------|------|
-| `ab_common.c:254-304` | Sets per-tag `allow_packing` default by PLC type |
-| `eip_cip.c` (458, 606, 759, 948, 1096, 1281) | Copies the tag flag onto each request |
-| `session.c:1236` | `session_add_request` enqueues onto the shared queue |
-| `session.c:1260` | A new request wakes the session thread immediately |
-| `session.c:1760` | `process_requests`, the self-clocking send/pack loop |
-| `session.c:1821-1868` | The bundling decision (allow_packing, count, space, contiguity) |
-| `session.c:306` | `session_get_available_cip_payload_space`, the space budget |
-| `session.c:2283` / `:2085` | `pack_requests` builds the MSP; `unpack_response` splits it back out |
-| `session.c:53` | `MAX_REQUESTS` = 400 cap |
-| `SESSION_IDLE_WAIT_TIME` (100 ms) | Empty-queue housekeeping poll, not a batching delay |
-| `share_session` (default `1`) | Session sharing across handles to one gateway/path/PLC |
+| `ab_common.c:219-266` | Sets per-tag `allow_packing` default by PLC type (set again at 300-428) |
+| `eip_cip.c` (494, 633, 783, 971, 1128, 1319) | Copies the tag flag onto each request |
+| `session.c:962` | `session_add_request` enqueues onto the shared queue |
+| `session.c:972` | A new request wakes the session thread immediately |
+| `session.c:1383` | `process_requests`, the self-clocking send/pack loop |
+| `session.c:1407-1443` | The bundling decision (allow_packing, count, space, contiguity) |
+| `session.c:1417` / `:1673` | The space budget (`max_payload_size` minus the multi-header); `get_payload_size` charges each request |
+| `session.c:1701` / `:1549` | `pack_requests` builds the MSP; `unpack_response` splits it back out |
+| `session.c:46` | `MAX_REQUESTS` = 200 cap |
+| `session.c:72` `SESSION_IDLE_WAIT_TIME` (100 ms) | Empty-queue housekeeping poll, not a batching delay |
+| `session.c:236-271` | `share_session` (default `1`); sharing across handles to one gateway/path/connection group |
 | `connection_group_id` attribute | Distinct ids ⇒ distinct sessions ⇒ separate packets; not exposed on the .NET `Tag` |
 | libplctag.NET `Tag.cs` | Exposes `AllowPacking`; does not expose `connection_group_id` |

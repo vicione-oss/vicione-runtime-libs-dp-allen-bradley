@@ -15,8 +15,9 @@ Open opens over it.
 Three facts about libplctag frame the decision
 ([the shared session](../../AllenBradley.Documentation/libplctag/the-shared-session.md)):
 
-1. All handles with the same connection endpoint, route path and PLC type share one session. The session has one
-   queue. Its thread packs all waiting requests into one Multiple Service Packet (MSP), which is one network round trip.
+1. All handles with the same connection endpoint, route path and connection group share one session. The client does
+   not set a connection group, so the endpoint and the route path decide. The session has one queue. Its thread packs
+   all waiting requests into one Multiple Service Packet (MSP), which is one network round trip.
 2. We cannot select which requests go into one packet. `allow_packing=false` removes one tag from packing.
    setting a different `connection_group_id` puts a tag on a separate session. The .NET `Tag` class does not have `connection_group_id`, so
    it needs a raw attribute string.

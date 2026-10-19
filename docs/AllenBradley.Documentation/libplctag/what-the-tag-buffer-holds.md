@@ -1,7 +1,7 @@
 # What the Tag Buffer Holds
 
 The tag buffer is payload only, in the controller's own memory layout. `plc_tag_get_raw_bytes`
-(`lib.c:4294`) is a byte-for-byte copy out of `tag->data + offset` (`lib.c:4328-4340`) that never
+(`lib.c:3901`) is a byte-for-byte copy out of `tag->data + offset` (`lib.c:3931-3945`) that never
 inspects the tag's data type, and the .NET wrapper's `Tag.GetBuffer()` copies the whole buffer
 through it. There is no decode step in that path to reason about. Whatever the protocol layer put in
 the buffer is exactly what comes back out.
@@ -15,14 +15,14 @@ The protocol layer removes its own envelope before the copy, so the first byte o
 first byte of the value.
 
 For CIP, the reply's leading type prefix is split off into `tag->encoded_type_info` rather than the
-data buffer (`eip_cip.c:1365-1399`), and re-attached when the tag is written back
-(`eip_cip.c:1033-1035`, `:1185-1187`). This is why a Logix `STRING` buffer starts at `.LEN` and not
+data buffer (`eip_cip.c:1434-1458`), and re-attached when the tag is written back
+(`eip_cip.c:1065-1067`, `:1223-1225`). This is why a Logix `STRING` buffer starts at `.LEN` and not
 at the `A0 02 HH HH` abbreviated-structure marker. The stripped bytes are not lost. They are readable
 as the `raw_tag_type_bytes` byte-array attribute, sized by `raw_tag_type_bytes.length`
-(`ab_common.c:1102`, `:1025`).
+(`ab_common.c:926`, `:882`).
 
 For Modbus, the copy starts past the MBAP header, the function code and the byte count
-(`modbus.c:2617`).
+(`modbus.c:1700`).
 
 ## The controller's layout is still there
 
@@ -62,14 +62,18 @@ builds every `STRING` and UDT offset on. What remains unconfirmed there is the o
 comparison, the element size the controller declares for a `STRING`, which only the device round
 trip can pin.
 
+## How it was checked
+
+The line numbers below refer to core `v2.6.0`, the version that the `libplctag` 1.5.2 package ships.
+
 ## Source references
 
 | Location | Role |
 |----------|------|
-| `lib.c:4294` | `plc_tag_get_raw_bytes`, the only bulk read of the buffer |
-| `lib.c:4328-4340` | The copy itself: `tag->data + offset`, no type inspection |
-| `eip_cip.c:1365-1399` | CIP type prefix split off into `tag->encoded_type_info` |
-| `eip_cip.c:1033-1035`, `:1185-1187` | The prefix re-attached on write |
-| `ab_common.c:1102`, `:1025` | `raw_tag_type_bytes` and `raw_tag_type_bytes.length` attributes |
-| `modbus.c:2617` | Modbus copy starts past MBAP header, function code and byte count |
-| `ab_common.c:683-687` | `@raw`, `@tags`, `@udt/`, the metadata-bearing exceptions |
+| `lib.c:3901` | `plc_tag_get_raw_bytes`, the only bulk read of the buffer |
+| `lib.c:3931-3945` | The copy itself: `tag->data + offset`, no type inspection |
+| `eip_cip.c:1434-1458` | CIP type prefix split off into `tag->encoded_type_info` |
+| `eip_cip.c:1065-1067`, `:1223-1225` | The prefix re-attached on write |
+| `ab_common.c:926`, `:882` | `raw_tag_type_bytes` and `raw_tag_type_bytes.length` attributes |
+| `modbus.c:1700` | Modbus copy starts past MBAP header, function code and byte count |
+| `ab_common.c:612-624` | `@raw`, `@tags`, `@udt/`, the metadata-bearing exceptions |
