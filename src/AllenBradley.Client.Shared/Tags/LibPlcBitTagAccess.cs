@@ -19,6 +19,7 @@ internal sealed class LibPlcBitTagAccess(Tag tag) : ITagAccess
     {
         try
         {
+            await InitializeOnFirstUseAsync(cancellationToken).ConfigureAwait(false);
             await tag.ReadAsync(cancellationToken).ConfigureAwait(false);
             return TagReadResult.Ok(_codec.Encode(tag.GetBit(BitOfTheName)));
         }
@@ -38,6 +39,7 @@ internal sealed class LibPlcBitTagAccess(Tag tag) : ITagAccess
 
         try
         {
+            await InitializeOnFirstUseAsync(cancellationToken).ConfigureAwait(false);
             tag.SetBit(BitOfTheName, _codec.Decode(buffer));
             await tag.WriteAsync(cancellationToken).ConfigureAwait(false);
             return TagWriteResult.Ok();
@@ -45,6 +47,16 @@ internal sealed class LibPlcBitTagAccess(Tag tag) : ITagAccess
         catch (LibPlcTagException ex)
         {
             return TagWriteResult.Failed($"Write failed for tag '{tag.Name}': {ex.Message}");
+        }
+    }
+
+    // The wrapper initializes a handle in ReadAsync, but its buffer accessors fail on a handle that is not
+    // initialized (ErrorNotFound). A write sets the buffer first, so read and write both initialize it here.
+    private async Task InitializeOnFirstUseAsync(CancellationToken cancellationToken)
+    {
+        if (!tag.IsInitialized)
+        {
+            await tag.InitializeAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

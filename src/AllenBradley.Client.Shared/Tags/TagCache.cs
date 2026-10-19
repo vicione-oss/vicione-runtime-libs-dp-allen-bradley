@@ -28,7 +28,7 @@ internal sealed class TagCache<TDataPoint, TTag>(ILogger logger) : IDisposable
     {
         // Creation happens under the same lock that guards disposal, so a tag can never be created and
         // then abandoned to its finalizer. The lock is cheap to hold: creating a libplctag tag only
-        // allocates, since libplctag initialises the handle on its first read.
+        // allocates, since the tag access initialises the handle on its first read or write.
         lock (_gate)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);

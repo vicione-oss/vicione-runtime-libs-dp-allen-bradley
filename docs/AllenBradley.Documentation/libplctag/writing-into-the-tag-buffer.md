@@ -64,8 +64,18 @@ partial data is what goes out. Anyone using the typed path has to guard the leng
 If the handle was created with an explicit `elem_count` and `elem_size` that overstate the tag on
 the controller, the local copy passes and the mismatch can only surface from the device, as a
 protocol-level status on the write. That case needs the L32E and has not been pinned. The client
-never sets those attributes, so its handles are sized by the first read and the case does not arise
-for it.
+never sets those attributes, so its handles are sized when they are initialized and the case does
+not arise for it.
+
+## A handle that is not initialized refuses the buffer
+
+`SetBuffer` and `SetBit` work only on an initialized handle. On a new handle the wrapper has no native
+handle yet, the core answers `plc_tag_set_size` with "Tag not found", and the wrapper throws
+`LibPlcTagException` with `Status.ErrorNotFound`. `ReadAsync` initializes the handle itself, so a read
+is not affected. A write sets the buffer before it writes, so the first write to a new handle failed.
+
+Both adapters therefore initialize the handle at the start of each read and each write, if it is not
+initialized yet. The integration tests of the Legacy dataport against `ab_server` found this.
 
 ## What this means for the client
 
