@@ -36,6 +36,7 @@ B3:2/0       bit 0 of element 2 in binary file 3
 T4:0.ACC     the ACC field of timer element 0 in file 4
 F8:12        float element 12 in file 8
 ST9:1        string element 1 in file 9
+A9:0         ASCII element 0 in file 9
 ```
 
 Files 0, 1, and 2 are reserved for the output image, input image, and processor status, so their
@@ -74,7 +75,7 @@ types a client reads for process values.
 | `L`       | `DINT`         | `int`    | `System.Int32`  |
 | `F`       | `REAL`         | `float`  | `System.Single` |
 | `ST`      | `STRING`       | `string` | `System.String` |
-| `A`       | `SINT` pairs   | `char`   | `System.Char`   |
+| `A`       | `SINT` pairs   | `string` | `System.String` |
 
 ---
 
@@ -108,9 +109,25 @@ Offset  Size      Meaning
 
 The characters are byte-swapped within each word. The first character of a pair is in the word's
 high byte, the second in its low byte. Read the element as a little-endian byte stream and every
-character pair comes out reversed, so `"Hi"` reads as `iH`. This is the one place in these families
-where byte order is not simply little-endian, and it is why `ST` files need a swap step that `N` and
-`F` files do not. Only the first `Length` characters are meaningful.
+character pair comes out reversed, so `"Hi"` reads as `iH`. The `ST` and `A` elements are the only
+places in these families where byte order is not simply little-endian. They need a swap step that `N`
+and `F` files do not. Only the first `Length` characters are meaningful.
+
+### ASCII elements
+
+An `A` element is one word, or 2 bytes, and holds two ASCII characters:
+
+```text
+Offset  Size      Meaning
+------  --------  --------------------------------------------
+0x00    1 word    2 ASCII characters
+```
+
+There is no length word, so both characters are always present.
+
+The manuals in [§7](#7-references) do not say which byte of the word holds the first character. This
+page assumes the order of an `ST` element: the first character in the high byte, the second in the
+low byte. Thus `"Hi"` is the bytes `69 48` on the wire. A real controller has not confirmed this yet.
 
 ### Bit access
 
@@ -162,9 +179,9 @@ ten-element integer array only because a client chooses to read ten words.
 
 ## 6. Byte order
 
-Values in PCCC payloads are little-endian, like CIP. The `ST` character swap of
-[§3](#string-elements) is the exception, and it is a swap inside each word rather than a different
-endianness for the value.
+Values in PCCC payloads are little-endian, like CIP. The character swap of `ST`
+([§3](#string-elements)) and `A` ([§3](#ascii-elements)) elements is the exception, and it is a swap
+inside each word rather than a different endianness for the value.
 
 How these bytes are requested and carried to the controller is in [PCCC](pccc.md).
 
