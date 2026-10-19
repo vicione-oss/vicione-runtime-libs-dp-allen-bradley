@@ -498,18 +498,27 @@ contexts:
 
       - name: Accumulated value
         definition: >-
-          `.ACC`, the `DINT` a `TIMER` or a `COUNTER` has counted so far: milliseconds for a timer,
-          counts for a counter. Rockwell's word for the member in both structures. A timer's is never
+          `.ACC`, what a timer or a counter has counted so far. In a Logix `TIMER` or `COUNTER` it is
+          a `DINT`: milliseconds for a timer, counts for a counter. In a Legacy timer element it is a
+          16-bit word in ticks of the time base. Rockwell uses the word for both. A timer's is never
           negative; a counter's may be.
         meta:
           "Avoid:": current value
 
       - name: Accumulated time
         definition: >-
-          A timer's accumulated value, in milliseconds. The word wherever only a timer is meant, as in
-          the timer node and its tests; a counter's accumulated value is a count, not a time.
+          A Logix timer's accumulated value, in milliseconds. The word wherever only a Logix timer is
+          meant, as in its timer node and tests. A counter's accumulated value is a count, and a Legacy
+          timer's is a number of ticks, so neither is an accumulated time.
         meta:
-          "Avoid:": elapsed time, accumulated time for a counter
+          "Avoid:": elapsed time, accumulated time for a counter or a Legacy timer
+
+      - name: Time base
+        definition: >-
+          The length of one tick of a Legacy timer, such as 0.01 s or 1 s. The program sets it in the
+          timer instruction, and the data file does not store it, so the Legacy port reads and writes
+          ticks and cannot convert them to milliseconds. A Logix timer has no time base, because it
+          always counts milliseconds.
 
       # ----------------------------------------------------------------------------------------
       # Data files
@@ -534,6 +543,12 @@ contexts:
         definition: >-
           The position of one bit in a 16-bit element, the `5` in `B3:2/5`. It counts from 0, the
           least significant bit, to 15.
+
+      - name: Sub-element
+        definition: >-
+          A named word inside an element of more than one word, written after a dot: the `ACC` in
+          `T4:0.ACC`. A timer element has `.PRE` as word 1 and `.ACC` as word 2. PCCC sends the
+          sub-element as the word number.
 
       - name: Data-file address
         definition: >-

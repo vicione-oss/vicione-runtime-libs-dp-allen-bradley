@@ -17,15 +17,17 @@ pages cover only what the Legacy port adds on top.
 
 > **Status.** In progress, in `src/AllenBradley.Legacy`, versioned and published together with the
 > Logix port. The port reads and writes integer (`N`), long (`L`), float (`F`), string (`ST`) and ASCII
-> (`A`) data points and single bits of binary (`B`) files on an SLC 500 or MicroLogix, configured by file
-> number, element and bit. Only a MicroLogix 1400 or a newer SLC processor has a long file, and an SLC 5/03 before
+> (`A`) data points, single bits of binary (`B`) files, and the accumulated value (`.ACC`) of timer (`T`)
+> elements on an SLC 500 or MicroLogix, configured by file number, element and bit. Only a MicroLogix 1400 or a newer SLC processor has a long file, and an SLC 5/03 before
 > OS301 has no float file. The first read of such a file fails like that of any other missing file. A
 > string holds up to 82 ASCII characters. A longer value, or one with a character outside ASCII, is
 > refused before anything is sent. A string write sends the whole element, so the characters after the
 > new length are zero. An ASCII element holds up to two ASCII characters and is read as a string. A
 > trailing NUL character is not part of the value, so a one-character write reads back as one character
 > ([reading a PCCC ASCII element](../AllenBradley.Documentation/libplctag/reading-a-pccc-ascii-element.md)).
-> A bit write
+> A timer value is in ticks of the time base, which the program sets in the timer instruction and the
+> data file does not store, so the port cannot convert it to milliseconds. A timer write changes only
+> `.ACC`, and a negative value is refused before anything is sent. A bit write
 > changes only that bit in the controller, but only on a controller with its own Ethernet port
 > ([writing a single bit](../AllenBradley.Documentation/libplctag/writing-a-single-bit.md)). The
 > incoming port polls each group of points at its poll frequency, and the outgoing port writes the
