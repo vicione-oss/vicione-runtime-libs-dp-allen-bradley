@@ -7,9 +7,18 @@ using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDat
 namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
 
 /// <summary>
-/// Builds the production client against <see cref="AbServer"/> and disposes it after each test. The client does
-/// not connect, because the connect reads the status file <c>S2</c> and ab_server has no status file. Disposing
-/// the client is not optional: a libplctag handle left to its finalizer fail-fasts the process.
+/// Builds the production client against <see cref="AbServer"/> and disposes it after each test. Disposing the
+/// client is not optional: a libplctag handle left to its finalizer fail-fasts the process.
+/// <para>
+/// The client does not call <c>ConnectAsync</c>, because the connect reads the status file <c>S2:0</c> and
+/// ab_server has no status file. ab_server knows only the data files in <see cref="AbServerDataFiles"/>. It has no
+/// timer, counter, control, I/O or <c>A</c> files, and it refuses sub-elements such as <c>T4:0.ACC</c>. A test
+/// that needs one of these stays a unit test.
+/// </para>
+/// <para>
+/// The source, the checksums and the license of the ab_server binaries are in <c>binaries/README.md</c> beside
+/// this file.
+/// </para>
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection(AbServerCollection.Name)]
