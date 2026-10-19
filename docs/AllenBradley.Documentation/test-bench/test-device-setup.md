@@ -265,4 +265,4 @@ dotnet test
 
 > The classic VSTest `--filter "Category=..."` syntax does **not** work in this repo. Tests run on
 > Microsoft Testing Platform with xUnit v3, and suites are selected through the `test-suite` MSBuild
-> property. See [AGENTS.md](../../../AGENTS.md).
+> property. See the [testing guide](../conventions/testing-guide.md).

@@ -40,7 +40,7 @@ internal sealed class LegacyTagAccessFactory(LegacyClientInformation clientInfor
             Name = address.ToString(),
             ElementCount = ElementCountOf(address),
             Protocol = Protocol.ab_eip,
-            Timeout = _timeout,
+            Timeout = _timeout
         };
 
     // libplctag sizes an A element as 1 byte (pccc.c:706), but an A element is a word with two characters.

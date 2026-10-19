@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "all-tests": {
+      "commandName": "Project"
+    },
+    "unit-tests": {
+      "commandName": "Project",
+      "commandLineArgs": "--filter-not-trait Category=Integration"
+    },
+    "integration-tests": {
+      "commandName": "Project",
+      "commandLineArgs": "--filter-trait Category=Integration"
+    }
+  }
+}

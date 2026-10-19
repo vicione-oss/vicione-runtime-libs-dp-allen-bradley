@@ -75,10 +75,11 @@ lower folder never mentions a higher one except to point at it. The `protocol/`,
 | [`libplctag/`](libplctag/README.md) | The library | What libplctag does that the spec does not dictate: session sharing and packing, the buffer contract, disposal, browsing pseudo-tags |
 | [`client/`](client/README.md) | Our code around the library | The client pool, tag cache, batches, tag access and codecs in `src/AllenBradley.Client.Shared`, and what a port supplies to use them |
 | [`test-bench/`](test-bench/) | Our devices | The borrowed L32E and our own L306ER: access, addresses, tags, and the environment variables the suites read |
-| [`conventions/`](conventions/) | How we write | The documentation principles these pages obey, and the modelling rule for the types we define |
+| [`conventions/`](conventions/) | How we write and test | The documentation principles these pages obey, the modelling rule for the types we define, and the [testing guide](conventions/testing-guide.md) |
 
-The repo-wide build conventions (test platform, package feeds, central package management) are in
-[`AGENTS.md`](../../AGENTS.md) at the repo root.
+The repo-wide build conventions (package feeds, central package management) are in
+[`AGENTS.md`](../../AGENTS.md) at the repo root. How to select and run a test suite is in the
+[testing guide](conventions/testing-guide.md).
 
 ## Contributing to documentation
 

@@ -70,8 +70,8 @@ concurrency and disposal quirks. These are facts about the dependency, consumed 
 The folder sits one layer above `protocol/` and one below the decisions in `ADR/`.
 
 [`test-bench/`](../test-bench/) holds the controllers available for integration testing, how to reach
-them, and what each suite assumes about them. [`conventions/`](./) holds these principles and the
-modelling rule for the types we define.
+them, and what each suite assumes about them. [`conventions/`](./) holds these principles, the
+modelling rule for the types we define, and the [testing guide](testing-guide.md).
 
 ---
 

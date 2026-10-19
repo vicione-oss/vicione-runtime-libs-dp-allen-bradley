@@ -72,6 +72,11 @@ The decision is in the
 - An unknown `test-suite` value **fails the build** instead of a silent run of hardware I/O.
 - `--filter-query` clashes with the injected suite filter. Use the simple-style filters (`--filter-class`,
   `--filter-trait`, `--filter-not-trait`).
+- In the IDE, each test project has the launch profiles `all-tests`, `unit-tests` and `integration-tests`. Keep the
+  first profile free of arguments, because `dotnet test` merges its arguments with the suite filter.
+
+The full rules, with `dotnet run` and the filter options, are in the
+[testing guide](docs/AllenBradley.Documentation/conventions/testing-guide.md).
 
 ## The integration suite
 
@@ -123,6 +128,7 @@ documentation ships inside the NuGet packages themselves.
 | Modelling conventions     | [docs/AllenBradley.Documentation/conventions/modelling-conventions.md](docs/AllenBradley.Documentation/conventions/modelling-conventions.md)         |
 | CIP protocol              | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)                                             |
 | libplctag behaviour       | [docs/AllenBradley.Documentation/libplctag/README.md](docs/AllenBradley.Documentation/libplctag/README.md) — the library's quirks and traps          |
+| Testing guide             | [docs/AllenBradley.Documentation/conventions/testing-guide.md](docs/AllenBradley.Documentation/conventions/testing-guide.md) — suites, filters, launch profiles |
 | Test device setup         | [docs/AllenBradley.Documentation/test-bench/test-device-setup.md](docs/AllenBradley.Documentation/test-bench/test-device-setup.md)                   |
 | Logix dataport            | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                                                   |
 | Legacy dataport           | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                                                 |
