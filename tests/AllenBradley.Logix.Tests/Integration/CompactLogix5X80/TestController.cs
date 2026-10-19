@@ -24,7 +24,7 @@ internal static class TestController
 
     // A placeholder until the L306ER has an address of its own: the unconfigured second CompactLogix on
     // the lab subnet (test-device-setup.md).
-    private const string DefaultEndpoint = "192.168.0.102";
+    private const string DefaultEndpoint = "10.100.11.234";
 
     private const int DefaultTimeoutSeconds = 10;
 

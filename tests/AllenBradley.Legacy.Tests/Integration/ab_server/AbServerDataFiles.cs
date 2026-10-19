@@ -1,7 +1,7 @@
 using System.Globalization;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server;
 
 /// <summary>One data file that <see cref="AbServer"/> creates at its start.</summary>
 /// <param name="Type">The type of the data file.</param>

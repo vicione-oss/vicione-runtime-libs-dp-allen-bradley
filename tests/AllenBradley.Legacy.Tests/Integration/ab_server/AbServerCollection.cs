@@ -1,4 +1,4 @@
-namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server;
 
 /// <summary>
 /// Groups every test that talks to <see cref="AbServer"/>, so that they share one server and never run in

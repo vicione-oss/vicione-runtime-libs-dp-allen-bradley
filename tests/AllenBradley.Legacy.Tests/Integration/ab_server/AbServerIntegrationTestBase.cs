@@ -4,7 +4,7 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.Extensions.Testing.Logging;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server;
 
 /// <summary>
 /// Builds the production client against <see cref="AbServer"/> and disposes it after each test. Disposing the

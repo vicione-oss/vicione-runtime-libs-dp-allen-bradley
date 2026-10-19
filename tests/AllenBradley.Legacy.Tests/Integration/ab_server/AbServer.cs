@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.Device;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server;
 
 /// <summary>
 /// libplctag's ab_server as an SLC 500 with the data files in <see cref="AbServerDataFiles"/>. It runs on a free

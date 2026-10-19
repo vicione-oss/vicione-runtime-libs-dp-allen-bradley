@@ -3,10 +3,10 @@ using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Binar
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Floats;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Legacy.Model.DataPort.DataPoints.Strings;
-using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.AbServerDataFiles;
+using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server.AbServerDataFiles;
 using static ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.TestData.LegacyDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration;
+namespace ViciOne.Suite.DataPort.AllenBradley.Legacy.Tests.Integration.ab_server;
 
 /// <summary>
 /// Writes one element of each data file on <see cref="AbServer"/> and reads it back. Each value has bytes that
