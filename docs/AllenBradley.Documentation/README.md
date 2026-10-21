@@ -55,8 +55,6 @@ versus 5X80, decides which data types a controller can declare at all.
    the facts about it that shaped the client.
 10. [The shared client](client/README.md): the client code both ports use around libplctag, and what
     each port adds to it.
-11. [The test bench](test-bench/test-device-setup.md): the two controllers, how to reach them, and
-    how to run the integration suite.
 
 Then move on to the [Logix port](../AllenBradley.Logix.Documentation/README.md). Its reference
 section says which of the types above the port implements today.
@@ -74,7 +72,6 @@ lower folder never mentions a higher one except to point at it. The `protocol/`,
 | [`protocol/allen-bradley-extension/`](protocol/README.md) | What Rockwell adds | The tag services, the Symbol and Template objects, controller and program scope, the types the tag-addressed and file-addressed families expose, and the PCCC tunnel |
 | [`libplctag/`](libplctag/README.md) | The library | What libplctag does that the spec does not dictate: session sharing and packing, the buffer contract, disposal, browsing pseudo-tags |
 | [`client/`](client/README.md) | Our code around the library | The client pool, tag cache, batches, tag access and codecs in `src/AllenBradley.Client.Shared`, and what a port supplies to use them |
-| [`test-bench/`](test-bench/) | Our devices | The borrowed L32E and our own L306ER: access, addresses, tags, and the environment variables the suites read |
 | [`conventions/`](conventions/) | How we write and test | The documentation principles these pages obey, the modelling rule for the types we define, and the [testing guide](conventions/testing-guide.md) |
 
 The repo-wide build conventions (package feeds, central package management) are in

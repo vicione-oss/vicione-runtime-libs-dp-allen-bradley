@@ -34,7 +34,7 @@ The documentation is split across sibling projects that mirror the eventual `src
 
 | Project                                                                          | Holds                                                                       |
 |----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| **AllenBradley.Documentation** (this project)                                    | Cross-port material: the hub, `controllers/`, `protocol/`, `libplctag/`, `client/`, `test-bench/`, and these conventions |
+| **AllenBradley.Documentation** (this project)                                    | Cross-port material: the hub, `controllers/`, `protocol/`, `libplctag/`, `client/`, and these conventions |
 | [**AllenBradley.Logix.Documentation**](../../AllenBradley.Logix.Documentation/README.md)  | The Logix port: symbolic tag addressing (ControlLogix, CompactLogix, GuardLogix, SoftLogix) |
 | [**AllenBradley.Legacy.Documentation**](../../AllenBradley.Legacy.Documentation/README.md) | The Legacy port: file/data-table addressing over PCCC (PLC-5, SLC 500, MicroLogix) |
 
@@ -69,8 +69,7 @@ what it does that the CIP spec does not dictate: request packing and its timing,
 concurrency and disposal quirks. These are facts about the dependency, consumed by the client ADRs.
 The folder sits one layer above `protocol/` and one below the decisions in `ADR/`.
 
-[`test-bench/`](../test-bench/) holds the controllers available for integration testing, how to reach
-them, and what each suite assumes about them. [`conventions/`](./) holds these principles, the
+[`conventions/`](./) holds these principles, the
 modelling rule for the types we define, and the [testing guide](testing-guide.md).
 
 ---

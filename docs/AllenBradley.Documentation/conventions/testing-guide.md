@@ -9,7 +9,7 @@ runner. Read this page before you run tests.
 | Project                            | What it tests                                     | Integration tests against                 |
 |------------------------------------|---------------------------------------------------|-------------------------------------------|
 | `AllenBradley.Client.Shared.Tests` | The shared client, against fakes                  | none                                      |
-| `AllenBradley.Logix.Tests`         | The Logix dataport                                | the L32E and the L306ER on the test bench |
+| `AllenBradley.Logix.Tests`         | The Logix dataport                                | our CompactLogix 5069-L306ER              |
 | `AllenBradley.Legacy.Tests`        | The Legacy dataport                               | libplctag's `ab_server`, started locally  |
 
 ## Test suites
@@ -114,10 +114,11 @@ dotnet run --project tests/AllenBradley.Legacy.Tests/AllenBradley.Legacy.Tests.c
 
 ## Integration test requirements
 
-- **Logix.** The tests talk to the controllers on the test bench. Read
-  [test-device-setup.md](../test-bench/test-device-setup.md) for the access, the addresses and the
-  environment variables. The tests are in `PlcCollection`, which never runs in parallel, because they
-  share one libplctag session.
+- **Logix.** The tests talk to our CompactLogix 5069-L306ER. Read
+  [Run the integration tests](../../AllenBradley.Logix.Documentation/how-to/run-the-integration-tests.md)
+  for the address, the provisioned tags and the environment variables. The tests are in
+  `TestControllerCollection`, which never runs in parallel, because they share one libplctag session. The
+  `TestControllerFixture` connects before the first test and disposes the client after the last test.
 - **Legacy.** The tests talk to libplctag's `ab_server`, which emulates an SLC 500. The binaries for
   `linux-x64` and `win-x64` are in `tests/AllenBradley.Legacy.Tests/Integration/ab_server/binaries/`. The
   `AbServer` fixture starts the server on a free loopback port and stops it after the last test, so

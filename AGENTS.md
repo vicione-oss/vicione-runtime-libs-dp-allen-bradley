@@ -52,7 +52,7 @@ The decision is in the
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Build              | `dotnet build allen-bradley.slnx -c Debug`                                                                                          |
 | Test (unit)        | `dotnet test` — the unit suite is the default, and never touches the PLC                                                            |
-| Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see test-device-setup.md)                                         |
+| Test (integration) | `dotnet test -p:test-suite=integration` — **needs a controller** (see run-the-integration-tests.md)                                  |
 | Test (all)         | `dotnet test -p:test-suite=all`                                                                                                     |
 | Test (class)       | `dotnet test --project tests/AllenBradley.Logix.Tests/AllenBradley.Logix.Tests.csproj --filter-class "<fully.qualified.ClassName>"` |
 | Test (shared)      | `dotnet test --project tests/AllenBradley.Client.Shared.Tests/AllenBradley.Client.Shared.Tests.csproj` — fakes only, no PLC        |
@@ -81,20 +81,17 @@ The full rules, with `dotnet run` and the filter options, are in the
 ## The integration suite
 
 `tests/AllenBradley.Logix.Tests/Integration/` is the suite that targets actual hardware. A bare `dotnet test` never runs it.
-It is split in two, by device:
+It runs against our **5069-L306ER**, provisioned with `CompactLogix5X80/Infrastructure/Provisioning/ViciOne.L5X`. All of it is in
+`CompactLogix5X80/`: a round trip per data type, against tags we provision, and a few client-stack tests that hold
+the client against raw libplctag handles.
 
-| Folder              | Device                                                    | What a test there is                                     |
-|---------------------|-----------------------------------------------------------|----------------------------------------------------------|
-| `CompactLogix5X70/` | the **L32E**, borrowed, in the ifm demo cell              | a description of tags we cannot change                   |
-| `CompactLogix5X80/` | the **5069-L306ER**, our own device, not commissioned yet | a specification for a tag that must still be provisioned |
+If a new test needs a tag, add the tag to `TagAddresses.cs` and `ViciOne.L5X` together. `TestControllerConfiguration` is the only
+type that says how the controller is reached. It reads the endpoint from environment variables with defaults. All
+tests are in `TestControllerCollection`, which never runs in parallel, because the tests share one libplctag session.
+The suite connects one time for the whole collection, through the `TestControllerFixture`.
 
-Put new integration coverage in `CompactLogix5X80/`, where a test that needs a tag can have one provisioned. Each
-folder holds exactly one type that says how its device is reached — `BenchController` for the L32E, `TestController`
-for the L306ER — and each reads its endpoint from an environment variable with a default. `PlcCollection` holds every
-test that talks to a controller and never runs in parallel, because the tests share one libplctag session.
-
-Read [test-device-setup.md](docs/AllenBradley.Documentation/test-bench/test-device-setup.md) before you point anything
-at a device.
+Read [run-the-integration-tests.md](docs/AllenBradley.Logix.Documentation/how-to/run-the-integration-tests.md) before
+you point anything at a device.
 
 ## Repo conventions
 
@@ -129,7 +126,7 @@ documentation ships inside the NuGet packages themselves.
 | CIP protocol              | [docs/AllenBradley.Documentation/protocol/README.md](docs/AllenBradley.Documentation/protocol/README.md)                                             |
 | libplctag behaviour       | [docs/AllenBradley.Documentation/libplctag/README.md](docs/AllenBradley.Documentation/libplctag/README.md) — the library's quirks and traps          |
 | Testing guide             | [docs/AllenBradley.Documentation/conventions/testing-guide.md](docs/AllenBradley.Documentation/conventions/testing-guide.md) — suites, filters, launch profiles |
-| Test device setup         | [docs/AllenBradley.Documentation/test-bench/test-device-setup.md](docs/AllenBradley.Documentation/test-bench/test-device-setup.md)                   |
+| Integration tests         | [docs/AllenBradley.Logix.Documentation/how-to/run-the-integration-tests.md](docs/AllenBradley.Logix.Documentation/how-to/run-the-integration-tests.md) |
 | Logix dataport            | [docs/AllenBradley.Logix.Documentation/README.md](docs/AllenBradley.Logix.Documentation/README.md)                                                   |
 | Legacy dataport           | [docs/AllenBradley.Legacy.Documentation/README.md](docs/AllenBradley.Legacy.Documentation/README.md)                                                 |
 | Data types the port has   | [docs/AllenBradley.Logix.Documentation/reference/datatype-support.md](docs/AllenBradley.Logix.Documentation/reference/datatype-support.md)           |

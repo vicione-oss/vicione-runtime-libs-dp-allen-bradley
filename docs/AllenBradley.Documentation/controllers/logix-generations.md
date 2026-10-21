@@ -57,10 +57,9 @@ container. How that gate works is in the Logix port's
 [data type support](../../AllenBradley.Logix.Documentation/reference/datatype-support.md#types-the-5x70-controllers-have-not-got)
 reference.
 
-The test bench has one controller of each generation. The borrowed CompactLogix L32E is a 1769 and
-therefore 5X70. Our own CompactLogix 5069-L306ER is a 5380 and therefore 5X80, and the per-type
-round-trip suite has to run on it for exactly this reason. See
-[the test-device setup](../test-bench/test-device-setup.md).
+The integration tests run on our CompactLogix 5069-L306ER, a 5380 and therefore 5X80. The per-type
+round-trip suite needs a 5X80 for exactly this reason. See
+[Run the integration tests](../../AllenBradley.Logix.Documentation/how-to/run-the-integration-tests.md).
 
 ## References
 

@@ -53,8 +53,9 @@ we can test it against a byte array without a device. It also does not use the w
 - Good: The converters do not depend on libplctag. If we replace libplctag, only the adapter changes.
 - Bad: We are responsible for each byte layout. A wrong offset causes no error. It gives a wrong value that looks
   correct.
-- Bad: The `STRING` layout comes from the libplctag source code, not from a capture of the device. A device test must
-  still confirm it ([test-device setup](../../AllenBradley.Documentation/test-bench/test-device-setup.md)).
+- Bad: The `STRING` layout comes from the libplctag source code, not from a capture of the device. Only the round
+  trips in `StringIntegrationTests` check it against a controller, and a round trip passes when the encode and the
+  decode share the same wrong layout.
 - Bad: The decode trusts the configured type. If verification misses a mismatch, a read gives a wrong value without an
   error.
 

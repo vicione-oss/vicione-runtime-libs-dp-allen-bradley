@@ -16,7 +16,7 @@ pages cover only what the Logix port adds on top.
 
 > **Status.** The port reads and writes tags against a real controller, and is being built slice by
 > slice, so these pages describe a moving target. `reference/` and `ADR/` track what has landed.
-> `how-to/` is still scaffolding.
+> `how-to/` has only the pages about the integration tests so far.
 >
 > **Addressing is a plain tag name today.** A configuration node carries the tag name the controller
 > knows, and `TagNamePropertyValidator` accepts nothing more elaborate: no dotted structure members.
@@ -42,12 +42,13 @@ port leans on most. It is why a device node names a generation and why some type
 | [`explanation/model/node-model.md`](explanation/model/node-model.md) | The configured tree: the three kinds of node, why the marker interfaces exist, what each container accepts as a child, and why there is one record per data type |
 | [`explanation/client/architecture.md`](explanation/client/architecture.md) | The entry point to the client architecture: the overview diagram, and one linked page per axis (reading and writing, values, connecting, tags and handles, the symbol table, verification) |
 
-### How-to *(planned)*
+### How-to
 
 | Document | Covers |
 |----------|--------|
-| `how-to/connect-to-a-device.md` | Connecting to a Logix controller (gateway, backplane path, connection sizing) |
-| `how-to/add-a-data-type.md` | Step-by-step recipe for adding a new Logix data-point type |
+| [`how-to/run-the-integration-tests.md`](how-to/run-the-integration-tests.md) | The test controller, the project it is provisioned with, the tags each suite assumes, and the environment variables the suites read |
+| `how-to/connect-to-a-device.md` *(planned)* | Connecting to a Logix controller (gateway, backplane path, connection sizing) |
+| `how-to/add-a-data-type.md` *(planned)* | Step-by-step recipe for adding a new Logix data-point type |
 
 ### Reference
 
@@ -68,7 +69,7 @@ Architecture decision records land under [`ADR/`](ADR/) as design decisions are 
 ---
 
 Cross-port material (the controllers, the protocol background, libplctag behaviour, the
-[shared client](../AllenBradley.Documentation/client/README.md) and the test bench) lives in the
+[shared client](../AllenBradley.Documentation/client/README.md)) lives in the
 [AllenBradley.Documentation](../AllenBradley.Documentation/README.md) hub. These
 docs follow the [Diátaxis](https://diataxis.fr/) framework. Read the
 [documentation principles](../AllenBradley.Documentation/conventions/documentation-principles.md)

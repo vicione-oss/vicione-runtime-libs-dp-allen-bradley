@@ -67,5 +67,4 @@ access gives a failure as text only.
 ## How it was checked
 
 The facts come from a research of the `libplctag` and `libplctag.NET` sources and documentation in October 2026. Nobody
-checked the `S2:0` read against a PCCC controller yet, because the test bench has none
-([test-device setup](../test-bench/test-device-setup.md)).
+checked the `S2:0` read against a PCCC controller yet, because we have none.

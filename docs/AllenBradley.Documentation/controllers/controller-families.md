@@ -30,8 +30,8 @@ engineer will recognise the shape from an S7-1200 or S7-1500 CPU.
 How much else is integrated varies within that shape, and the CompactLogix line is not uniform. A
 5370, 5380 or 5480 takes its 24V DC on the controller, so controller, power input and Ethernet
 are one unit. A 1769 does not. It needs a separate 1769-PA2/PB2 supply on the rail, and the
-controller must sit within four modules of it. That is the shape of the
-[L32E on the test bench](../test-bench/test-device-setup.md). What the whole line does share is the
+controller must sit within four modules of it. That is the shape of a 1769-L32E. What the whole
+line does share is the
 absence of a communications bus. No CompactLogix can be given a second Ethernet port by adding a
 module, because there is no slot to add one to.
 

@@ -75,9 +75,8 @@ how Timer, Counter, and string elements are laid out.
 Most of these families have no Ethernet of their own. How a request reaches them through a bridge is
 in [chassis and route paths](../AllenBradley.Documentation/controllers/chassis-and-route-paths.md#reaching-a-legacy-controller-through-a-bridge).
 
-The integration test rig currently targets a Logix controller. See
-[the test-device setup](../AllenBradley.Documentation/test-bench/test-device-setup.md) for the
-connection model. A legacy device would be reached the same way, through the Link Manager tunnel.
+The integration tests run against libplctag's `ab_server`, which emulates an SLC 500. See the
+[testing guide](../AllenBradley.Documentation/conventions/testing-guide.md#integration-test-requirements).
 
 ## Components
 

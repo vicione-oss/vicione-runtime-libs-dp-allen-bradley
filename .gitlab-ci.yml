@@ -126,7 +126,7 @@ include:
       rules: *rules_always
   # Runs on every pipeline, tags included, so a release never ships without the
   # tests having run. The unit suite is PLC-safe by default; the Logix integration
-  # suite needs the L32E and is not exercised in CI. The Legacy integration suite
+  # suite needs a controller and is not exercised in CI. The Legacy integration suite
   # has its own manual job below.
   #
   # The NuGet auth is required even though the build passes --no-restore: the docs
