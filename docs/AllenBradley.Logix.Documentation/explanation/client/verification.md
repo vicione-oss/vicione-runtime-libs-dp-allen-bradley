@@ -69,7 +69,7 @@ client does not compare types at run time. It finds only the changes that give a
 1. An atomic scalar that became narrower gives a reply that is too short. The read of that tag fails.
 2. An array whose element type changed its width gives a reply with the incorrect length. The read of that tag fails.
 3. An array that became shorter than the configured count makes the controller refuse the request.
-4. A write payload that is longer than the handle makes libplctag refuse the write.
+4. A `STRING` whose capacity became larger makes the controller refuse the write, because the payload is too short.
 
 Other changes give no error. A `DINT` that became a `REAL` has the same width, and the client decodes its bytes as a
 `DINT`. A scalar that became wider decodes from its first bytes. An array that became longer gives its first elements,

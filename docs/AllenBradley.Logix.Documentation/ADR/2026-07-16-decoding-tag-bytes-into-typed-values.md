@@ -42,8 +42,8 @@ we can test it against a byte array without a device. It also does not use the w
 - The check against the controller occurs one time, at connect.
   [Configuration verification](2026-07-21-verifying-configuration-against-the-symbol-table.md) compares each data
   point with the declared type in the symbol table. Reads and writes do not repeat the check.
-- A converter does not know the width of the tag. It returns only the bytes of the value. The handle has the width
-  that the controller declares, and it refuses a payload that is too long.
+- A converter returns all the bytes of the tag, a structure with its alignment padding. libplctag sends the payload
+  as it is, and does not compare it with the width that the controller declares.
 - The converters are in `Client/`, not in the domain model. They use no libplctag type. Only the libplctag adapter does
   ([Operations, not accessors](2026-07-16-operations-not-accessors-over-libplctag.md)).
 

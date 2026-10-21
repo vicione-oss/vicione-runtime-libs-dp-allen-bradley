@@ -323,8 +323,8 @@ public sealed class LogixClientTests
         await client.WriteAsync(values, CancellationToken.None);
 
         // Assert
-        // The two padding bytes that make the tag 88 on the controller belong to libplctag, not the client.
-        var expected = new byte[4 + StringMaxLength.Standard.Value];
+        // Padded to 88, the whole structure: a 5X80 refuses a write of the 86 bytes without the pad.
+        var expected = new byte[StringStructureSize];
         expected[0] = 2;
         expected[4] = (byte)'H';
         expected[5] = (byte)'i';

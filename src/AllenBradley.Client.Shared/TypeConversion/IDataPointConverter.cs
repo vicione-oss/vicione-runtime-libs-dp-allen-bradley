@@ -13,7 +13,8 @@ internal interface IDataPointConverter<in TDataPoint, TValue>
 
     /// <summary>
     /// Encodes the payload carried by <paramref name="value"/> into the little-endian bytes the value
-    /// occupies — never the padded width of the tag, which only libplctag's handle knows.
+    /// occupies. A structure includes its trailing pad, because a controller refuses a write shorter than the
+    /// whole structure.
     /// </summary>
     /// <exception cref="InvalidOperationException">The value cannot be written to its data point.</exception>
     byte[] Encode(TValue value);

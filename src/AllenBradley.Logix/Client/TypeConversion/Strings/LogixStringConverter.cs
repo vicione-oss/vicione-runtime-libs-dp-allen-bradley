@@ -4,17 +4,22 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 
 /// <summary>
-/// The Logix STRING: a predefined structure, not an elementary type — a <see cref="LogixStringHeader"/>
-/// followed by <c>.DATA : SINT[n]</c>, the whole padded up to a 4-byte boundary (88 bytes for the built-in
-/// n = 82). A scalar in the model all the same: one value, not an array.
+/// The Logix STRING: a predefined structure, not an elementary type. It is a scalar in the model: one value,
+/// not an array. The size of the structure is a multiple of 4 bytes.
+/// <para>
+/// Layout for the value <c>"Hi"</c> on a built-in string (n = 82). The size is 4 + 82 = 86 bytes, rounded up to 88:
+/// </para>
+/// <code>
+/// Offset  Size  Part                 Content
+///      0     4  .LEN                 02 00 00 00
+///      4     2  .DATA, characters    48 69
+///      6    80  .DATA, rest          00 ... 00
+///     86     2  Padding              00 00
+/// </code>
 /// </summary>
 internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint, string>
 {
-    // Not a const: a marshalled size is not a constant expression.
     private static readonly int DataOffset = LogixStringHeader.Size;
-
-    // Matches the sibling S7 dataport's StringAccessBufferSetter, so a value written through one port reads
-    // back the same through the other. One byte per character, so anything outside Latin-1 encodes as '?'.
     private static readonly Encoding Latin1 = Encoding.Latin1;
 
     protected override string DecodeValue(StringDataPoint dataPoint, ReadOnlySpan<byte> buffer)
@@ -39,11 +44,21 @@ internal sealed class LogixStringConverter : DataPointConverter<StringDataPoint,
                 $"the tag is configured to hold {dataPoint.MaxLength.Value}.");
         }
 
-        // The whole of .DATA, not just the characters in hand: the controller keeps what is written past
-        // .LEN, so the zeroed tail is what stops a shorter value leaving the old one visible in Studio 5000.
-        var bytes = new byte[DataOffset + dataPoint.MaxLength.Value];
+        var bytes = CreateByteBuffer(dataPoint);
         new LogixStringHeader(characterCount).WriteTo(bytes);
         Latin1.GetBytes(value, bytes.AsSpan(DataOffset));
         return bytes;
     }
+
+    // The buffer covers the whole of .DATA, not only the characters in hand. The controller keeps what is
+    // written past .LEN, so the zeroed tail stops a shorter value from leaving the old one visible in Studio 5000.
+    private static byte[] CreateByteBuffer(StringDataPoint dataPoint)
+    {
+        var sizeWithoutPadding = DataOffset + dataPoint.MaxLength.Value;
+        return new byte[RoundUpToMultipleOfFour(sizeWithoutPadding)];
+    }
+
+    // A 5X80 refuses a write that is shorter than the whole structure, and the structure ends on a 4-byte
+    // boundary. Example: 4 (.LEN) + 82 (.DATA) = 86 bytes, rounded up to 88.
+    private static int RoundUpToMultipleOfFour(int size) => (size + 3) / 4 * 4;
 }

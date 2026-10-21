@@ -36,6 +36,15 @@ The core shrinks the handle and sends only the bytes of the array:
 No stale bytes from an earlier read go to the controller, because the handle no longer holds them.
 The bytes that the array does not cover keep their value on the controller.
 
+## A real Logix controller refuses a short structure
+
+A 5069-L306ER does not accept a short write to a structure. A `STRING` is 88 bytes on the
+controller: `.LEN`, `.DATA[82]` and 2 bytes of alignment padding. A write of the 86 bytes without the
+padding fails with `ErrorTooSmall`, and the tag keeps its value. A write of all 88 bytes succeeds.
+
+`ab_server` accepts the same short write. Thus, the `ab_server` results above do not tell what a
+real controller does. A short write to an atomic array has not been measured on a real controller.
+
 ## The typed `Tag<M,T>` path
 
 Our client does not use the typed wrapper. `Tag<M,T>.WriteAsync` initializes the handle if it is
@@ -73,8 +82,8 @@ client has no write-side call to `GetSize` at all. Thus, the converter alone dec
 go to the controller. The core does not refuse a payload of the wrong length. A payload that is too
 long can write into the next element of a PCCC data file, and the write reports success.
 
-For a Logix `STRING`, the payload is `.LEN` plus `.DATA`, and the handle shrinks from the full width
-of the type to that length. The alignment padding after `.DATA` is not sent.
+For a Logix `STRING`, the payload is the whole structure: `.LEN`, `.DATA` and the alignment padding
+after `.DATA`. Without the padding, the controller refuses the write.
 
 All of this relies on the tag on the controller being the type the configuration says, and on each
 converter encoding the exact width of its type. For Logix, that is what
@@ -88,7 +97,8 @@ The behaviour of `SetBuffer` was read from the libplctag.NET source at tag `libp
 tables of the longer and the shorter array come from a probe that makes the same two native calls as
 `SetBuffer`, with the core 2.6.0 that the `libplctag` 1.5.2 package ships, against `ab_server` 2.7.2.
 The table of the typed path comes from a probe that calls `plc_tag_set_int8` on a 30-byte handle,
-with the same core 2.6.0, against `ab_server` 2.7.2. Neither probe is checked in.
+with the same core 2.6.0, against `ab_server` 2.7.2. Neither probe is checked in. The refusal of the
+short `STRING` write comes from the integration suite of the Logix dataport, against the 5069-L306ER.
 
 ## Source references
 

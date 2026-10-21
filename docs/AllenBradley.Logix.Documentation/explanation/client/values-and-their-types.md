@@ -76,15 +76,16 @@ A `BOOL` array has its bits packed into 32-bit words. Element *i* is one bit of 
 sends full words. Studio 5000 declares a `BOOL` array only in multiples of 32. Thus, a full word contains no bit of a
 different tag.
 
-## The converter does not know the width of the tag
+## The converter encodes the full width of the tag
 
-A converter returns only the bytes of the value. The client does not know the padding that the controller adds after
-them. The libplctag handle has the width of the controller, and it refuses a payload that is longer. It sends a
-shorter payload, but it keeps its old bytes after the end
+A converter returns all the bytes of the tag, and the client sends them as they are. libplctag resizes the handle to
+the length of the payload. It does not compare the payload with the tag on the controller
 ([writing into the tag buffer](../../../AllenBradley.Documentation/libplctag/writing-into-the-tag-buffer.md)).
 
-For a `STRING`, these old bytes are only padding. For an array, they are old elements. For this reason, the array
-converters refuse a value with the wrong number of elements.
+A payload that is too short has two results. For an array, the controller keeps its old elements after the end. For
+this reason, the array converters refuse a value with the wrong number of elements. For a `STRING`, the controller
+refuses the write. For this reason, the string converter adds the alignment padding after `.DATA`: 88 bytes for a
+`STRING`, 24 bytes for a `STRING_20`.
 
 ## What this means when you add a type
 

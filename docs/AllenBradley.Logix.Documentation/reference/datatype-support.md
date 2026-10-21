@@ -133,6 +133,9 @@ Two things are worth knowing before configuring one:
   is written as `?`, which is lossy and unavoidable: a `STRING` stores one byte per character.
 - **A value longer than the declared capacity is rejected, not truncated.** The write fails while the
   batch is being built, before any bytes reach the controller.
+- **A write sends the whole structure**, `.LEN`, all of `.DATA` and the alignment pad: 88 bytes for a
+  `STRING`, 24 for a `STRING_20`. A 5X80 refuses a write without the pad
+  ([writing into the tag buffer](../../AllenBradley.Documentation/libplctag/writing-into-the-tag-buffer.md#a-real-logix-controller-refuses-a-short-structure)).
 
 Verification checks the declared capacity as well as the shape, because a round trip cannot: writing
 `"Hi"` into a `STRING_20` and reading `"Hi"` back says nothing about how much the tag holds.

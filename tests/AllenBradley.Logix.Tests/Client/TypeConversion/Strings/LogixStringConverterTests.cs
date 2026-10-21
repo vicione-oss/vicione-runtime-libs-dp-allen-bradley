@@ -1,6 +1,5 @@
 using System.Text;
 using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.TypeConversion;
-using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.TypeConversion.Strings;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
@@ -18,9 +17,6 @@ public sealed class LogixStringConverterTests
 {
     private const int StructureSize = 88;
     private const int LengthPrefixSize = 4;
-
-    // The padding up to Logix's 32-bit structure boundary is the tag buffer's, not the converter's.
-    private const int PayloadSize = LengthPrefixSize + 82;
 
     private static readonly IDataPointConverter<ILogixDataPoint, ILogixDataPointValue> Converter = new LogixStringConverter();
 
@@ -151,7 +147,7 @@ public sealed class LogixStringConverterTests
         var bytes = Converter.Encode(Label.CreateLogixValue("Hi"));
 
         // Assert
-        var expected = new byte[PayloadSize];
+        var expected = new byte[StructureSize];
         expected[0] = 2;
         expected[LengthPrefixSize] = (byte)'H';
         expected[LengthPrefixSize + 1] = (byte)'i';
@@ -167,7 +163,7 @@ public sealed class LogixStringConverterTests
         var bytes = Converter.Encode(Label.CreateLogixValue(string.Empty));
 
         // Assert
-        bytes.Should().Equal(new byte[PayloadSize]);
+        bytes.Should().Equal(new byte[StructureSize]);
     }
 
     [Fact]
@@ -179,7 +175,7 @@ public sealed class LogixStringConverterTests
         var bytes = Converter.Encode(Label.CreateLogixValue("Hi"));
 
         // Assert
-        bytes.Should().HaveCount(PayloadSize);
+        bytes.Should().HaveCount(StructureSize);
         bytes.AsSpan(LengthPrefixSize + 2).ToArray().Should().AllSatisfy(b => b.Should().Be(0));
     }
 
