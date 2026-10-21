@@ -31,7 +31,7 @@ public sealed class LogixYamlConsistencyTests :
         [typeof(ControllerTagsNode)] = [nameof(ControllerTagsNode.Generation)],
         [typeof(ProgramTagsNode)] = [nameof(ProgramTagsNode.Generation)],
         [typeof(ArrayContainerNode)] = [nameof(ArrayContainerNode.ArrayDataType)],
-        [typeof(UdtContainerNode)] = [nameof(UdtContainerNode.Generation)],
+        [typeof(UdtContainerNode)] = [nameof(UdtContainerNode.Generation)]
     };
 
     public static Dictionary<Type, HashSet<string>> ExcludedDataPointNodeProperties => new()

@@ -18,10 +18,6 @@ internal static class TagDefinitionTestDataFactory
     internal static TagDefinition DefaultAtomicTagDefinition() =>
         new(AllenBradleyDataType.Dint, TemplateId: null, MaxLength: null, Scalar, OneElement);
 
-    /// <summary>What the controller declares a built-in STRING tag to be: a scalar structure of 82 characters.</summary>
-    internal static TagDefinition DefaultStringTagDefinition() =>
-        new(AllenBradleyDataType.String, DefaultTemplateId, StringMaxLength.Standard, Scalar, OneElement);
-
     /// <summary>
     /// What a structure is before the lookup has read its template: a structure, naming the template
     /// that says which kind.

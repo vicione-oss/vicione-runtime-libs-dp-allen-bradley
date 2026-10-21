@@ -42,7 +42,7 @@ public sealed class TagsDecoderTests
         // Assert
         ListedTag[] expected =
         [
-            new ListedTag(new TagAddress("A"), DefaultAtomicTagDefinition()),
+            new(new TagAddress("A"), DefaultAtomicTagDefinition()),
             new(new TagAddress("Tank.Level"), DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Real }),
             new(new TagAddress("Program:Main"), DefaultAtomicTagDefinition() with { DataType = AllenBradleyDataType.Unknown }),
         ];

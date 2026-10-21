@@ -128,7 +128,7 @@ public sealed class LogixReadBatchTests
     private sealed record UnregisteredDataPoint()
         : LogixDataPoint<int>(TagPath.Parse("Mystery.RootTagName"), DefaultPollFrequency, NoChannels)
     {
-        public override AllenBradleyDataType DataType => new AllenBradleyDataType(new DataTypeName("MYSTERY"), LogixGeneration.Logix5X70);
+        public override AllenBradleyDataType DataType => new(new DataTypeName("MYSTERY"), LogixGeneration.Logix5X70);
 
         internal override ILogixDataPointValue<int> CreateLogixValue(int value) => throw new NotSupportedException();
     }
