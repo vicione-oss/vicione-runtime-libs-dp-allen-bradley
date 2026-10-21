@@ -5,36 +5,41 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Timers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Timers;
 
 /// <summary>
-/// The timer node reaches <c>.ACC</c> alone, and a UDT node reaches the other members; both are driven
-/// against the same <see cref="TagAddresses.Timer"/>. The suite writes its <c>.ACC</c> and <c>.PRE</c>.
+/// The timer node reaches <c>.ACC</c> alone. A UDT node reaches the other members. Both run against the
+/// same <see cref="TagAddresses.Timer"/>.
 /// </summary>
-public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLogix5X80IntegrationTestBase(output)
+public abstract class TimerIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     private const int Preset = 5000;
 
-    private static readonly TimerDataPoint Timer =
-        new(TagPath.Parse(TagAddresses.Timer), DefaultPollFrequency, NoChannels);
+    private TimerDataPoint Timer =>
+        new(TagPath.Parse(Tags.Timer), DefaultPollFrequency, NoChannels);
 
-    private static readonly DIntDataPoint TimerPreset =
-        new(TagPath.Parse(TagAddresses.TimerMember("PRE")), DefaultPollFrequency, NoChannels);
+    private DIntDataPoint TimerPreset =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Timer, "PRE")), DefaultPollFrequency, NoChannels);
 
-    private static readonly DIntDataPoint TimerAccumulatedTime =
-        new(TagPath.Parse(TagAddresses.TimerMember("ACC")), DefaultPollFrequency, NoChannels);
+    private DIntDataPoint TimerAccumulatedTime =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Timer, "ACC")), DefaultPollFrequency, NoChannels);
 
-    private static readonly BoolDataPoint TimerDone =
-        new(TagPath.Parse(TagAddresses.TimerMember("DN")), DefaultPollFrequency, NoChannels);
+    private BoolDataPoint TimerDone =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Timer, "DN")), DefaultPollFrequency, NoChannels);
 
     [Theory]
     [InlineData(0)]
     [InlineData(1234)]
     [InlineData(int.MaxValue)]
-    public async Task AnAccumulatedTimeRoundTripsAndItsTagIsDeclaredATimer(int valueToWrite)
+    public async Task ATimerReadsBackAsWritten(int valueToWrite)
     {
         // Arrange
 
@@ -43,22 +48,24 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
 
         // Assert
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(Timer, ExpectedDeclaredTypes.TimerScalar(Timer)),
+            new ResolvedDataPoint(Timer,
+                new DeclaredType(Timer.TagAddress, AllenBradleyDataType.Timer, MaxLength: null, DimensionCount.Scalar,
+                    new ElementCount(1))),
             Timer.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
-    public async Task ANegativeAccumulatedTimeIsRefusedAndNeverReachesTheController()
+    public async Task ANegativeTimeIsRefused()
     {
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
         await Client.WriteAsync([Timer.CreateLogixValue(1234)], cancellationToken);
 
         // Act
-        var write = await Record.ExceptionAsync(
-            () => Client.WriteAsync([Timer.CreateLogixValue(-1)], cancellationToken).AsTask());
+        var write = await Record.ExceptionAsync(() =>
+            Client.WriteAsync([Timer.CreateLogixValue(-1)], cancellationToken).AsTask());
         var accumulatedTimeAfterwards = await ReadAsync(Timer);
 
         // Assert
@@ -68,10 +75,10 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
     }
 
     [Fact]
-    public async Task TheAccumulatedTimeWrittenThroughTheTimerIsWhatItsAccMemberHolds()
+    public async Task WritingATimerSetsItsAcc()
     {
         // Arrange
-        // Cleared first, so a 1234 another test left behind cannot pass this one.
+        // The tag is cleared first, so a 1234 left behind by another test cannot pass this one.
         var cancellationToken = TestContext.Current.CancellationToken;
         await Client.WriteAsync([TimerAccumulatedTime.CreateLogixValue(0)], cancellationToken);
 
@@ -84,25 +91,25 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
     }
 
     [Fact]
-    public async Task AMissingTimerIsReportedAtConnectNamingTheTimerRatherThanItsAcc()
+    public async Task AMissingTimerIsReportedByName()
     {
         // Arrange
         var missingTimer =
-            new TimerDataPoint(TagPath.Parse(TagAddresses.MissingTimer), DefaultPollFrequency, NoChannels);
+            new TimerDataPoint(TagPath.Parse(Tags.MissingTimer), DefaultPollFrequency, NoChannels);
         var verifier = new LogixConfigurationVerifier(Client);
 
         // Act
         var reported = await verifier.Verify([missingTimer], TestContext.Current.CancellationToken);
 
         // Assert
-        var expected = $"RootTagName '{TagAddresses.MissingTimer}' was not found on the controller.";
+        var expected = $"RootTagName '{Tags.MissingTimer}' was not found on the controller.";
         reported.Should().ContainSingle()
             .Which.MismatchingConfigurations.Should().ContainSingle()
             .Which.Value.Should().Be(expected);
     }
 
     [Fact]
-    public async Task WritingTheAccumulatedTimeLeavesThePresetAlone()
+    public async Task WritingATimerKeepsItsPreset()
     {
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
@@ -117,7 +124,7 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
     }
 
     [Fact]
-    public async Task ThePresetRoundTripsThroughAUdtNodeAsADInt()
+    public async Task ThePresetReadsBackAsWritten()
     {
         // Arrange
 
@@ -127,14 +134,16 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
         // Assert
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(
-                TimerPreset, ExpectedDeclaredTypes.AtomicScalar(TimerPreset, AllenBradleyDataType.Dint)),
+                TimerPreset,
+                new DeclaredType(TimerPreset.TagAddress, AllenBradleyDataType.Dint, MaxLength: null,
+                    DimensionCount.Scalar, new ElementCount(1))),
             TimerPreset.CreateLogixValue(Preset));
 
         roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
-    public async Task TheDoneBitReadsThroughAUdtNodeAsABool()
+    public async Task TheDoneBitReadsFalse()
     {
         // Arrange
         ILogixDataPoint[] dataPoints = [TimerDone];
@@ -144,17 +153,17 @@ public sealed class TimerIntegrationTests(ITestOutputHelper output) : CompactLog
         var done = await ReadAsync(TimerDone);
 
         // Assert
-        // No instruction runs on the tag, so nothing ever sets the bit.
+        // No instruction runs on the tag, so nothing sets the bit.
         resolved.Should().ContainSingle().Which.Should().Be(new ResolvedDataPoint(
-            TimerDone, ExpectedDeclaredTypes.AtomicScalar(TimerDone, AllenBradleyDataType.Bool)));
+            TimerDone,
+            new DeclaredType(TimerDone.TagAddress, AllenBradleyDataType.Bool, MaxLength: null, DimensionCount.Scalar,
+                new ElementCount(1))));
         done.Should().Be(TimerDone.CreateLogixValue(false));
     }
 
-    private async Task<ILogixDataPointValue> ReadAsync(ILogixDataPoint dataPoint)
-    {
-        var group = new LogixDataPointGroup(DefaultPollFrequency, [dataPoint]);
-        var values = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : TimerIntegrationTests(fixture, output, TagScope.Controller);
 
-        return values.Single();
-    }
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : TimerIntegrationTests(fixture, output, TagScope.Program);
 }

@@ -4,30 +4,35 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalar
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Counters;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Verification;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Counters;
 
 /// <summary>
-/// The counter node reaches <c>.ACC</c> alone, and a UDT node reaches the other members; both are driven
+/// The counter node reaches <c>.ACC</c> alone, and a UDT node reaches the other members. Both are driven
 /// against the same <see cref="TagAddresses.Counter"/>. The suite writes its <c>.ACC</c> and <c>.PRE</c>.
 /// </summary>
-public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactLogix5X80IntegrationTestBase(output)
+public abstract class CounterIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     private const int Preset = 500;
 
-    private static readonly CounterDataPoint Counter =
-        new(TagPath.Parse(TagAddresses.Counter), DefaultPollFrequency, NoChannels);
+    private CounterDataPoint Counter =>
+        new(TagPath.Parse(Tags.Counter), DefaultPollFrequency, NoChannels);
 
-    private static readonly DIntDataPoint CounterPreset =
-        new(TagPath.Parse(TagAddresses.CounterMember("PRE")), DefaultPollFrequency, NoChannels);
+    private DIntDataPoint CounterPreset =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Counter, "PRE")), DefaultPollFrequency, NoChannels);
 
-    private static readonly DIntDataPoint CounterAccumulatedValue =
-        new(TagPath.Parse(TagAddresses.CounterMember("ACC")), DefaultPollFrequency, NoChannels);
+    private DIntDataPoint CounterAccumulatedValue =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Counter, "ACC")), DefaultPollFrequency, NoChannels);
 
-    private static readonly BoolDataPoint CounterDone =
-        new(TagPath.Parse(TagAddresses.CounterMember("DN")), DefaultPollFrequency, NoChannels);
+    private BoolDataPoint CounterDone =>
+        new(TagPath.Parse(TagAddresses.Member(Tags.Counter, "DN")), DefaultPollFrequency, NoChannels);
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -35,7 +40,7 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
     [InlineData(0)]
     [InlineData(1234)]
     [InlineData(int.MaxValue)]
-    public async Task AnAccumulatedValueRoundTripsAndItsTagIsDeclaredACounter(int valueToWrite)
+    public async Task ACounterReadsBackAsWritten(int valueToWrite)
     {
         // Arrange
 
@@ -44,14 +49,16 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
 
         // Assert
         var expectedResult = new RoundTripResult(
-            new ResolvedDataPoint(Counter, ExpectedDeclaredTypes.CounterScalar(Counter)),
+            new ResolvedDataPoint(Counter,
+                new DeclaredType(Counter.TagAddress, AllenBradleyDataType.Counter, MaxLength: null,
+                    DimensionCount.Scalar, new ElementCount(1))),
             Counter.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
-    public async Task TheAccumulatedValueWrittenThroughTheCounterIsWhatItsAccMemberHolds()
+    public async Task WritingACounterSetsItsAcc()
     {
         // Arrange
         // Cleared first, so a 1234 another test left behind cannot pass this one.
@@ -67,25 +74,25 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
     }
 
     [Fact]
-    public async Task AMissingCounterIsReportedAtConnectNamingTheCounterRatherThanItsAcc()
+    public async Task AMissingCounterIsReportedByName()
     {
         // Arrange
         var missingCounter =
-            new CounterDataPoint(TagPath.Parse(TagAddresses.MissingCounter), DefaultPollFrequency, NoChannels);
+            new CounterDataPoint(TagPath.Parse(Tags.MissingCounter), DefaultPollFrequency, NoChannels);
         var verifier = new LogixConfigurationVerifier(Client);
 
         // Act
         var reported = await verifier.Verify([missingCounter], TestContext.Current.CancellationToken);
 
         // Assert
-        var expected = $"RootTagName '{TagAddresses.MissingCounter}' was not found on the controller.";
+        var expected = $"RootTagName '{Tags.MissingCounter}' was not found on the controller.";
         reported.Should().ContainSingle()
             .Which.MismatchingConfigurations.Should().ContainSingle()
             .Which.Value.Should().Be(expected);
     }
 
     [Fact]
-    public async Task WritingTheAccumulatedValueLeavesThePresetAlone()
+    public async Task WritingACounterKeepsItsPreset()
     {
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
@@ -100,7 +107,7 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
     }
 
     [Fact]
-    public async Task ThePresetRoundTripsThroughAUdtNodeAsADInt()
+    public async Task ThePresetReadsBackAsWritten()
     {
         // Arrange
 
@@ -110,14 +117,16 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
         // Assert
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(
-                CounterPreset, ExpectedDeclaredTypes.AtomicScalar(CounterPreset, AllenBradleyDataType.Dint)),
+                CounterPreset,
+                new DeclaredType(CounterPreset.TagAddress, AllenBradleyDataType.Dint, MaxLength: null,
+                    DimensionCount.Scalar, new ElementCount(1))),
             CounterPreset.CreateLogixValue(Preset));
 
         roundTripResult.Should().Be(expectedResult);
     }
 
     [Fact]
-    public async Task TheDoneBitReadsThroughAUdtNodeAsABool()
+    public async Task TheDoneBitReadsFalse()
     {
         // Arrange
         ILogixDataPoint[] dataPoints = [CounterDone];
@@ -129,15 +138,15 @@ public sealed class CounterIntegrationTests(ITestOutputHelper output) : CompactL
         // Assert
         // No instruction runs on the tag, so nothing ever sets the bit.
         resolved.Should().ContainSingle().Which.Should().Be(new ResolvedDataPoint(
-            CounterDone, ExpectedDeclaredTypes.AtomicScalar(CounterDone, AllenBradleyDataType.Bool)));
+            CounterDone,
+            new DeclaredType(CounterDone.TagAddress, AllenBradleyDataType.Bool, MaxLength: null,
+                DimensionCount.Scalar, new ElementCount(1))));
         done.Should().Be(CounterDone.CreateLogixValue(false));
     }
 
-    private async Task<ILogixDataPointValue> ReadAsync(ILogixDataPoint dataPoint)
-    {
-        var group = new LogixDataPointGroup(DefaultPollFrequency, [dataPoint]);
-        var values = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : CounterIntegrationTests(fixture, output, TagScope.Controller);
 
-        return values.Single();
-    }
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : CounterIntegrationTests(fixture, output, TagScope.Program);
 }

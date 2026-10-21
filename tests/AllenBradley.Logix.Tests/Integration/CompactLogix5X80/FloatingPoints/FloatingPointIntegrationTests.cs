@@ -2,16 +2,20 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.FloatingPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.FloatingPoints;
 
 /// <summary>
-/// Compared for exact equality, deliberately: a controller hands back the bytes it was given, so a round
-/// trip that loses a bit is a defect in the codec rather than the rounding a tolerance would absorb.
+/// Values are compared for exact equality on purpose. A controller returns the bytes it was given, so a
+/// round trip that loses a bit is a codec defect. A tolerance would hide it.
 /// </summary>
-public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
-    : CompactLogix5X80IntegrationTestBase(output)
+public abstract class FloatingPointIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     [Theory]
     [InlineData(0f)]
@@ -19,16 +23,17 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
     [InlineData(-1.5f)]
     [InlineData(float.MinValue)]
     [InlineData(float.MaxValue)]
-    public async Task ARealValueRoundTripsAndItsTagIsDeclaredReal(float valueToWrite)
+    public async Task ARealReadsBackAsWritten(float valueToWrite)
     {
         // Arrange
-        var dataPoint = new RealDataPoint(TagPath.Parse(TagAddresses.Real), DefaultPollFrequency, NoChannels);
+        var dataPoint = new RealDataPoint(TagPath.Parse(Tags.Real), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Real);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Real, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
@@ -42,21 +47,28 @@ public sealed class FloatingPointIntegrationTests(ITestOutputHelper output)
     [InlineData(-2.5d)]
     [InlineData(double.MinValue)]
     [InlineData(double.MaxValue)]
-    public async Task ALRealValueRoundTripsAndItsTagIsDeclaredLReal(double valueToWrite)
+    public async Task AnLRealReadsBackAsWritten(double valueToWrite)
     {
         // Arrange
-        // Math.PI is not representable in a REAL, so it catches an LREAL encoded through the narrower codec.
-        var dataPoint = new LRealDataPoint(TagPath.Parse(TagAddresses.LReal), DefaultPollFrequency, NoChannels);
+        // Math.PI cannot be represented in a REAL, so it catches an LREAL encoded through the narrower codec.
+        var dataPoint = new LRealDataPoint(TagPath.Parse(Tags.LReal), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Lreal);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Lreal, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
     }
+
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : FloatingPointIntegrationTests(fixture, output, TagScope.Controller);
+
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : FloatingPointIntegrationTests(fixture, output, TagScope.Program);
 }

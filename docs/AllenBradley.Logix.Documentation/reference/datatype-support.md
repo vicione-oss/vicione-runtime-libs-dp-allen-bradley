@@ -258,7 +258,7 @@ What this shape is not:
 An `ARRAY[0..9] OF INT` can also be configured as an **array container** — `IntArrayContainer`,
 carrying the tag name — with an `IntNode` under it for each element the configuration wants. The
 element node's tag name is the subscript, `[3]`, and nothing else; the tree walk composes
-`Program:MainProgram.testIntArray[3]` from the program, the container and the subscript, the way it
+`Program:MainProgram.IntArray[3]` from the program, the container and the subscript, the way it
 composes a program-scoped tag's address from the program and the tag. From there down the element is
 a scalar `INT` in every respect: a one-element handle, `IntConverter`, a `short` in and out, and a
 write that touches that element and no other. Every element type but `BOOL` has a container; a
@@ -274,8 +274,8 @@ on every handle, so the library packs them into as few packets as it can, but a 
 wants all ten elements at one frequency should be a whole-array node instead.
 
 The container declares no element count. The controller does, and the lookup reads every subscript
-against it: the flat `@tags` listing never names an element, so `testIntArray[3]` walks to the
-declaration of `testIntArray` and then into one element of it, a scalar of the array's element type
+against it: the flat `@tags` listing never names an element, so `IntArray[3]` walks to the
+declaration of `IntArray` and then into one element of it, a scalar of the array's element type
 at the element's own address, and `LogixTypeComparison` compares that scalar. Three things are
 reported at connect that a whole-array node cannot run into: a subscript on a tag the controller
 declares as a scalar and a subscript at or past the declared count, both of which stop the walk and
@@ -361,8 +361,8 @@ connect is.
 A tag address may reach into a structure — `Program:MainProgram.Counter.PRE` is a `DINT` inside a
 `COUNTER`, and the client reads it correctly — and a member is verified at connect the way a tag is.
 The tree has a node for a UDT's members, the walk builds a data point per member, and the symbol-table
-lookup follows the tag's template to the member's declaration. What is not yet in place is a round
-trip against a UDT on the 5X80: no tag in that suite is one.
+lookup follows the tag's template to the member's declaration. The 5X80 suite has round trips for UDT
+members, nested ones and array members included.
 
 The node is the **UDT container**, `UDT Instance` in the editor, one per generation like the scopes. It is the
 array container's pattern for members: the container carries the tag name, each child carries a member
@@ -372,8 +372,7 @@ one, because a dotted name is two nodes. The container states no type: the contr
 what the members are, and each child is gated by the generation the container carries down from its
 scope, so an `LREAL` member is refused on a 5X70 the way an `LREAL` tag is. An array container nests
 under it the same way, gated by the same generation, so an array member is opened per element and
-`MyMotor.Readings[3]` is one data point. The round trip of that address against a controller is not
-yet proved.
+`MyMotor.Readings[3]` is one data point.
 
 A UDT Instance also opens a `TIMER` or a `COUNTER`, and that is how the members the timer node and the
 counter node leave out are reached: `Timer1.PRE` under it resolves to a `DINT`, and `Counter1.DN` to a

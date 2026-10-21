@@ -3,101 +3,105 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Integers;
 
 /// <summary>
-/// One element of each unsigned integer array as a data point of its own, addressed with a subscript. The
-/// symbol table names no element, so an element resolves to its array's declaration. Every element value
-/// is above the signed maximum, which is what a signed misreading of the same bytes gets wrong.
+/// The symbol table names no element, so an element resolves to its array's declaration. Every element
+/// value is above the signed maximum, so a signed misreading of the same bytes gets it wrong.
 /// </summary>
-public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelper output)
-    : CompactLogix5X80IntegrationTestBase(output)
+public abstract class UnsignedIntegerArrayElementIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     private const int ElementIndex = 3;
-    private const byte USIntElementValue = 200;
+    private const byte UsIntElementValue = 200;
     private const ushort UIntElementValue = 50000;
-    private const uint UDIntElementValue = 4000000000;
-    private const ulong ULIntElementValue = 18446744073709551614;
+    private const uint UdIntElementValue = 4000000000;
+    private const ulong UlIntElementValue = 18446744073709551614;
 
-    private static readonly USIntArrayDataPoint USIntArray = new(
-        TagPath.Parse(TagAddresses.USIntArray),
+    private USIntArrayDataPoint UsIntArray => new(
+        TagPath.Parse(Tags.UsIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly USIntDataPoint USIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.USIntArray, ElementIndex)),
+    private USIntDataPoint UsIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.UsIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly UIntArrayDataPoint UIntArray = new(
-        TagPath.Parse(TagAddresses.UIntArray),
+    private UIntArrayDataPoint UIntArray => new(
+        TagPath.Parse(Tags.UIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly UIntDataPoint UIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.UIntArray, ElementIndex)),
+    private UIntDataPoint UIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.UIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly UDIntArrayDataPoint UDIntArray = new(
-        TagPath.Parse(TagAddresses.UDIntArray),
+    private UDIntArrayDataPoint UdIntArray => new(
+        TagPath.Parse(Tags.UdIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly UDIntDataPoint UDIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.UDIntArray, ElementIndex)),
+    private UDIntDataPoint UdIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.UdIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly ULIntArrayDataPoint ULIntArray = new(
-        TagPath.Parse(TagAddresses.ULIntArray),
+    private ULIntArrayDataPoint UlIntArray => new(
+        TagPath.Parse(Tags.UlIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly ULIntDataPoint ULIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.ULIntArray, ElementIndex)),
+    private ULIntDataPoint UlIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.UlIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
     [Fact]
-    public async Task AUSIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AusIntElementReadsBackAsWritten()
     {
         // Arrange
 
         // Act
-        var roundTripResult = await RoundTripAsync(USIntElement, USIntElementValue);
+        var roundTripResult = await RoundTripAsync(UsIntElement, UsIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(USIntElement, AllenBradleyDataType.Usint);
+        var expectedDeclaredType = new DeclaredType(UsIntElement.TagAddress, AllenBradleyDataType.Usint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(USIntElement, expectedDeclaredType),
-            USIntElement.CreateLogixValue(USIntElementValue));
+            new ResolvedDataPoint(UsIntElement, expectedDeclaredType),
+            UsIntElement.CreateLogixValue(UsIntElementValue));
 
         roundTripResult.Should().Be(expected);
     }
 
     [Fact]
-    public async Task WritingAUSIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAusIntElementKeepsTheOthers()
     {
         // Arrange
 
         // Act
-        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(USIntArray, USIntElement, USIntElementValue);
+        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(UsIntArray, UsIntElement, UsIntElementValue);
 
         // Assert
-        byte[] expected = [0, 0, 0, USIntElementValue, 0, 0, 0, 0, 0, 0];
+        byte[] expected = [0, 0, 0, UsIntElementValue, 0, 0, 0, 0, 0, 0];
 
         arrayAfterWrite.Should().Equal(expected);
     }
 
     [Fact]
-    public async Task AUIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AuIntElementReadsBackAsWritten()
     {
         // Arrange
 
@@ -105,7 +109,8 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
         var roundTripResult = await RoundTripAsync(UIntElement, UIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(UIntElement, AllenBradleyDataType.Uint);
+        var expectedDeclaredType = new DeclaredType(UIntElement.TagAddress, AllenBradleyDataType.Uint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
             new ResolvedDataPoint(UIntElement, expectedDeclaredType),
             UIntElement.CreateLogixValue(UIntElementValue));
@@ -114,7 +119,7 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
     }
 
     [Fact]
-    public async Task WritingAUIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAuIntElementKeepsTheOthers()
     {
         // Arrange
 
@@ -128,64 +133,72 @@ public sealed class UnsignedIntegerArrayElementIntegrationTests(ITestOutputHelpe
     }
 
     [Fact]
-    public async Task AUDIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AudIntElementReadsBackAsWritten()
     {
         // Arrange
 
         // Act
-        var roundTripResult = await RoundTripAsync(UDIntElement, UDIntElementValue);
+        var roundTripResult = await RoundTripAsync(UdIntElement, UdIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(UDIntElement, AllenBradleyDataType.Udint);
+        var expectedDeclaredType = new DeclaredType(UdIntElement.TagAddress, AllenBradleyDataType.Udint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(UDIntElement, expectedDeclaredType),
-            UDIntElement.CreateLogixValue(UDIntElementValue));
+            new ResolvedDataPoint(UdIntElement, expectedDeclaredType),
+            UdIntElement.CreateLogixValue(UdIntElementValue));
 
         roundTripResult.Should().Be(expected);
     }
 
     [Fact]
-    public async Task WritingAUDIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAudIntElementKeepsTheOthers()
     {
         // Arrange
 
         // Act
-        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(UDIntArray, UDIntElement, UDIntElementValue);
+        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(UdIntArray, UdIntElement, UdIntElementValue);
 
         // Assert
-        uint[] expected = [0, 0, 0, UDIntElementValue, 0, 0, 0, 0, 0, 0];
+        uint[] expected = [0, 0, 0, UdIntElementValue, 0, 0, 0, 0, 0, 0];
 
         arrayAfterWrite.Should().Equal(expected);
     }
 
     [Fact]
-    public async Task AULIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AulIntElementReadsBackAsWritten()
     {
         // Arrange
 
         // Act
-        var roundTripResult = await RoundTripAsync(ULIntElement, ULIntElementValue);
+        var roundTripResult = await RoundTripAsync(UlIntElement, UlIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(ULIntElement, AllenBradleyDataType.Ulint);
+        var expectedDeclaredType = new DeclaredType(UlIntElement.TagAddress, AllenBradleyDataType.Ulint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
-            new ResolvedDataPoint(ULIntElement, expectedDeclaredType),
-            ULIntElement.CreateLogixValue(ULIntElementValue));
+            new ResolvedDataPoint(UlIntElement, expectedDeclaredType),
+            UlIntElement.CreateLogixValue(UlIntElementValue));
 
         roundTripResult.Should().Be(expected);
     }
 
     [Fact]
-    public async Task WritingAULIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAulIntElementKeepsTheOthers()
     {
         // Arrange
 
         // Act
-        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(ULIntArray, ULIntElement, ULIntElementValue);
+        var arrayAfterWrite = await WriteOneElementOfAZeroedArrayAsync(UlIntArray, UlIntElement, UlIntElementValue);
 
         // Assert
-        ulong[] expected = [0, 0, 0, ULIntElementValue, 0, 0, 0, 0, 0, 0];
+        ulong[] expected = [0, 0, 0, UlIntElementValue, 0, 0, 0, 0, 0, 0];
 
         arrayAfterWrite.Should().Equal(expected);
     }
+
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : UnsignedIntegerArrayElementIntegrationTests(fixture, output, TagScope.Controller);
+
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : UnsignedIntegerArrayElementIntegrationTests(fixture, output, TagScope.Program);
 }

@@ -4,7 +4,7 @@ A single libplctag `Tag` handle is not safe to drive with two overlapping operat
 and a write (or two reads) on the same handle before the first completes does not corrupt the tag
 buffer, but it fails in a way that is worse than an honest error. The wrapper mispairs the
 completions, one call starves until its timeout, and the recovery disrupts unrelated later
-operations. This is verified against the real device (`SharedAccessConcurrencyTests`).
+operations. This is verified against the real device (`SharedAccessConcurrencyIntegrationTests`).
 
 This matters because handles are shared. The tag cache hands the same warm handle to every data point
 naming that tag (see [the-shared-session.md](the-shared-session.md)), so the read path and the write

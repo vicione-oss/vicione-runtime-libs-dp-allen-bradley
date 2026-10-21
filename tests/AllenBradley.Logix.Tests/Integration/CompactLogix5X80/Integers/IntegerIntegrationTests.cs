@@ -2,16 +2,20 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Integers;
 
 /// <summary>
-/// Each type is driven to both ends of its range as well as through the middle, because the width is
-/// the whole of what distinguishes these four and a decode that reads the right bytes as the wrong
-/// width agrees with a narrow test value.
+/// Each type is driven to both ends of its range and through the middle. Width is all that distinguishes
+/// these four, and a decode that reads the right bytes at the wrong width agrees with a narrow test value.
 /// </summary>
-public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactLogix5X80IntegrationTestBase(output)
+public abstract class IntegerIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     [Theory]
     [InlineData((sbyte)0)]
@@ -19,16 +23,17 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     [InlineData((sbyte)-1)]
     [InlineData(sbyte.MinValue)]
     [InlineData(sbyte.MaxValue)]
-    public async Task ASIntValueRoundTripsAndItsTagIsDeclaredSInt(sbyte valueToWrite)
+    public async Task AnSIntReadsBackAsWritten(sbyte valueToWrite)
     {
         // Arrange
-        var dataPoint = new SIntDataPoint(TagPath.Parse(TagAddresses.SInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new SIntDataPoint(TagPath.Parse(Tags.SInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Sint);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Sint, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
@@ -42,16 +47,17 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     [InlineData((short)-1)]
     [InlineData(short.MinValue)]
     [InlineData(short.MaxValue)]
-    public async Task AnIntValueRoundTripsAndItsTagIsDeclaredInt(short valueToWrite)
+    public async Task AnIntReadsBackAsWritten(short valueToWrite)
     {
         // Arrange
-        var dataPoint = new IntDataPoint(TagPath.Parse(TagAddresses.Int), DefaultPollFrequency, NoChannels);
+        var dataPoint = new IntDataPoint(TagPath.Parse(Tags.Int), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Int);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Int, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
@@ -65,16 +71,17 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     [InlineData(-1)]
     [InlineData(int.MinValue)]
     [InlineData(int.MaxValue)]
-    public async Task ADIntValueRoundTripsAndItsTagIsDeclaredDInt(int valueToWrite)
+    public async Task AdIntReadsBackAsWritten(int valueToWrite)
     {
         // Arrange
-        var dataPoint = new DIntDataPoint(TagPath.Parse(TagAddresses.DInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new DIntDataPoint(TagPath.Parse(Tags.DInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Dint);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Dint, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
@@ -88,20 +95,27 @@ public sealed class IntegerIntegrationTests(ITestOutputHelper output) : CompactL
     [InlineData(-1L)]
     [InlineData(long.MinValue)]
     [InlineData(long.MaxValue)]
-    public async Task ALIntValueRoundTripsAndItsTagIsDeclaredLInt(long valueToWrite)
+    public async Task AnLIntReadsBackAsWritten(long valueToWrite)
     {
         // Arrange
-        var dataPoint = new LIntDataPoint(TagPath.Parse(TagAddresses.LInt), DefaultPollFrequency, NoChannels);
+        var dataPoint = new LIntDataPoint(TagPath.Parse(Tags.LInt), DefaultPollFrequency, NoChannels);
 
         // Act
         var roundTripResult = await RoundTripAsync(dataPoint, valueToWrite);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(dataPoint, AllenBradleyDataType.Lint);
+        var expectedDeclaredType = new DeclaredType(dataPoint.TagAddress, AllenBradleyDataType.Lint, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expectedResult = new RoundTripResult(
             new ResolvedDataPoint(dataPoint, expectedDeclaredType),
             dataPoint.CreateLogixValue(valueToWrite));
 
         roundTripResult.Should().Be(expectedResult);
     }
+
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : IntegerIntegrationTests(fixture, output, TagScope.Controller);
+
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : IntegerIntegrationTests(fixture, output, TagScope.Program);
 }

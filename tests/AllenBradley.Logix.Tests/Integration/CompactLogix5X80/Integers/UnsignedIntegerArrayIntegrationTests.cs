@@ -2,23 +2,27 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Integers;
 
 /// <summary>
-/// Every element set holds zero, the maximum, and two values above the signed maximum, which are what a
-/// signed misreading of the same bytes gets wrong.
+/// Each element set holds zero, the maximum, and two values above the signed maximum. A signed misreading
+/// of the same bytes gets those two wrong.
 /// </summary>
-public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper output)
-    : CompactLogix5X80IntegrationTestBase(output)
+public abstract class UnsignedIntegerArrayIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     [Fact]
-    public async Task AUSIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    public async Task AusIntArrayReadsBackAsWritten()
     {
         // Arrange
         USIntArrayDataPoint pressures = new(
-            TagPath.Parse(TagAddresses.USIntArray),
+            TagPath.Parse(Tags.UsIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -28,7 +32,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(pressures, tenPressures);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(pressures, AllenBradleyDataType.Usint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = new DeclaredType(pressures.TagAddress, AllenBradleyDataType.Usint, MaxLength: null,
+            DimensionCount.OneDimensional, TagAddresses.ArrayElementCount);
         var expectedResolved = new ResolvedDataPoint(pressures, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
@@ -36,11 +41,11 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     }
 
     [Fact]
-    public async Task AUIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    public async Task AuIntArrayReadsBackAsWritten()
     {
         // Arrange
         UIntArrayDataPoint speeds = new(
-            TagPath.Parse(TagAddresses.UIntArray),
+            TagPath.Parse(Tags.UIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -50,7 +55,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(speeds, tenSpeeds);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(speeds, AllenBradleyDataType.Uint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = new DeclaredType(speeds.TagAddress, AllenBradleyDataType.Uint, MaxLength: null,
+            DimensionCount.OneDimensional, TagAddresses.ArrayElementCount);
         var expectedResolved = new ResolvedDataPoint(speeds, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
@@ -58,11 +64,11 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     }
 
     [Fact]
-    public async Task AUDIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    public async Task AudIntArrayReadsBackAsWritten()
     {
         // Arrange
         UDIntArrayDataPoint runtimes = new(
-            TagPath.Parse(TagAddresses.UDIntArray),
+            TagPath.Parse(Tags.UdIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -72,7 +78,8 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(runtimes, tenRuntimes);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(runtimes, AllenBradleyDataType.Udint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = new DeclaredType(runtimes.TagAddress, AllenBradleyDataType.Udint, MaxLength: null,
+            DimensionCount.OneDimensional, TagAddresses.ArrayElementCount);
         var expectedResolved = new ResolvedDataPoint(runtimes, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
@@ -80,11 +87,11 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
     }
 
     [Fact]
-    public async Task AULIntArrayIsWrittenWholeAndReadsBackAsTheElementsThatWentIn()
+    public async Task AulIntArrayReadsBackAsWritten()
     {
         // Arrange
         ULIntArrayDataPoint cycleCounts = new(
-            TagPath.Parse(TagAddresses.ULIntArray),
+            TagPath.Parse(Tags.UlIntArray),
             DefaultPollFrequency,
             NoChannels,
             TagAddresses.ArrayElementCount);
@@ -95,10 +102,17 @@ public sealed class UnsignedIntegerArrayIntegrationTests(ITestOutputHelper outpu
         var roundTripResult = await RoundTripAsync(cycleCounts, tenCycleCounts);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicArray(cycleCounts, AllenBradleyDataType.Ulint, TagAddresses.ArrayElementCount);
+        var expectedDeclaredType = new DeclaredType(cycleCounts.TagAddress, AllenBradleyDataType.Ulint,
+            MaxLength: null, DimensionCount.OneDimensional, TagAddresses.ArrayElementCount);
         var expectedResolved = new ResolvedDataPoint(cycleCounts, expectedDeclaredType);
 
         roundTripResult.Resolved.Should().Be(expectedResolved);
         roundTripResult.ReadValue.Value.Should().BeOfType<ulong[]>().Which.Should().Equal(tenCycleCounts);
     }
+
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : UnsignedIntegerArrayIntegrationTests(fixture, output, TagScope.Controller);
+
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : UnsignedIntegerArrayIntegrationTests(fixture, output, TagScope.Program);
 }

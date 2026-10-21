@@ -1,17 +1,23 @@
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using libplctag;
 using ViciOne.Suite.DataPort.AllenBradley.Client.Shared.Tags;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Client.Tags.Lifetime;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
-namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X70;
+namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.ClientStack;
 
 /// <summary>
-/// The two device facts that justify <c>SynchronizedTagAccess</c>, rather than taking the word of
-/// <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c> for them. The suite writes the DINT's
-/// own current value straight back, so the tag is never actually changed.
+/// The two device facts that justify <c>SynchronizedTagAccess</c>, shown here instead of taken on the word of
+/// <c>ADR/2026-07-16-operations-not-accessors-over-libplctag.md</c>. The suite writes the DINT's
+/// own current value straight back, so the tag is never actually changed. The behaviour does not depend on
+/// the scope, so the suite runs in one.
 /// </summary>
-public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
+public sealed class SharedAccessConcurrencyIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, TagScope.Controller)
 {
     private const int Rounds = 60;
     private const int ReadsPerRound = 3;
@@ -24,33 +30,35 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
 
     private static readonly TimeSpan SeedTimeout = TimeSpan.FromSeconds(10);
 
+    private readonly ILogixTagManager _tagManager = fixture.TagManager;
+
     [Fact]
     public void AGroupNamingOneTagTwiceDrawsTheSameTagForBothEntries()
     {
         // Arrange
-        // Distinct instances, equal by record value — the premise the shared access rests on.
-        var first = CounterPresetPoint();
-        var second = CounterPresetPoint();
+        // Distinct instances, equal by record value. The shared access relies on this.
+        var first = DIntPoint();
+        var second = DIntPoint();
 
         // Act
-        var tag = TagManager.TagFor(second);
+        var tag = _tagManager.TagFor(second);
 
         // Assert
-        tag.Should().BeSameAs(TagManager.TagFor(first));
+        tag.Should().BeSameAs(_tagManager.TagFor(first));
     }
 
     [Fact]
     public async Task AGroupNamingOneTagTwiceReadsTheSameValueForBothEntries()
     {
         // Arrange
-        ILogixDataPoint[] dataPoints = [CounterPresetPoint(), CounterPresetPoint()];
+        ILogixDataPoint[] dataPoints = [DIntPoint(), DIntPoint()];
         var group = new LogixDataPointGroup(DefaultPollFrequency, dataPoints);
 
         // Act
         var values = await Client.ReadAsync(group, TestContext.Current.CancellationToken);
 
         // Assert
-        // Reaching this line is itself a check: a read that failed would have thrown.
+        // Reaching this line is itself a check, because a failed read would have thrown.
         values.Should().HaveCount(2);
         values.Select(value => value.Value).Distinct().Should().ContainSingle(
             "both entries read the same tag over the same access");
@@ -103,10 +111,9 @@ public sealed class SharedAccessConcurrencyTests : LogixIntegrationTestBase
             "an unsynchronized shared access collides read against write on its one native buffer");
     }
 
-    private static DIntDataPoint CounterPresetPoint() =>
-        new(TagPath.Parse(BenchControllerTags.CounterPreset), DefaultPollFrequency, NoChannels);
+    private DIntDataPoint DIntPoint() => new(TagPath.Parse(Tags.DInt), DefaultPollFrequency, NoChannels);
 
-    private static Tag NewRawTag() => BenchController.RawTagFor(BenchControllerTags.CounterPreset);
+    private Tag NewRawTag() => TestControllerConfiguration.RawTagFor(Tags.DInt);
 
     // The tag's own current bytes, so every write the probes issue is a no-op on the device.
     private static async Task<byte[]> SeedPayloadAsync(ITagAccess access)

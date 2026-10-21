@@ -3,17 +3,20 @@ using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Arrays.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.Scalars.Integers;
 using ViciOne.Suite.DataPort.AllenBradley.Logix.Model.DataPort.DataPoints.TypeDeclaration;
+using ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Infrastructure;
 using static ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.TestData.LogixDataPointTestDataFactory;
 
 namespace ViciOne.Suite.DataPort.AllenBradley.Logix.Tests.Integration.CompactLogix5X80.Integers;
 
 /// <summary>
-/// One element of each signed integer array as a data point of its own, addressed with a subscript. The
-/// symbol table names no element, so an element resolves to its array's declaration. Every element value
-/// is asymmetric in its bytes, so a mis-sized element cannot agree with the read-back.
+/// The symbol table names no element, so an element resolves to its array's declaration. Every element
+/// value is asymmetric in its bytes, so a mis-sized element cannot agree with the read-back.
 /// </summary>
-public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output)
-    : CompactLogix5X80IntegrationTestBase(output)
+public abstract class IntegerArrayElementIntegrationTests(
+    TestControllerFixture fixture,
+    ITestOutputHelper output,
+    TagScope scope)
+    : CompactLogix5X80IntegrationTestBase(fixture, output, scope)
 {
     private const int ElementIndex = 3;
     private const sbyte SIntElementValue = -56;
@@ -21,52 +24,52 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     private const int DIntElementValue = 123456;
     private const long LIntElementValue = 1234567890123;
 
-    private static readonly SIntArrayDataPoint SIntArray = new(
-        TagPath.Parse(TagAddresses.SIntArray),
+    private SIntArrayDataPoint SIntArray => new(
+        TagPath.Parse(Tags.SIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly SIntDataPoint SIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.SIntArray, ElementIndex)),
+    private SIntDataPoint SIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.SIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly IntArrayDataPoint IntArray = new(
-        TagPath.Parse(TagAddresses.IntArray),
+    private IntArrayDataPoint IntArray => new(
+        TagPath.Parse(Tags.IntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly IntDataPoint IntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.IntArray, ElementIndex)),
+    private IntDataPoint IntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.IntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly DIntArrayDataPoint DIntArray = new(
-        TagPath.Parse(TagAddresses.DIntArray),
+    private DIntArrayDataPoint DIntArray => new(
+        TagPath.Parse(Tags.DIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly DIntDataPoint DIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.DIntArray, ElementIndex)),
+    private DIntDataPoint DIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.DIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
-    private static readonly LIntArrayDataPoint LIntArray = new(
-        TagPath.Parse(TagAddresses.LIntArray),
+    private LIntArrayDataPoint LIntArray => new(
+        TagPath.Parse(Tags.LIntArray),
         DefaultPollFrequency,
         NoChannels,
         TagAddresses.ArrayElementCount);
 
-    private static readonly LIntDataPoint LIntElement = new(
-        TagPath.Parse(TagAddresses.ArrayElement(TagAddresses.LIntArray, ElementIndex)),
+    private LIntDataPoint LIntElement => new(
+        TagPath.Parse(TagAddresses.ArrayElement(Tags.LIntArray, ElementIndex)),
         DefaultPollFrequency,
         NoChannels);
 
     [Fact]
-    public async Task AnSIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AnSIntElementReadsBackAsWritten()
     {
         // Arrange
 
@@ -74,7 +77,8 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
         var roundTripResult = await RoundTripAsync(SIntElement, SIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(SIntElement, AllenBradleyDataType.Sint);
+        var expectedDeclaredType = new DeclaredType(SIntElement.TagAddress, AllenBradleyDataType.Sint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
             new ResolvedDataPoint(SIntElement, expectedDeclaredType),
             SIntElement.CreateLogixValue(SIntElementValue));
@@ -83,7 +87,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task WritingAnSIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAnSIntElementKeepsTheOthers()
     {
         // Arrange
 
@@ -97,7 +101,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task AnIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AnIntElementReadsBackAsWritten()
     {
         // Arrange
 
@@ -105,7 +109,8 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
         var roundTripResult = await RoundTripAsync(IntElement, IntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(IntElement, AllenBradleyDataType.Int);
+        var expectedDeclaredType = new DeclaredType(IntElement.TagAddress, AllenBradleyDataType.Int, MaxLength: null,
+            DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
             new ResolvedDataPoint(IntElement, expectedDeclaredType),
             IntElement.CreateLogixValue(IntElementValue));
@@ -114,7 +119,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task WritingAnIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAnIntElementKeepsTheOthers()
     {
         // Arrange
 
@@ -128,7 +133,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task ADIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AdIntElementReadsBackAsWritten()
     {
         // Arrange
 
@@ -136,7 +141,8 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
         var roundTripResult = await RoundTripAsync(DIntElement, DIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(DIntElement, AllenBradleyDataType.Dint);
+        var expectedDeclaredType = new DeclaredType(DIntElement.TagAddress, AllenBradleyDataType.Dint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
             new ResolvedDataPoint(DIntElement, expectedDeclaredType),
             DIntElement.CreateLogixValue(DIntElementValue));
@@ -145,7 +151,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task WritingADIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAdIntElementKeepsTheOthers()
     {
         // Arrange
 
@@ -159,7 +165,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task AnLIntArrayElementRoundTripsAndIsDeclaredOneElementOfItsArray()
+    public async Task AnLIntElementReadsBackAsWritten()
     {
         // Arrange
 
@@ -167,7 +173,8 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
         var roundTripResult = await RoundTripAsync(LIntElement, LIntElementValue);
 
         // Assert
-        var expectedDeclaredType = ExpectedDeclaredTypes.AtomicScalar(LIntElement, AllenBradleyDataType.Lint);
+        var expectedDeclaredType = new DeclaredType(LIntElement.TagAddress, AllenBradleyDataType.Lint,
+            MaxLength: null, DimensionCount.Scalar, new ElementCount(1));
         var expected = new RoundTripResult(
             new ResolvedDataPoint(LIntElement, expectedDeclaredType),
             LIntElement.CreateLogixValue(LIntElementValue));
@@ -176,7 +183,7 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
     }
 
     [Fact]
-    public async Task WritingAnLIntArrayElementLeavesTheOtherElementsAsTheyWere()
+    public async Task WritingAnLIntElementKeepsTheOthers()
     {
         // Arrange
 
@@ -188,4 +195,10 @@ public sealed class IntegerArrayElementIntegrationTests(ITestOutputHelper output
 
         arrayAfterWrite.Should().Equal(expected);
     }
+
+    public sealed class ControllerScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : IntegerArrayElementIntegrationTests(fixture, output, TagScope.Controller);
+
+    public sealed class ProgramScope(TestControllerFixture fixture, ITestOutputHelper output)
+        : IntegerArrayElementIntegrationTests(fixture, output, TagScope.Program);
 }
